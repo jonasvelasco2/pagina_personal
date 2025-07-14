@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso Privado - Jonás Velasco</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom Styles -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F5F5F5;
+            color: #333333;
+        }
+        .fade-in-section {
+            opacity: 0;
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body class="antialiased flex flex-col min-h-screen">
+
+    <!-- Header & Navigation -->
+    <header class="bg-white/90 backdrop-blur-lg sticky top-0 z-50 border-b border-gray-200">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="index.html" class="text-2xl font-bold text-[#004D40]">Dr. Jonás Velasco</a>
+            <!-- No navigation links needed on login page for simplicity -->
+        </nav>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="container mx-auto px-6 py-12 flex-grow flex items-center justify-center">
+        <div class="fade-in-section w-full max-w-md">
+            <div class="bg-white p-8 rounded-lg shadow-md text-center">
+                <h2 class="text-2xl font-bold mb-4 text-[#004D40]">Acceso a recursos privados</h2>
+                <p class="text-gray-600 mb-6">Por favor, introduce el código de acceso para continuar.</p>
+                
+                <!-- Login Form -->
+                <form id="login-form">
+                    <div class="mb-4">
+                        <label for="passcode" class="sr-only">Código de Acceso:</label>
+                        <input type="password" id="passcode" name="passcode" required
+                               class="w-full bg-gray-100 border border-gray-300 rounded-lg py-3 px-4 text-gray-800 text-center focus:outline-none focus:ring-2 focus:ring-[#00796B] transition-colors"
+                               placeholder="••••••••">
+                    </div>
+                    <p id="error-message" class="text-red-500 text-sm mb-4 hidden">Código incorrecto. Inténtalo de nuevo.</p>
+                    <button type="submit" id="submit-button" class="w-full bg-[#00796B] text-white font-bold py-3 px-8 rounded-lg hover:bg-[#004D40] transition-colors">
+
+                        Acceder
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+
+    <!-- Footer & Contact -->
+    <footer id="contact" class="bg-[#333333] text-white">
+        <div class="container mx-auto px-6 py-10">
+            <div class="text-center">
+             <!--   <h2 class="text-2xl font-bold mb-4">Ponte en Contacto</h2> -->
+                <p class="text-gray-300 mb-2">Si tienes alguna pregunta o te gustaría colaborar, no dudes en escribirme.</p>
+              <!--  <a href="mailto:jvelasco@cimat.mx" class="text-[#80CBC4] text-lg hover:underline">jvelasco@cimat.mx</a> -->
+                <a href="contacto.html" class="text-[#80CBC4] text-lg hover:underline">Contacto</a>
+                <p class="text-gray-500 mt-8 text-sm">&copy; 2025 Jonás Velasco. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginForm = document.getElementById('login-form');
+            const passcodeField = document.getElementById('passcode');
+            const errorMessage = document.getElementById('error-message');
+            const submitButton = document.getElementById('submit-button');
+
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                errorMessage.classList.add('hidden');
+                
+                if (submitButton) {
+                    submitButton.disabled = true;
+                    submitButton.textContent = 'Verificando...';
+                }
+
+                try {
+                    const response = await fetch('/.netlify/functions/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ passcode: passcodeField.value }),
+                    });
+
+                    // **NUEVA VERIFICACIÓN MEJORADA**
+                    const contentType = response.headers.get("content-type");
+                    if (contentType && contentType.indexOf("application/json") !== -1) {
+                        // Si la respuesta es JSON, la procesamos
+                        const data = await response.json();
+                        if (response.ok) {
+                            sessionStorage.setItem('privateAccessGranted', 'true');
+                            window.location.href = 'recursos-privados.html';
+                        } else {
+                            errorMessage.textContent = data.message || "Error desconocido.";
+                            errorMessage.classList.remove('hidden');
+                        }
+                    } else {
+                        // Si no es JSON, es un error más grave (como 404 o 500)
+                        const errorText = await response.text();
+                        console.error("La respuesta del servidor no fue JSON:", errorText);
+                        errorMessage.textContent = `Error del servidor (status: ${response.status}). Revisa la consola para más detalles.`;
+                        errorMessage.classList.remove('hidden');
+                    }
+
+                } catch (error) {
+                    console.error('Error de red al contactar la función:', error);
+                    errorMessage.textContent = 'Error de conexión. ¿Estás seguro de que el sitio está desplegado en Netlify?';
+                    errorMessage.classList.remove('hidden');
+                } finally {
+                    if (submitButton) {
+                        submitButton.disabled = false;
+                        submitButton.textContent = 'Acceder';
+                    }
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
+

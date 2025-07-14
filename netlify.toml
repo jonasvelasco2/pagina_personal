@@ -1,0 +1,9 @@
+# Archivo de configuración para Netlify
+
+[build]
+
+  # Directorio donde Netlify buscará las funciones serverless.
+  command = "# no build command"
+  functions = "netlify/functions"
+  publish = "public"
+

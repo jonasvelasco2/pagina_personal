@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docencia - Dr. Jonás Velasco</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom Styles & Color Palette -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F5F5F5; /* Light Beige/Gray */
+            color: #333333; /* Dark Gray for text */
+        }
+        /* Active link style for navigation */
+        .nav-link.active {
+            color: #00796B; /* Teal for active link */
+            font-weight: 700;
+        }
+    </style>
+</head>
+
+<body class="antialiased flex flex-col min-h-screen">
+
+    <!-- Header & Navigation -->
+    <header class="bg-white/90 backdrop-blur-lg sticky top-0 z-50 border-b border-gray-200">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <!-- Assumes the main page is named index.html -->
+            <a href="index.html" class="text-2xl font-bold text-[#004D40]">Dr. Jonás Velasco</a>
+            
+            <!-- Desktop Navigation -->
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="index.html" class="nav-link text-gray-600 hover:text-[#00796B] transition-colors">Inicio</a>
+                <a href="publicaciones.html" class="nav-link text-gray-600 hover:text-[#00796B] transition-colors">Publicaciones</a>
+                <a href="proyectos.html" class="nav-link text-gray-600 hover:text-[#00796B] transition-colors">Proyectos</a>
+                <a href="recursos.html" class="nav-link active text-gray-600 hover:text-[#00796B] transition-colors">Recursos</a>
+                <a href="contacto.html" class="bg-[#00796B] text-white py-2 px-4 rounded-lg hover:bg-[#004D40] transition-all duration-300 ease-in-out transform hover:scale-105">
+                    Contacto
+                </a>
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <div class="md:hidden">
+                <button id="mobile-menu-button" class="text-gray-800 hover:text-[#00796B] focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                    </svg>
+                </button>
+            </div>
+        </nav>
+        
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-200">
+            <a href="index.html" class="block py-3 px-6 text-sm text-gray-800 hover:bg-gray-100">Inicio</a>
+            <a href="publicaciones.html" class="block py-3 px-6 text-sm text-gray-800 hover:bg-gray-100">Publicaciones</a>
+            <a href="proyectos.html" class="block py-3 px-6 text-sm text-gray-800 hover:bg-gray-100">Proyectos</a>
+            <a href="recursos.html" class="block py-3 px-6 text-sm text-[#00796B] bg-gray-100 font-bold">Recursos</a>
+            <a href="contacto.html" class="block py-3 px-6 text-sm text-gray-800 hover:bg-gray-100">Contacto</a>
+        </div>
+    </header>
+
+     <!-- Main Content Area -->
+    <main class="container mx-auto px-6 py-12 flex-grow">
+        <h2 class="text-3xl font-bold text-center mb-12 text-[#004D40]">Cursos y Materiales</h2>
+        
+        <!-- Grid container for the course cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 max-w-6xl mx-auto">
+            
+            <!-- TARJETA DE CURSO 1 -->
+            <article class="bg-white rounded-xl shadow-lg overflow-hidden transition-shadow duration-300 hover:shadow-2xl flex flex-col">
+                <div class="p-6 md:p-8 flex-grow">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="bg-indigo-100 text-indigo-600 rounded-lg p-3">
+                            <i data-lucide="bar-chart-3" class="w-8 h-8"></i>
+                        </div>
+                        <span class="bg-green-100 text-green-800 text-sm font-semibold px-3 py-1 rounded-full">Licenciatura</span>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-2">Análisis de Datos con Python</h2>
+                    <p class="text-gray-600 mb-4">
+                        Técnicas fundamentales de análisis de datos usando Python, Pandas y herramientas de visualización para extraer insights.
+                    </p>
+                    <div class="flex items-center text-gray-500 text-sm mb-6">
+                        <i data-lucide="clock" class="w-4 h-4 mr-2"></i>
+                        <span>Duración: 45 horas</span>
+                    </div>
+                    <h3 class="font-semibold text-lg mb-3">Materiales Disponibles:</h3>
+                    <ul class="space-y-3">
+                        <li>
+                            <a href="#" target="_blank" class="flex items-center justify-between bg-gray-50 hover:bg-gray-100 p-3 rounded-lg border border-l-4 border-l-blue-500 transition-colors duration-200">
+                                <div class="flex items-center"><i data-lucide="play-circle" class="w-5 h-5 mr-3 text-blue-600"></i><span class="font-medium text-gray-800">Introducción</span></div>
+                                <div class="text-sm text-gray-500 font-mono">IPYNB, 466 KB</div>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" target="_blank" class="flex items-center justify-between bg-gray-50 hover:bg-gray-100 p-3 rounded-lg border border-l-4 border-l-purple-500 transition-colors duration-200">
+                                <div class="flex items-center"><i data-lucide="file-code-2" class="w-5 h-5 mr-3 text-purple-600"></i><span class="font-medium text-gray-800">NumPy y Matplotlib</span></div>
+                                <div class="text-sm text-gray-500 font-mono">IPYNB, 48 KB</div>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </article>
+
+            <!-- TARJETA DE CURSO 2 -->
+            <article class="bg-white rounded-xl shadow-lg overflow-hidden transition-shadow duration-300 hover:shadow-2xl flex flex-col">
+                <div class="p-6 md:p-8 flex-grow">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="bg-rose-100 text-rose-600 rounded-lg p-3">
+                            <i data-lucide="brain-circuit" class="w-8 h-8"></i>
+                        </div>
+                        <span class="bg-sky-100 text-sky-800 text-sm font-semibold px-3 py-1 rounded-full">Posgrado</span>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-2">Machine Learning Aplicado</h2>
+                    <p class="text-gray-600 mb-4">
+                        Exploración de modelos de clasificación, regresión y clustering con Scikit-Learn para resolver problemas del mundo real.
+                    </p>
+                    <div class="flex items-center text-gray-500 text-sm mb-6">
+                        <i data-lucide="clock" class="w-4 h-4 mr-2"></i>
+                        <span>Duración: 60 horas</span>
+                    </div>
+                    <h3 class="font-semibold text-lg mb-3">Materiales Disponibles:</h3>
+                    <ul class="space-y-3">
+                        <li>
+                            <a href="#" target="_blank" class="flex items-center justify-between bg-gray-50 hover:bg-gray-100 p-3 rounded-lg border border-l-4 border-l-blue-500 transition-colors duration-200">
+                                <div class="flex items-center"><i data-lucide="file-text" class="w-5 h-5 mr-3 text-blue-600"></i><span class="font-medium text-gray-800">Notas de Regresión Lineal</span></div>
+                                <div class="text-sm text-gray-500 font-mono">PDF, 1.2 MB</div>
+                            </a>
+                        </li>
+                         <li>
+                            <a href="#" target="_blank" class="flex items-center justify-between bg-gray-50 hover:bg-gray-100 p-3 rounded-lg border border-l-4 border-l-gray-500 transition-colors duration-200">
+                                <div class="flex items-center"><i data-lucide="github" class="w-5 h-5 mr-3 text-gray-800"></i><span class="font-medium text-gray-800">Repositorio del Curso</span></div>
+                                <div class="text-sm text-gray-500 font-mono">URL</div>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </article>
+
+            <!-- TARJETA DE CURSO 3 -->
+            <article class="bg-white rounded-xl shadow-lg overflow-hidden transition-shadow duration-300 hover:shadow-2xl flex flex-col">
+                <div class="p-6 md:p-8 flex-grow">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="bg-amber-100 text-amber-600 rounded-lg p-3">
+                            <i data-lucide="database" class="w-8 h-8"></i>
+                        </div>
+                        <span class="bg-green-100 text-green-800 text-sm font-semibold px-3 py-1 rounded-full">Licenciatura</span>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-2">Bases de Datos Relacionales</h2>
+                    <p class="text-gray-600 mb-4">
+                        Diseño e implementación de bases de datos. Modelado Entidad-Relación y consultas avanzadas con SQL.
+                    </p>
+                    <div class="flex items-center text-gray-500 text-sm mb-6">
+                        <i data-lucide="clock" class="w-4 h-4 mr-2"></i>
+                        <span>Duración: 40 horas</span>
+                    </div>
+                    <h3 class="font-semibold text-lg mb-3">Materiales Disponibles:</h3>
+                    <ul class="space-y-3">
+                        <li>
+                            <a href="#" target="_blank" class="flex items-center justify-between bg-gray-50 hover:bg-gray-100 p-3 rounded-lg border border-l-4 border-l-orange-500 transition-colors duration-200">
+                                <div class="flex items-center"><i data-lucide="presentation" class="w-5 h-5 mr-3 text-orange-600"></i><span class="font-medium text-gray-800">Presentación: Modelo E-R</span></div>
+                                <div class="text-sm text-gray-500 font-mono">PPTX, 3.4 MB</div>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" target="_blank" class="flex items-center justify-between bg-gray-50 hover:bg-gray-100 p-3 rounded-lg border border-l-4 border-l-purple-500 transition-colors duration-200">
+                                <div class="flex items-center"><i data-lucide="file-code-2" class="w-5 h-5 mr-3 text-purple-600"></i><span class="font-medium text-gray-800">Ejercicios SQL</span></div>
+                                <div class="text-sm text-gray-500 font-mono">ZIP, 87 KB</div>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </article>
+
+            <!-- TARJETA DE CURSO 4 -->
+            <article class="bg-white rounded-xl shadow-lg overflow-hidden transition-shadow duration-300 hover:shadow-2xl flex flex-col">
+                <div class="p-6 md:p-8 flex-grow">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="bg-teal-100 text-teal-600 rounded-lg p-3">
+                            <i data-lucide="line-chart" class="w-8 h-8"></i>
+                        </div>
+                        <span class="bg-sky-100 text-sky-800 text-sm font-semibold px-3 py-1 rounded-full">Posgrado</span>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-2">Optimización y Simulación</h2>
+                    <p class="text-gray-600 mb-4">
+                       Modelado de problemas de optimización y aplicación de métodos de simulación para la toma de decisiones.
+                    </p>
+                    <div class="flex items-center text-gray-500 text-sm mb-6">
+                        <i data-lucide="clock" class="w-4 h-4 mr-2"></i>
+                        <span>Duración: 50 horas</span>
+                    </div>
+                    <h3 class="font-semibold text-lg mb-3">Materiales Disponibles:</h3>
+                    <ul class="space-y-3">
+                        <li>
+                            <a href="#" target="_blank" class="flex items-center justify-between bg-gray-50 hover:bg-gray-100 p-3 rounded-lg border border-l-4 border-l-blue-500 transition-colors duration-200">
+                                <div class="flex items-center"><i data-lucide="file-text" class="w-5 h-5 mr-3 text-blue-600"></i><span class="font-medium text-gray-800">Notas: Simulación Montecarlo</span></div>
+                                <div class="text-sm text-gray-500 font-mono">PDF, 850 KB</div>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </article>
+
+        </div>
+    </main>
+
+    <!-- Footer (from your provided file) -->
+    <footer class="bg-[#333333] text-white">
+        <div class="container mx-auto px-6 py-10">
+            <div class="text-center">
+                <p class="text-gray-300 mb-2">Si tienes alguna pregunta o te gustaría colaborar, no dudes en escribirme.</p>
+                <a href="contacto.html" class="text-[#80CBC4] text-lg hover:underline">Contacto</a>
+                <p class="text-gray-500 mt-8 text-sm">&copy; 2025 Jonás Velasco. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Mobile menu script
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            // Lucide Icons activation
+            lucide.createIcons();
+        });
+    </script>
+
+</body>
+</html>
+
