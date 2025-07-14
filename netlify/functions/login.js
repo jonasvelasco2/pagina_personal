@@ -29,12 +29,14 @@ exports.handler = async function(event, context) {
         console.log("Acceso CONCEDIDO.");
         return {
             statusCode: 200,
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ message: "Acceso concedido" })
         };
     } else {
         console.log("Acceso DENEGADO. Código incorrecto.");
         return {
             statusCode: 401, // No autorizado
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ message: "Acceso denegado. El código es incorrecto." })
         };
     }
