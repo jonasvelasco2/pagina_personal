@@ -181,6 +181,7 @@
             // Modal elements
             const resultsModal = document.getElementById('results-modal');
             const modalContent = document.getElementById('modal-content');
+            const winnerMessageEl = document.getElementById('winner-message');
             const userFinalValueEl = document.getElementById('user-final-value');
             const userFinalWeightEl = document.getElementById('user-final-weight');
             const gaFinalValueEl = document.getElementById('ga-final-value');
@@ -190,7 +191,7 @@
 
             // --- ESTADO DE LA APLICACIÓN ---
             let items = [];
-            let knapsackItems = new Map(); // Usamos un Map para manejar fácilmente los items por ID
+            let knapsackItems = new Map();
 
             // --- GENERACIÓN DE ITEMS ---
             function generateItems() {
@@ -199,17 +200,12 @@
                 let totalWeightOfAllItems = 0;
                 
                 for (let i = 0; i < numItems; i++) {
-                    const weight = Math.floor(Math.random() * 25) + 5; // Peso entre 5 y 29
-                    const value = Math.floor(Math.random() * 80) + 20; // Valor entre 20 y 99
-                    items.push({
-                        id: `item-${i}`,
-                        weight: weight,
-                        value: value,
-                    });
+                    const weight = Math.floor(Math.random() * 25) + 5;
+                    const value = Math.floor(Math.random() * 80) + 20;
+                    items.push({ id: `item-${i}`, weight, value });
                     totalWeightOfAllItems += weight;
                 }
                 
-                // La capacidad máxima es el 50% del peso total de todos los items para que sea un reto.
                 maxWeight = Math.floor(totalWeightOfAllItems * 0.5);
             }
             
@@ -275,7 +271,7 @@
                         knapsackItems.set(draggedItemId, itemData);
                         this.appendChild(draggedElement);
                     }
-                } else { // Dropped back into items container
+                } else {
                     if (knapsackItems.has(draggedItemId)) {
                         knapsackItems.delete(draggedItemId);
                         this.appendChild(draggedElement);
@@ -297,11 +293,9 @@
                 currentWeightEl.textContent = `${totalWeight} kg`;
                 currentValueEl.textContent = totalValue;
 
-                // Update weight bar
                 const weightPercentage = Math.min((totalWeight / maxWeight) * 100, 100);
                 weightBar.style.width = `${weightPercentage}%`;
 
-                // Visual feedback for exceeding weight
                 if (totalWeight > maxWeight) {
                     currentWeightEl.classList.add('weight-exceeded');
                     weightBar.classList.remove('bg-indigo-600');
@@ -324,28 +318,20 @@
             
             function runGeneticAlgorithm() {
                 const startTime = performance.now();
-
-                // 1. Create initial population
                 let population = [];
                 for (let i = 0; i < GA_CONFIG.populationSize; i++) {
-                    let chromosome = [];
-                    for (let j = 0; j < items.length; j++) {
-                        chromosome.push(Math.random() < 0.5 ? 1 : 0);
-                    }
+                    let chromosome = Array.from({ length: items.length }, () => Math.random() < 0.5 ? 1 : 0);
                     population.push(chromosome);
                 }
 
                 let bestSolution = { chromosome: [], fitness: 0 };
 
-                // Evolution loop
                 for (let gen = 0; gen < GA_CONFIG.generations; gen++) {
-                    // 2. Evaluate fitness
                     let evaluatedPopulation = population.map(chromosome => ({
                         chromosome,
                         fitness: calculateFitness(chromosome)
                     }));
                     
-                    // Update best solution found so far
                     evaluatedPopulation.forEach(individual => {
                         if (individual.fitness > bestSolution.fitness) {
                             bestSolution = individual;
@@ -353,27 +339,16 @@
                     });
 
                     let newPopulation = [];
-                    
-                    // Elitism: carry over the best individual
                     if (bestSolution.chromosome.length > 0) {
                         newPopulation.push(bestSolution.chromosome);
                     }
 
                     while (newPopulation.length < GA_CONFIG.populationSize) {
-                        // 3. Selection (Tournament)
                         const parent1 = tournamentSelection(evaluatedPopulation);
                         const parent2 = tournamentSelection(evaluatedPopulation);
 
-                        // 4. Crossover
-                        let child1, child2;
-                        if (Math.random() < GA_CONFIG.crossoverRate) {
-                            [child1, child2] = crossover(parent1, parent2);
-                        } else {
-                            child1 = [...parent1];
-                            child2 = [...parent2];
-                        }
+                        let [child1, child2] = (Math.random() < GA_CONFIG.crossoverRate) ? crossover(parent1, parent2) : [[...parent1], [...parent2]];
                         
-                        // 5. Mutation
                         mutate(child1);
                         mutate(child2);
                         
@@ -397,11 +372,7 @@
                         totalValue += items[i].value;
                     }
                 }
-                // Penalize solutions that exceed max weight
-                if (totalWeight > maxWeight) {
-                    return 0;
-                }
-                return totalValue;
+                return totalWeight > maxWeight ? 0 : totalValue;
             }
 
             function tournamentSelection(evaluatedPopulation) {
@@ -423,7 +394,7 @@
             function mutate(chromosome) {
                 for (let i = 0; i < chromosome.length; i++) {
                     if (Math.random() < GA_CONFIG.mutationRate) {
-                        chromosome[i] = 1 - chromosome[i]; // Flip bit
+                        chromosome[i] = 1 - chromosome[i];
                     }
                 }
             }
@@ -435,13 +406,10 @@
                 loadingText.classList.remove('hidden');
 
                 setTimeout(() => {
-                    const { bestSolution, timeTaken } = runGeneticAlgorithm();
-                    
-                    // Display results
-                    displayResults(bestSolution, timeTaken);
-                    
+                    const result = runGeneticAlgorithm();
+                    displayResults(result);
                     loadingText.classList.add('hidden');
-                }, 50); // Small timeout to allow UI to update
+                }, 50);
             });
             
             resetButton.addEventListener('click', initialize);
@@ -455,7 +423,7 @@
                 }, 300);
             });
 
-            function displayResults(gaSolution, timeTaken) {
+            function displayResults({ bestSolution, timeTaken }) {
                 // User's solution
                 let userWeight = 0;
                 let userValue = 0;
@@ -464,21 +432,20 @@
                     userValue += item.value;
                 });
                 if (userWeight > maxWeight) {
-                    userValue = 0; // Invalid solution
+                    userValue = 0; // Invalid solution has 0 value
                 }
                 userFinalValueEl.textContent = userValue;
                 userFinalWeightEl.textContent = `${userWeight} kg / ${maxWeight} kg`;
 
                 // GA's solution
+                const gaValue = bestSolution.fitness;
                 let gaWeight = 0;
-                let gaValue = 0;
                 knapsackContainer.innerHTML = ''; // Clear user's items
-                if (gaSolution.chromosome.length > 0) {
-                    for (let i = 0; i < gaSolution.chromosome.length; i++) {
-                        if (gaSolution.chromosome[i] === 1) {
+                if (bestSolution.chromosome.length > 0) {
+                    for (let i = 0; i < bestSolution.chromosome.length; i++) {
+                        if (bestSolution.chromosome[i] === 1) {
                             const item = items[i];
                             gaWeight += item.weight;
-                            gaValue += item.value;
                             const itemEl = createItemElement(item);
                             itemEl.classList.add('item-in-knapsack');
                             knapsackContainer.appendChild(itemEl);
@@ -488,6 +455,18 @@
                 gaFinalValueEl.textContent = gaValue;
                 gaFinalWeightEl.textContent = `${gaWeight} kg / ${maxWeight} kg`;
                 gaTimeEl.textContent = `Calculado en ${timeTaken} segundos.`;
+
+                // Determine and display winner
+                if (userValue > gaValue) {
+                    winnerMessageEl.innerHTML = '🏆 ¡Felicidades, has ganado! 🏆';
+                    winnerMessageEl.className = 'text-center text-2xl font-bold my-4 p-4 rounded-lg bg-green-100 text-green-800';
+                } else if (gaValue > userValue) {
+                    winnerMessageEl.innerHTML = '🤖 El Algoritmo ha ganado 🤖';
+                    winnerMessageEl.className = 'text-center text-2xl font-bold my-4 p-4 rounded-lg bg-indigo-100 text-indigo-800';
+                } else {
+                    winnerMessageEl.innerHTML = '🤝 ¡Es un empate! 🤝';
+                    winnerMessageEl.className = 'text-center text-2xl font-bold my-4 p-4 rounded-lg bg-slate-100 text-slate-800';
+                }
 
                 // Show modal
                 resultsModal.classList.remove('hidden');
@@ -499,7 +478,7 @@
             // --- INICIALIZACIÓN ---
             function initialize() {
                 knapsackItems.clear();
-                generateItems(); // Esto ahora también calcula maxWeight
+                generateItems();
                 renderItems();
                 setupDropZones();
                 maxWeightDisplayEl.textContent = `${maxWeight} kg`;
