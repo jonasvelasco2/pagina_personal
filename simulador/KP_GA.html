@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador: Problema de la Mochila</title>
+    <title>El problema de la mochila</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -131,8 +131,12 @@
     <!-- Results Modal -->
     <div id="results-modal" class="modal-overlay hidden">
         <div class="bg-white rounded-xl shadow-2xl p-8 max-w-2xl w-full mx-4 transform transition-all duration-300 scale-95 opacity-0" id="modal-content">
-            <h2 class="text-3xl font-bold text-center mb-6">Resultados de la Simulación</h2>
+            <h2 class="text-3xl font-bold text-center mb-4">Resultados de la Simulación</h2>
             
+            <div id="winner-message" class="text-center text-2xl font-bold my-4 p-4 rounded-lg">
+                <!-- Winner message will be injected here -->
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-center">
                 <!-- User's Result -->
                 <div class="bg-slate-100 p-6 rounded-lg">
