@@ -20,13 +20,16 @@
             transform: scale(1.05);
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
-        .machine-lane {
+        .drop-target {
             border: 2px dashed #cbd5e1;
-            transition: background-color 0.2s ease;
+            transition: all 0.2s ease;
         }
-        .machine-lane.drag-over {
+        .drop-target.drag-over {
             background-color: #e2e8f0;
             border-color: #4f46e5;
+        }
+        #unassigned-jobs-container.drag-over {
+             border-color: #f59e0b; /* Amber color for unassigned area */
         }
         .gantt-bar {
             position: absolute;
@@ -147,7 +150,8 @@
         const resetBtn = document.getElementById('reset-btn');
         const timeMatrixContainer = document.getElementById('time-matrix-container');
         const simulationSection = document.getElementById('simulation-section');
-        const unassignedJobsContainer = document.getElementById('unassigned-jobs');
+        const unassignedJobsContainer = document.getElementById('unassigned-jobs-container');
+        const unassignedJobsList = document.getElementById('unassigned-jobs');
         const studentLanesContainer = document.getElementById('student-lanes');
         const aiLanesContainer = document.getElementById('ai-lanes');
         const studentMakespanEl = document.getElementById('student-makespan');
@@ -158,18 +162,15 @@
         const aiResultBanner = document.getElementById('ai-result-banner');
 
         // --- CORE FUNCTIONS ---
-
         function generateTimeMatrixTable() {
             jobCount = parseInt(numJobsInput.value);
             machineCount = parseInt(numMachinesInput.value);
-
             let table = '<table class="min-w-full divide-y divide-gray-200 border border-gray-300 rounded-lg">';
             table += '<thead class="bg-gray-100"><tr><th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Orden / Máquina</th>';
             for (let m = 1; m <= machineCount; m++) {
                 table += `<th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Máquina ${m}</th>`;
             }
             table += '</tr></thead><tbody class="bg-white divide-y divide-gray-200">';
-
             for (let j = 1; j <= jobCount; j++) {
                 table += `<tr><td class="px-4 py-2 whitespace-nowrap font-medium text-gray-800">Orden ${j}</td>`;
                 for (let m = 1; m <= machineCount; m++) {
@@ -187,8 +188,7 @@
             if (!timeMatrixContainer.querySelector('table')) {
                 generateTimeMatrixTable();
             }
-            const inputs = document.querySelectorAll('.time-input');
-            inputs.forEach(input => {
+            document.querySelectorAll('.time-input').forEach(input => {
                 input.value = Math.floor(Math.random() * 20) + 5;
             });
             initializeSimulation();
@@ -202,20 +202,17 @@
                 const time = parseInt(input.value) || 0;
                 if (time > 0) timeMatrix[job][machine] = time;
             });
-
             jobColors = {};
             const colors = ['#ef4444', '#f97316', '#eab308', '#84cc16', '#22c55e', '#14b8a6', '#06b6d4', '#3b82f6', '#8b5cf6', '#d946ef', '#ec4899', '#78716c', '#f43f5e', '#a16207', '#65a30d'];
             for (let i = 0; i < jobCount; i++) {
                 jobColors[i] = colors[i % colors.length];
             }
-
             studentSchedule = {};
             aiSchedule = {};
             for (let i = 0; i < machineCount; i++) {
                 studentSchedule[i] = [];
                 aiSchedule[i] = [];
             }
-            
             renderUnassignedJobs();
             renderAllLanes();
             updateAllMakespans();
@@ -223,18 +220,17 @@
         }
 
         function renderUnassignedJobs() {
-            unassignedJobsContainer.innerHTML = '';
+            unassignedJobsList.innerHTML = '';
             const assignedJobs = new Set(Object.values(studentSchedule).flat());
             for (let i = 0; i < jobCount; i++) {
                 if (!assignedJobs.has(i)) {
                     const jobEl = document.createElement('div');
-                    jobEl.id = `job-${i}`;
                     jobEl.className = 'job p-2 rounded-lg font-semibold text-white shadow-md';
                     jobEl.style.backgroundColor = jobColors[i];
                     jobEl.textContent = `Orden ${i + 1}`;
                     jobEl.draggable = true;
-                    jobEl.addEventListener('dragstart', handleDragStart);
-                    unassignedJobsContainer.appendChild(jobEl);
+                    jobEl.dataset.jobId = i;
+                    unassignedJobsList.appendChild(jobEl);
                 }
             }
         }
@@ -243,10 +239,8 @@
             const studentMakespan = calculateMakespan(studentSchedule);
             const aiMakespan = calculateMakespan(aiSchedule);
             const maxMakespan = Math.max(1, studentMakespan, aiMakespan);
-
             studentLanesContainer.innerHTML = renderLanes('student', studentSchedule, maxMakespan);
             aiLanesContainer.innerHTML = renderLanes('ai', aiSchedule, maxMakespan);
-
             addDragAndDropListeners();
         }
 
@@ -255,8 +249,8 @@
             for (let i = 0; i < machineCount; i++) {
                 html += `
                     <div class="mb-2">
-                        <h4 class="font-semibold text-gray-600">Máquina ${i + 1}</h4>
-                        <div id="${type}-lane-${i}" class="machine-lane mt-1 p-1 rounded-lg bg-gray-100 gantt-container">
+                        <h4 class="font-semibold text-gray-600 pointer-events-none">Máquina ${i + 1}</h4>
+                        <div id="${type}-lane-${i}" class="machine-lane drop-target mt-1 p-1 rounded-lg bg-gray-100 gantt-container">
                             ${renderGanttBars(schedule[i] || [], i, maxMakespan)}
                         </div>
                     </div>
@@ -273,9 +267,10 @@
                 if (jobTime > 0) {
                     const width = (jobTime / maxMakespan) * 100;
                     const left = (currentTime / maxMakespan) * 100;
+                    // Gantt bars are now draggable jobs themselves
                     html += `
-                        <div class="gantt-bar" style="background-color: ${jobColors[jobId]}; width: ${width}%; left: ${left}%;">
-                           <span class="px-2">Orden ${jobId + 1} (${jobTime})</span>
+                        <div class="gantt-bar job" draggable="true" data-job-id="${jobId}" style="background-color: ${jobColors[jobId]}; width: ${width}%; left: ${left}%;">
+                           <span class="px-2 pointer-events-none">Orden ${jobId + 1} (${jobTime})</span>
                         </div>
                     `;
                     currentTime += jobTime;
@@ -298,8 +293,9 @@
             aiMakespanEl.textContent = calculateMakespan(aiSchedule);
         }
 
+        // --- DRAG & DROP HANDLERS ---
         function handleDragStart(e) {
-            e.dataTransfer.setData('text/plain', e.target.id);
+            e.dataTransfer.setData('text/plain', e.target.dataset.jobId);
             e.dataTransfer.effectAllowed = 'move';
         }
 
@@ -313,20 +309,33 @@
             this.classList.remove('drag-over');
         }
 
-        function handleDrop(e) {
+        function handleDropOnMachine(e) {
             e.preventDefault();
             this.classList.remove('drag-over');
-            
-            const jobId = parseInt(e.dataTransfer.getData('text/plain').replace('job-', ''));
+            const jobId = parseInt(e.dataTransfer.getData('text/plain'));
             if (!this.id.startsWith('student-lane-')) return;
             const machineId = parseInt(this.id.replace('student-lane-', ''));
-
+            // Remove job from any previous machine
             for (const m in studentSchedule) {
                 const index = studentSchedule[m].indexOf(jobId);
                 if (index > -1) studentSchedule[m].splice(index, 1);
             }
             studentSchedule[machineId].push(jobId);
-
+            renderUnassignedJobs();
+            renderAllLanes();
+            updateAllMakespans();
+            clearGamificationBanners();
+        }
+        
+        function handleDropOnUnassigned(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+            const jobId = parseInt(e.dataTransfer.getData('text/plain'));
+            // Remove job from any machine it might be on
+            for (const m in studentSchedule) {
+                const index = studentSchedule[m].indexOf(jobId);
+                if (index > -1) studentSchedule[m].splice(index, 1);
+            }
             renderUnassignedJobs();
             renderAllLanes();
             updateAllMakespans();
@@ -334,11 +343,20 @@
         }
 
         function addDragAndDropListeners() {
-            document.querySelectorAll('#student-lanes .machine-lane').forEach(lane => {
+            // Add drag start to all jobs (unassigned and in gantt)
+            document.querySelectorAll('.job').forEach(job => {
+                job.addEventListener('dragstart', handleDragStart);
+            });
+            // Add drop listeners to machine lanes
+            document.querySelectorAll('#student-lanes .drop-target').forEach(lane => {
                 lane.addEventListener('dragover', handleDragOver);
                 lane.addEventListener('dragleave', handleDragLeave);
-                lane.addEventListener('drop', handleDrop);
+                lane.addEventListener('drop', handleDropOnMachine);
             });
+            // Add drop listeners to the unassigned container
+            unassignedJobsContainer.addEventListener('dragover', handleDragOver);
+            unassignedJobsContainer.addEventListener('dragleave', handleDragLeave);
+            unassignedJobsContainer.addEventListener('drop', handleDropOnUnassigned);
         }
         
         function runOptimization() {
@@ -347,11 +365,9 @@
             aiLanesContainer.classList.add('hidden');
             aiMakespanEl.textContent = '...';
             clearGamificationBanners();
-
             setTimeout(() => {
                 aiSchedule = {};
                 for (let i = 0; i < machineCount; i++) aiSchedule[i] = [];
-
                 const machineTimes = Array(machineCount).fill(0);
                 for (let j = 0; j < jobCount; j++) {
                     let bestMachine = -1;
@@ -366,11 +382,9 @@
                     aiSchedule[bestMachine].push(j);
                     machineTimes[bestMachine] += timeMatrix[j][bestMachine];
                 }
-
                 renderAllLanes();
                 updateAllMakespans();
                 updateGamificationStatus();
-                
                 aiSpinner.classList.add('hidden');
                 aiLanesContainer.classList.remove('hidden');
                 optimizeBtn.disabled = false;
@@ -380,14 +394,11 @@
         function updateGamificationStatus() {
             const studentResult = calculateMakespan(studentSchedule);
             const aiResult = calculateMakespan(aiSchedule);
-
             clearGamificationBanners();
-
             if (aiResult > 0 && Object.values(studentSchedule).flat().length === jobCount) {
                 let studentBannerHTML, aiBannerHTML;
                 let studentBannerClass = 'p-2 rounded-lg text-center font-bold text-white transition-all duration-500 ';
                 let aiBannerClass = 'p-2 rounded-lg text-center font-bold text-white transition-all duration-500 ';
-
                 if (studentResult < aiResult) {
                     studentBannerClass += 'bg-green-500';
                     aiBannerClass += 'bg-red-500';
