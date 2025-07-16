@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planificación de la producción</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+        }
+        .job {
+            transition: all 0.2s ease-in-out;
+            cursor: grab;
+        }
+        .job:active {
+            cursor: grabbing;
+            transform: scale(1.05);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .machine-lane {
+            border: 2px dashed #cbd5e1;
+            transition: background-color 0.2s ease;
+        }
+        .machine-lane.drag-over {
+            background-color: #e2e8f0;
+            border-color: #4f46e5;
+        }
+        .gantt-bar {
+            position: absolute;
+            height: 100%;
+            border-radius: 0.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            color: white;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .gantt-container {
+            position: relative;
+            height: 40px;
+            background: repeating-linear-gradient(
+                90deg,
+                #e2e8f0,
+                #e2e8f0 1px,
+                transparent 1px,
+                transparent 10%
+            );
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto bg-white rounded-2xl shadow-xl p-6 md:p-8">
+        
+        <header class="mb-8 text-center">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800">Planifica la producción</h1>
+            <p class="text-gray-500 mt-2">Arrastra las órdenes a las máquinas y compara tu resultado con la optimización de un algoritmo inteligente.</p>
+        </header>
+
+        <!-- Sección de Configuración del Problema -->
+        <div id="setup-section" class="mb-8 p-6 bg-gray-50 rounded-xl border border-gray-200">
+            <h2 class="text-xl font-bold text-gray-700 mb-4">1. Configuración del problema</h2>
+            <div class="flex flex-wrap gap-4 items-end">
+                <div>
+                    <label for="num-jobs" class="block text-sm font-medium text-gray-600">Órdenes de trabajo</label>
+                    <input type="number" id="num-jobs" value="6" min="1" max="15" class="mt-1 block w-24 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                </div>
+                <div>
+                    <label for="num-machines" class="block text-sm font-medium text-gray-600">Máquinas</label>
+                    <input type="number" id="num-machines" value="3" min="1" max="10" class="mt-1 block w-24 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                </div>
+                <button id="generate-problem-btn" class="bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg shadow hover:bg-indigo-700 transition-colors">Generar Tabla</button>
+                <button id="random-times-btn" class="bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg shadow hover:bg-gray-700 transition-colors">Tiempos Aleatorios</button>
+                <button id="reset-btn" class="bg-amber-500 text-white font-semibold py-2 px-4 rounded-lg shadow hover:bg-amber-600 transition-colors">Reiniciar</button>
+            </div>
+            <div id="time-matrix-container" class="mt-6 overflow-x-auto"></div>
+        </div>
+
+        <!-- Sección de Simulación -->
+        <div id="simulation-section" class="grid grid-cols-1 lg:grid-cols-2 gap-8 hidden">
+            
+            <!-- Panel del Alumno -->
+            <div class="p-6 bg-blue-50 rounded-xl border border-blue-200">
+                <h2 class="text-xl font-bold text-gray-700 mb-4">2. Tu planificación manual</h2>
+                
+                <div id="unassigned-jobs-container" class="mb-6 p-4 bg-white rounded-lg min-h-[80px]">
+                    <h3 class="font-semibold text-gray-600 mb-2">Órdenes sin asignar:</h3>
+                    <div id="unassigned-jobs" class="flex flex-wrap gap-2"></div>
+                </div>
+
+                <div id="student-lanes" class="space-y-4"></div>
+
+                <div class="mt-6 p-4 bg-white rounded-lg shadow-inner">
+                    <h3 class="font-bold text-lg text-indigo-800">Tu resultado:</h3>
+                    <p class="text-2xl font-bold text-indigo-600"><span id="student-makespan">0</span> unidades de tiempo</p>
+                    <div id="student-result-banner" class="mt-3"></div>
+                </div>
+            </div>
+
+            <!-- Panel del Algoritmo -->
+            <div class="p-6 bg-green-50 rounded-xl border border-green-200">
+                <h2 class="text-xl font-bold text-gray-700 mb-4">3. Optimización por un algoritmo inteligente</h2>
+                <button id="optimize-btn" class="w-full bg-green-600 text-white font-bold py-3 px-4 rounded-lg shadow hover:bg-green-700 transition-transform transform hover:scale-105 mb-6">
+                    ¡Optimizar con IA!
+                </button>
+                
+                <div id="ai-lanes" class="space-y-4"></div>
+                
+                <div class="mt-6 p-4 bg-white rounded-lg shadow-inner">
+                    <h3 class="font-bold text-lg text-green-800">Resultado del algoritmo:</h3>
+                    <p class="text-2xl font-bold text-green-600"><span id="ai-makespan">0</span> unidades de tiempo</p>
+                    <div id="ai-result-banner" class="mt-3"></div>
+                </div>
+                 <div id="ai-spinner" class="hidden text-center p-8">
+                    <svg class="animate-spin h-8 w-8 text-green-600 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <p class="mt-2 text-green-700 font-semibold">Optimizando...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- GLOBAL STATE ---
+        let jobCount = 6;
+        let machineCount = 3;
+        let timeMatrix = [];
+        let jobColors = {};
+        let studentSchedule = {};
+        let aiSchedule = {};
+
+        // --- DOM ELEMENTS ---
+        const numJobsInput = document.getElementById('num-jobs');
+        const numMachinesInput = document.getElementById('num-machines');
+        const generateBtn = document.getElementById('generate-problem-btn');
+        const randomTimesBtn = document.getElementById('random-times-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const timeMatrixContainer = document.getElementById('time-matrix-container');
+        const simulationSection = document.getElementById('simulation-section');
+        const unassignedJobsContainer = document.getElementById('unassigned-jobs');
+        const studentLanesContainer = document.getElementById('student-lanes');
+        const aiLanesContainer = document.getElementById('ai-lanes');
+        const studentMakespanEl = document.getElementById('student-makespan');
+        const aiMakespanEl = document.getElementById('ai-makespan');
+        const optimizeBtn = document.getElementById('optimize-btn');
+        const aiSpinner = document.getElementById('ai-spinner');
+        const studentResultBanner = document.getElementById('student-result-banner');
+        const aiResultBanner = document.getElementById('ai-result-banner');
+
+        // --- CORE FUNCTIONS ---
+
+        function generateTimeMatrixTable() {
+            jobCount = parseInt(numJobsInput.value);
+            machineCount = parseInt(numMachinesInput.value);
+
+            let table = '<table class="min-w-full divide-y divide-gray-200 border border-gray-300 rounded-lg">';
+            table += '<thead class="bg-gray-100"><tr><th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Orden / Máquina</th>';
+            for (let m = 1; m <= machineCount; m++) {
+                table += `<th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Máquina ${m}</th>`;
+            }
+            table += '</tr></thead><tbody class="bg-white divide-y divide-gray-200">';
+
+            for (let j = 1; j <= jobCount; j++) {
+                table += `<tr><td class="px-4 py-2 whitespace-nowrap font-medium text-gray-800">Orden ${j}</td>`;
+                for (let m = 1; m <= machineCount; m++) {
+                    table += `<td class="p-1"><input type="number" class="time-input w-full text-center rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" data-job="${j-1}" data-machine="${m-1}" value="0" min="1"></td>`;
+                }
+                table += '</tr>';
+            }
+            table += '</tbody></table>';
+            timeMatrixContainer.innerHTML = table;
+            simulationSection.classList.remove('hidden');
+            initializeSimulation();
+        }
+
+        function fillRandomTimes() {
+            if (!timeMatrixContainer.querySelector('table')) {
+                generateTimeMatrixTable();
+            }
+            const inputs = document.querySelectorAll('.time-input');
+            inputs.forEach(input => {
+                input.value = Math.floor(Math.random() * 20) + 5;
+            });
+            initializeSimulation();
+        }
+
+        function initializeSimulation() {
+            timeMatrix = Array(jobCount).fill(0).map(() => Array(machineCount).fill(0));
+            document.querySelectorAll('.time-input').forEach(input => {
+                const job = parseInt(input.dataset.job);
+                const machine = parseInt(input.dataset.machine);
+                const time = parseInt(input.value) || 0;
+                if (time > 0) timeMatrix[job][machine] = time;
+            });
+
+            jobColors = {};
+            const colors = ['#ef4444', '#f97316', '#eab308', '#84cc16', '#22c55e', '#14b8a6', '#06b6d4', '#3b82f6', '#8b5cf6', '#d946ef', '#ec4899', '#78716c', '#f43f5e', '#a16207', '#65a30d'];
+            for (let i = 0; i < jobCount; i++) {
+                jobColors[i] = colors[i % colors.length];
+            }
+
+            studentSchedule = {};
+            aiSchedule = {};
+            for (let i = 0; i < machineCount; i++) {
+                studentSchedule[i] = [];
+                aiSchedule[i] = [];
+            }
+            
+            renderUnassignedJobs();
+            renderAllLanes();
+            updateAllMakespans();
+            clearGamificationBanners();
+        }
+
+        function renderUnassignedJobs() {
+            unassignedJobsContainer.innerHTML = '';
+            const assignedJobs = new Set(Object.values(studentSchedule).flat());
+            for (let i = 0; i < jobCount; i++) {
+                if (!assignedJobs.has(i)) {
+                    const jobEl = document.createElement('div');
+                    jobEl.id = `job-${i}`;
+                    jobEl.className = 'job p-2 rounded-lg font-semibold text-white shadow-md';
+                    jobEl.style.backgroundColor = jobColors[i];
+                    jobEl.textContent = `Orden ${i + 1}`;
+                    jobEl.draggable = true;
+                    jobEl.addEventListener('dragstart', handleDragStart);
+                    unassignedJobsContainer.appendChild(jobEl);
+                }
+            }
+        }
+
+        function renderAllLanes() {
+            const studentMakespan = calculateMakespan(studentSchedule);
+            const aiMakespan = calculateMakespan(aiSchedule);
+            const maxMakespan = Math.max(1, studentMakespan, aiMakespan);
+
+            studentLanesContainer.innerHTML = renderLanes('student', studentSchedule, maxMakespan);
+            aiLanesContainer.innerHTML = renderLanes('ai', aiSchedule, maxMakespan);
+
+            addDragAndDropListeners();
+        }
+
+        function renderLanes(type, schedule, maxMakespan) {
+            let html = '';
+            for (let i = 0; i < machineCount; i++) {
+                html += `
+                    <div class="mb-2">
+                        <h4 class="font-semibold text-gray-600">Máquina ${i + 1}</h4>
+                        <div id="${type}-lane-${i}" class="machine-lane mt-1 p-1 rounded-lg bg-gray-100 gantt-container">
+                            ${renderGanttBars(schedule[i] || [], i, maxMakespan)}
+                        </div>
+                    </div>
+                `;
+            }
+            return html;
+        }
+
+        function renderGanttBars(jobs, machineId, maxMakespan) {
+            let html = '';
+            let currentTime = 0;
+            jobs.forEach(jobId => {
+                const jobTime = timeMatrix[jobId][machineId];
+                if (jobTime > 0) {
+                    const width = (jobTime / maxMakespan) * 100;
+                    const left = (currentTime / maxMakespan) * 100;
+                    html += `
+                        <div class="gantt-bar" style="background-color: ${jobColors[jobId]}; width: ${width}%; left: ${left}%;">
+                           <span class="px-2">Orden ${jobId + 1} (${jobTime})</span>
+                        </div>
+                    `;
+                    currentTime += jobTime;
+                }
+            });
+            return html;
+        }
+
+        function calculateMakespan(schedule) {
+            let maxTime = 0;
+            for (const machineId in schedule) {
+                const machineTime = schedule[machineId].reduce((sum, jobId) => sum + timeMatrix[jobId][parseInt(machineId)], 0);
+                if (machineTime > maxTime) maxTime = machineTime;
+            }
+            return maxTime;
+        }
+
+        function updateAllMakespans() {
+            studentMakespanEl.textContent = calculateMakespan(studentSchedule);
+            aiMakespanEl.textContent = calculateMakespan(aiSchedule);
+        }
+
+        function handleDragStart(e) {
+            e.dataTransfer.setData('text/plain', e.target.id);
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            this.classList.add('drag-over');
+        }
+
+        function handleDragLeave(e) {
+            this.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+            
+            const jobId = parseInt(e.dataTransfer.getData('text/plain').replace('job-', ''));
+            if (!this.id.startsWith('student-lane-')) return;
+            const machineId = parseInt(this.id.replace('student-lane-', ''));
+
+            for (const m in studentSchedule) {
+                const index = studentSchedule[m].indexOf(jobId);
+                if (index > -1) studentSchedule[m].splice(index, 1);
+            }
+            studentSchedule[machineId].push(jobId);
+
+            renderUnassignedJobs();
+            renderAllLanes();
+            updateAllMakespans();
+            clearGamificationBanners();
+        }
+
+        function addDragAndDropListeners() {
+            document.querySelectorAll('#student-lanes .machine-lane').forEach(lane => {
+                lane.addEventListener('dragover', handleDragOver);
+                lane.addEventListener('dragleave', handleDragLeave);
+                lane.addEventListener('drop', handleDrop);
+            });
+        }
+        
+        function runOptimization() {
+            optimizeBtn.disabled = true;
+            aiSpinner.classList.remove('hidden');
+            aiLanesContainer.classList.add('hidden');
+            aiMakespanEl.textContent = '...';
+            clearGamificationBanners();
+
+            setTimeout(() => {
+                aiSchedule = {};
+                for (let i = 0; i < machineCount; i++) aiSchedule[i] = [];
+
+                const machineTimes = Array(machineCount).fill(0);
+                for (let j = 0; j < jobCount; j++) {
+                    let bestMachine = -1;
+                    let minCompletionTime = Infinity;
+                    for (let m = 0; m < machineCount; m++) {
+                        const completionTime = machineTimes[m] + timeMatrix[j][m];
+                        if (completionTime < minCompletionTime) {
+                            minCompletionTime = completionTime;
+                            bestMachine = m;
+                        }
+                    }
+                    aiSchedule[bestMachine].push(j);
+                    machineTimes[bestMachine] += timeMatrix[j][bestMachine];
+                }
+
+                renderAllLanes();
+                updateAllMakespans();
+                updateGamificationStatus();
+                
+                aiSpinner.classList.add('hidden');
+                aiLanesContainer.classList.remove('hidden');
+                optimizeBtn.disabled = false;
+            }, 1500);
+        }
+
+        function updateGamificationStatus() {
+            const studentResult = calculateMakespan(studentSchedule);
+            const aiResult = calculateMakespan(aiSchedule);
+
+            clearGamificationBanners();
+
+            if (aiResult > 0 && Object.values(studentSchedule).flat().length === jobCount) {
+                let studentBannerHTML, aiBannerHTML;
+                let studentBannerClass = 'p-2 rounded-lg text-center font-bold text-white transition-all duration-500 ';
+                let aiBannerClass = 'p-2 rounded-lg text-center font-bold text-white transition-all duration-500 ';
+
+                if (studentResult < aiResult) {
+                    studentBannerClass += 'bg-green-500';
+                    aiBannerClass += 'bg-red-500';
+                    studentBannerHTML = '🏆 ¡Ganaste! 🏆';
+                    aiBannerHTML = '¡Superado!';
+                } else if (studentResult > aiResult) {
+                    studentBannerClass += 'bg-red-500';
+                    aiBannerClass += 'bg-green-500';
+                    studentBannerHTML = '¡Intenta de nuevo!';
+                    aiBannerHTML = '🏆 ¡Algoritmo Gana! 🏆';
+                } else {
+                    studentBannerClass += 'bg-blue-500';
+                    aiBannerClass += 'bg-blue-500';
+                    studentBannerHTML = '¡Es un empate!';
+                    aiBannerHTML = '¡Es un empate!';
+                }
+                studentResultBanner.className = studentBannerClass;
+                aiResultBanner.className = aiBannerClass;
+                studentResultBanner.innerHTML = studentBannerHTML;
+                aiResultBanner.innerHTML = aiBannerHTML;
+            }
+        }
+        
+        function clearGamificationBanners() {
+            studentResultBanner.innerHTML = '';
+            aiResultBanner.innerHTML = '';
+            studentResultBanner.className = 'mt-3';
+            aiResultBanner.className = 'mt-3';
+        }
+
+        // --- EVENT LISTENERS ---
+        generateBtn.addEventListener('click', generateTimeMatrixTable);
+        randomTimesBtn.addEventListener('click', fillRandomTimes);
+        optimizeBtn.addEventListener('click', runOptimization);
+        resetBtn.addEventListener('click', initializeSimulation);
+
+        // --- INITIALIZATION ---
+        window.onload = () => {
+            generateTimeMatrixTable();
+            fillRandomTimes();
+        };
+    </script>
+</body>
+</html>
+
