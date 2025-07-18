@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planifica las rutas de los vehículos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .timeline-bg {
+            background-image: repeating-linear-gradient(to right, #e5e7eb 0, #e5e7eb 1px, transparent 1px, transparent 10%);
+        }
+        .visit-block, .travel-block {
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .dragging {
+            opacity: 0.5;
+            transform: scale(1.05);
+        }
+        .drop-zone {
+            transition: background-color 0.2s ease;
+        }
+        .drop-zone.drag-over {
+            background-color: rgba(34, 197, 94, 0.1);
+            border-style: dashed;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <div class="container mx-auto p-4 md:p-8">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-slate-900">Planifica las rutas de los vehículos</h1>
+            <p class="mt-2 text-lg text-slate-600">Vence a la solución de un algoritmo inteligente</p>
+        </header>
+
+        <!-- Sección de Instrucciones -->
+        <div class="bg-blue-50 border border-blue-200 p-3 rounded-2xl shadow-lg mb-8">
+            <button id="toggle-instructions-btn" class="w-full flex justify-between items-center text-left focus:outline-none">
+                <h2 class="text-2xl font-bold text-blue-500">Instrucciones del juego</h2>
+                <svg id="instructions-arrow" class="w-6 h-6 transform transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+            </button>
+            <div id="instructions-content" class="mt-4 text-slate-700 space-y-4 hidden">
+                <div>
+                    <h3 class="text-lg font-bold text-slate-800">🎯 Objetivo</h3>
+                    <p>Asignar todos los clientes a los vehículos para crear las rutas más eficientes y obtener la mayor <strong>puntuación de eficiencia</strong> posible.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-slate-800">룰 Sistema de puntuación</h3>
+                    <ul class="list-disc list-inside space-y-2">
+                        <li>Tu objetivo es maximizar la <strong>puntuación de eficiencia</strong>.</li>
+                        <li>Esta puntuación se calcula a partir del <strong>costo de viaje</strong> total. A <strong>menor costo</strong>, ¡mayor será tu puntuación!</li>
+                        <li><strong>¡Regla de Oro!</strong> Debes asignar a <strong>TODOS</strong> los clientes. Si dejas a uno sin asignar, tu puntuación de eficiencia será <strong>CERO</strong> al momento de comparar.</li>
+                        <li>Las violaciones (llegar tarde a un cliente o trabajar fuera de horario) aumentan el costo y, por lo tanto, reducen drásticamente tu puntuación.</li>
+                    </ul>
+                </div>
+                 <div>
+                    <h3 class="text-lg font-bold text-slate-800">🚀 El Desafío</h3>
+                     <p>Cuando tengas tu solución, haz clic en "¡Optimizar con IA!". El simulador comparará tu puntuación de eficiencia con la de la IA. ¡Intenta superarla!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de configuración -->
+        <div class="bg-white p-6 rounded-2xl shadow-lg mb-8">
+            <h2 class="text-2xl font-bold mb-4">Configuración del escenario</h2>
+            <div class="grid md:grid-cols-3 gap-6 items-end">
+                <div>
+                    <label for="num-vehicles-input" class="block text-sm font-medium text-slate-700">Número de vehículos</label>
+                    <input type="number" id="num-vehicles-input" value="2" min="1" max="10" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                </div>
+                <div>
+                    <label for="num-visits-input" class="block text-sm font-medium text-slate-700">Número de clientes (Visitas)</label>
+                    <input type="number" id="num-visits-input" value="6" min="1" max="50" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                </div>
+                <button id="update-scenario-btn" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-slate-300">
+                    Actualizar Simulador
+                </button>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl shadow-lg mb-8">
+            <h2 class="text-2xl font-bold mb-4">Tu solución manual</h2>
+            <p class="mb-4 text-slate-600">Arrastra y suelta las visitas para crear y modificar las rutas.</p>
+            <div id="manual-solution">
+                <!-- El contenido de la solución manual se generará aquí -->
+            </div>
+            <div class="mt-6">
+                <h3 class="text-xl font-semibold">Visitas no asignadas</h3>
+                <div id="unassigned-visits-manual" class="mt-4 p-4 bg-slate-100 rounded-lg min-h-[80px] flex flex-wrap gap-3 drop-zone">
+                    <!-- Las visitas no asignadas se generarán aquí -->
+                </div>
+            </div>
+             <div class="mt-6 text-right">
+                <p class="text-lg">Costo de viaje: <span id="manual-cost" class="font-bold text-slate-700">0</span> min</p>
+                <p class="text-2xl font-bold">Puntuación de eficiencia: <span id="manual-score" class="text-blue-600">0</span></p>
+            </div>
+        </div>
+
+        <div class="text-center my-8">
+            <button id="run-ga-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-md transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                ¡Optimizar con IA!
+            </button>
+            <div id="ga-loader" class="hidden mt-4">
+                <div class="flex justify-center items-center">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                    <span class="ml-3 text-slate-600">Calculando la mejor ruta...</span>
+                </div>
+            </div>
+        </div>
+        
+        <div id="comparison-container" class="my-8 hidden">
+            <div id="comparison-result" class="text-center p-6 bg-white rounded-2xl shadow-lg text-2xl md:text-3xl font-bold">
+                <!-- El resultado de la comparación irá aquí -->
+            </div>
+        </div>
+
+        <div id="ga-results-container" class="bg-white p-6 rounded-2xl shadow-lg hidden">
+            <h2 class="text-2xl font-bold mb-4">Solución del algoritmo</h2>
+            <div id="ga-solution">
+                <!-- El contenido de la solución del GA se generará aquí -->
+            </div>
+            <div class="mt-6 text-right">
+                <p class="text-lg">Costo de viaje: <span id="ga-cost" class="font-bold text-slate-700">0</span> min</p>
+                <p class="text-2xl font-bold">Puntuación de eficiencia: <span id="ga-score" class="text-green-600">0</span></p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- CONFIGURACIÓN INICIAL ---
+        const CONFIG = {
+            WORK_START_MINS: 8 * 60, // 08:00
+            WORK_END_MINS: 18 * 60,  // 18:00
+            VEHICLE_SPEED: 1, // unidades de distancia por minuto
+            GA_POPULATION_SIZE: 50,
+            GA_GENERATIONS: 100,
+            GA_MUTATION_RATE: 0.1,
+            GA_ELITISM_RATE: 0.1,
+        };
+
+        let manualState;
+
+        // --- GENERACIÓN DE DATOS DINÁMICA ---
+        function generateInitialData(numVehicles, numVisits) {
+            const data = {
+                depot: { x: 50, y: 50 },
+                visits: {},
+                vehicles: []
+            };
+
+            for (let i = 1; i <= numVisits; i++) {
+                const visitId = `C${i}`;
+                const duration = Math.floor(Math.random() * 45) + 20;
+                const twStart = CONFIG.WORK_START_MINS + Math.floor(Math.random() * (3 * 60));
+                const twEnd = Math.min(CONFIG.WORK_END_MINS, twStart + duration + Math.floor(Math.random() * (4 * 60)) + 60);
+                const timeWindowSpan = twEnd - twStart;
+                const points = Math.round(duration + Math.max(0, 180 - timeWindowSpan));
+
+                data.visits[visitId] = {
+                    id: visitId, name: `Cliente ${i}`, x: Math.random() * 100, y: Math.random() * 100,
+                    duration: duration, tw_start: twStart, tw_end: twEnd, points: points
+                };
+            }
+
+            for (let i = 1; i <= numVehicles; i++) {
+                data.vehicles.push({ id: `v${i}`, name: `Vehículo ${i}`, route: [] });
+            }
+            return data;
+        }
+
+        // --- FUNCIONES DE UTILIDAD ---
+        const formatTime = (totalMinutes) => {
+            const hours = Math.floor(totalMinutes / 60).toString().padStart(2, '0');
+            const minutes = (totalMinutes % 60).toString().padStart(2, '0');
+            return `${hours}:${minutes}`;
+        };
+
+        const calculateDistance = (p1, p2) => Math.hypot(p1.x - p2.x, p1.y - p2.y);
+        
+        const calculateEfficiencyScore = (cost) => {
+             if (cost >= 10000) { 
+                return 0;
+            }
+            return Math.round(500000 / (cost + 1));
+        }
+
+        // --- LÓGICA DE CÁLCULO DE RUTA ---
+        function calculateSchedule(route, depot, visits) {
+            const schedule = [];
+            let currentTime = CONFIG.WORK_START_MINS;
+            let lastLocation = depot;
+            let totalTravelTime = 0;
+            let totalCost = 0;
+
+            for (const visitId of route) {
+                const visit = visits[visitId];
+                if (!visit) continue;
+
+                const travelTime = Math.round(calculateDistance(lastLocation, visit) / CONFIG.VEHICLE_SPEED);
+                totalTravelTime += travelTime;
+                
+                const arrivalTime = currentTime + travelTime;
+                
+                if (travelTime > 0) {
+                    schedule.push({ type: 'travel', start: currentTime, end: arrivalTime });
+                }
+                
+                const waitTime = Math.max(0, visit.tw_start - arrivalTime);
+                const serviceStartTime = arrivalTime + waitTime;
+                const serviceEndTime = serviceStartTime + visit.duration;
+
+                const isLate = arrivalTime > visit.tw_end;
+                const exceedsWorkday = serviceEndTime > CONFIG.WORK_END_MINS;
+                const violation = isLate || exceedsWorkday;
+
+                schedule.push({
+                    type: 'visit', id: visit.id, name: visit.name, start: serviceStartTime, end: serviceEndTime,
+                    violation: violation, details: `Llegada: ${formatTime(arrivalTime)}, Ventana: ${formatTime(visit.tw_start)}-${formatTime(visit.tw_end)}`
+                });
+
+                currentTime = serviceEndTime;
+                lastLocation = visit;
+            }
+            
+            const travelBackTime = Math.round(calculateDistance(lastLocation, depot) / CONFIG.VEHICLE_SPEED);
+            if (route.length > 0) {
+                 totalTravelTime += travelBackTime;
+                 const arrivalAtDepot = currentTime + travelBackTime;
+                 if(travelBackTime > 0) {
+                    schedule.push({ type: 'travel', start: currentTime, end: arrivalAtDepot });
+                 }
+                 if (arrivalAtDepot > CONFIG.WORK_END_MINS) {
+                     totalCost += (arrivalAtDepot - CONFIG.WORK_END_MINS) * 10;
+                 }
+            }
+            
+            totalCost += totalTravelTime;
+            schedule.filter(s => s.type === 'visit' && s.violation).forEach(() => totalCost += 1000);
+
+            return { schedule, totalTravelTime, totalCost };
+        }
+
+        // --- FUNCIONES DE RENDERIZADO ---
+        function renderTimeline(containerId, state) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+
+            const totalDuration = CONFIG.WORK_END_MINS - CONFIG.WORK_START_MINS;
+            
+            const timelineHeader = document.createElement('div');
+            timelineHeader.className = 'flex items-center mb-2';
+            timelineHeader.innerHTML = `<div class="w-32 md:w-40"></div><div class="flex-1 relative h-6">${
+                Array.from({length: 11}, (_, i) => i + 8).map(hour => 
+                    `<div class="absolute" style="left: ${((hour - 8) / 10) * 100}%"><span class="text-xs text-slate-500">${hour.toString().padStart(2, '0')}:00</span></div>`
+                ).join('')
+            }</div>`;
+            container.appendChild(timelineHeader);
+            
+            let totalSystemTravelCost = 0;
+            let totalSystemViolationCost = 0;
+
+            state.vehicles.forEach(vehicle => {
+                const vehicleRow = document.createElement('div');
+                vehicleRow.className = 'flex items-center mb-4';
+
+                const vehicleLabel = document.createElement('div');
+                vehicleLabel.className = 'w-32 md:w-40 font-semibold pr-4 truncate';
+                vehicleLabel.innerHTML = `<span class="inline-block align-middle"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-1" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 8a2 2 0 00-2-2H4a2 2 0 00-2 2v4a2 2 0 002 2h1v2a2 2 0 002 2h8a2 2 0 002-2v-2h1a2 2 0 002-2V8zm-2 4H4V8h12v4z" clip-rule="evenodd" /></svg>${vehicle.name}</span>`;
+                vehicleRow.appendChild(vehicleLabel);
+
+                const timeline = document.createElement('div');
+                timeline.className = 'flex-1 h-16 bg-slate-200 rounded-lg relative timeline-bg drop-zone';
+                timeline.dataset.vehicleId = vehicle.id;
+
+                const { schedule, totalTravelTime, totalCost } = calculateSchedule(vehicle.route, state.depot, state.visits);
+                totalSystemTravelCost += totalTravelTime;
+                totalSystemViolationCost += (totalCost - totalTravelTime);
+
+                schedule.forEach(item => {
+                    const left = ((item.start - CONFIG.WORK_START_MINS) / totalDuration) * 100;
+                    const width = Math.max(0.2, ((item.end - item.start) / totalDuration) * 100);
+                    
+                    const block = document.createElement('div');
+                    block.className = 'absolute top-2 h-12 rounded-md flex items-center justify-center text-white text-xs font-bold overflow-hidden px-1';
+                    block.style.left = `${left}%`;
+                    block.style.width = `${width}%`;
+                    block.title = `${item.name} | ${item.details || ''}`;
+
+                    if (item.type === 'visit') {
+                        block.className += ' visit-block cursor-grab active:cursor-grabbing';
+                        block.style.backgroundColor = item.violation ? '#ef4444' : '#2563eb';
+                        block.innerHTML = `<span>${item.id}</span>`;
+                        if (containerId === 'manual-solution') {
+                            block.draggable = true;
+                            block.dataset.visitId = item.id;
+                        }
+                    } else {
+                        block.className += ' travel-block';
+                        block.style.backgroundColor = '#94a3b8';
+                        if (width > 3) block.innerHTML = `<span>Viaje</span>`;
+                    }
+                    timeline.appendChild(block);
+                });
+                
+                vehicleRow.appendChild(timeline);
+                container.appendChild(vehicleRow);
+            });
+            
+            const costElementId = containerId === 'manual-solution' ? 'manual-cost' : 'ga-cost';
+            const scoreElementId = containerId === 'manual-solution' ? 'manual-score' : 'ga-score';
+            
+            document.getElementById(costElementId).textContent = Math.round(totalSystemTravelCost);
+
+            let scoreCalculationCost = totalSystemTravelCost + totalSystemViolationCost;
+            if (containerId === 'manual-solution') {
+                const assignedIds = new Set(state.vehicles.flatMap(v => v.route));
+                const unassignedCount = Object.keys(state.visits).length - assignedIds.size;
+                if (unassignedCount > 0) {
+                    scoreCalculationCost += unassignedCount * 10000;
+                }
+            }
+            
+            document.getElementById(scoreElementId).textContent = calculateEfficiencyScore(scoreCalculationCost);
+        }
+
+        function renderUnassignedVisits(state) {
+            const container = document.getElementById('unassigned-visits-manual');
+            container.innerHTML = '';
+            const assignedIds = new Set(state.vehicles.flatMap(v => v.route));
+            const unassignedIds = Object.keys(state.visits).filter(id => !assignedIds.has(id));
+
+            unassignedIds.forEach(visitId => {
+                const visit = state.visits[visitId];
+                const visitEl = document.createElement('div');
+                visitEl.id = `visit-${visit.id}`;
+                visitEl.className = 'visit-block bg-white p-3 rounded-lg shadow cursor-grab active:cursor-grabbing';
+                visitEl.draggable = true;
+                visitEl.dataset.visitId = visit.id;
+                visitEl.title = `Ventana de atención: ${formatTime(visit.tw_start)} - ${formatTime(visit.tw_end)}`;
+                visitEl.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <span class="font-semibold">${visit.name} (${visit.id})</span>
+                        <span class="font-bold text-amber-500">${visit.points} pts</span>
+                    </div>
+                    <span class="text-xs text-slate-500">Dur: ${visit.duration}m</span><br>
+                    <span class="text-xs text-slate-500">Ventana: ${formatTime(visit.tw_start)}-${formatTime(visit.tw_end)}</span>
+                `;
+                container.appendChild(visitEl);
+            });
+        }
+
+        function rerenderManualSolution() {
+            renderTimeline('manual-solution', manualState);
+            renderUnassignedVisits(manualState);
+            addDragAndDropListeners();
+        }
+
+        // --- LÓGICA DE DRAG AND DROP ---
+        function addDragAndDropListeners() {
+            document.querySelectorAll('[draggable="true"]').forEach(el => {
+                el.addEventListener('dragstart', handleDragStart);
+                el.addEventListener('dragend', handleDragEnd);
+            });
+            document.querySelectorAll('.drop-zone').forEach(el => {
+                el.addEventListener('dragover', handleDragOver);
+                el.addEventListener('dragleave', handleDragLeave);
+                el.addEventListener('drop', handleDrop);
+            });
+        }
+
+        let draggedElement = null;
+
+        function handleDragStart(e) {
+            // e.currentTarget refers to the element the listener was attached to.
+            // This is safer than e.target which can be a child element.
+            const draggableElement = e.currentTarget;
+            if (draggableElement && draggableElement.dataset.visitId) {
+                draggedElement = draggableElement;
+                e.dataTransfer.setData('text/plain', draggableElement.dataset.visitId);
+                setTimeout(() => draggableElement.classList.add('dragging'), 0);
+            }
+        }
+
+        function handleDragEnd(e) {
+            if(draggedElement) {
+                draggedElement.classList.remove('dragging');
+                draggedElement = null;
+            }
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('drag-over');
+        }
+        
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+            const visitId = e.dataTransfer.getData('text/plain');
+            if (!visitId) return;
+
+            const targetVehicleId = e.currentTarget.dataset.vehicleId;
+            
+            manualState.vehicles.forEach(v => {
+                v.route = v.route.filter(id => id !== visitId);
+            });
+
+            if (targetVehicleId) {
+                const vehicle = manualState.vehicles.find(v => v.id === targetVehicleId);
+                if (vehicle) {
+                    vehicle.route.push(visitId);
+                }
+            }
+            rerenderManualSolution();
+        }
+
+        // --- LÓGICA DEL ALGORITMO GENÉTICO ---
+        function runGeneticAlgorithm() {
+            if (!manualState || Object.keys(manualState.visits).length === 0) {
+                console.error("Por favor, genera un escenario primero.");
+                return;
+            }
+            document.getElementById('ga-loader').classList.remove('hidden');
+            document.getElementById('run-ga-btn').disabled = true;
+            document.getElementById('comparison-container').classList.add('hidden');
+            
+            rerenderManualSolution();
+
+            setTimeout(() => {
+                const allVisitIds = Object.keys(manualState.visits);
+                
+                let population = [];
+                for (let i = 0; i < CONFIG.GA_POPULATION_SIZE; i++) {
+                    population.push(createRandomIndividual(allVisitIds, manualState.vehicles.length));
+                }
+
+                for (let gen = 0; gen < CONFIG.GA_GENERATIONS; gen++) {
+                    const populationWithFitness = population.map(individual => ({
+                        individual,
+                        fitness: 1 / (calculateTotalCost(individual, manualState.depot, manualState.visits) + 1)
+                    }));
+                    
+                    populationWithFitness.sort((a, b) => b.fitness - a.fitness);
+
+                    const newPopulation = [];
+                    const eliteCount = Math.floor(CONFIG.GA_POPULATION_SIZE * CONFIG.GA_ELITISM_RATE);
+                    for (let i = 0; i < eliteCount; i++) {
+                        newPopulation.push(populationWithFitness[i].individual);
+                    }
+                    
+                    while (newPopulation.length < CONFIG.GA_POPULATION_SIZE) {
+                        const parent1 = selectParent(populationWithFitness).individual;
+                        const parent2 = selectParent(populationWithFitness).individual;
+                        let child = crossover(parent1, parent2);
+                        if (Math.random() < CONFIG.GA_MUTATION_RATE) {
+                            child = mutate(child);
+                        }
+                        newPopulation.push(child);
+                    }
+                    population = newPopulation;
+                }
+
+                const finalPopulationWithFitness = population.map(individual => ({
+                    individual,
+                    cost: calculateTotalCost(individual, manualState.depot, manualState.visits)
+                }));
+                finalPopulationWithFitness.sort((a, b) => a.cost - b.cost);
+                const bestIndividual = finalPopulationWithFitness[0].individual;
+
+                const gaState = {
+                    ...manualState,
+                    vehicles: bestIndividual.map((route, i) => ({
+                        ...manualState.vehicles[i],
+                        route: route
+                    }))
+                };
+                
+                renderTimeline('ga-solution', gaState);
+                document.getElementById('ga-results-container').classList.remove('hidden');
+                document.getElementById('ga-loader').classList.add('hidden');
+                document.getElementById('run-ga-btn').disabled = false;
+                
+                const manualScore = parseInt(document.getElementById('manual-score').textContent);
+                const gaScore = parseInt(document.getElementById('ga-score').textContent);
+                const comparisonContainer = document.getElementById('comparison-container');
+                const comparisonResult = document.getElementById('comparison-result');
+                
+                if (manualScore === 0) {
+                     comparisonResult.innerHTML = '<span class="text-red-600">⚠️ ¡No asignaste todos los clientes!</span>';
+                } else if (gaScore > manualScore) {
+                    comparisonResult.innerHTML = '<span class="text-green-600">🏆 ¡El algoritmo genético encontró una mejor solución!</span>';
+                } else if (manualScore > gaScore) {
+                    comparisonResult.innerHTML = '<span class="text-amber-500">🎉 ¡Felicidades! ¡Superaste al algoritmo!</span>';
+                } else {
+                    comparisonResult.innerHTML = '<span class="text-blue-600">🤝 ¡Empate! Una solución tan buena como la del algoritmo.</span>';
+                }
+                comparisonContainer.classList.remove('hidden');
+
+            }, 50);
+        }
+
+        function calculateTotalCost(individual, depot, visits) {
+            return individual.reduce((total, route) => {
+                return total + calculateSchedule(route, depot, visits).totalCost;
+            }, 0);
+        }
+
+        function createRandomIndividual(visitIds, numVehicles) {
+            const shuffledVisits = [...visitIds].sort(() => 0.5 - Math.random());
+            const individual = Array.from({ length: numVehicles }, () => []);
+            shuffledVisits.forEach(visitId => {
+                const vehicleIndex = Math.floor(Math.random() * numVehicles);
+                individual[vehicleIndex].push(visitId);
+            });
+            return individual;
+        }
+
+        function selectParent(populationWithFitness) {
+            const tournamentSize = 5;
+            let best = null;
+            for (let i = 0; i < tournamentSize; i++) {
+                const randomIndividual = populationWithFitness[Math.floor(Math.random() * populationWithFitness.length)];
+                if (best === null || randomIndividual.fitness > best.fitness) {
+                    best = randomIndividual;
+                }
+            }
+            return best;
+        }
+
+        function crossover(parent1, parent2) {
+            const child = parent1.map((route, i) => {
+                const p2Route = parent2[i] || [];
+                const cutPoint = Math.floor(Math.random() * (route.length + 1));
+                const newRoute = route.slice(0, cutPoint);
+                p2Route.forEach(visit => {
+                    if (!newRoute.includes(visit)) {
+                        newRoute.push(visit);
+                    }
+                });
+                return newRoute;
+            });
+
+            const allVisits = Object.keys(manualState.visits);
+            const assignedVisits = new Set(child.flat());
+            const unassigned = allVisits.filter(v => !assignedVisits.has(v));
+            
+            unassigned.forEach(v => {
+                child[Math.floor(Math.random() * child.length)].push(v);
+            });
+            
+            const finalChild = child.map(() => []);
+            const added = new Set();
+            child.forEach((route, vehicleIndex) => {
+                route.forEach(visit => {
+                    if(!added.has(visit)){
+                        finalChild[vehicleIndex].push(visit);
+                        added.add(visit);
+                    }
+                })
+            });
+
+            return finalChild;
+        }
+
+        function mutate(individual) {
+            const mutatedIndividual = JSON.parse(JSON.stringify(individual));
+            const mutationType = Math.random();
+
+            if (mutationType < 0.5 && mutatedIndividual.flat().length >= 2) { // Swap
+                const routeIndex = Math.floor(Math.random() * mutatedIndividual.length);
+                const route = mutatedIndividual[routeIndex];
+                if (route.length >= 2) {
+                    const i = Math.floor(Math.random() * route.length);
+                    let j = Math.floor(Math.random() * route.length);
+                    while (i === j) { j = Math.floor(Math.random() * route.length); }
+                    [route[i], route[j]] = [route[j], route[i]];
+                }
+            } else { // Move
+                const fromRouteIndex = Math.floor(Math.random() * mutatedIndividual.length);
+                if (mutatedIndividual[fromRouteIndex].length > 0) {
+                    const visitIndex = Math.floor(Math.random() * mutatedIndividual[fromRouteIndex].length);
+                    const [visit] = mutatedIndividual[fromRouteIndex].splice(visitIndex, 1);
+                    const toRouteIndex = Math.floor(Math.random() * mutatedIndividual.length);
+                    mutatedIndividual[toRouteIndex].push(visit);
+                }
+            }
+            return mutatedIndividual;
+        }
+
+        // --- INICIALIZACIÓN ---
+        function initializeApp() {
+            const numVehicles = document.getElementById('num-vehicles-input').value;
+            const numVisits = document.getElementById('num-visits-input').value;
+            manualState = generateInitialData(parseInt(numVehicles), parseInt(numVisits));
+            
+            document.getElementById('ga-results-container').classList.add('hidden');
+            document.getElementById('comparison-container').classList.add('hidden');
+            document.getElementById('ga-solution').innerHTML = '';
+            document.getElementById('ga-cost').textContent = '0';
+            document.getElementById('ga-score').textContent = '0';
+
+            rerenderManualSolution();
+        }
+
+        document.getElementById('toggle-instructions-btn').addEventListener('click', () => {
+            const content = document.getElementById('instructions-content');
+            const arrow = document.getElementById('instructions-arrow');
+            content.classList.toggle('hidden');
+            arrow.classList.toggle('rotate-180');
+        });
+
+        document.getElementById('update-scenario-btn').addEventListener('click', initializeApp);
+        document.getElementById('run-ga-btn').addEventListener('click', runGeneticAlgorithm);
+        
+        // Carga inicial
+        initializeApp();
+    });
+    </script>
+</body>
+</html>
+
