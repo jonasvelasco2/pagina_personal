@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Planifica las rutas de los vehículos</title>
+    <title>Simulador de Ruteo de Vehículos (VRP) con Algoritmo Genético</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -57,6 +57,7 @@
                         <li>Tu objetivo es maximizar la <strong>puntuación de eficiencia</strong>.</li>
                         <li>Esta puntuación se calcula a partir del <strong>costo de viaje</strong> total. A <strong>menor costo</strong>, ¡mayor será tu puntuación!</li>
                         <li><strong>¡Regla de Oro!</strong> Debes asignar a <strong>TODOS</strong> los clientes. Si dejas a uno sin asignar, tu puntuación de eficiencia será <strong>CERO</strong> al momento de comparar.</li>
+                        <li>Los bloques de visita en <span class="font-bold text-red-500">color rojo</span> en la línea de tiempo indican una violación de la ventana horaria. ¡Evítalos!</li>
                         <li>Las violaciones (llegar tarde a un cliente o trabajar fuera de horario) aumentan el costo y, por lo tanto, reducen drásticamente tu puntuación.</li>
                     </ul>
                 </div>
@@ -260,9 +261,12 @@
             const timelineHeader = document.createElement('div');
             timelineHeader.className = 'flex items-center mb-2';
             timelineHeader.innerHTML = `<div class="w-32 md:w-40"></div><div class="flex-1 relative h-6">${
-                Array.from({length: 11}, (_, i) => i + 8).map(hour => 
-                    `<div class="absolute" style="left: ${((hour - 8) / 10) * 100}%"><span class="text-xs text-slate-500">${hour.toString().padStart(2, '0')}:00</span></div>`
-                ).join('')
+                Array.from({length: 11}, (_, i) => {
+                    const hour = i + 8;
+                    // On small screens, hide odd-numbered hours to prevent overlap. Show all on medium screens and up.
+                    const visibilityClass = (hour > 8 && hour < 18 && hour % 2 !== 0) ? 'hidden md:block' : 'block';
+                    return `<div class="absolute ${visibilityClass}" style="left: ${((hour - 8) / 10) * 100}%"><span class="text-xs text-slate-500">${hour.toString().padStart(2, '0')}:00</span></div>`
+                }).join('')
             }</div>`;
             container.appendChild(timelineHeader);
             
@@ -381,8 +385,6 @@
         let draggedElement = null;
 
         function handleDragStart(e) {
-            // e.currentTarget refers to the element the listener was attached to.
-            // This is safer than e.target which can be a child element.
             const draggableElement = e.currentTarget;
             if (draggableElement && draggableElement.dataset.visitId) {
                 draggedElement = draggableElement;
@@ -502,7 +504,7 @@
                 if (manualScore === 0) {
                      comparisonResult.innerHTML = '<span class="text-red-600">⚠️ ¡No asignaste todos los clientes!</span>';
                 } else if (gaScore > manualScore) {
-                    comparisonResult.innerHTML = '<span class="text-green-600">🏆 ¡El algoritmo genético encontró una mejor solución!</span>';
+                    comparisonResult.innerHTML = '<span class="text-green-600">🏆 ¡El algoritmo encontró una mejor solución!</span>';
                 } else if (manualScore > gaScore) {
                     comparisonResult.innerHTML = '<span class="text-amber-500">🎉 ¡Felicidades! ¡Superaste al algoritmo!</span>';
                 } else {
