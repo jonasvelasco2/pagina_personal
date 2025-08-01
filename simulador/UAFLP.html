@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Distribución de planta (UA-FLP)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            /* --- TÉCNICA 2: IMPEDIR LA SELECCIÓN DE TEXTO --- */
+            -webkit-user-select: none; /* Para Safari y Chrome */
+            -moz-user-select: none;    /* Para Firefox */
+            -ms-user-select: none;     /* Para Internet Explorer/Edge */
+            user-select: none;         /* Sintaxis estándar */
+        }
+        #floor-plan-container {
+            width: 100%;
+            aspect-ratio: 800 / 600; /* Makes the container responsive */
+            position: relative;
+        }
+        .workspace {
+            touch-action: none;
+            /* user-select is inherited from body */
+            position: absolute;
+            cursor: grab;
+            border: 2px solid;
+            transition: all 0.1s ease-out;
+            box-sizing: border-box;
+        }
+        .workspace.dragging {
+            cursor: grabbing;
+            opacity: 0.7;
+            transform: scale(1.05);
+            z-index: 1000;
+        }
+        .workspace.violating {
+            border-color: #ef4444; /* red-500 */
+            border-width: 3px;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.7);
+        }
+        .floor-plan {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #f0f4f8;
+            background-image:
+                linear-gradient(to right, #dbe1e8 1px, transparent 1px),
+                linear-gradient(to bottom, #dbe1e8 1px, transparent 1px);
+            background-size: 20px 20px;
+            overflow: hidden;
+            border: 2px solid #cbd5e1;
+        }
+        .context-menu {
+            display: none;
+            position: absolute;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 2000;
+            padding: 8px 0;
+        }
+        .context-menu button:hover { background-color: #f0f4f8; }
+        .btn { transition: all 0.2s ease-in-out; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .btn-primary { background-color: #4f46e5; color: white; }
+        .btn-primary:hover { background-color: #4338ca; }
+        .btn-secondary { background-color: #64748b; color: white; }
+        .btn-secondary:hover { background-color: #475569; }
+        .btn-success { background-color: #16a34a; color: white; }
+        .btn-success:hover { background-color: #15803d; }
+        .btn-outline { background-color: transparent; border: 2px solid #4f46e5; color: #4f46e5; }
+        .btn-outline:hover { background-color: #eef2ff; }
+        #toast {
+            position: fixed; bottom: 20px; left: 50%;
+            transform: translateX(-50%); background-color: #2d3748;
+            color: white; padding: 12px 24px; border-radius: 8px;
+            z-index: 5000; opacity: 0; transition: opacity 0.5s, transform 0.5s;
+            visibility: hidden;
+        }
+        #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); visibility: visible; }
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 4000;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8">
+    
+        <!-- Botón Home -->
+        <a href="../index.html" class="absolute top-4 right-4 bg-white hover:bg-slate-100 text-slate-600 font-semibold py-2 px-4 border border-slate-200 rounded-lg shadow-sm flex items-center transition-colors z-10">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            Inicio
+        </a>
+    
+    
+    
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Distribución de planta (UA-FLP)</h1>
+            <p class="text-lg text-gray-600 mt-2">Arrastra, suelta y rota los departamentos. Luego, desafía al algoritmo de IA.</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Columna de Controles y Resultados -->
+            <div class="lg:col-span-1 bg-white p-6 rounded-xl shadow-lg">
+                <h2 class="text-2xl font-bold mb-4 border-b pb-2">Controles</h2>
+                <div class="space-y-4">
+                    <button id="start-ga" class="w-full btn btn-primary font-bold py-3 px-4 rounded-lg text-lg">
+                        Optimizar con IA
+                    </button>
+                    <button id="add-department-btn" class="w-full btn btn-success font-bold py-3 px-4 rounded-lg">
+                        Añadir departamento
+                    </button>
+                    <button id="reset-layout" class="w-full btn btn-secondary font-bold py-3 px-4 rounded-lg">
+                        Reiniciar distribución
+                    </button>
+                </div>
+                
+                <!-- Contenedor para botones de comparación -->
+                <div id="comparison-controls" class="mt-4 space-y-2 hidden">
+                    <p id="layout-indicator" class="text-center text-sm font-semibold text-gray-600"></p>
+                    <div class="flex space-x-2">
+                        <button id="view-user-layout" class="w-full btn btn-outline py-2 px-4 rounded-lg text-sm">Ver mi solución</button>
+                        <button id="view-ai-layout" class="w-full btn btn-outline py-2 px-4 rounded-lg text-sm">Ver solución IA</button>
+                    </div>
+                </div>
+
+                <h2 class="text-2xl font-bold mt-8 mb-4 border-b pb-2">Instrucciones</h2>
+                <div class="space-y-3 text-gray-700">
+                    <p><strong>Objetivo:</strong> Organiza los departamentos para minimizar la "Puntuación". Una puntuación más baja es mejor.</p>
+                    <ul class="list-disc list-inside space-y-2">
+                        <li><strong>Mover:</strong> Haz clic y arrastra cualquier departamento para moverlo.</li>
+                        <li><strong>Rotar:</strong> Haz <strong>clic derecho</strong> en un departamento para rotarlo 90°.</li>
+                        <li><strong>Relaciones:</strong> No todos los departamentos interactúan igual. Algunos (ej. Oficina y Recepción) tienen una relación más fuerte y necesitan estar más cerca para una mejor puntuación.</li>
+                        <li><strong>Restricciones:</strong> Los bordes rojos indican superposición o que el objeto está fuera de los límites.</li>
+                        <li><strong>Optimizar:</strong> Cuando tengas tu mejor diseño, pulsa "Optimizar con IA" para ver si puede superarte.</li>
+                    </ul>
+                </div>
+
+                <h2 class="text-2xl font-bold mt-8 mb-4 border-b pb-2">Resultados</h2>
+                <div class="space-y-4 text-lg">
+                    <div class="flex justify-between items-center">
+                        <span class="font-semibold">Puntuación actual:</span>
+                        <span id="user-score" class="font-bold text-blue-600">N/A</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="font-semibold">Puntuación IA:</span>
+                        <span id="ga-score" class="font-bold text-green-600">N/A</span>
+                    </div>
+                     <div class="flex justify-between items-center">
+                        <span class="font-semibold">Mejora:</span>
+                        <span id="improvement" class="font-bold text-purple-600">N/A</span>
+                    </div>
+                </div>
+
+                <div id="ga-progress-container" class="mt-8 hidden">
+                     <h3 class="text-xl font-bold mb-2">Progreso de la IA</h3>
+                     <div class="w-full bg-gray-200 rounded-full h-4">
+                         <div id="ga-progress-bar" class="bg-green-500 h-4 rounded-full" style="width: 0%"></div>
+                     </div>
+                     <p id="ga-status" class="text-center mt-2 text-sm text-gray-500"></p>
+                </div>
+            </div>
+
+            <!-- Columna del Plano -->
+            <div class="lg:col-span-2 bg-white p-4 rounded-xl shadow-lg">
+                <div id="floor-plan-container">
+                     <div id="floor-plan" class="floor-plan rounded-lg"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Menú Contextual para Rotación -->
+    <div id="context-menu" class="context-menu">
+        <button id="rotate-btn" class="w-full p-2 text-left">Rotar 90°</button>
+    </div>
+    
+    <!-- Modal para Añadir Departamento -->
+    <div id="add-department-modal" class="modal-overlay hidden">
+        <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
+            <h3 class="text-2xl font-bold mb-6">Añadir nuevo departamento</h3>
+            <div>
+                <label for="department-type-select" class="block text-sm font-medium text-gray-700 mb-1">Tipo de departamento</label>
+                <select id="department-type-select" class="w-full p-2 border border-gray-300 rounded-md"></select>
+            </div>
+            <div class="mt-8 flex justify-end space-x-4">
+                <button id="cancel-add-btn" class="btn btn-secondary px-6 py-2 rounded-lg">Cancelar</button>
+                <button id="confirm-add-btn" class="btn btn-success px-6 py-2 rounded-lg">Añadir</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para el Ganador -->
+    <div id="winner-modal" class="modal-overlay hidden">
+        <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-lg text-center">
+            <h3 id="winner-title" class="text-3xl font-bold mb-4"></h3>
+            <p id="winner-message" class="text-gray-700 text-lg mb-6"></p>
+            <div class="flex justify-around items-center mb-8">
+                <div class="p-4 rounded-lg bg-blue-50">
+                    <p class="text-sm text-blue-700 font-semibold">Tu puntuación original</p>
+                    <p id="winner-user-score" class="text-2xl font-bold text-blue-800"></p>
+                </div>
+                <div class="p-4 rounded-lg bg-green-50">
+                    <p class="text-sm text-green-700 font-semibold">Puntuación IA</p>
+                    <p id="winner-ga-score" class="text-2xl font-bold text-green-800"></p>
+                </div>
+            </div>
+            <button id="close-winner-btn" class="btn btn-primary px-8 py-2 rounded-lg">Entendido</button>
+        </div>
+    </div>
+
+    <!-- Notificación Toast -->
+    <div id="toast"></div>
+    
+    
+    <!-- Footer & Contact -->
+    <footer id="contact" class="bg-[#333333] text-white">
+        <div class="container mx-auto px-6 py-10">
+            <div class="text-center">
+             <!--   <h2 class="text-2xl font-bold mb-4">Ponte en Contacto</h2> -->
+                <p class="text-gray-300 mb-2">Si tienes alguna pregunta o te gustaría colaborar, no dudes en escribirme.</p>
+              <!--  <a href="mailto:jvelasco@cimat.mx" class="text-[#80CBC4] text-lg hover:underline">jvelasco@cimat.mx</a> -->
+                <a href="contacto.html" class="text-[#80CBC4] text-lg hover:underline">Contacto</a>
+                <p class="text-gray-500 mt-8 text-sm">&copy; 2025 Jonás Velasco. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>    
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- CONFIGURACIÓN INICIAL ---
+            const ui = {
+                floorPlan: document.getElementById('floor-plan'),
+                userScore: document.getElementById('user-score'),
+                gaScore: document.getElementById('ga-score'),
+                improvement: document.getElementById('improvement'),
+                startGaBtn: document.getElementById('start-ga'),
+                resetBtn: document.getElementById('reset-layout'),
+                addDeptBtn: document.getElementById('add-department-btn'),
+                contextMenu: document.getElementById('context-menu'),
+                rotateBtn: document.getElementById('rotate-btn'),
+                toast: document.getElementById('toast'),
+                gaProgressContainer: document.getElementById('ga-progress-container'),
+                gaProgressBar: document.getElementById('ga-progress-bar'),
+                gaStatus: document.getElementById('ga-status'),
+                comparisonControls: {
+                    container: document.getElementById('comparison-controls'),
+                    indicator: document.getElementById('layout-indicator'),
+                    viewUserBtn: document.getElementById('view-user-layout'),
+                    viewAiBtn: document.getElementById('view-ai-layout'),
+                },
+                addDeptModal: {
+                    overlay: document.getElementById('add-department-modal'),
+                    select: document.getElementById('department-type-select'),
+                    confirm: document.getElementById('confirm-add-btn'),
+                    cancel: document.getElementById('cancel-add-btn'),
+                },
+                winnerModal: {
+                    overlay: document.getElementById('winner-modal'),
+                    title: document.getElementById('winner-title'),
+                    message: document.getElementById('winner-message'),
+                    userScore: document.getElementById('winner-user-score'),
+                    gaScore: document.getElementById('winner-ga-score'),
+                    close: document.getElementById('close-winner-btn'),
+                }
+            };
+
+            const LOGICAL_FLOOR_WIDTH = 800, LOGICAL_FLOOR_HEIGHT = 600;
+            let scaleFactor = 1;
+            let initialWorkspaces = [], initialFlowMatrix = [], departmentTemplates = [];
+            let workspaces = [], flowMatrix = [];
+            let activeWorkspace = null, offsetX, offsetY;
+            let workspaceElements = {};
+            let userLayoutBeforeGA = null;
+            let aiLayout = null;
+
+            // --- LÓGICA DE ESTADO Y DATOS ---
+            function storeInitialState() {
+                 initialWorkspaces = [
+                    { id: 1, baseName: 'Recepción', name: 'Recepción', w: 100, h: 80, color: '#fca5a5' },
+                    { id: 2, baseName: 'Oficina', name: 'Oficina A', w: 150, h: 120, color: '#fdba74' },
+                    { id: 3, baseName: 'Oficina', name: 'Oficina B', w: 150, h: 120, color: '#fde047' },
+                    { id: 4, baseName: 'Sala de Juntas', name: 'Sala de Juntas', w: 200, h: 150, color: '#86efac' },
+                    { id: 5, baseName: 'Cafetería', name: 'Cafetería', w: 120, h: 100, color: '#93c5fd' },
+                    { id: 6, baseName: 'Almacén', name: 'Almacén', w: 180, h: 100, color: '#c4b5fd' },
+                ];
+                initialFlowMatrix = [
+                    [ 0, 5, 2, 1, 3, 1], [ 5, 0, 3, 2, 1, 1], [ 2, 3, 0, 2, 1, 1],
+                    [ 1, 2, 2, 0, 4, 2], [ 3, 1, 1, 4, 0, 1], [ 1, 1, 1, 2, 1, 0],
+                ];
+                departmentTemplates = [
+                    { baseName: 'Oficina', w: 150, h: 120, color: '#fdba74' },
+                    { baseName: 'Sala de Reunión', w: 100, h: 100, color: '#a7f3d0' },
+                    { baseName: 'Baño', w: 80, h: 60, color: '#d8b4fe' },
+                    { baseName: 'Recepción', w: 100, h: 80, color: '#fca5a5' },
+                    { baseName: 'Almacén', w: 180, h: 100, color: '#c4b5fd' },
+                    { baseName: 'Área de Descanso', w: 120, h: 120, color: '#fef08a' },
+                ];
+            }
+
+            function resetToInitialState() {
+                workspaces = JSON.parse(JSON.stringify(initialWorkspaces));
+                flowMatrix = JSON.parse(JSON.stringify(initialFlowMatrix));
+            }
+
+            // --- RENDERIZADO Y VISUALIZACIÓN ---
+            function calculateScale() { scaleFactor = ui.floorPlan.offsetWidth / LOGICAL_FLOOR_WIDTH; }
+
+            function initializeLayout() {
+                calculateScale();
+                ui.floorPlan.innerHTML = '';
+                workspaceElements = {};
+                workspaces.forEach((ws, i) => {
+                    const el = document.createElement('div');
+                    el.id = `ws-${ws.id}`;
+                    el.className = 'workspace';
+                    el.innerHTML = `<div class="flex items-center justify-center h-full font-semibold text-gray-800 p-1 text-center text-sm leading-tight">${ws.name}</div>`;
+                    if (ws.x === undefined) {
+                        ws.x = (i * 160) % (LOGICAL_FLOOR_WIDTH - ws.w);
+                        ws.y = Math.floor((i * 160) / (LOGICAL_FLOOR_WIDTH - ws.w)) * 160;
+                        ws.rotation = 0;
+                    }
+                    el.style.backgroundColor = ws.color;
+                    el.style.borderColor = darkenColor(ws.color, 20);
+                    ui.floorPlan.appendChild(el);
+                    workspaceElements[ws.id] = el;
+                    el.addEventListener('pointerdown', startDrag);
+                    el.addEventListener('contextmenu', showContextMenu);
+                });
+                updateAllWorkspaceVisuals();
+                calculateAndDisplayScore();
+            }
+            
+            function updateAllWorkspaceVisuals() {
+                workspaces.forEach(ws => {
+                    const el = workspaceElements[ws.id];
+                    if (!el) return;
+                    el.style.width = `${ws.w * scaleFactor}px`;
+                    el.style.height = `${ws.h * scaleFactor}px`;
+                    el.style.left = `${ws.x * scaleFactor}px`;
+                    el.style.top = `${ws.y * scaleFactor}px`;
+                    
+                    const isViolating = isOutOfBounds(ws) || isOverlapping(ws, workspaces);
+                    el.classList.toggle('violating', isViolating);
+                });
+            }
+            
+            // --- LÓGICA DE RESTRICCIONES ---
+            function isOutOfBounds(ws) {
+                return ws.x < 0 || ws.y < 0 || ws.x + ws.w > LOGICAL_FLOOR_WIDTH || ws.y + ws.h > LOGICAL_FLOOR_HEIGHT;
+            }
+
+            function isOverlapping(ws1, allWorkspaces) {
+                for (const ws2 of allWorkspaces) {
+                    if (ws1.id === ws2.id) continue;
+                    const overlapX = Math.max(0, Math.min(ws1.x + ws1.w, ws2.x + ws2.w) - Math.max(ws1.x, ws2.x));
+                    const overlapY = Math.max(0, Math.min(ws1.y + ws1.h, ws2.y + ws2.h) - Math.max(ws1.y, ws2.y));
+                    if (overlapX > 0 && overlapY > 0) return true;
+                }
+                return false;
+            }
+
+            // --- CÁLCULO DE PUNTUACIÓN ---
+            function calculateTotalCost(layout) {
+                let totalCost = 0;
+                const PENALTY_MULTIPLIER = 500;
+                for (let i = 0; i < layout.length; i++) {
+                    for (let j = i + 1; j < layout.length; j++) {
+                        const ws1 = layout[i], ws2 = layout[j];
+                        const c1 = { x: ws1.x + ws1.w / 2, y: ws1.y + ws1.h / 2 };
+                        const c2 = { x: ws2.x + ws2.w / 2, y: ws2.y + ws2.h / 2 };
+                        const dist = Math.sqrt(Math.pow(c1.x - c2.x, 2) + Math.pow(c1.y - c2.y, 2));
+                        const flow = flowMatrix[ws1.id - 1]?.[ws2.id - 1] || 0;
+                        totalCost += flow * dist;
+                        
+                        const overlapX = Math.max(0, Math.min(ws1.x + ws1.w, ws2.x + ws2.w) - Math.max(ws1.x, ws2.x));
+                        const overlapY = Math.max(0, Math.min(ws1.y + ws1.h, ws2.y + ws2.h) - Math.max(ws1.y, ws2.y));
+                        totalCost += (overlapX * overlapY) * PENALTY_MULTIPLIER;
+                    }
+                    if (isOutOfBounds(layout[i])) totalCost += 100000; // Heavy penalty
+                }
+                return totalCost;
+            }
+
+            function calculateAndDisplayScore() {
+                const score = calculateTotalCost(workspaces);
+                ui.userScore.textContent = Math.round(score).toLocaleString();
+            }
+
+            // --- MANEJO DE EVENTOS DE USUARIO ---
+            function startDrag(e) {
+                e.preventDefault();
+                if (e.button !== 0) return;
+                activeWorkspace = e.currentTarget;
+                activeWorkspace.classList.add('dragging');
+                const rect = activeWorkspace.getBoundingClientRect();
+                offsetX = e.clientX - rect.left;
+                offsetY = e.clientY - rect.top;
+                document.addEventListener('pointermove', drag);
+                document.addEventListener('pointerup', stopDrag);
+            }
+
+            function drag(e) {
+                if (!activeWorkspace) return;
+                e.preventDefault();
+                const floorRect = ui.floorPlan.getBoundingClientRect();
+                const wsId = parseInt(activeWorkspace.id.split('-')[1]);
+                const ws = workspaces.find(w => w.id === wsId);
+                ws.x = (e.clientX - floorRect.left - offsetX) / scaleFactor;
+                ws.y = (e.clientY - floorRect.top - offsetY) / scaleFactor;
+                updateAllWorkspaceVisuals();
+                calculateAndDisplayScore();
+            }
+
+            function stopDrag() {
+                if (!activeWorkspace) return;
+                activeWorkspace.classList.remove('dragging');
+                activeWorkspace = null;
+                document.removeEventListener('pointermove', drag);
+                document.removeEventListener('pointerup', stopDrag);
+            }
+            
+            function showContextMenu(e) {
+                e.preventDefault();
+                activeWorkspace = e.currentTarget;
+                ui.contextMenu.style.display = 'block';
+                ui.contextMenu.style.left = `${e.clientX}px`;
+                ui.contextMenu.style.top = `${e.clientY}px`;
+                document.addEventListener('click', hideContextMenu, { once: true });
+            }
+
+            function hideContextMenu() {
+                ui.contextMenu.style.display = 'none';
+                activeWorkspace = null;
+            }
+
+            function rotateActiveWorkspace() {
+                if (!activeWorkspace) return;
+                const wsId = parseInt(activeWorkspace.id.split('-')[1]);
+                const ws = workspaces.find(w => w.id === wsId);
+                [ws.w, ws.h] = [ws.h, ws.w];
+                ws.rotation = (ws.rotation + 90) % 360;
+                updateAllWorkspaceVisuals();
+                calculateAndDisplayScore();
+                hideContextMenu();
+            }
+
+            // --- ALGORITMO GENÉTICO ---
+            const GA_CONFIG = { populationSize: 100, generations: 50, mutationRate: 0.1, crossoverRate: 0.8, elitismCount: 2 };
+
+            function createIndividual() {
+                return workspaces.map(ws_template => {
+                    const shouldRotate = Math.random() < 0.5;
+                    const newW = shouldRotate ? ws_template.h : ws_template.w;
+                    const newH = shouldRotate ? ws_template.w : ws_template.h;
+                    return { ...ws_template, x: Math.random() * (LOGICAL_FLOOR_WIDTH - newW), y: Math.random() * (LOGICAL_FLOOR_HEIGHT - newH), w: newW, h: newH };
+                });
+            }
+            
+            function tournamentSelection(pop) {
+                const size = 5; let tourney = [];
+                for (let i = 0; i < size; i++) { tourney.push(pop[Math.floor(Math.random() * pop.length)]); }
+                return tourney.reduce((b, c) => c.fitness < b.fitness ? c : b).individual;
+            }
+            
+            async function runGeneticAlgorithm() {
+                ui.startGaBtn.disabled = true; ui.startGaBtn.textContent = 'Ejecutando...';
+                ui.gaProgressContainer.classList.remove('hidden');
+                
+                userLayoutBeforeGA = JSON.parse(JSON.stringify(workspaces));
+                const userScore = calculateTotalCost(userLayoutBeforeGA);
+                
+                let population = Array.from({ length: GA_CONFIG.populationSize }, createIndividual);
+                let bestInd = null, bestFit = Infinity;
+
+                for (let gen = 0; gen < GA_CONFIG.generations; gen++) {
+                    const popFit = population.map(ind => ({ individual: ind, fitness: calculateTotalCost(ind) }));
+                    popFit.sort((a, b) => a.fitness - b.fitness);
+                    if (popFit[0].fitness < bestFit) { bestFit = popFit[0].fitness; bestInd = JSON.parse(JSON.stringify(popFit[0].individual)); }
+                    
+                    let newPop = popFit.slice(0, GA_CONFIG.elitismCount).map(i => i.individual);
+                    while (newPop.length < GA_CONFIG.populationSize) {
+                        const p1 = tournamentSelection(popFit), p2 = tournamentSelection(popFit);
+                        const c1_template = JSON.parse(JSON.stringify(p1)), c2_template = JSON.parse(JSON.stringify(p2));
+                        const pt = Math.floor(Math.random() * p1.length);
+                        for (let i = pt; i < p1.length; i++) { [c1_template[i], c2_template[i]] = [c2_template[i], c1_template[i]]; }
+                        
+                        const mutate = (ind) => ind.map(ws => {
+                            if (Math.random() < GA_CONFIG.mutationRate) {
+                                if (Math.random() < 0.8) { ws.x += (Math.random() - 0.5) * 50; ws.y += (Math.random() - 0.5) * 50; } 
+                                else { [ws.w, ws.h] = [ws.h, ws.w]; }
+                                ws.x = Math.max(0, Math.min(ws.x, LOGICAL_FLOOR_WIDTH - ws.w));
+                                ws.y = Math.max(0, Math.min(ws.y, LOGICAL_FLOOR_HEIGHT - ws.h));
+                            }
+                            return ws;
+                        });
+                        newPop.push(mutate(c1_template));
+                        if (newPop.length < GA_CONFIG.populationSize) newPop.push(mutate(c2_template));
+                    }
+                    population = newPop;
+                    ui.gaProgressBar.style.width = `${((gen + 1) / GA_CONFIG.generations) * 100}%`;
+                    ui.gaStatus.textContent = `Generación ${gen + 1}. Mejor Puntuación: ${Math.round(bestFit).toLocaleString()}`;
+                    await new Promise(resolve => setTimeout(resolve, 20)); 
+                }
+                
+                aiLayout = JSON.parse(JSON.stringify(bestInd));
+                applyLayout(aiLayout);
+                updateLayoutIndicator('IA');
+                ui.comparisonControls.container.classList.remove('hidden');
+
+                showToast("Se muestra la solución optimizada por la IA.");
+                ui.gaScore.textContent = Math.round(bestFit).toLocaleString();
+                ui.startGaBtn.disabled = false; ui.startGaBtn.textContent = 'Optimizar con IA';
+                calculateImprovement(userScore, bestFit);
+                showWinnerModal(userScore, bestFit);
+            }
+            
+            function applyLayout(layout) {
+                workspaces = JSON.parse(JSON.stringify(layout));
+                initializeLayout();
+            }
+
+            function updateLayoutIndicator(owner) {
+                ui.comparisonControls.indicator.textContent = `Mostrando solución: ${owner}`;
+            }
+
+            // --- CONTROLES DE LA UI (MODALES, BOTONES) ---
+            function openAddDepartmentModal() {
+                ui.addDeptModal.select.innerHTML = '';
+                departmentTemplates.forEach(template => {
+                    const option = document.createElement('option');
+                    option.value = template.baseName;
+                    option.textContent = template.baseName;
+                    ui.addDeptModal.select.appendChild(option);
+                });
+                ui.addDeptModal.overlay.classList.remove('hidden');
+            }
+            
+            function closeAddDepartmentModal() { ui.addDeptModal.overlay.classList.add('hidden'); }
+
+            function confirmAddDepartment() {
+                const selectedBaseName = ui.addDeptModal.select.value;
+                const template = departmentTemplates.find(t => t.baseName === selectedBaseName);
+                if (!template) return;
+                const existingCount = workspaces.filter(ws => ws.baseName === selectedBaseName).length;
+                const newName = `${selectedBaseName} ${String.fromCharCode(65 + existingCount)}`;
+                const newId = workspaces.length > 0 ? Math.max(...workspaces.map(w => w.id)) + 1 : 1;
+                workspaces.push({ id: newId, baseName: template.baseName, name: newName, w: template.w, h: template.h, color: template.color });
+                flowMatrix.forEach(row => row.push(1));
+                const newRow = new Array(workspaces.length).fill(1);
+                newRow[newRow.length - 1] = 0;
+                flowMatrix.push(newRow);
+                initializeLayout();
+                closeAddDepartmentModal();
+                showToast(`Departamento "${newName}" añadido.`);
+            }
+
+            function showWinnerModal(userScore, gaScore) {
+                const { overlay, title, message, userScore: userEl, gaScore: gaEl } = ui.winnerModal;
+                userEl.textContent = Math.round(userScore).toLocaleString();
+                gaEl.textContent = Math.round(gaScore).toLocaleString();
+                if (gaScore < userScore) {
+                    title.textContent = "¡Ganó la IA!";
+                    title.className = "text-3xl font-bold mb-4 text-green-600";
+                    message.textContent = "La IA encontró una mejor solución. ¡Usa los botones de comparación para ver las diferencias!";
+                } else if (userScore < gaScore) {
+                    title.textContent = "¡Tú Ganaste!";
+                    title.className = "text-3xl font-bold mb-4 text-blue-600";
+                    message.textContent = "¡Felicidades! Tu diseño es mejor que el que encontró la IA en esta ocasión.";
+                } else {
+                    title.textContent = "¡Es un Empate!";
+                    title.className = "text-3xl font-bold mb-4 text-gray-700";
+                    message.textContent = "Ambas soluciones tienen la misma puntuación. ¡Un resultado impresionante!";
+                }
+                overlay.classList.remove('hidden');
+            }
+            
+            function closeWinnerModal() { ui.winnerModal.overlay.classList.add('hidden'); }
+
+            function resetApplication() {
+                resetToInitialState();
+                initializeLayout();
+                userLayoutBeforeGA = null;
+                aiLayout = null;
+                ui.gaScore.textContent = 'N/A';
+                ui.improvement.textContent = 'N/A';
+                ui.improvement.className = 'font-bold text-purple-600';
+                ui.gaProgressContainer.classList.add('hidden');
+                ui.gaProgressBar.style.width = '0%';
+                ui.gaStatus.textContent = '';
+                ui.comparisonControls.container.classList.add('hidden');
+                ui.comparisonControls.indicator.textContent = '';
+                showToast("Distribución reiniciada.");
+            }
+
+            // --- UTILIDADES ---
+            function calculateImprovement(userScore, gaScoreNum){
+                ui.improvement.className = 'font-bold'; // Reset base class
+                const colorClasses = ['text-purple-600', 'text-green-600', 'text-blue-600', 'text-gray-700'];
+                ui.improvement.classList.remove(...colorClasses);
+
+                if(!isNaN(userScore) && !isNaN(gaScoreNum) && userScore > 0 && gaScoreNum > 0){
+                    const improvementPercentage = ((userScore - gaScoreNum) / userScore * 100);
+                    let winnerText = '';
+                    let textColorClass = 'text-purple-600';
+
+                    if (gaScoreNum < userScore) {
+                        winnerText = ` (Ganó IA)`;
+                        textColorClass = 'text-green-600';
+                    } else if (userScore < gaScoreNum) {
+                        winnerText = ` (Ganaste)`;
+                        textColorClass = 'text-blue-600';
+                    } else {
+                        winnerText = ` (Empate)`;
+                        textColorClass = 'text-gray-700';
+                    }
+                    
+                    ui.improvement.classList.add(textColorClass);
+                    ui.improvement.textContent = `${improvementPercentage.toFixed(2)}%${winnerText}`;
+                } else { 
+                     ui.improvement.textContent = 'N/A';
+                     ui.improvement.classList.add('text-purple-600');
+                }
+            }
+            function darkenColor(hex, p) {
+                let [r, g, b] = hex.match(/\w\w/g).map(x => parseInt(x, 16));
+                r = Math.floor(r * (100 - p) / 100); g = Math.floor(g * (100 - p) / 100); b = Math.floor(b * (100 - p) / 100);
+                return "#" + [r,g,b].map(x => x.toString(16).padStart(2, '0')).join('');
+            }
+            function showToast(message) {
+                ui.toast.textContent = message; ui.toast.classList.add('show');
+                setTimeout(() => ui.toast.classList.remove('show'), 3000);
+            }
+            function debounce(func, wait) {
+                let timeout;
+                return function(...args) {
+                    const later = () => { clearTimeout(timeout); func.apply(this, args); };
+                    clearTimeout(timeout); timeout = setTimeout(later, wait);
+                };
+            }
+
+            // --- INICIO Y EVENT LISTENERS ---
+            storeInitialState();
+            resetApplication();
+            
+            // --- PROTECCIONES DE CONTENIDO ---
+            document.addEventListener('contextmenu', function(e) {
+                // Permite el clic derecho solo en los departamentos para rotarlos
+                if (!e.target.closest('.workspace')) {
+                    e.preventDefault();
+                    showToast('El clic derecho está deshabilitado.');
+                }
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'F12') {
+                    e.preventDefault();
+                    showToast('Las herramientas de desarrollador están deshabilitadas.');
+                }
+                if (e.ctrlKey) {
+                    switch (e.key.toLowerCase()) {
+                        case 'c': // Ctrl+C (Copiar)
+                        case 'x': // Ctrl+X (Cortar)
+                        case 'u': // Ctrl+U (Ver código fuente)
+                        case 's': // Ctrl+S (Guardar)
+                        case 'p': // Ctrl+P (Imprimir)
+                            e.preventDefault();
+                            showToast(`La función ${e.key.toUpperCase()} ha sido deshabilitada.`);
+                            break;
+                    }
+                }
+            });
+
+
+            ui.addDeptModal.confirm.addEventListener('click', confirmAddDepartment);
+            ui.addDeptModal.cancel.addEventListener('click', closeAddDepartmentModal);
+            ui.winnerModal.close.addEventListener('click', closeWinnerModal);
+            ui.addDeptBtn.addEventListener('click', openAddDepartmentModal);
+            ui.startGaBtn.addEventListener('click', runGeneticAlgorithm);
+            ui.resetBtn.addEventListener('click', resetApplication);
+            ui.rotateBtn.addEventListener('click', rotateActiveWorkspace);
+            ui.comparisonControls.viewUserBtn.addEventListener('click', () => {
+                if (userLayoutBeforeGA) {
+                    applyLayout(userLayoutBeforeGA);
+                    updateLayoutIndicator('Tuya');
+                }
+            });
+            ui.comparisonControls.viewAiBtn.addEventListener('click', () => {
+                if (aiLayout) {
+                    applyLayout(aiLayout);
+                    updateLayoutIndicator('IA');
+                }
+            });
+            window.addEventListener('resize', debounce(initializeLayout, 200));
+        });
+    </script>
+</body>
+</html>
+
