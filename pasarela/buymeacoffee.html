@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Portafolio | Apoya mi Trabajo</title>
+    <!-- Tailwind CSS para un diseño moderno y responsivo -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Iconos de Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        /* Usamos la fuente Inter para todo el cuerpo del documento */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* Color de fondo gris claro */
+        }
+        /* Efecto de hover para el botón de donación */
+        .btn-donate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Header & Navigation -->
+    <header class="bg-white/90 backdrop-blur-lg sticky top-0 z-50 border-b border-gray-200">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <!-- Assumes the main page is named index.html -->
+            <a href="index.html" class="text-2xl font-bold text-[#004D40]">Dr. Jonás Velasco</a>
+            
+            <!-- Desktop Navigation -->
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="index.html" class="nav-link text-gray-600 hover:text-[#00796B] transition-colors">Inicio</a>
+                <a href="publicaciones.html" class="nav-link text-gray-600 hover:text-[#00796B] transition-colors">Publicaciones</a>
+                <a href="proyectos.html" class="nav-link text-gray-600 hover:text-[#00796B] transition-colors">Proyectos</a>
+                <a href="recursos.html" class="nav-link active text-gray-600 hover:text-[#00796B] transition-colors">Recursos</a>
+                <a href="contacto.html" class="bg-[#00796B] text-white py-2 px-4 rounded-lg hover:bg-[#004D40] transition-all duration-300 ease-in-out transform hover:scale-105">
+                    Contacto
+                </a>
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <div class="md:hidden">
+                <button id="mobile-menu-button" class="text-gray-800 hover:text-[#00796B] focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                    </svg>
+                </button>
+            </div>
+        </nav>
+        
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-200">
+            <a href="index.html" class="block py-3 px-6 text-sm text-gray-800 hover:bg-gray-100">Inicio</a>
+            <a href="publicaciones.html" class="block py-3 px-6 text-sm text-gray-800 hover:bg-gray-100">Publicaciones</a>
+            <a href="proyectos.html" class="block py-3 px-6 text-sm text-gray-800 hover:bg-gray-100">Proyectos</a>
+            <a href="recursos.html" class="block py-3 px-6 text-sm text-[#00796B] bg-gray-100 font-bold">Recursos</a>
+            <a href="contacto.html" class="block py-3 px-6 text-sm text-gray-800 hover:bg-gray-100">Contacto</a>
+        </div>
+    </header>
+
+    <!-- Contenedor principal -->
+    <div class="container mx-auto max-w-4xl p-4 sm:p-6 md:p-8">
+        
+        <!-- Encabezado del Perfil -->
+        <header class="text-center my-12">
+            <img 
+                src="https://filedn.com/lWi3DaH98FUFPSY0zy9EK3H/Pagina2_gemini/img/perfil.jpg" 
+                alt="Foto de perfil" 
+                class="w-32 h-32 rounded-full mx-auto mb-4 border-4 border-white shadow-lg"
+                onerror="this.onerror=null;this.src='https://placehold.co/128x128/cccccc/333333?text=Error';"
+            >
+            <h1 class="text-4xl font-bold text-gray-900">Jonás Velasco</h1>
+            <p class="text-xl text-gray-600 mt-2">Investigador y divulgador en el campo de la Investigación de operaciones</p>
+        </header>
+
+        <!-- Sección "Sobre mí" -->
+        <main>
+            <div class="bg-white p-8 rounded-2xl shadow-md">
+                <h2 class="text-2xl font-bold mb-4">Sobre Mi Trabajo</h2>
+                <p class="text-gray-700 leading-relaxed">
+                    ¡Hola! Soy Jonás Velasco y me apasiona crear herramientas útiles y compartir contenido valioso con la comunidad. En este espacio encontrarás tutoriales, proyectos de código abierto y artículos relacionados con análisis de datos, optimización combinatoria y algoritmos aplicados a problemas reales.
+                    <br><br>
+                    Mis áreas de investigación se enfocan en desarrollar modelos matemáticos avanzados y métodos computacionales para resolver retos complejos en logística, transporte, movilidad sustentable y sistemas inteligentes. Utilizo tanto métodos exactos como técnicas metaheurísticas e híbridas para apoyar la toma de decisiones en estos ámbitos.
+                    <br><br>
+                    Todo el contenido que comparto es gratuito y accesible para todos. Si encuentras útil mi trabajo y deseas apoyarme, puedes invitarme un café. ¡Cada contribución me ayuda a seguir creando más recursos para la comunidad!
+                </p>
+            </div>
+
+            <!-- Botón de Donación -->
+            <div class="text-center mt-12">
+                <h3 class="text-2xl font-semibold mb-4">¿Te gusta lo que hago?</h3>
+                <!-- 
+                  IMPORTANTE: Reemplaza el '#' con el enlace a tu página de Buy Me a Coffee, Ko-fi o PayPal.
+                  Ejemplo: href="https://www.buymeacoffee.com/tunombredeusuario"
+                -->
+                <a 
+                    href="https://buymeacoffee.com/jvelascoal" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    class="btn-donate inline-flex items-center gap-3 bg-yellow-400 text-gray-900 font-bold py-4 px-8 rounded-xl shadow-lg transition-all duration-300 ease-in-out"
+                >
+                    <i class="ph-fill ph-coffee text-2xl"></i>
+                    <span>Invítame un café</span>
+                </a>
+                <p class="text-gray-500 mt-4 text-sm">Tu apoyo es muy apreciado ❤️</p>
+            </div>
+
+        </main>
+
+        <!-- Pie de página 
+        <footer class="text-center mt-16 mb-8">
+            <p class="text-gray-500">&copy; 2025 Tu Nombre. Todos los derechos reservados.</p>
+        </footer>-->
+
+    </div>
+    
+        <!-- Footer (from your provided file) -->
+    <footer class="bg-[#333333] text-white">
+        <div class="container mx-auto px-6 py-10">
+            <div class="text-center">
+                <p class="text-gray-300 mb-2">Si tienes alguna pregunta o te gustaría colaborar, no dudes en escribirme.</p>
+                <a href="contacto.html" class="text-[#80CBC4] text-lg hover:underline">Contacto</a>
+                <p class="text-gray-500 mt-8 text-sm">&copy; 2025 Jonás Velasco. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+    
+  <script>
+        // --- LÓGICA DE PROTECCIÓN ---
+
+
+        // 1. Deshabilitar el clic derecho en toda la página
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            showProtectionToast('El clic derecho está deshabilitado.');
+        });
+
+        // 2. Bloquear atajos de teclado comunes
+        document.addEventListener('keydown', function(e) {
+            // Bloquear F12 para dificultar el acceso a las herramientas de desarrollador
+            if (e.key === 'F12' || e.keyCode === 123) {
+                e.preventDefault();
+                showProtectionToast('Las herramientas de desarrollador están deshabilitadas.');
+            }
+
+            // Bloquear combinaciones con la tecla Ctrl
+            if (e.ctrlKey) {
+                const key = e.key.toLowerCase();
+                if (['c', 'x', 'u', 's', 'p'].includes(key)) {
+                    e.preventDefault();
+                    showProtectionToast(`La función (Ctrl+${key.toUpperCase()}) ha sido deshabilitada.`);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+
