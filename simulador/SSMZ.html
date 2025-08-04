@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Partición de Zonas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+            border: 2px solid #9ca3af;
+            padding: 4px;
+            background-color: #e5e7eb;
+        }
+        .grid-cell {
+            width: 100%;
+            padding-bottom: 100%; /* Aspect ratio 1:1 */
+            position: relative;
+            background-color: #ffffff;
+            border: 1px solid #d1d5db;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .grid-cell:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            z-index: 10;
+        }
+        .cell-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: rgba(0,0,0,0.7);
+        }
+        .color-palette-btn {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #d1d5db;
+            transition: transform 0.2s ease;
+        }
+        .color-palette-btn.selected {
+            border-color: #1d4ed8;
+            transform: scale(1.15);
+            box-shadow: 0 0 8px #3b82f6;
+        }
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 220px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px 0;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -110px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        #explanation-arrow {
+            transition: transform 0.3s ease;
+        }
+        #explanation-arrow.rotate-180 {
+            transform: rotate(180deg);
+        }
+        .control-btn {
+            background-color: #2563eb;
+            color: white;
+            font-weight: bold;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: background-color 0.2s;
+        }
+        .control-btn:hover {
+            background-color: #1d4ed8;
+        }
+        .control-btn:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+  <!--   <div class="container mx-auto p-4 md:p-8 max-w-7xl">-->
+    <div class="container mx-auto p-4 md:p-8 relative">
+            <div class="absolute top-4 right-4 flex items-center gap-4 z-10">
+
+           <a href="../pasarela/buymeacoffee.html" 
+               target="_blank" 
+               rel="noopener noreferrer" 
+               class="inline-flex items-center gap-2 bg-yellow-400 text-gray-900 font-bold py-2 px-4 rounded-lg shadow-sm transition-colors duration-300 hover:bg-yellow-500">
+                
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M1 12.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5M2 4v6h10V4zm11.5 0a.5.5 0 0 0-.5.5v5a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-5a.5.5 0 0 0-.5-.5zM1 3.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5m10.854-1.354a.5.5 0 0 0-.708 0L9 3.293 7.854 2.146a.5.5 0 1 0-.708.708L8.293 4 7.146 5.146a.5.5 0 1 0 .708.708L9 4.707l1.146 1.147a.5.5 0 0 0 .708-.708L9.707 4l1.147-1.146a.5.5 0 0 0 0-.708"/>
+                </svg>
+                <span>Invítame un café</span>
+            </a>
+
+            <a href="../index.html" class="bg-white hover:bg-slate-100 text-slate-600 font-semibold py-2 px-4 border border-slate-200 rounded-lg shadow-sm flex items-center transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                Inicio
+            </a>
+</div> 
+
+        <header class="text-center mb-8 pt-16">
+            <h1 class="text-4xl font-bold text-gray-800">Partición de zonas</h1>
+            <p class="text-lg text-gray-600 mt-2">Colorea las celdas para crear zonas homogéneas y conexas. Luego, desafía a las heurísticas glotonas.</p>
+        </header>
+
+        <!-- Controles Principales -->
+        <div class="bg-white p-4 rounded-xl shadow-md mb-8 flex flex-wrap items-center justify-center gap-6">
+            <div>
+                <label for="alpha-slider" class="block text-sm font-medium text-gray-700 mb-1">
+                    Homogeneidad mínima deseada (α): <span id="alpha-value" class="font-bold text-blue-600">0.70</span>
+                </label>
+                <input id="alpha-slider" type="range" min="0.1" max="1.0" value="0.7" step="0.01" class="w-48 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="text-sm font-medium text-gray-700">Paleta de colores:</span>
+                <div id="color-palette" class="flex gap-2"></div>
+            </div>
+            <div id="algo-buttons" class="flex flex-wrap justify-center gap-4">
+                <button id="solve-a1-btn" class="control-btn">Heurística A1</button>
+                <button id="solve-a2-btn" class="control-btn">Heurística A2</button>
+                <button id="solve-a3-btn" class="control-btn">Heurística A3</button>
+                <button id="reset-btn" class="bg-red-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-600 transition-colors shadow-sm">Reiniciar</button>
+            </div>
+        </div>
+
+        <!-- Contenedor de Grids -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            
+            <!-- Grid del Usuario -->
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+                <h2 class="text-2xl font-bold text-center mb-4 text-gray-800">Tu solución</h2>
+                <div id="user-grid" class="grid-container mx-auto max-w-md"></div>
+                <div id="user-stats" class="mt-4 text-center p-4 bg-gray-50 rounded-lg">
+                    <!-- Las estadísticas se insertarán aquí -->
+                </div>
+            </div>
+
+            <!-- Grid del Algoritmo -->
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+                <h2 class="text-2xl font-bold text-center mb-4 text-gray-800">Solución de la heurística</h2>
+                <div id="algo-grid" class="grid-container mx-auto max-w-md flex items-center justify-center min-h-[300px]">
+                    <span class="text-gray-500">Esperando ejecución...</span>
+                </div>
+                <div id="algo-stats" class="mt-4 text-center p-4 bg-gray-50 rounded-lg">
+                    <!-- Las estadísticas se insertarán aquí -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sección de Explicación -->
+        <div class="max-w-4xl mx-auto mt-10">
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+                <button id="toggle-explanation-btn" class="w-full text-left text-xl font-bold text-gray-800 flex justify-between items-center transition-colors hover:text-blue-600">
+                    <span>¿Cómo se calcula la homogeneidad?</span>
+                    <svg id="explanation-arrow" class="w-6 h-6 transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+                <div id="explanation-content" class="hidden mt-4 text-gray-700 space-y-4">
+                    <p>La homogeneidad (h) mide qué tan similares son los valores numéricos dentro de cada zona que creas, en comparación con la variabilidad total del mapa. Un valor cercano a 1 es ideal.</p>
+                    <p>Se calcula con la fórmula matemática:</p>
+                    <div class="text-center bg-gray-100 p-4 rounded-lg my-2">
+                        <code class="text-sm md:text-base">h(Q,S) = 1 - [ Σ(|qᵢ|-1)σ²(qᵢ) ] / [ σ²<sub>T</sub>(S) (|S|-|Q|) ]</code>
+                    </div>
+                     <p>Aquí te explicamos el proceso del cálculo paso a paso:</p>
+                    <ol class="list-decimal list-inside space-y-2">
+                        <li><strong>Varianza total (σ²<sub>T</sub>(S))</strong>: Primero, calculamos la varianza de <strong>todos</strong> los valores del grid (las 42 celdas). Esta es la variabilidad de referencia del mapa completo.</li>
+                        <li><strong>Identificar zonas (Q)</strong>: Agrupamos todas las celdas que pintaste del mismo color. Cada grupo es una "zona" (q<sub>i</sub>).</li>
+                        <li><strong>Calcular el numerador</strong>: Para cada una de tus zonas, calculamos su varianza interna (qué tan dispersos están sus valores). Luego, ponderamos esta varianza por el tamaño de la zona. La suma de estos valores para todas tus zonas es el numerador. Representa la "variabilidad total dentro de tus grupos".</li>
+                        <li><strong>Calcular el denominador</strong>: Multiplicamos la Varianza Total (paso 1) por la resta del número total de celdas (42) y el número de zonas que creaste.</li>
+                        <li><strong>Resultado final</strong>: Si tus zonas son muy homogéneas (valores internos muy parecidos), el numerador será pequeño, y el resultado final se acercará a 1.</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de Referencia -->
+        <div class="max-w-4xl mx-auto mt-4">
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+                <h3 class="text-xl font-bold text-gray-800">Referencia:</h3>
+                <p class="mt-2 text-gray-700">Las heurísticas A1, A2 y A3 implementadas en este simulador se basan en el siguiente artículo:</p>
+                <div class="mt-2 pl-4 border-l-4 border-gray-300 text-gray-600">
+<pre class="font-sans whitespace-pre-wrap text-sm">Urbán Rivero, L. E., Velasco, J., & Ramírez Rodríguez, J. (2022). A Simple Greedy Heuristic for Site Specific Management 
+Zone Problem. Axioms, 11(7), 318.</pre>
+                    <a href="https://doi.org/10.3390/axioms11070318" target="_blank" class="text-blue-600 hover:underline break-all">https://doi.org/10.3390/axioms11070318</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+
+
+    <!-- Footer & Contact -->
+    <footer id="contact" class="bg-[#333333] text-white">
+        <div class="container mx-auto px-6 py-10">
+            <div class="text-center">
+             <!--   <h2 class="text-2xl font-bold mb-4">Ponte en Contacto</h2> -->
+                <p class="text-gray-300 mb-2">Si tienes alguna pregunta o te gustaría colaborar, no dudes en escribirme.</p>
+              <!--  <a href="mailto:jvelasco@cimat.mx" class="text-[#80CBC4] text-lg hover:underline">jvelasco@cimat.mx</a> -->
+                <a href="../contacto.html" class="text-[#80CBC4] text-lg hover:underline">Contacto</a>
+                <p class="text-gray-500 mt-8 text-sm">&copy; 2025 Jonás Velasco. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- CONFIGURACIÓN INICIAL ---
+        const GRID_DATA = [
+            [10.7, 15.4, 13.9, 16.1, 15.6, 16.6, 16.6],
+            [11.7, 16.0, 13.8, 12.6, 14.4, 15.4, 11.2],
+            [15.1, 12.6, 14.8, 16.8, 10.5, 18.7, 10.4],
+            [16.3, 12.7, 14.2, 11.4, 11.5, 16.7, 13.5],
+            [14.1, 11.1, 14.5, 15.0, 14.13, 9.6, 12.5],
+            [11.8, 12.8, 14.9, 14.0, 11.2, 14.7, 14.7]
+        ];
+        const ROWS = 6;
+        const COLS = 7;
+        const CELL_COUNT = ROWS * COLS;
+        const COLORS = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6', '#ec4899', '#64748b', '#78716c', '#facc15', '#a3e635', '#2dd4bf', '#60a5fa', '#c084fc', '#f472b6', '#fb7185'];
+        let selectedColorIndex = 0;
+        let userSolution = Array(ROWS).fill(null).map(() => Array(COLS).fill(-1));
+
+        const flatGridData = GRID_DATA.flat();
+        let totalVariance = calculateVariance(flatGridData);
+
+        // --- ELEMENTOS DEL DOM ---
+        const userGrid = document.getElementById('user-grid');
+        const algoGrid = document.getElementById('algo-grid');
+        const userStats = document.getElementById('user-stats');
+        const algoStats = document.getElementById('algo-stats');
+        const colorPalette = document.getElementById('color-palette');
+        const alphaSlider = document.getElementById('alpha-slider');
+        const alphaValue = document.getElementById('alpha-value');
+        const algoButtons = document.getElementById('algo-buttons');
+        const resetBtn = document.getElementById('reset-btn');
+        const toggleBtn = document.getElementById('toggle-explanation-btn');
+        const explanationContent = document.getElementById('explanation-content');
+        const explanationArrow = document.getElementById('explanation-arrow');
+
+        // --- LÓGICA DE CÁLCULO ---
+
+        function calculateMean(arr) {
+            if (arr.length === 0) return 0;
+            const sum = arr.reduce((a, b) => a + b, 0);
+            return sum / arr.length;
+        }
+
+        function calculateVariance(arr) {
+            if (arr.length < 2) return 0;
+            const mean = calculateMean(arr);
+            const sumSqDiff = arr.reduce((a, b) => a + Math.pow(b - mean, 2), 0);
+            return sumSqDiff / arr.length; // Varianza poblacional
+        }
+        
+        function getZones(solution) {
+            const zones = new Map();
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    const zoneId = solution[r][c];
+                    if (zoneId !== -1) {
+                        if (!zones.has(zoneId)) {
+                            zones.set(zoneId, []);
+                        }
+                        zones.get(zoneId).push({ r, c, val: GRID_DATA[r][c] });
+                    }
+                }
+            }
+            return zones;
+        }
+        
+        function calculateHomogeneity(solution) {
+            const zones = getZones(solution);
+            const numZones = new Set(solution.flat().filter(id => id !== -1)).size;
+            if (numZones === 0 || totalVariance === 0) return 1;
+
+            let numerator = 0;
+            for (const [zoneId, cells] of zones.entries()) {
+                const zoneSize = cells.length;
+                if (zoneSize > 1) {
+                     const zoneValues = cells.map(c => c.val);
+                     const sumOfSquares = calculateVariance(zoneValues) * zoneSize; 
+                     numerator += sumOfSquares;
+                }
+            }
+            
+            const denominator = totalVariance * (CELL_COUNT - numZones);
+            if (denominator === 0) return 1;
+
+            return 1 - (numerator / denominator);
+        }
+
+        function evaluateAndDisplay(solution, statsContainer, isAlgo) {
+            const zones = getZones(solution);
+            const numZones = new Set(solution.flat().filter(id => id !== -1)).size;
+            const homogeneity = calculateHomogeneity(solution);
+            const { allConnected } = checkConnectivity(zones);
+            const alpha = parseFloat(alphaSlider.value);
+
+            let messages = [];
+
+            if (!allConnected) {
+                messages.push(`<span class="text-red-600 font-bold">¡Penalización! Hay zonas no conexas.</span>`);
+            }
+            if (homogeneity < alpha) {
+                messages.push(`<span class="text-orange-600 font-bold">La homogeneidad está por debajo de α=${alpha}.</span>`);
+            }
+
+            if (messages.length === 0 && numZones > 0) {
+                messages.push('<span class="text-green-600 font-bold">¡Solución válida!</span>');
+            } else if (numZones === 0) {
+                messages = ['<span class="text-gray-500">Aún no has creado zonas.</span>'];
+            }
+            
+            let statsHTML = `
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
+                    <div class="font-semibold">Zonas: <span class="font-bold text-xl">${numZones}</span></div>
+                    <div class="font-semibold tooltip">Homogeneidad (h): <span class="font-bold text-xl ${homogeneity >= alpha ? 'text-green-600' : 'text-orange-500'}">${homogeneity.toFixed(4)}</span><span class="tooltiptext">Fórmula: 1 - Σ((|qᵢ|-1)σ²(qᵢ)) / (σ²(S)(|S|-|Q|))</span></div>
+                    <div class="font-semibold">Conexidad: <span class="font-bold text-xl ${allConnected ? 'text-green-600' : 'text-red-600'}">${allConnected ? 'OK' : 'Falla'}</span></div>
+                </div>
+                <div class="mt-3 text-sm">${messages.join(' ')}</div>
+            `;
+
+            if (isAlgo && numZones > 0) {
+                let referenceGridHTML = `<div class="mt-4 border-t pt-2">
+                    <h4 class="font-bold mb-2 text-left text-sm">Mapa de índices de la solución:</h4>
+                    <div class="grid-container" style="gap: 2px; padding: 2px; border-width: 1px; cursor: default;">`;
+
+                const uniqueZoneIds = [...new Set(solution.flat().filter(id => id !== -1))];
+                const zoneIdToColorIndex = new Map();
+                uniqueZoneIds.forEach((id, index) => {
+                    zoneIdToColorIndex.set(id, index);
+                });
+
+                for (let i = 0; i < CELL_COUNT; i++) {
+                    const r = Math.floor(i / COLS);
+                    const c = i % COLS;
+                    const zoneId = solution[r][c];
+                    let color = '#ffffff';
+                    let textColor = 'rgba(0,0,0,0.7)';
+
+                    if (zoneId !== -1) {
+                        const colorIndex = zoneIdToColorIndex.get(zoneId);
+                        color = COLORS[colorIndex % COLORS.length];
+                        textColor = 'rgba(255,255,255,0.9)';
+                    }
+                    
+                    referenceGridHTML += `<div style="background-color: ${color}; position: relative; width: 100%; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center;">
+                        <span style="color: ${textColor}; font-size: 0.7rem; font-weight: 600;">${i}</span>
+                    </div>`;
+                }
+
+                referenceGridHTML += `</div></div>`;
+                statsHTML += referenceGridHTML;
+            }
+
+            statsContainer.innerHTML = statsHTML;
+        }
+        
+        function checkConnectivity(zones) {
+            let allConnected = true;
+            for (const [zoneId, cells] of zones.entries()) {
+                if (cells.length === 0) continue;
+                const visited = new Set();
+                const queue = [cells[0]];
+                visited.add(`${cells[0].r},${cells[0].c}`);
+                let head = 0;
+                while(head < queue.length){
+                    const {r, c} = queue[head++];
+                    [[r-1, c], [r+1, c], [r, c-1], [r, c+1]].forEach(([nr, nc]) => {
+                         if (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS && !visited.has(`${nr},${nc}`) && cells.some(cell => cell.r === nr && cell.c === nc)) {
+                            visited.add(`${nr},${nc}`);
+                            queue.push({r: nr, c: nc});
+                        }
+                    });
+                }
+                if (visited.size !== cells.length) {
+                    allConnected = false;
+                    break;
+                }
+            }
+            return { allConnected };
+        }
+
+        // --- INICIALIZACIÓN DE UI ---
+        
+        function createGrid(container, isInteractive) {
+            container.innerHTML = '';
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    const cell = document.createElement('div');
+                    cell.classList.add('grid-cell');
+                    const content = document.createElement('div');
+                    content.classList.add('cell-content');
+                    content.textContent = GRID_DATA[r][c].toFixed(2).replace(/\.00$/, '');
+                    cell.appendChild(content);
+                    if (isInteractive) {
+                        cell.dataset.r = r;
+                        cell.dataset.c = c;
+                        cell.addEventListener('click', handleCellClick);
+                    }
+                    container.appendChild(cell);
+                }
+            }
+        }
+
+        function createPalette() {
+            colorPalette.innerHTML = '';
+            COLORS.slice(0, 10).forEach((color, index) => {
+                const btn = document.createElement('button');
+                btn.classList.add('color-palette-btn', 'rounded-full');
+                if (index === selectedColorIndex) btn.classList.add('selected');
+                btn.style.backgroundColor = color;
+                btn.dataset.index = index;
+                btn.addEventListener('click', () => {
+                    selectedColorIndex = index;
+                    createPalette();
+                });
+                colorPalette.appendChild(btn);
+            });
+            const eraser = document.createElement('button');
+            eraser.classList.add('color-palette-btn', 'rounded-full', 'flex', 'items-center', 'justify-center');
+            eraser.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21H7Z"/><path d="M22 21H7"/><path d="m5 12 5 5"/></svg>`;
+            if (selectedColorIndex === -1) eraser.classList.add('selected');
+            eraser.addEventListener('click', () => {
+                selectedColorIndex = -1;
+                createPalette();
+            });
+            colorPalette.appendChild(eraser);
+        }
+
+        function updateGridColors(container, solution, remapColors) {
+            const cells = container.children;
+            let zoneIdToColorIndex = null;
+
+            if (remapColors) {
+                const uniqueZoneIds = [...new Set(solution.flat().filter(id => id !== -1))];
+                zoneIdToColorIndex = new Map();
+                uniqueZoneIds.forEach((id, index) => {
+                    zoneIdToColorIndex.set(id, index);
+                });
+            }
+
+            for (let i = 0; i < CELL_COUNT; i++) {
+                const r = Math.floor(i / COLS);
+                const c = i % COLS;
+                const zoneId = solution[r][c];
+                
+                if (zoneId !== -1) {
+                    let colorIndex;
+                    if (remapColors) {
+                        colorIndex = zoneIdToColorIndex.get(zoneId);
+                    } else {
+                        colorIndex = zoneId;
+                    }
+                    cells[i].style.backgroundColor = COLORS[colorIndex % COLORS.length];
+                    cells[i].querySelector('.cell-content').style.color = 'rgba(255,255,255,0.9)';
+                } else {
+                    cells[i].style.backgroundColor = '#ffffff';
+                    cells[i].querySelector('.cell-content').style.color = 'rgba(0,0,0,0.7)';
+                }
+            }
+        }
+        
+        // --- MANEJADORES DE EVENTOS ---
+
+        function handleCellClick(e) {
+            const r = parseInt(e.currentTarget.dataset.r);
+            const c = parseInt(e.currentTarget.dataset.c);
+            userSolution[r][c] = selectedColorIndex;
+            updateGridColors(userGrid, userSolution, false);
+            evaluateAndDisplay(userSolution, userStats, false);
+        }
+
+        function reset() {
+            userSolution = Array(ROWS).fill(null).map(() => Array(COLS).fill(-1));
+            updateGridColors(userGrid, userSolution, false);
+            evaluateAndDisplay(userSolution, userStats, false);
+            algoGrid.innerHTML = '<span class="text-gray-500">Esperando ejecución...</span>';
+            algoStats.innerHTML = '';
+        }
+
+        // --- HEURÍSTICAS GREEDY ---
+        
+        async function runGreedyAlgorithm(variant) {
+            Array.from(algoButtons.children).forEach(btn => btn.disabled = true);
+            algoGrid.innerHTML = '<div class="loader"></div>';
+            algoStats.innerHTML = '<p class="text-gray-500">Calculando...</p>';
+
+            await new Promise(resolve => setTimeout(resolve, 50));
+
+            let solution = Array.from({ length: ROWS }, (_, r) => 
+                Array.from({ length: COLS }, (_, c) => r * COLS + c)
+            );
+            
+            const alpha = parseFloat(alphaSlider.value);
+            const processingOrder = Array.from({length: CELL_COUNT}, (_, i) => i);
+            
+            if (variant !== 'A1') { 
+                for (let i = processingOrder.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [processingOrder[i], processingOrder[j]] = [processingOrder[j], processingOrder[i]];
+                }
+            }
+
+            for (const cellIndex of processingOrder) {
+                const r = Math.floor(cellIndex / COLS);
+                const c = cellIndex % COLS;
+                
+                let neighbors = [[r-1, c], [r+1, c], [r, c-1], [r, c+1]]
+                    .filter(([nr, nc]) => nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS);
+
+                if (variant === 'A2') {
+                    for (let i = neighbors.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [neighbors[i], neighbors[j]] = [neighbors[j], neighbors[i]];
+                    }
+                }
+
+                let bestMerge = { neighborZoneId: -1, homogeneity: -1 };
+
+                for (const [nr, nc] of neighbors) {
+                    const currentZoneId = solution[r][c];
+                    const neighborZoneId = solution[nr][nc];
+                    if (currentZoneId === neighborZoneId) continue;
+
+                    const tempSolution = JSON.parse(JSON.stringify(solution));
+                    for (let i = 0; i < ROWS; i++) {
+                        for (let j = 0; j < COLS; j++) {
+                            if (tempSolution[i][j] === currentZoneId) {
+                                tempSolution[i][j] = neighborZoneId;
+                            }
+                        }
+                    }
+                    
+                    const h = calculateHomogeneity(tempSolution);
+
+                    if (h >= alpha) {
+                        if (variant === 'A3') {
+                            if (h > bestMerge.homogeneity) {
+                                bestMerge.homogeneity = h;
+                                bestMerge.neighborZoneId = neighborZoneId;
+                            }
+                        } else {
+                            bestMerge.neighborZoneId = neighborZoneId;
+                            break; 
+                        }
+                    }
+                }
+
+                if (bestMerge.neighborZoneId !== -1) {
+                    const zoneToAbsorb = solution[r][c];
+                    const targetZone = bestMerge.neighborZoneId;
+                    for (let i = 0; i < ROWS; i++) {
+                        for (let j = 0; j < COLS; j++) {
+                            if (solution[i][j] === zoneToAbsorb) {
+                                solution[i][j] = targetZone;
+                            }
+                        }
+                    }
+                }
+            }
+
+            createGrid(algoGrid, false);
+            updateGridColors(algoGrid, solution, true);
+            evaluateAndDisplay(solution, algoStats, true);
+            Array.from(algoButtons.children).forEach(btn => btn.disabled = false);
+        }
+
+        alphaSlider.addEventListener('input', (e) => {
+            alphaValue.textContent = parseFloat(e.target.value).toFixed(2);
+            evaluateAndDisplay(userSolution, userStats, false);
+        });
+        
+        resetBtn.addEventListener('click', reset);
+        toggleBtn.addEventListener('click', () => {
+            explanationContent.classList.toggle('hidden');
+            explanationArrow.classList.toggle('rotate-180');
+        });
+        
+        document.getElementById('solve-a1-btn').addEventListener('click', () => runGreedyAlgorithm('A1'));
+        document.getElementById('solve-a2-btn').addEventListener('click', () => runGreedyAlgorithm('A2'));
+        document.getElementById('solve-a3-btn').addEventListener('click', () => runGreedyAlgorithm('A3'));
+
+        // --- INICIO ---
+        createGrid(userGrid, true);
+        algoGrid.innerHTML = '<span class="text-gray-500">Esperando ejecución...</span>';
+        createPalette();
+        evaluateAndDisplay(userSolution, userStats, false);
+    });
+    </script>
+    
+    <script>
+        // --- LÓGICA DE PROTECCIÓN ---
+
+
+        // 1. Deshabilitar el clic derecho en toda la página
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            showProtectionToast('El clic derecho está deshabilitado.');
+        });
+
+        // 2. Bloquear atajos de teclado comunes
+        document.addEventListener('keydown', function(e) {
+            // Bloquear F12 para dificultar el acceso a las herramientas de desarrollador
+            if (e.key === 'F12' || e.keyCode === 123) {
+                e.preventDefault();
+                showProtectionToast('Las herramientas de desarrollador están deshabilitadas.');
+            }
+
+            // Bloquear combinaciones con la tecla Ctrl
+            if (e.ctrlKey) {
+                const key = e.key.toLowerCase();
+                if (['c', 'x', 'u', 's', 'p'].includes(key)) {
+                    e.preventDefault();
+                    showProtectionToast(`La función (Ctrl+${key.toUpperCase()}) ha sido deshabilitada.`);
+                }
+            }
+        });
+    </script>
+    
+</body>
+</html>
+
