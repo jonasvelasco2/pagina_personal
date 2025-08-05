@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Olivia en la Tierra de la Optimización</title>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;700&family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: #eaeaea;
+      font-family: 'EB Garamond', serif;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+    .storybook-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      width: 100vw;
+    }
+    .storybook-page {
+      display: flex;
+      flex-direction: row;
+      background: #f9f7f3;
+      width: 90vw;
+      max-width: 1400px;
+      aspect-ratio: 16/9;
+      min-height: 500px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.13);
+      border-radius: 22px;
+      overflow: hidden;
+      position: relative;
+      margin-bottom: 24px;
+      border: 1.5px solid #e2d6c2;
+      transition: box-shadow 0.3s, transform 0.3s;
+      animation: fadein 0.7s;
+      background-image: repeating-linear-gradient(135deg, #f9f7f3 0px, #f9f7f3 30px, #f3ede3 31px, #f3ede3 60px);
+    }
+    @keyframes fadein {
+      from { opacity: 0; transform: scale(0.97);}
+      to { opacity: 1; transform: scale(1);}
+    }
+    .storybook-img {
+      width: 50%;
+      object-fit: cover;
+      height: 100%;
+      border-right: 1px solid #eee;
+      background: #eee;
+    }
+    .storybook-text {
+      width: 50%;
+      padding: 60px 60px 50px 60px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      font-size: 1.45em;
+      line-height: 1.7;
+      color: #3a2c1a;
+      background: rgba(255,255,255,0.85);
+      position: relative;
+      font-family: 'EB Garamond', serif;
+      box-shadow: 0 0 0 0 #fff;
+      border-radius: 0 0 0 0;
+      text-align: justify;
+    }
+    .storybook-text p {
+      margin: 0 0 0.7em 0;
+    }
+    .storybook-text .dropcap {
+      float: left;
+      font-size: 2.7em;
+      line-height: 0.8;
+      font-weight: bold;
+      color: #e6b800;
+      margin-right: 0.18em;
+      font-family: 'Quicksand', sans-serif;
+      text-shadow: 1px 2px 0 #fff7d6, 0 2px 8px #e6b80033;
+    }
+    .storybook-text .dialogo {
+      display: block;
+      margin: 0.5em 0 0.5em 0.5em;
+      padding-left: 1.2em;
+      border-left: 3px solid #e6b800;
+      color: #b07a00;
+      font-style: italic;
+      font-size: 1.08em;
+      position: relative;
+    }
+    .storybook-text .dialogo:before {
+      content: "“";
+      font-size: 2em;
+      color: #e6b800;
+      position: absolute;
+      left: -0.7em;
+      top: -0.2em;
+      font-family: 'EB Garamond', serif;
+    }
+    .storybook-author {
+      position: absolute;
+      top: 24px;
+      right: 60px;
+      font-size: 0.95em;
+      color: #b6a88a;
+      letter-spacing: 2px;
+      font-family: 'Quicksand', sans-serif;
+    }
+    .storybook-page-number {
+      position: absolute;
+      bottom: 24px;
+      right: 60px;
+      font-size: 1em;
+      color: #d1c3a2;
+      font-family: 'Quicksand', sans-serif;
+    }
+    .storybook-btns {
+      display: flex;
+      gap: 24px;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+    .storybook-btn {
+      padding: 12px 32px;
+      border: 1.5px solid #e6b800;
+      background: #fffbe6;
+      color: #b07a00;
+      border-radius: 10px;
+      font-size: 1.15em;
+      cursor: pointer;
+      font-family: 'Quicksand', sans-serif;
+      font-weight: bold;
+      box-shadow: 0 2px 8px #e6b80022;
+      transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+    }
+    .storybook-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .storybook-btn:hover:not(:disabled) {
+      background: #ffe9a7;
+      color: #e6b800;
+      box-shadow: 0 4px 16px #e6b80033;
+    }
+    /* Portada especial */
+    .storybook-cover {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      left: 0; top: 0;
+      z-index: 1;
+    }
+    .storybook-cover-title {
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      background: rgba(255,255,255,0.92);
+      padding: 38px 0 30px 0;
+      text-align: center;
+      z-index: 2;
+      border-top: 2px solid #e6b80044;
+    }
+    .storybook-cover-title h1 {
+      font-size: 2.7em;
+      margin: 0 0 0.2em 0;
+      color: #b07a00;
+      font-family: 'EB Garamond', serif;
+      font-weight: bold;
+      letter-spacing: 1px;
+      text-shadow: 0 2px 8px #e6b80022;
+    }
+    .storybook-cover-title h2 {
+      font-size: 1.3em;
+      margin: 0;
+      color: #7a5a00;
+      font-family: 'Quicksand', sans-serif;
+      font-weight: normal;
+    }
+    @media (max-width: 900px) {
+      .storybook-page { flex-direction: column; aspect-ratio: unset; width: 100vw; min-height: 60vh;}
+      .storybook-img, .storybook-text { width: 100%; height: 50vw; min-height: 200px;}
+      .storybook-text { padding: 32px 16px; }
+      .storybook-cover-title { padding: 16px 0 12px 0;}
+      .storybook-author, .storybook-page-number { right: 20px;}
+    }
+  </style>
+</head>
+<body>
+<div class="storybook-container">
+  <div class="storybook-page" id="page-container">
+    <!-- El contenido de la página se inserta aquí por JS -->
+  </div>
+  <div class="storybook-btns">
+    <button class="storybook-btn" id="prev-btn">Anterior</button>
+    <button class="storybook-btn" id="next-btn">Siguiente</button>
+  </div>
+</div>
+<script>
+const pages = [
+  // Portada
+  {
+    cover: true,
+    img: "Screenshot from 2025-08-05 13-18-02.png",
+    title: "Olivia en la Tierra de la Optimización",
+    author: "De Jonas Velasco"
+  },
+  // Página 1
+  {
+    img: "Screenshot from 2025-08-05 13-18-16.png",
+    text: `<span class="dropcap">O</span>livia era una niña curiosa que un día, persiguiendo a una mariposa de colores, encontró una puerta secreta. Al cruzarla, llegó a la Tierra de la Optimización, un lugar donde los caminos se enredaban, los ríos se atascaban y todos parecían tener prisa, pero nadie llegaba a tiempo.`,
+    author: "JONAS VELASCO",
+    page: 1
+  },
+  // Página 2
+  {
+    img: "Screenshot from 2025-08-05 13-18-22.png",
+    text: `En un jardín, dos hombres idénticos con sombreros de paja discutían. <span class="dialogo">¡Mi camino es mejor!</span> decía uno. <span class="dialogo">¡No, el mío es más corto!</span> respondía el otro. Eran los hermanos Kruskal y Prim, los mejores jardineros del reino, pero hoy no se ponían de acuerdo.`,
+    author: "JONAS VELASCO",
+    page: 2
+  },
+  // Página 3
+  {
+    img: "Screenshot from 2025-08-05 13-18-26.png",
+    text: `<span class="dropcap">O</span>livia se acercó. <span class="dialogo">Quizás pueda ayudar.</span> Usando las ideas de ambos, Olivia eligió primero las piedras más cercanas entre sí, asegurándose de no formar círculos cerrados. Poco a poco, creó una sola red de senderos que conectaba todas las flores con la menor cantidad de piedras. <span class="dialogo">¡Un árbol de expansión mínima!,</span> exclamaron los hermanos.`,
+    author: "JONAS VELASCO",
+    page: 3
+  },
+  // Página 4
+  {
+    img: "Screenshot from 2025-08-05 13-18-33.png",
+    text: `<span class="dialogo">¡Ahora debo llegar al Castillo de las Soluciones!,</span> dijo Olivia. De la nada, apareció un guepardo con gafas de explorador. <span class="dialogo">Soy Dijkstra, el más rápido. ¡Nunca tomes un camino sin saber que es el más corto! Reviso cada tramo desde donde estoy, y siempre elijo el más breve para avanzar.</span>`,
+    author: "JONAS VELASCO",
+    page: 4
+  },
+  // Página 5
+  {
+    img: "Screenshot from 2025-08-05 13-18-37.png",
+    text: `Siguiendo el consejo de Dijkstra, Olivia llegó al castillo en un tiempo récord. Allí, un palomo cartero estaba a punto de llorar sobre una pila de cartas. <span class="dialogo">¡Soy el Vendedor Viajero! Debo entregar estas cartas en todas las ciudades, ¡pero mi ruta es un desastre y estoy agotado!.</span>`,
+    author: "JONAS VELASCO",
+    page: 5
+  },
+  // Página 6
+  {
+    img: "Screenshot from 2025-08-05 13-18-40.png",
+    text: `<span class="dropcap">O</span>livia recordó sus lecciones. <span class="dialogo">No tienes que volar a la ciudad más cercana, sino planear un recorrido completo que sea el más corto en total.</span> Juntos, trazaron una ruta que visitaba cada ciudad una sola vez y regresaba al inicio. ¡Era el viaje perfecto!`,
+    author: "JONAS VELASCO",
+    page: 6
+  },
+  // Página 7
+  {
+    img: "Screenshot from 2025-08-05 13-18-43.png",
+    text: `Su siguiente parada fue un enorme campo de flores donde miles de abejas zumbaban confundidas. La Abeja Reina se lamentaba: <span class="dialogo">¡Debemos asignar cada abeja a una flor! Pero, ¿cuál es la mejor manera? ¡Necesitamos a los Asignadores!.</span>`,
+    author: "JONAS VELASCO",
+    page: 7
+  },
+  // Página 8
+  {
+    img: "Screenshot from 2025-08-05 13-18-46.png",
+    text: `Apareció un enjambre de abejas con pequeños pergaminos. Eran los Asignadores. <span class="dialogo">¡Cada tarea para el trabajador adecuado!,</span> zumbaban. Crearon una tabla mágica que emparejaba cada abeja con la flor perfecta para ella, minimizando el tiempo total de recolección. El campo se llenó de un zumbido feliz y organizado.`,
+    author: "JONAS VELASCO",
+    page: 8
+  },
+  // Página 9
+  {
+    img: "Screenshot from 2025-08-05 13-18-50.png",
+    text: `Finalmente, Olivia llegó al Gran Canal, donde los barcos estaban atascados. Un castor con sombrero de capitán, el Capitán de Flujo, suspiró: <span class="dialogo">¡La capacidad del canal es limitada! Debo encontrar la manera de que pasen la mayor cantidad de barcos sin crear un atasco.</span>`,
+    author: "JONAS VELASCO",
+    page: 9
+  },
+  // Página 10
+  {
+    img: "Screenshot from 2025-08-05 13-18-54.png",
+    text: `El Capitán de Flujo le mostró a Olivia cómo, al desviar algunos barcos por canales secundarios, podía aumentar el flujo total. ¡El atasco desapareció! Olivia había aprendido la lección más importante: <b>optimizar no es solo ser rápido, es ser inteligente</b>. Y por eso, fue nombrada la Princesa de la Optimización.`,
+    author: "JONAS VELASCO",
+    page: 10,
+    end: true
+  }
+];
+
+let currentPage = 0;
+
+function renderPage(idx) {
+  const container = document.getElementById('page-container');
+  const page = pages[idx];
+  let html = '';
+  if (page.cover) {
+    html = `
+      <img class="storybook-cover" src="${page.img}" alt="Portada">
+      <div class="storybook-cover-title">
+        <h1>${page.title}</h1>
+        <h2>${page.author}</h2>
+        <br>
+        <button class="storybook-btn" onclick="goToPage(1)">Comenzar</button>
+      </div>
+    `;
+  } else {
+    html = `
+      <img class="storybook-img" src="${page.img}" alt="Página ${page.page || ''}">
+      <div class="storybook-text">
+        <div class="storybook-author">${page.author}</div>
+        <p>${page.text}</p>
+        ${page.end ? `<button class="storybook-btn" onclick="goToPage(0)">Volver a la portada</button>` : ''}
+        <div class="storybook-page-number">${page.page || ''}</div>
+      </div>
+    `;
+  }
+  container.innerHTML = html;
+  // Botones
+  document.getElementById('prev-btn').disabled = idx === 0;
+  document.getElementById('next-btn').disabled = idx === pages.length - 1;
+}
+
+function goToPage(idx) {
+  currentPage = idx;
+  renderPage(currentPage);
+}
+
+document.getElementById('prev-btn').onclick = () => {
+  if (currentPage > 0) goToPage(currentPage - 1);
+};
+document.getElementById('next-btn').onclick = () => {
+  if (currentPage < pages.length - 1) goToPage(currentPage + 1);
+};
+
+// Inicializa
+renderPage(currentPage);
+</script>
+</body>
+</html>

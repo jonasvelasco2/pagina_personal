@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Olivia y el Festival de las Soluciones Brillantes</title>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;700&family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {background: #eaeaea; font-family: 'EB Garamond', serif; margin: 0; padding: 0; overflow: hidden;}
+    .storybook-container {display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; width: 100vw;}
+    .storybook-page {display: flex; flex-direction: row; background: #f9f7f3; width: 90vw; max-width: 1400px; aspect-ratio: 16/9; min-height: 500px; box-shadow: 0 8px 32px rgba(0,0,0,0.13); border-radius: 22px; overflow: hidden; position: relative; margin-bottom: 24px; border: 1.5px solid #e2d6c2; transition: box-shadow 0.3s, transform 0.3s; animation: fadein 0.7s; background-image: repeating-linear-gradient(135deg, #f9f7f3 0px, #f9f7f3 30px, #f3ede3 31px, #f3ede3 60px);}
+    @keyframes fadein {from { opacity: 0; transform: scale(0.97);} to { opacity: 1; transform: scale(1);}}
+    .storybook-img {width: 50%; object-fit: cover; height: 100%; border-right: 1px solid #eee; background: #eee;}
+    .storybook-text {width: 50%; padding: 60px 60px 50px 60px; display: flex; flex-direction: column; justify-content: center; font-size: 1.45em; line-height: 1.7; color: #3a2c1a; background: rgba(255,255,255,0.85); position: relative; font-family: 'EB Garamond', serif; box-shadow: 0 0 0 0 #fff; border-radius: 0 0 0 0; text-align: justify;}
+    .storybook-text p {margin: 0 0 0.7em 0;}
+    .storybook-text .dropcap {float: left; font-size: 2.7em; line-height: 0.8; font-weight: bold; color: #e6b800; margin-right: 0.18em; font-family: 'Quicksand', sans-serif; text-shadow: 1px 2px 0 #fff7d6, 0 2px 8px #e6b80033;}
+    .storybook-text .dialogo {display: block; margin: 0.5em 0 0.5em 0.5em; padding-left: 1.2em; border-left: 3px solid #e6b800; color: #b07a00; font-style: italic; font-size: 1.08em; position: relative;}
+    .storybook-text .dialogo:before {content: "“"; font-size: 2em; color: #e6b800; position: absolute; left: -0.7em; top: -0.2em; font-family: 'EB Garamond', serif;}
+    .storybook-author {position: absolute; top: 24px; right: 60px; font-size: 0.95em; color: #b6a88a; letter-spacing: 2px; font-family: 'Quicksand', sans-serif;}
+    .storybook-page-number {position: absolute; bottom: 24px; right: 60px; font-size: 1em; color: #d1c3a2; font-family: 'Quicksand', sans-serif;}
+    .storybook-btns {display: flex; gap: 24px; justify-content: center; margin-bottom: 12px;}
+    .storybook-btn {padding: 12px 32px; border: 1.5px solid #e6b800; background: #fffbe6; color: #b07a00; border-radius: 10px; font-size: 1.15em; cursor: pointer; font-family: 'Quicksand', sans-serif; font-weight: bold; box-shadow: 0 2px 8px #e6b80022; transition: background 0.2s, color 0.2s, box-shadow 0.2s;}
+    .storybook-btn:disabled {opacity: 0.4; cursor: not-allowed;}
+    .storybook-btn:hover:not(:disabled) {background: #ffe9a7; color: #e6b800; box-shadow: 0 4px 16px #e6b80033;}
+    .storybook-cover {width: 100%; height: 100%; object-fit: cover; position: absolute; left: 0; top: 0; z-index: 1;}
+    .storybook-cover-title {position: absolute; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.92); padding: 38px 0 30px 0; text-align: center; z-index: 2; border-top: 2px solid #e6b80044;}
+    .storybook-cover-title h1 {font-size: 2.7em; margin: 0 0 0.2em 0; color: #b07a00; font-family: 'EB Garamond', serif; font-weight: bold; letter-spacing: 1px; text-shadow: 0 2px 8px #e6b80022;}
+    .storybook-cover-title h2 {font-size: 1.3em; margin: 0; color: #7a5a00; font-family: 'Quicksand', sans-serif; font-weight: normal;}
+    @media (max-width: 900px) {.storybook-page { flex-direction: column; aspect-ratio: unset; width: 100vw; min-height: 60vh;}.storybook-img, .storybook-text { width: 100%; height: 50vw; min-height: 200px;}.storybook-text { padding: 32px 16px; }.storybook-cover-title { padding: 16px 0 12px 0;}.storybook-author, .storybook-page-number { right: 20px;}}
+  </style>
+</head>
+<body>
+<div class="storybook-container">
+  <div class="storybook-page" id="page-container">
+    <!-- El contenido de la página se inserta aquí por JS -->
+  </div>
+  <div class="storybook-btns">
+    <button class="storybook-btn" id="prev-btn">Anterior</button>
+    <button class="storybook-btn" id="next-btn">Siguiente</button>
+  </div>
+</div>
+<script>
+const pages = [
+  // Portada
+  {
+    cover: true,
+    img: "Screenshot from 2025-08-05 15-04-42.png",
+    title: "Olivia y el Festival de las Soluciones Brillantes",
+    author: "De Jonas Velasco"
+  },
+  // Página 1
+  {
+    img: "Screenshot from 2025-08-05 15-04-50.png",
+    text: `Como la nueva Princesa de la Optimización, el primer gran deber de Olivia era organizar el Festival Anual de las Soluciones Brillantes. Pero un problema amenazaba la celebración. Kori, el gnomo encargado de los suministros, estaba sentado frente a un montón de tesoros festivos y un saco de transporte mágico que parecía demasiado pequeño.`,
+    author: "JONAS VELASCO",
+    page: 1
+  },
+  // Página 2
+  {
+    img: "Screenshot from 2025-08-05 15-04-55.png",
+    text: `<span class="dialogo">¡No cabrá todo!,</span> se lamentó Kori. <span class="dialogo">¡Quiero empacar los artículos que traerán más alegría, pero los más alegres también son los más grandes!,</span> Olivia sonrió. <span class="dialogo">No se trata de empacar más, Kori. Se trata de empacar lo mejor. Es el problema de la mochila.</span>`,
+    author: "JONAS VELASCO",
+    page: 2
+  },
+  // Página 3
+  {
+    img: "Screenshot from 2025-08-05 15-04-58.png",
+    text: `<span class="dropcap">O</span>livia le explicó cómo asignar un valor de "alegría" y un "tamaño" a cada artículo. Juntos, seleccionaron la combinación que maximizaba la alegría total sin sobrecargar el saco. ¡El saco se cerró con un pop mágico, lleno de la mezcla perfecta de maravillas! <span class="dialogo">¡Lo lograste!,</span> celebró Olivia.`,
+    author: "JONAS VELASCO",
+    page: 3
+  },
+  // Página 4
+  {
+    img: "Screenshot from 2025-08-05 15-05-02.png",
+    text: `El siguiente desafío era el Gran Desfile. Los hermanos Kruskal y Prim, ahora mariscales del desfile, discutían junto a una flota de carrozas de flores. <span class="dialogo">¡Mis carrozas solo irán a los barrios cercanos!,</span> insistió Kruskal. <span class="dialogo">¡Pero mis carrozas tienen más capacidad y pueden ir más lejos!",</span> replicó Prim.`,
+    author: "JONAS VELASCO",
+    page: 4
+  },
+  // Página 5
+  {
+    img: "Screenshot from 2025-08-05 15-05-05.png",
+    text: `<span class="dialogo">Ambos tienen razón,</span> intervino Olivia. <span class="dialogo">No es un solo viaje, es un problema de enrutamiento de vehículos. Debemos planificar las rutas para todas las carrozas juntas, considerando su capacidad y los barrios que deben visitar, para que todas terminen a tiempo.</span>`,
+    author: "JONAS VELASCO",
+    page: 5
+  },
+  // Página 6
+  {
+    img: "Screenshot from 2025-08-05 15-05-08.png",
+    text: `<span class="dropcap">O</span>livia ayudó a los hermanos a trazar rutas óptimas para cada carroza, asegurándose de que ninguna estuviera sobrecargada y que todos los barrios recibieran sus golosinas del festival. Las carrozas partieron en una procesión perfectamente sincronizada, y los hermanos se dieron la mano, por fin de acuerdo.`,
+    author: "JONAS VELASCO",
+    page: 6
+  },
+  // Página 7
+  {
+    img: "Screenshot from 2025-08-05 15-05-11.png",
+    text: `Más tarde, en el Salón de Conciertos, el Profesor Tempo, un búho director de orquesta, estaba en pánico. <span class="dialogo">¡Tantos músicos, tan pocos escenarios! ¡Nunca terminaremos a tiempo para los fuegos artificiales!.</span> Su horario era un desastre de notas garabateadas.`,
+    author: "JONAS VELASCO",
+    page: 7
+  },
+  // Página 8
+  {
+    img: "Screenshot from 2025-08-05 15-05-14.png",
+    text: `<span class="dialogo">Esto es un problema de planificación,</span> dijo Olivia con calma. <span class="dialogo">Debemos ordenar las actuaciones en los escenarios para minimizar el tiempo total.</span> Creó un nuevo horario, un diagrama de Gantt, que mostraba exactamente cuándo y dónde debía estar cada grupo de músicos.`,
+    author: "JONAS VELASCO",
+    page: 8
+  },
+  // Página 9
+  {
+    img: "Screenshot from 2025-08-05 15-05-17.png",
+    text: `El último evento era la exhibición de linternas. Chroma, un camaleón artista, estaba preocupado. <span class="dialogo">Si dos linternas conectadas tienen el mismo color, ¡la magia se apaga! Y solo tengo unos pocos colores mágicos.</span>`,
+    author: "JONAS VELASCO",
+    page: 9
+  },
+  // Página 10
+  {
+    img: "Screenshot from 2025-08-05 15-05-20.png",
+    text: `<span class="dialogo">¡Es un rompecabezas de coloreado de grafos!,</span> exclamó Olivia. Rápidamente, ideó un plan, asignando colores para que ninguna de las linternas adyacentes fuera igual. Cuando la última linterna fue pintada, toda la plaza se iluminó con una luz deslumbrante y armoniosa. El festival fue un éxito, y la Princesa Olivia demostró que con la optimización, cualquier problema tenía una solución brillante.`,
+    author: "JONAS VELASCO",
+    page: 10,
+    end: true
+  }
+];
+
+let currentPage = 0;
+
+function renderPage(idx) {
+  const container = document.getElementById('page-container');
+  const page = pages[idx];
+  let html = '';
+  if (page.cover) {
+    html = `
+    <img class="storybook-cover" src="${page.img}" alt="Portada">
+    <div class="storybook-cover-title">
+    <h1>${page.title}</h1>
+    <h2>${page.author}</h2>
+    <br>
+    <button class="storybook-btn" onclick="goToPage(1)">Comenzar</button>
+    </div>
+    `;
+  } else {
+    html = `
+    <img class="storybook-img" src="${page.img}" alt="Página ${page.page || ''}">
+    <div class="storybook-text">
+    <div class="storybook-author">${page.author}</div>
+    <p>${page.text}</p>
+    ${page.end ? `<button class="storybook-btn" onclick="goToPage(0)">Volver a la portada</button>` : ''}
+    <div class="storybook-page-number">${page.page || ''}</div>
+    </div>
+    `;
+  }
+  container.innerHTML = html;
+  // Botones
+  document.getElementById('prev-btn').disabled = idx === 0;
+  document.getElementById('next-btn').disabled = idx === pages.length - 1;
+}
+
+function goToPage(idx) {
+  currentPage = idx;
+  renderPage(currentPage);
+}
+
+document.getElementById('prev-btn').onclick = () => {
+  if (currentPage > 0) goToPage(currentPage - 1);
+};
+document.getElementById('next-btn').onclick = () => {
+  if (currentPage < pages.length - 1) goToPage(currentPage + 1);
+};
+
+// Inicializa
+renderPage(currentPage);
+</script>
+</body>
+</html>
