@@ -265,7 +265,7 @@
 
             const addBidirectionalEdge = (u, v) => {
                 const weight1 = Math.floor(Math.random() * 90) + 10;
-                const weight2 = Math.floor(Math.random() * 90) + 10;
+                const weight2 = weight1;
                 edges.push({ from: u, to: v, weight: weight1 });
                 adjacency[u].push({ node: v, weight: weight1 });
                 edges.push({ from: v, to: u, weight: weight2 });
