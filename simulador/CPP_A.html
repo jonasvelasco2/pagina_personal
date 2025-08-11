@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador del problema del cartero chino</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+        .info-card {
+            background-color: white;
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.07), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .node-circle-styling {
+            fill: white;
+            stroke: #0ea5e9;
+            stroke-width: 3px;
+            cursor: grab;
+            transition: all 0.2s ease-in-out;
+        }
+        .node-circle-styling.odd-degree {
+            stroke: #f59e0b; /* Naranja para grado impar */
+            stroke-width: 4px;
+        }
+        .node-circle-styling:active {
+            cursor: grabbing;
+        }
+        .node-label {
+            font-size: 14px;
+            fill: #1e293b;
+            font-weight: 600;
+            text-anchor: middle;
+            dominant-baseline: central;
+            pointer-events: none;
+        }
+        .edge-line {
+            stroke: #94a3b8;
+            stroke-width: 3px;
+            transition: all 0.3s;
+        }
+        .edge-line.visited-by-user {
+            stroke: #3b82f6;
+        }
+        .edge-line.visited-by-algo {
+            stroke: #10b981;
+        }
+        .edge-line.duplicated {
+            stroke: #f43f5e;
+            stroke-dasharray: 5, 5;
+            stroke-width: 4px;
+        }
+        .edge-hitbox {
+            stroke: transparent;
+            stroke-width: 15px;
+            cursor: pointer;
+        }
+        .edge-weight {
+            font-size: 12px;
+            fill: #475569;
+            font-weight: 500;
+            text-anchor: middle;
+            paint-order: stroke;
+            stroke: #ffffff;
+            stroke-width: 4px;
+        }
+        .path-marker {
+            transition: all 0.5s ease-in-out;
+        }
+        /* Estilos del Modal */
+        .modal-overlay {
+            transition: opacity 0.3s ease-in-out;
+        }
+        .modal-content {
+            transition: all 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <div class="container mx-auto p-4 md:p-8 relative flex-grow">
+    
+
+            <div class="absolute top-4 right-4 flex items-center gap-4 z-10">
+
+           <a href="../pasarela/buymeacoffee.html" 
+               target="_blank" 
+               rel="noopener noreferrer" 
+               class="inline-flex items-center gap-2 bg-yellow-400 text-gray-900 font-bold py-2 px-4 rounded-lg shadow-sm transition-colors duration-300 hover:bg-yellow-500">
+                
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M1 12.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5M2 4v6h10V4zm11.5 0a.5.5 0 0 0-.5.5v5a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-5a.5.5 0 0 0-.5-.5zM1 3.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5m10.854-1.354a.5.5 0 0 0-.708 0L9 3.293 7.854 2.146a.5.5 0 1 0-.708.708L8.293 4 7.146 5.146a.5.5 0 1 0 .708.708L9 4.707l1.146 1.147a.5.5 0 0 0 .708-.708L9.707 4l1.147-1.146a.5.5 0 0 0 0-.708"/>
+                </svg>
+                <span>Invítame un café</span>
+            </a>
+
+            <a href="../index.html" class="bg-white hover:bg-slate-100 text-slate-600 font-semibold py-2 px-4 border border-slate-200 rounded-lg shadow-sm flex items-center transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                Inicio
+            </a>
+</div>
+    
+    
+        <header class="text-center mb-8 pt-16">
+            <h1 class="text-4xl md:text-5xl font-bold text-slate-800">El problema del cartero chino</h1>
+            <p class="text-lg text-slate-500 mt-3">Encuentra el tour de menor costo que recorra todas las calles (aristas).</p>
+        </header>
+
+        <!-- Panel de Instrucciones y Explicación -->
+        <div class="my-8 info-card p-6">
+            <h2 class="text-2xl font-bold mb-4 text-indigo-600">¿Cómo funciona?</h2>
+            <div class="grid md:grid-cols-2 gap-6 text-slate-600">
+                <div>
+                    <h3 class="text-lg font-semibold mb-2">Instrucciones de uso</h3>
+                    <ol class="list-decimal list-inside space-y-2">
+                        <li><b>Arrastra los nodos</b> para organizar el grafo a tu gusto.</li>
+                        <li>Haz clic en las <b>líneas (aristas)</b> para construir tu ruta, empezando desde tu posición (marcador azul).</li>
+                        <li>Tu objetivo es que todas las líneas se pongan azules (visitadas).</li>
+                        <li>Si usas una arista más de una vez, se marcará con una <strong>línea roja punteada</strong>.</li>
+                        <li>Cuando termines, presiona <b>"Resolver"</b> para ver la solución óptima y comparar resultados.</li>
+                    </ol>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-2">Cálculo del recorrido</h3>
+                    <p>
+                        El costo total de un recorrido es la suma de los pesos de <b>todas las aristas</b> del mapa, más un costo adicional por cada arista que deba ser recorrida más de una vez. El algoritmo busca minimizar este costo extra, encontrando los "atajos" más cortos para conectar los nodos "problemáticos" (aquellos con un número impar de conexiones).
+                    </p>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="w-full mx-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <main class="lg:col-span-2 bg-white rounded-2xl shadow-lg p-4 relative">
+                    <svg id="travelSVG" class="w-full h-auto aspect-[4/3] rounded-lg"></svg>
+                    <div id="loading" class="absolute inset-0 bg-white bg-opacity-80 flex-col items-center justify-center hidden rounded-lg">
+                        <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-indigo-600"></div>
+                        <p class="mt-4 text-xl font-semibold text-slate-700">El algoritmo está trabajando...</p>
+                    </div>
+                </main>
+
+                <aside class="lg:col-span-1 flex flex-col gap-6">
+                    <div class="info-card p-6">
+                        <h2 class="text-xl font-bold border-b border-gray-200 pb-3 mb-4 text-indigo-600">Panel de control</h2>
+                        <div class="space-y-4">
+                            <div class="flex flex-col gap-2">
+                                 <label for="node-slider" class="font-semibold text-slate-600">Número de nodos: <span id="node-count-label">10</span></label>
+                                 <input type="range" id="node-slider" min="6" max="16" value="10" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                            </div>
+                            <button id="resetBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg">Generar nuevo mapa</button>
+                            <button id="runBtn" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg">Resolver</button>
+                        </div>
+                    </div>
+                     <div class="info-card p-6">
+                        <h2 class="text-xl font-bold border-b border-gray-200 pb-3 mb-4 text-indigo-600">Resultados</h2>
+                        <div class="space-y-4">
+                            <div><p class="font-semibold text-blue-600">Costo de tu ruta:</p><p id="userDistance" class="text-3xl font-mono font-bold text-slate-800">0</p></div>
+                            <div><p class="font-semibold text-teal-600">Costo óptimo del algoritmo:</p><p id="gaDistance" class="text-3xl font-mono font-bold text-slate-800">0</p></div>
+                             <div><p class="font-semibold text-gray-500">Progreso:</p><p id="progress" class="text-xl font-mono font-bold text-slate-800">0 / 0</p></div>
+                        </div>
+                    </div>
+                    <div class="info-card p-6">
+                        <h2 class="text-xl font-bold border-b border-gray-200 pb-3 mb-4 text-indigo-600">Visualización de recorridos</h2>
+                        <div class="space-y-3">
+                            <button id="playUserTourBtn" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-colors disabled:bg-slate-400 disabled:cursor-not-allowed" disabled>Animar mi recorrido</button>
+                            <button id="playAlgoTourBtn" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition-colors disabled:bg-slate-400 disabled:cursor-not-allowed" disabled>Animar recorrido óptimo</button>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Resultados -->
+    <div id="results-modal" class="modal-overlay fixed inset-0 bg-slate-900 bg-opacity-50 flex items-center justify-center p-4 hidden opacity-0">
+        <div id="modal-content" class="modal-content bg-white rounded-2xl shadow-2xl p-8 max-w-lg w-full transform scale-95">
+            <h2 class="text-3xl font-bold text-center mb-4 text-slate-800">Resultados de la simulación</h2>
+            <div id="winner-message" class="text-center text-2xl font-bold my-6 p-4 rounded-lg">
+                <!-- Mensaje del ganador -->
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-center">
+                <div class="bg-slate-100 p-6 rounded-lg">
+                    <h3 class="text-xl font-bold mb-3 text-slate-700">Tu solución</h3>
+                    <p class="text-3xl font-bold text-blue-600" id="modal-user-cost"></p>
+                </div>
+                <div class="bg-indigo-100 border-2 border-indigo-400 p-6 rounded-lg">
+                    <h3 class="text-xl font-bold mb-3 text-slate-700">Solución óptima</h3>
+                    <p class="text-3xl font-bold text-teal-600" id="modal-ga-cost"></p>
+                </div>
+            </div>
+            <div class="mt-8 text-center">
+                <button id="close-modal-btn" class="bg-indigo-600 text-white font-bold py-2 px-8 rounded-lg hover:bg-indigo-700 transition-colors">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Finalización -->
+    <div id="completion-modal" class="modal-overlay fixed inset-0 bg-slate-900 bg-opacity-50 flex items-center justify-center p-4 hidden opacity-0">
+        <div id="completion-modal-content" class="modal-content bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center transform scale-95">
+            <h2 class="text-3xl font-bold text-center mb-4 text-slate-800">¡Felicidades!</h2>
+            <p class="text-lg text-slate-600 mb-6">Has recorrido todas las calles. Ahora puedes comparar tu resultado con la solución óptima.</p>
+            <button id="close-completion-modal-btn" class="bg-indigo-600 text-white font-bold py-2 px-8 rounded-lg hover:bg-indigo-700 transition-colors">Entendido</button>
+        </div>
+    </div>
+
+
+
+        <!-- Footer & Contact -->
+    <footer id="contact" class="bg-[#333333] text-white">
+        <div class="container mx-auto px-6 py-10">
+            <div class="text-center">
+             <!--   <h2 class="text-2xl font-bold mb-4">Ponte en Contacto</h2> -->
+                <p class="text-gray-300 mb-2">Si tienes alguna pregunta o te gustaría colaborar, no dudes en escribirme.</p>
+              <!--  <a href="mailto:jvelasco@cimat.mx" class="text-[#80CBC4] text-lg hover:underline">jvelasco@cimat.mx</a> -->
+                <a href="../contacto.html" class="text-[#80CBC4] text-lg hover:underline">Contacto</a>
+                <p class="text-gray-500 mt-8 text-sm">&copy; 2025 Jonás Velasco. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const svgNS = "http://www.w3.org/2000/svg";
+            const svg = document.getElementById('travelSVG');
+            const resetBtn = document.getElementById('resetBtn');
+            const runBtn = document.getElementById('runBtn');
+            const userDistanceEl = document.getElementById('userDistance');
+            const gaDistanceEl = document.getElementById('gaDistance');
+            const loadingEl = document.getElementById('loading');
+            const nodeSlider = document.getElementById('node-slider');
+            const nodeCountLabel = document.getElementById('node-count-label');
+            const progressEl = document.getElementById('progress');
+            const playUserTourBtn = document.getElementById('playUserTourBtn');
+            const playAlgoTourBtn = document.getElementById('playAlgoTourBtn');
+            const completionModal = document.getElementById('completion-modal');
+            const completionModalContent = document.getElementById('completion-modal-content');
+            const closeCompletionModalBtn = document.getElementById('close-completion-modal-btn');
+            const resultsModal = document.getElementById('results-modal');
+            const modalContent = document.getElementById('modal-content');
+            const winnerMessageEl = document.getElementById('winner-message');
+            const modalUserCostEl = document.getElementById('modal-user-cost');
+            const modalGaCostEl = document.getElementById('modal-ga-cost');
+            const closeModalBtn = document.getElementById('close-modal-btn');
+            
+            let NUM_NODES = parseInt(nodeSlider.value, 10);
+            const EXTRA_EDGE_PROBABILITY = 0.2;
+
+            let nodes = [], edges = [], adjacency = {}, startNode = 0;
+            let userPath = [], visitedEdges = new Set(), optimalTour = [];
+            let selectedNode = null, offset = { x: 0, y: 0 };
+            let totalEdgeCount = 0;
+
+            function createGraph() {
+                nodes = []; edges = []; adjacency = {};
+                const { width, height } = svg.getBoundingClientRect();
+                if (width === 0 || height === 0) return;
+                const padding = 25;
+
+                for (let i = 0; i < NUM_NODES; i++) {
+                    nodes.push({ id: i, x: Math.random() * (width - padding * 2) + padding, y: Math.random() * (height - padding * 2) + padding });
+                    adjacency[i] = [];
+                }
+
+                const addEdge = (u, v) => {
+                    const weight = Math.floor(Math.random() * 90) + 10;
+                    edges.push({ from: u, to: v, weight, id: `${u}-${v}` });
+                    adjacency[u].push({ node: v, weight });
+                    adjacency[v].push({ node: u, weight });
+                };
+
+                let nodeIds = nodes.map(n => n.id);
+                for (let i = nodeIds.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [nodeIds[i], nodeIds[j]] = [nodeIds[j], nodeIds[i]];
+                }
+
+                for (let i = 0; i < nodeIds.length - 1; i++) {
+                    addEdge(nodeIds[i], nodeIds[i+1]);
+                }
+                 if (!adjacency[nodeIds[nodeIds.length - 1]].some(e => e.node === nodeIds[0])) {
+                    addEdge(nodeIds[nodeIds.length - 1], nodeIds[0]);
+                }
+
+                for (let i = 0; i < NUM_NODES; i++) {
+                    for (let j = i + 1; j < NUM_NODES; j++) {
+                        if (Math.random() < EXTRA_EDGE_PROBABILITY) {
+                            if (!adjacency[i].some(e => e.node === j)) {
+                                addEdge(i, j);
+                            }
+                        }
+                    }
+                }
+                totalEdgeCount = edges.length;
+            }
+            
+            function draw(state = {}) {
+                svg.innerHTML = '';
+                const { oddNodes = [], duplicatedEdges = [], animationState = null } = state;
+                const nodeRadius = Math.max(10, 20 - NUM_NODES / 4);
+                
+                const edgesGroup = document.createElementNS(svgNS, 'g');
+                const nodesGroup = document.createElementNS(svgNS, 'g');
+                
+                const lastUserNode = userPath.length > 0 ? userPath[userPath.length - 1].to : startNode;
+
+                const userEdgeCounts = new Map();
+                userPath.forEach(edge => {
+                    const id = `${Math.min(edge.from, edge.to)}-${Math.max(edge.from, edge.to)}`;
+                    userEdgeCounts.set(id, (userEdgeCounts.get(id) || 0) + 1);
+                });
+
+                edges.forEach((edge, index) => {
+                    const n1 = nodes[edge.from], n2 = nodes[edge.to];
+                    const dx = n2.x - n1.x, dy = n2.y - n1.y;
+                    const edgeId = `${Math.min(edge.from, edge.to)}-${Math.max(edge.from, edge.to)}`;
+
+                    const line = document.createElementNS(svgNS, 'line');
+                    line.setAttribute('x1', n1.x); line.setAttribute('y1', n1.y);
+                    line.setAttribute('x2', n2.x); line.setAttribute('y2', n2.y);
+                    line.setAttribute('class', 'edge-line');
+                    
+                    if (animationState) {
+                        const visitedInAnim = animationState.visited.has(edge.id) || animationState.visited.has(`${edge.to}-${edge.from}`);
+                        if(visitedInAnim) line.classList.add(animationState.type === 'user' ? 'visited-by-user' : 'visited-by-algo');
+                    } else if (visitedEdges.has(edgeId)) {
+                        line.classList.add('visited-by-user');
+                    }
+
+                    const weightText = document.createElementNS(svgNS, 'text');
+                    weightText.setAttribute('x', n1.x + dx * 0.5); weightText.setAttribute('y', n1.y + dy * 0.5);
+                    weightText.setAttribute('class', 'edge-weight');
+                    weightText.textContent = edge.weight;
+
+                    const hitbox = document.createElementNS(svgNS, 'line');
+                    hitbox.setAttribute('x1', n1.x); hitbox.setAttribute('y1', n1.y);
+                    hitbox.setAttribute('x2', n2.x); hitbox.setAttribute('y2', n2.y);
+                    hitbox.setAttribute('class', 'edge-hitbox');
+                    hitbox.dataset.edgeIndex = index;
+                    
+                    edgesGroup.appendChild(line);
+                    edgesGroup.appendChild(weightText);
+                    edgesGroup.appendChild(hitbox);
+
+                    if ((userEdgeCounts.get(edgeId) || 0) > 1) {
+                         const dupLine = document.createElementNS(svgNS, 'line');
+                         dupLine.setAttribute('x1', n1.x + 3); dupLine.setAttribute('y1', n1.y + 3);
+                         dupLine.setAttribute('x2', n2.x + 3); dupLine.setAttribute('y2', n2.y + 3);
+                         dupLine.setAttribute('class', 'edge-line duplicated');
+                         edgesGroup.appendChild(dupLine);
+                    }
+                });
+                
+                duplicatedEdges.forEach(edge => {
+                     const n1 = nodes[edge.from], n2 = nodes[edge.to];
+                     const line = document.createElementNS(svgNS, 'line');
+                     line.setAttribute('x1', n1.x + 3); line.setAttribute('y1', n1.y + 3);
+                     line.setAttribute('x2', n2.x + 3); line.setAttribute('y2', n2.y + 3);
+                     line.setAttribute('class', 'edge-line duplicated');
+                     edgesGroup.appendChild(line);
+                });
+
+                nodes.forEach(node => {
+                    const circle = document.createElementNS(svgNS, 'circle');
+                    circle.setAttribute('cx', node.x); circle.setAttribute('cy', node.y);
+                    circle.setAttribute('r', nodeRadius);
+                    circle.setAttribute('data-id', node.id);
+                    circle.setAttribute('class', 'node-circle-styling');
+                    if (oddNodes.includes(node.id)) {
+                        circle.classList.add('odd-degree');
+                    }
+                    
+                    const text = document.createElementNS(svgNS, 'text');
+                    text.setAttribute('x', node.x); text.setAttribute('y', node.y);
+                    text.setAttribute('class', 'node-label');
+                    text.style.fontSize = `${Math.max(10, 15 - NUM_NODES / 5)}px`;
+                    text.textContent = node.id + 1;
+                    nodesGroup.appendChild(circle);
+                    nodesGroup.appendChild(text);
+                });
+
+                const marker = document.createElementNS(svgNS, 'circle');
+                marker.setAttribute('r', nodeRadius / 2);
+                marker.setAttribute('class', 'path-marker');
+                marker.style.fill = animationState ? (animationState.type === 'user' ? '#3b82f6' : '#10b981') : '#3b82f6';
+                const markerNode = animationState ? nodes[animationState.currentNode] : nodes[lastUserNode];
+                marker.setAttribute('cx', markerNode.x);
+                marker.setAttribute('cy', markerNode.y);
+                nodesGroup.appendChild(marker);
+                
+                svg.appendChild(edgesGroup); svg.appendChild(nodesGroup);
+            }
+            
+            function dijkstra(startNodeId) {
+                const distances = {};
+                const prev = {};
+                const pq = new Set();
+
+                nodes.forEach(node => {
+                    distances[node.id] = Infinity;
+                    prev[node.id] = null;
+                    pq.add(node.id);
+                });
+                distances[startNodeId] = 0;
+
+                while (pq.size > 0) {
+                    let u = Array.from(pq).reduce((minNode, currentNode) => distances[currentNode] < distances[minNode] ? currentNode : minNode, Array.from(pq)[0]);
+                    pq.delete(u);
+
+                    if (adjacency[u]) {
+                        adjacency[u].forEach(neighbor => {
+                            if (pq.has(neighbor.node)) {
+                                const alt = distances[u] + neighbor.weight;
+                                if (alt < distances[neighbor.node]) {
+                                    distances[neighbor.node] = alt;
+                                    prev[neighbor.node] = u;
+                                }
+                            }
+                        });
+                    }
+                }
+                return { distances, prev };
+            }
+
+            function reconstructPath(dijkstraResult, start, end) {
+                const path = [];
+                let current = end;
+                while (current !== null) {
+                    path.unshift(current);
+                    if (current === start) break;
+                    current = dijkstraResult.prev[current];
+                }
+                return path;
+            }
+
+            function getMinWeightPerfectMatching(oddNodes, allPaths) {
+                if (oddNodes.length === 0) return [];
+                if (oddNodes.length === 2) return [[oddNodes[0], oddNodes[1]]];
+                
+                const first = oddNodes[0];
+                let bestPairing = [];
+                let minWeight = Infinity;
+
+                for (let i = 1; i < oddNodes.length; i++) {
+                    const partner = oddNodes[i];
+                    const remainingNodes = oddNodes.slice(1, i).concat(oddNodes.slice(i + 1));
+                    const remainingPairing = getMinWeightPerfectMatching(remainingNodes, allPaths);
+                    const currentWeight = allPaths[first].distances[partner] + remainingPairing.reduce((sum, p) => sum + allPaths[p[0]].distances[p[1]], 0);
+
+                    if (currentWeight < minWeight) {
+                        minWeight = currentWeight;
+                        bestPairing = [[first, partner]].concat(remainingPairing);
+                    }
+                }
+                return bestPairing;
+            }
+            
+            async function solveCPP(){
+                loadingEl.style.display="flex";
+                runBtn.disabled = true;
+                
+                const oddNodes=nodes.filter(e=>adjacency[e.id].length%2!=0).map(e=>e.id);
+                draw({oddNodes:oddNodes});
+                await new Promise(e=>setTimeout(e,500));
+
+                if(0===oddNodes.length){
+                    const totalWeight = edges.reduce((sum, edge) => sum + edge.weight, 0) / 2;
+                    gaDistanceEl.textContent = totalWeight;
+                    optimalTour = nodePathToEdgePath(findEulerianTour(adjacency, startNode));
+                } else {
+                    const allPaths={};
+                    for(const node of oddNodes) allPaths[node]=dijkstra(node);
+
+                    const pairings=getMinWeightPerfectMatching(oddNodes,allPaths);
+                    
+                    let duplicatedCost=0;
+                    const duplicatedEdges=[];
+                    for(const pair of pairings){
+                        let path=reconstructPath(allPaths[pair[0]],pair[0],pair[1]);
+                        duplicatedCost+=allPaths[pair[0]].distances[pair[1]];
+                        for(let i=0;i<path.length-1;i++) duplicatedEdges.push({from:path[i],to:path[i+1]});
+                    }
+                    draw({oddNodes:oddNodes,duplicatedEdges:duplicatedEdges});
+                    await new Promise(e=>setTimeout(e,500));
+
+                    const augmentedAdj=JSON.parse(JSON.stringify(adjacency));
+                    duplicatedEdges.forEach(e=>{
+                        const edgeData=adjacency[e.from].find(adjEdge=>adjEdge.node===e.to);
+                        if(edgeData){
+                            augmentedAdj[e.from].push({node:e.to,weight:edgeData.weight});
+                            augmentedAdj[e.to].push({node:e.from,weight:edgeData.weight});
+                        }
+                    });
+
+                    const eulerianNodePath=findEulerianTour(augmentedAdj,startNode);
+                    optimalTour=nodePathToEdgePath(eulerianNodePath);
+                    const initialCost=edges.reduce((sum,edge)=>sum+edge.weight,0)/2;
+                    gaDistanceEl.textContent=initialCost+duplicatedCost;
+                }
+                
+                playAlgoTourBtn.disabled=false;
+                loadingEl.style.display="none";
+                runBtn.disabled=false;
+                displayResults();
+            }
+
+            function findEulerianTour(adj, start) {
+                const tour = [];
+                const tempAdj = JSON.parse(JSON.stringify(adj));
+                let currPath = [start];
+
+                while (currPath.length > 0) {
+                    let u = currPath[currPath.length-1];
+                    if (tempAdj[u] && tempAdj[u].length > 0) {
+                        let v = tempAdj[u].pop().node;
+                        const vIndex = tempAdj[v] ? tempAdj[v].findIndex(edge => edge.node === u) : -1;
+                        if (vIndex > -1) tempAdj[v].splice(vIndex, 1);
+                        currPath.push(v);
+                    } else {
+                        tour.push(currPath.pop());
+                    }
+                }
+                return tour.reverse();
+            }
+
+            function nodePathToEdgePath(nodePath) {
+                const edgePath = [];
+                for (let i = 0; i < nodePath.length - 1; i++) {
+                    const u = nodePath[i];
+                    const v = nodePath[i+1];
+                    const edge = edges.find(e => (e.from === u && e.to === v));
+                    if (edge) {
+                        edgePath.push({from: u, to: v, weight: edge.weight, id: edge.id});
+                    } else {
+                        const reverseEdge = edges.find(e => (e.from === v && e.to === u));
+                        if (reverseEdge) {
+                             edgePath.push({from: u, to: v, weight: reverseEdge.weight, id: reverseEdge.id});
+                        }
+                    }
+                }
+                return edgePath;
+            }
+
+            async function animatePath(path, type) {
+                playUserTourBtn.disabled = true;
+                playAlgoTourBtn.disabled = true;
+                let visitedInAnim = new Set();
+                for (let i = 0; i < path.length; i++) {
+                    const edge = path[i];
+                    const edgeId = `${Math.min(edge.from, edge.to)}-${Math.max(edge.from, edge.to)}`;
+                    visitedInAnim.add(edgeId);
+                    draw({ animationState: { type, visited: visitedInAnim, currentNode: edge.to } });
+                    await new Promise(r => setTimeout(r, 500));
+                }
+                if (userPath.length > 0 && visitedEdges.size === totalEdgeCount) playUserTourBtn.disabled = false;
+                if (optimalTour.length > 0) playAlgoTourBtn.disabled = false;
+            }
+            
+            function handleReset() {
+                NUM_NODES = parseInt(nodeSlider.value, 10);
+                createGraph(); 
+                userPath = []; visitedEdges.clear(); optimalTour = [];
+                userDistanceEl.textContent = '0'; gaDistanceEl.textContent = '0';
+                progressEl.textContent = `0 / ${totalEdgeCount}`;
+                playUserTourBtn.disabled = true;
+                playAlgoTourBtn.disabled = true;
+                draw();
+            }
+            
+            function displayResults() {
+                const userCost = parseInt(userDistanceEl.textContent);
+                const algoCost = parseInt(gaDistanceEl.textContent);
+
+                modalUserCostEl.textContent = userCost;
+                modalGaCostEl.textContent = algoCost;
+
+                if (userCost < algoCost) {
+                    winnerMessageEl.innerHTML = '🏆 ¡Felicidades, has ganado! 🏆';
+                    winnerMessageEl.className = 'text-center text-2xl font-bold my-6 p-4 rounded-lg bg-green-100 text-green-800';
+                } else if (algoCost < userCost) {
+                    winnerMessageEl.innerHTML = '🤖 El Algoritmo ha ganado 🤖';
+                    winnerMessageEl.className = 'text-center text-2xl font-bold my-6 p-4 rounded-lg bg-indigo-100 text-indigo-800';
+                } else {
+                    winnerMessageEl.innerHTML = '🤝 ¡Es un empate! 🤝';
+                    winnerMessageEl.className = 'text-center text-2xl font-bold my-6 p-4 rounded-lg bg-slate-100 text-slate-800';
+                }
+
+                resultsModal.classList.remove('hidden');
+                setTimeout(() => {
+                    resultsModal.classList.remove('opacity-0');
+                    modalContent.classList.remove('scale-95');
+                }, 10);
+            }
+
+            resetBtn.addEventListener('click', handleReset);
+            nodeSlider.addEventListener('input', (e) => { nodeCountLabel.textContent = e.target.value; });
+            nodeSlider.addEventListener('change', handleReset);
+            runBtn.addEventListener('click', solveCPP);
+            playUserTourBtn.addEventListener('click', () => animatePath(userPath, 'user'));
+            playAlgoTourBtn.addEventListener('click', () => animatePath(optimalTour, 'algo'));
+            
+            svg.addEventListener('click', (e) => {
+                const edgeIndex = e.target.dataset.edgeIndex;
+                if (edgeIndex === undefined) return;
+
+                const clickedEdge = edges[parseInt(edgeIndex, 10)];
+                const currentNode = userPath.length > 0 ? userPath[userPath.length - 1].to : startNode;
+
+                if (clickedEdge.from === currentNode || clickedEdge.to === currentNode) {
+                    const nextNode = clickedEdge.from === currentNode ? clickedEdge.to : clickedEdge.from;
+                    const edgeToAdd = {from: currentNode, to: nextNode, weight: clickedEdge.weight, id: `${Math.min(currentNode, nextNode)}-${Math.max(currentNode, nextNode)}`};
+                    
+                    userPath.push(edgeToAdd);
+                    visitedEdges.add(edgeToAdd.id);
+
+                    userDistanceEl.textContent = userPath.reduce((sum, edge) => sum + edge.weight, 0);
+                    progressEl.textContent = `${visitedEdges.size} / ${totalEdgeCount}`;
+                    if (visitedEdges.size === totalEdgeCount) {
+                        playUserTourBtn.disabled = false;
+                        completionModal.classList.remove('hidden');
+                        setTimeout(() => {
+                            completionModal.classList.remove('opacity-0');
+                            completionModalContent.classList.remove('scale-95');
+                        }, 10);
+                    }
+                    draw();
+                }
+            });
+
+            closeCompletionModalBtn.addEventListener('click', () => {
+                completionModal.classList.add('opacity-0');
+                completionModalContent.classList.add('scale-95');
+                setTimeout(() => {
+                    completionModal.classList.add('hidden');
+                }, 300);
+            });
+
+            closeModalBtn.addEventListener('click', () => {
+                resultsModal.classList.add('opacity-0');
+                modalContent.classList.add('scale-95');
+                setTimeout(() => {
+                    resultsModal.classList.add('hidden');
+                }, 300);
+            });
+
+            svg.addEventListener('mousedown', (e) => {
+                if (e.target.tagName === 'circle') {
+                    selectedNode = nodes.find(n => n.id === parseInt(e.target.dataset.id));
+                    const CTM = svg.getScreenCTM();
+                    if (selectedNode && CTM) {
+                        offset.x = (e.clientX - CTM.e) / CTM.a - selectedNode.x;
+                        offset.y = (e.clientY - CTM.f) / CTM.d - selectedNode.y;
+                    }
+                }
+            });
+            svg.addEventListener('mousemove', (e) => {
+                if (selectedNode) {
+                    const CTM = svg.getScreenCTM();
+                    if (CTM) {
+                        selectedNode.x = (e.clientX - CTM.e) / CTM.a - offset.x;
+                        selectedNode.y = (e.clientY - CTM.f) / CTM.d - offset.y;
+                        draw();
+                    }
+                }
+            });
+            svg.addEventListener('mouseup', () => { selectedNode = null; });
+            svg.addEventListener('mouseleave', () => { selectedNode = null; });
+
+            window.addEventListener('resize', () => { if(nodes.length > 0) { handleReset() } });
+            
+            handleReset();
+        });
+    </script>
+
+    <script>
+        // --- LÓGICA DE PROTECCIÓN ---
+
+
+        // 1. Deshabilitar el clic derecho en toda la página
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            showProtectionToast('El clic derecho está deshabilitado.');
+        });
+
+        // 2. Bloquear atajos de teclado comunes
+        document.addEventListener('keydown', function(e) {
+            // Bloquear F12 para dificultar el acceso a las herramientas de desarrollador
+            if (e.key === 'F12' || e.keyCode === 123) {
+                e.preventDefault();
+                showProtectionToast('Las herramientas de desarrollador están deshabilitadas.');
+            }
+
+            // Bloquear combinaciones con la tecla Ctrl
+            if (e.ctrlKey) {
+                const key = e.key.toLowerCase();
+                if (['c', 'x', 'u', 's', 'p'].includes(key)) {
+                    e.preventDefault();
+                    showProtectionToast(`La función (Ctrl+${key.toUpperCase()}) ha sido deshabilitada.`);
+                }
+            }
+        });
+    </script>  
+
+</body>
+</html>
+
