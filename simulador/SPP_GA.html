@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Ruta Más Corta</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+        .info-card {
+            background-color: white;
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.07), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .node-circle-styling {
+            fill: white;
+            stroke: #0ea5e9;
+            stroke-width: 3px;
+            cursor: grab;
+            transition: all 0.2s ease-in-out;
+        }
+        .node-circle-styling:active {
+            cursor: grabbing;
+        }
+        .node-label {
+            font-size: 14px;
+            fill: #1e293b;
+            font-weight: 600;
+            text-anchor: middle;
+            dominant-baseline: central;
+            pointer-events: none;
+        }
+        .edge-line {
+            stroke: #0ea5e9;
+            stroke-width: 2px;
+            transition: opacity 0.3s, stroke 0.3s;
+        }
+        .edge-line.transparent {
+            opacity: 0.15;
+        }
+        .edge-hitbox {
+            stroke: transparent;
+            stroke-width: 15px;
+            cursor: pointer;
+        }
+        .edge-weight {
+            font-size: 14px;
+            fill: #ef4444;
+            font-weight: 700;
+            text-anchor: middle;
+            pointer-events: none;
+            visibility: hidden;
+            text-shadow: 0 0 3px white, 0 0 3px white;
+        }
+        .edge-weight.visible {
+            visibility: visible;
+        }
+        .user-path-line {
+            stroke: #3b82f6;
+            stroke-width: 4px;
+            stroke-linecap: round;
+            pointer-events: none;
+        }
+        .ga-path-line {
+            stroke: #14b8a6;
+            stroke-width: 4px;
+            stroke-linecap: round;
+            pointer-events: none;
+        }
+        /* Animación de flujo */
+        .flow-dot {
+            fill: white;
+            animation: flow 2s linear infinite;
+        }
+        @keyframes flow {
+            from { motion-offset: 0%; }
+            to { motion-offset: 100%; }
+        }
+        /* Estilos del Modal */
+        .modal-overlay {
+            transition: opacity 0.3s ease-in-out;
+        }
+        .modal-content {
+            transition: all 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <div class="container mx-auto p-4 md:p-8 relative flex-grow">
+
+            <div class="absolute top-4 right-4 flex items-center gap-4 z-10">
+
+           <a href="../pasarela/buymeacoffee.html" 
+               target="_blank" 
+               rel="noopener noreferrer" 
+               class="inline-flex items-center gap-2 bg-yellow-400 text-gray-900 font-bold py-2 px-4 rounded-lg shadow-sm transition-colors duration-300 hover:bg-yellow-500">
+                
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M1 12.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5M2 4v6h10V4zm11.5 0a.5.5 0 0 0-.5.5v5a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-5a.5.5 0 0 0-.5-.5zM1 3.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5m10.854-1.354a.5.5 0 0 0-.708 0L9 3.293 7.854 2.146a.5.5 0 1 0-.708.708L8.293 4 7.146 5.146a.5.5 0 1 0 .708.708L9 4.707l1.146 1.147a.5.5 0 0 0 .708-.708L9.707 4l1.147-1.146a.5.5 0 0 0 0-.708"/>
+                </svg>
+                <span>Invítame un café</span>
+            </a>
+
+            <a href="../index.html" class="bg-white hover:bg-slate-100 text-slate-600 font-semibold py-2 px-4 border border-slate-200 rounded-lg shadow-sm flex items-center transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                Inicio
+            </a>
+</div>
+
+        <header class="text-center mb-8 pt-16">
+            <h1 class="text-4xl md:text-5xl font-bold text-slate-800">La ruta más corta</h1>
+            <p class="text-lg text-slate-500 mt-3">Encuentra la ruta de menor costo del origen (verde) al destino (rojo).</p>
+        </header>
+
+        <div class="w-full mx-auto">
+            <!-- Fila superior: Grafo y Panel de Control -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <main class="lg:col-span-2 bg-white rounded-2xl shadow-lg p-4 relative">
+                    <svg id="travelSVG" class="w-full h-auto aspect-[4/3] rounded-lg"></svg>
+                    <div id="loading" class="absolute inset-0 bg-white bg-opacity-80 flex-col items-center justify-center hidden rounded-lg">
+                        <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-indigo-600"></div>
+                        <p class="mt-4 text-xl font-semibold text-slate-700">El algoritmo está trabajando...</p>
+                    </div>
+                </main>
+
+                <aside class="lg:col-span-1 flex flex-col gap-6">
+                    <div class="info-card p-6">
+                        <h2 class="text-xl font-bold border-b border-gray-200 pb-3 mb-4 text-indigo-600">Panel de control</h2>
+                        <div class="space-y-4">
+                            <div class="flex flex-col gap-2">
+                                 <label for="node-slider" class="font-semibold text-slate-600">Número de nodos: <span id="node-count-label">15</span></label>
+                                 <input type="range" id="node-slider" min="8" max="40" value="15" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                            </div>
+                            <button id="resetBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg">Generar nuevo</button>
+                            <button id="clearUserPathBtn" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg">Limpiar mi ruta</button>
+                            <button id="runGABtn" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg disabled:bg-slate-400 disabled:cursor-not-allowed" disabled>Resolver con IA</button>
+                        </div>
+                    </div>
+                    <div class="info-card p-6">
+                        <h2 class="text-xl font-bold border-b border-gray-200 pb-3 mb-4 text-indigo-600">Instrucciones de uso</h2>
+                        <ol class="list-decimal list-inside space-y-2 text-slate-600">
+                            <li><b>Arrastra los nodos</b> para organizar el grafo a tu gusto.</li>
+                            <li>Haz clic en las <b>líneas (aristas)</b> para construir tu ruta.</li>
+                            <li>Las aristas posibles se mantendrán visibles para guiarte.</li>
+                            <li>Para deshacer, haz clic de nuevo en la <b>última arista</b> seleccionada.</li>
+                            <li>Al llegar al destino, corre el algoritmo y compara resultados.</li>
+                        </ol>
+                    </div>
+                </aside>
+            </div>
+
+            <!-- Fila inferior: Visualización y Resultados -->
+            <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+                 <div class="info-card p-6">
+                    <h2 class="text-xl font-bold border-b border-gray-200 pb-3 mb-4 text-indigo-600">Visualización de soluciones</h2>
+                    <fieldset id="solution-selector" class="space-y-2">
+                        <div>
+                            <input type="radio" id="sol-none" name="solution" value="none" checked class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                            <label for="sol-none" class="ml-2 text-slate-700">Mostrar grafo completo</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="sol-user" name="solution" value="user" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300" disabled>
+                            <label for="sol-user" class="ml-2 text-slate-700">Resaltar mi ruta</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="sol-ga" name="solution" value="ga" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300" disabled>
+                            <label for="sol-ga" class="ml-2 text-slate-700">Resaltar ruta del algoritmo</label>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <div class="info-card p-6">
+                    <h2 class="text-xl font-bold border-b border-gray-200 pb-3 mb-4 text-indigo-600">Resultados</h2>
+                    <div class="space-y-4">
+                        <div><p class="font-semibold text-blue-600">Costo de tu ruta:</p><p id="userDistance" class="text-3xl font-mono font-bold text-slate-800">0</p></div>
+                        <div><p class="font-semibold text-teal-600">Mejor Costo del algoritmo:</p><p id="gaDistance" class="text-3xl font-mono font-bold text-slate-800">0</p></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Resultados -->
+    <div id="results-modal" class="modal-overlay fixed inset-0 bg-slate-900 bg-opacity-50 flex items-center justify-center p-4 hidden opacity-0">
+        <div id="modal-content" class="modal-content bg-white rounded-2xl shadow-2xl p-8 max-w-lg w-full transform scale-95">
+            <h2 class="text-3xl font-bold text-center mb-4 text-slate-800">Resultados de la simulación</h2>
+            <div id="winner-message" class="text-center text-2xl font-bold my-6 p-4 rounded-lg">
+                <!-- Mensaje del ganador -->
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-center">
+                <div class="bg-slate-100 p-6 rounded-lg">
+                    <h3 class="text-xl font-bold mb-3 text-slate-700">Tu solución</h3>
+                    <p class="text-3xl font-bold text-blue-600" id="modal-user-cost"></p>
+                </div>
+                <div class="bg-indigo-100 border-2 border-indigo-400 p-6 rounded-lg">
+                    <h3 class="text-xl font-bold mb-3 text-slate-700">Solución del algoritmo</h3>
+                    <p class="text-3xl font-bold text-teal-600" id="modal-ga-cost"></p>
+                </div>
+            </div>
+            <div class="mt-8 text-center">
+                <button id="close-modal-btn" class="bg-indigo-600 text-white font-bold py-2 px-8 rounded-lg hover:bg-indigo-700 transition-colors">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+        <!-- Footer & Contact -->
+    <footer id="contact" class="bg-[#333333] text-white">
+        <div class="container mx-auto px-6 py-10">
+            <div class="text-center">
+             <!--   <h2 class="text-2xl font-bold mb-4">Ponte en Contacto</h2> -->
+                <p class="text-gray-300 mb-2">Si tienes alguna pregunta o te gustaría colaborar, no dudes en escribirme.</p>
+              <!--  <a href="mailto:jvelasco@cimat.mx" class="text-[#80CBC4] text-lg hover:underline">jvelasco@cimat.mx</a> -->
+                <a href="../contacto.html" class="text-[#80CBC4] text-lg hover:underline">Contacto</a>
+                <p class="text-gray-500 mt-8 text-sm">&copy; 2025 Jonás Velasco. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const svgNS = "http://www.w3.org/2000/svg";
+        const svg = document.getElementById('travelSVG');
+        const resetBtn = document.getElementById('resetBtn');
+        const clearUserPathBtn = document.getElementById('clearUserPathBtn');
+        const runGABtn = document.getElementById('runGABtn');
+        const userDistanceEl = document.getElementById('userDistance');
+        const gaDistanceEl = document.getElementById('gaDistance');
+        const loadingEl = document.getElementById('loading');
+        const nodeSlider = document.getElementById('node-slider');
+        const nodeCountLabel = document.getElementById('node-count-label');
+        const solutionSelector = document.getElementById('solution-selector');
+        const resultsModal = document.getElementById('results-modal');
+        const modalContent = document.getElementById('modal-content');
+        const winnerMessageEl = document.getElementById('winner-message');
+        const modalUserCostEl = document.getElementById('modal-user-cost');
+        const modalGaCostEl = document.getElementById('modal-ga-cost');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        
+        let NUM_NODES = parseInt(nodeSlider.value, 10);
+        const EXTRA_EDGE_PROBABILITY = 0.15;
+        const POPULATION_SIZE = 100;
+        const MUTATION_RATE = 0.2;
+        const NUM_GENERATIONS = 100;
+
+        let nodes = [], edges = [], adjacency = {}, startNode, endNode, userPath = [], ga;
+        let selectedNode = null, offset = { x: 0, y: 0 };
+
+        function createGraph() {
+            nodes = []; edges = []; adjacency = {};
+            const { width, height } = svg.getBoundingClientRect();
+            if (width === 0 || height === 0) return;
+            const padding = 25;
+
+            for (let i = 0; i < NUM_NODES; i++) {
+                nodes.push({ id: i, x: Math.random() * (width - padding * 2) + padding, y: Math.random() * (height - padding * 2) + padding });
+                adjacency[i] = [];
+            }
+
+            const addBidirectionalEdge = (u, v) => {
+                const weight1 = Math.floor(Math.random() * 90) + 10;
+                const weight2 = Math.floor(Math.random() * 90) + 10;
+                edges.push({ from: u, to: v, weight: weight1 });
+                adjacency[u].push({ node: v, weight: weight1 });
+                edges.push({ from: v, to: u, weight: weight2 });
+                adjacency[v].push({ node: u, weight: weight2 });
+            };
+
+            let nodeIds = nodes.map(n => n.id);
+            for (let i = nodeIds.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [nodeIds[i], nodeIds[j]] = [nodeIds[j], nodeIds[i]];
+            }
+
+            for (let i = 0; i < nodeIds.length - 1; i++) {
+                addBidirectionalEdge(nodeIds[i], nodeIds[i+1]);
+            }
+
+            for (let i = 0; i < NUM_NODES; i++) {
+                for (let j = i + 1; j < NUM_NODES; j++) {
+                    if (Math.random() < EXTRA_EDGE_PROBABILITY) {
+                        if (!adjacency[i].some(e => e.node === j)) {
+                            addBidirectionalEdge(i, j);
+                        }
+                    }
+                }
+            }
+            
+            let maxDistSq = -1;
+            let farthestPair = [0, 1];
+            for (let i = 0; i < nodes.length; i++) {
+                for (let j = i + 1; j < nodes.length; j++) {
+                    const dx = nodes[i].x - nodes[j].x;
+                    const dy = nodes[i].y - nodes[j].y;
+                    const distSq = dx * dx + dy * dy;
+                    if (distSq > maxDistSq) {
+                        maxDistSq = distSq;
+                        farthestPair = [nodes[i].id, nodes[j].id];
+                    }
+                }
+            }
+            startNode = farthestPair[0];
+            endNode = farthestPair[1];
+        }
+        
+        function applyForceLayout() {
+            const iterations = 250;
+            const { width, height } = svg.getBoundingClientRect();
+            if (width === 0 || height === 0) return;
+
+            const area = width * height;
+            const k = Math.sqrt(area / nodes.length) * 0.9;
+            let temperature = width / 10;
+
+            for (let i = 0; i < iterations; i++) {
+                for (const v of nodes) {
+                    v.dx = 0; v.dy = 0;
+                    for (const u of nodes) {
+                        if (v === u) continue;
+                        const dx = v.x - u.x;
+                        const dy = v.y - u.y;
+                        const distance = Math.sqrt(dx * dx + dy * dy) + 1e-6;
+                        const repulsiveForce = (k * k) / distance;
+                        v.dx += (dx / distance) * repulsiveForce;
+                        v.dy += (dy / distance) * repulsiveForce;
+                    }
+                }
+
+                for (const edge of edges) {
+                    if (edge.from > edge.to) continue;
+                    const v = nodes[edge.from];
+                    const u = nodes[edge.to];
+                    const dx = v.x - u.x;
+                    const dy = v.y - u.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy) + 1e-6;
+                    const attractiveForce = (distance * distance) / k;
+                    v.dx -= (dx / distance) * attractiveForce;
+                    v.dy -= (dy / distance) * attractiveForce;
+                    u.dx += (dx / distance) * attractiveForce;
+                    u.dy += (dy / distance) * attractiveForce;
+                }
+
+                for (const v of nodes) {
+                    const displacement = Math.sqrt(v.dx * v.dx + v.dy * v.dy) + 1e-6;
+                    v.x += (v.dx / displacement) * Math.min(displacement, temperature);
+                    v.y += (v.dy / displacement) * Math.min(displacement, temperature);
+                    
+                    const padding = 30;
+                    v.x = Math.max(padding, Math.min(width - padding, v.x));
+                    v.y = Math.max(padding, Math.min(height - padding, v.y));
+                }
+                temperature *= 0.99;
+            }
+        }
+
+        function draw() {
+            svg.innerHTML = '';
+            const nodeRadius = Math.max(10, 20 - NUM_NODES / 4);
+            const selectedSolution = document.querySelector('input[name="solution"]:checked').value;
+            
+            const userPathSet = new Set(userPath.map(edge => `${edge.from}-${edge.to}`));
+            let gaPathSet = new Set();
+            if (ga?.bestEver?.path) {
+                for(let i = 0; i < ga.bestEver.path.length - 1; i++) gaPathSet.add(`${ga.bestEver.path[i]}-${ga.bestEver.path[i+1]}`);
+            }
+
+            const edgesGroup = document.createElementNS(svgNS, 'g');
+            const nodesGroup = document.createElementNS(svgNS, 'g');
+            const animationGroup = document.createElementNS(svgNS, 'g');
+            
+            const lastUserNode = userPath.length > 0 ? userPath[userPath.length - 1].to : startNode;
+            const userIsAtEnd = userPath.length > 0 && lastUserNode === endNode;
+
+            edges.forEach((edge, index) => {
+                const n1 = nodes[edge.from], n2 = nodes[edge.to];
+                const dx = n2.x - n1.x, dy = n2.y - n1.y;
+
+                const line = document.createElementNS(svgNS, 'line');
+                line.setAttribute('x1', n1.x); line.setAttribute('y1', n1.y);
+                line.setAttribute('x2', n2.x); line.setAttribute('y2', n2.y);
+                line.setAttribute('class', 'edge-line');
+                
+                const isUserEdge = userPathSet.has(`${edge.from}-${edge.to}`);
+                const isGaEdge = gaPathSet.has(`${edge.from}-${edge.to}`);
+                
+                let isVisible = true;
+                if (selectedSolution === 'user') {
+                    isVisible = isUserEdge;
+                } else if (selectedSolution === 'ga') {
+                    isVisible = isGaEdge;
+                } else if (userPath.length > 0 && !userIsAtEnd) {
+                    const isPossibleNext = edge.from === lastUserNode;
+                    isVisible = isUserEdge || isPossibleNext;
+                }
+                if (!isVisible) {
+                    line.classList.add('transparent');
+                }
+
+                if (isUserEdge) {
+                    line.style.stroke = '#3b82f6';
+                    line.style.strokeWidth = '4px';
+                }
+                
+                if (selectedSolution === 'ga' && isGaEdge) {
+                    line.style.stroke = '#14b8a6';
+                    line.style.strokeWidth = '4px';
+                }
+                
+                const weightText = document.createElementNS(svgNS, 'text');
+                weightText.setAttribute('x', n1.x + dx * 0.5); weightText.setAttribute('y', n1.y + dy * 0.5);
+                weightText.setAttribute('class', 'edge-weight');
+                weightText.textContent = edge.weight;
+
+                const hitbox = document.createElementNS(svgNS, 'line');
+                hitbox.setAttribute('x1', n1.x); hitbox.setAttribute('y1', n1.y);
+                hitbox.setAttribute('x2', n2.x); hitbox.setAttribute('y2', n2.y);
+                hitbox.setAttribute('class', 'edge-hitbox');
+                hitbox.dataset.edgeIndex = index;
+                
+                hitbox.addEventListener('mouseover', () => { weightText.classList.add('visible'); });
+                hitbox.addEventListener('mouseout', () => { weightText.classList.remove('visible'); });
+                
+                edgesGroup.appendChild(line);
+                edgesGroup.appendChild(weightText);
+                edgesGroup.appendChild(hitbox);
+
+                if (isUserEdge) {
+                    const animPath = document.createElementNS(svgNS, 'path');
+                    animPath.setAttribute('d', `M${n1.x},${n1.y} L${n2.x},${n2.y}`);
+                    animPath.setAttribute('id', `anim-path-${index}`);
+                    animationGroup.appendChild(animPath);
+
+                    const dot = document.createElementNS(svgNS, 'circle');
+                    dot.setAttribute('r', '4');
+                    dot.setAttribute('class', 'flow-dot');
+                    const motion = document.createElementNS(svgNS, 'animateMotion');
+                    motion.setAttribute('dur', '2s');
+                    motion.setAttribute('repeatCount', 'indefinite');
+                    const mpath = document.createElementNS(svgNS, 'mpath');
+                    mpath.setAttributeNS('http://www.w3.org/1999/xlink', 'href', `#anim-path-${index}`);
+                    motion.appendChild(mpath);
+                    dot.appendChild(motion);
+                    animationGroup.appendChild(dot);
+                }
+            });
+
+            nodes.forEach(node => {
+                const circle = document.createElementNS(svgNS, 'circle');
+                circle.setAttribute('cx', node.x); circle.setAttribute('cy', node.y);
+                circle.setAttribute('r', nodeRadius);
+                circle.setAttribute('data-id', node.id);
+                circle.setAttribute('class', 'node-circle-styling');
+                if (node.id === startNode) circle.style.fill = '#22C55E';
+                else if (node.id === endNode) circle.style.fill = '#EF4444';
+                
+                const text = document.createElementNS(svgNS, 'text');
+                text.setAttribute('x', node.x); text.setAttribute('y', node.y);
+                text.setAttribute('class', 'node-label');
+                text.style.fontSize = `${Math.max(10, 15 - NUM_NODES / 5)}px`;
+                text.textContent = node.id + 1;
+                nodesGroup.appendChild(circle); nodesGroup.appendChild(text);
+            });
+            
+            svg.appendChild(edgesGroup); svg.appendChild(nodesGroup); svg.appendChild(animationGroup);
+        }
+
+        class GeneticAlgorithm{constructor(){this.population=[],this.generation=0,this.bestEver=null,this.bestCost=1/0}init(){for(let e=0;this.population.length<POPULATION_SIZE&&e<1e3;){const t=this.generateRandomPath();t&&this.population.push(t),e++}this.evaluate()}generateRandomPath(){let t=[startNode],e=new Set([startNode]),o=startNode;for(let s=0;s<2*NUM_NODES;s++){if(o===endNode)return t;const n=adjacency[o]?.filter(t=>!e.has(t.node))||[];if(0===n.length)return null;const a=n[Math.floor(Math.random()*n.length)].node;t.push(a),e.add(a),o=a}return null}evaluate(){for(const t of this.population){const e=calculatePathCostFromNodes(t);e<this.bestCost&&(this.bestCost=e,this.bestEver={path:t,cost:e})}this.bestEver&&(gaDistanceEl.textContent=this.bestCost)}nextGeneration(){const t=this.population.map(t=>({path:t,cost:calculatePathCostFromNodes(t)})).sort((t,e)=>t.cost-e.cost),e=[];for(let o=0;o<2&&o<t.length;o++)e.push(t[o].path);for(;e.length<POPULATION_SIZE;){const o=this.selection(t).path,s=this.selection(t).path;let n=this.crossover(o,s);n?(this.mutate(n),e.push(n)):e.push(o)}this.population=e,this.evaluate()}selection(t){return t[Math.floor(Math.random()*Math.min(5,t.length))]}crossover(t,e){const o=t.filter(t=>t!==startNode&&t!==endNode&&e.includes(t));if(0===o.length)return t;const s=o[Math.floor(Math.random()*o.length)],n=t.indexOf(s),a=e.indexOf(s),i=[...t.slice(0,n),...e.slice(a)];return new Set(i).size===i.length?i:t}mutate(t){if(Math.random()<MUTATION_RATE&&t.length>2){const e=Math.floor(Math.random()*(t.length-2))+1,o=t[e-1],s=t[e+1];adjacency[o]?.some(t=>t.node===s)&&t.splice(e,1)}}}
+        
+        function calculatePathCost(path) {
+            let totalCost = 0;
+            path.forEach(edge => { totalCost += edge.weight; });
+            return totalCost;
+        }
+
+        function calculatePathCostFromNodes(nodePath) {
+            let totalCost = 0;
+            for(let i=0; i < nodePath.length - 1; i++) {
+                const from = nodePath[i];
+                const to = nodePath[i+1];
+                const edge = adjacency[from]?.find(e => e.node === to);
+                if(edge) totalCost += edge.weight;
+                else return Infinity;
+            }
+            return totalCost;
+        }
+
+        function displayResults() {
+            const userCost = calculatePathCost(userPath);
+            const gaCost = ga.bestCost;
+
+            modalUserCostEl.textContent = userCost;
+            modalGaCostEl.textContent = gaCost;
+
+            if (userCost < gaCost) {
+                winnerMessageEl.innerHTML = '🏆 ¡Felicidades, has ganado! 🏆';
+                winnerMessageEl.className = 'text-center text-2xl font-bold my-6 p-4 rounded-lg bg-green-100 text-green-800';
+            } else if (gaCost < userCost) {
+                winnerMessageEl.innerHTML = '🤖 El algoritmo ha ganado 🤖';
+                winnerMessageEl.className = 'text-center text-2xl font-bold my-6 p-4 rounded-lg bg-indigo-100 text-indigo-800';
+            } else {
+                winnerMessageEl.innerHTML = '🤝 ¡Es un empate! 🤝';
+                winnerMessageEl.className = 'text-center text-2xl font-bold my-6 p-4 rounded-lg bg-slate-100 text-slate-800';
+            }
+
+            resultsModal.classList.remove('hidden');
+            setTimeout(() => {
+                resultsModal.classList.remove('opacity-0');
+                modalContent.classList.remove('scale-95');
+            }, 10);
+        }
+
+        function runSimulation() {
+            let currentGeneration = 0;
+            function tick() {
+                if (currentGeneration >= NUM_GENERATIONS) {
+                    loadingEl.style.display = 'none'; runGABtn.disabled = false;
+                    runGABtn.textContent = "Correr algoritmo de nuevo";
+                    draw();
+                    displayResults();
+                    return;
+                }
+                ga.nextGeneration();
+                currentGeneration++;
+                requestAnimationFrame(tick);
+            }
+            tick();
+        }
+
+        function handleReset() {
+            NUM_NODES = parseInt(nodeSlider.value, 10);
+            createGraph(); 
+            applyForceLayout();
+            userPath = []; ga = null;
+            userDistanceEl.textContent = '0'; gaDistanceEl.textContent = '0';
+            document.getElementById('sol-none').checked = true;
+            document.getElementById('sol-user').disabled = true;
+            document.getElementById('sol-ga').disabled = true;
+            runGABtn.disabled = true; runGABtn.textContent = "Llega al destino primero";
+            draw();
+        }
+        
+        resetBtn.addEventListener('click', handleReset);
+        nodeSlider.addEventListener('input', (e) => { nodeCountLabel.textContent = e.target.value; });
+        nodeSlider.addEventListener('change', handleReset);
+        solutionSelector.addEventListener('change', draw);
+        
+        clearUserPathBtn.addEventListener('click', () => {
+            if (userPath.length > 0) {
+                userPath = []; userDistanceEl.textContent = '0';
+                runGABtn.disabled = true; runGABtn.textContent = "Llega al destino primero";
+                document.getElementById('sol-user').disabled = true;
+                document.getElementById('sol-none').checked = true;
+                draw();
+            }
+        });
+
+        runGABtn.addEventListener('click', () => {
+            loadingEl.style.display = 'flex'; runGABtn.disabled = true;
+            ga = new GeneticAlgorithm();
+            setTimeout(() => {
+                ga.init();
+                if (ga.population.length > 0 && ga.bestEver) {
+                    const gaRadio = document.getElementById('sol-ga');
+                    gaRadio.disabled = false;
+                    gaRadio.checked = true;
+                    runSimulation();
+                } else {
+                    loadingEl.style.display = 'none';
+                    console.error("No se pudieron generar rutas iniciales válidas.");
+                    handleReset();
+                }
+            }, 50);
+        });
+
+        svg.addEventListener('click', (e) => {
+            const edgeIndex = e.target.dataset.edgeIndex;
+            if (edgeIndex === undefined) return;
+
+            const clickedEdgeData = edges[parseInt(edgeIndex, 10)];
+            const lastEdge = userPath.length > 0 ? userPath[userPath.length - 1] : null;
+
+            if (lastEdge && 
+                ((lastEdge.from === clickedEdgeData.from && lastEdge.to === clickedEdgeData.to) || 
+                 (lastEdge.from === clickedEdgeData.to && lastEdge.to === clickedEdgeData.from))) {
+                userPath.pop();
+            } else {
+                const currentNode = lastEdge ? lastEdge.to : startNode;
+                let intendedNextNode = -1;
+                let edgeToAdd = null;
+
+                if (clickedEdgeData.from === currentNode) {
+                    intendedNextNode = clickedEdgeData.to;
+                    edgeToAdd = clickedEdgeData;
+                } else if (clickedEdgeData.to === currentNode) {
+                    intendedNextNode = clickedEdgeData.from;
+                    edgeToAdd = edges.find(e => e.from === currentNode && e.to === intendedNextNode);
+                }
+
+                if (edgeToAdd) {
+                    const nodesInPath = [startNode, ...userPath.map(e => e.to)];
+                    if (!nodesInPath.includes(intendedNextNode) || intendedNextNode === endNode) {
+                         userPath.push(edgeToAdd);
+                    }
+                }
+            }
+
+            userDistanceEl.textContent = calculatePathCost(userPath);
+            const finalNode = userPath.length > 0 ? userPath[userPath.length - 1].to : -1;
+            
+            if (finalNode === endNode) {
+                runGABtn.disabled = false;
+                runGABtn.textContent = "Correr algoritmo genético";
+                document.getElementById('sol-user').disabled = false;
+            } else {
+                 runGABtn.disabled = true;
+                 document.getElementById('sol-user').disabled = true;
+            }
+            draw();
+        });
+
+        svg.addEventListener('mousedown', (e) => {
+            if (e.target.tagName === 'circle') {
+                selectedNode = nodes.find(n => n.id === parseInt(e.target.dataset.id));
+                const CTM = svg.getScreenCTM();
+                if (selectedNode && CTM) {
+                    offset.x = (e.clientX - CTM.e) / CTM.a - selectedNode.x;
+                    offset.y = (e.clientY - CTM.f) / CTM.d - selectedNode.y;
+                }
+            }
+        });
+        svg.addEventListener('mousemove', (e) => {
+            if (selectedNode) {
+                const CTM = svg.getScreenCTM();
+                if (CTM) {
+                    selectedNode.x = (e.clientX - CTM.e) / CTM.a - offset.x;
+                    selectedNode.y = (e.clientY - CTM.f) / CTM.d - offset.y;
+                    draw();
+                }
+            }
+        });
+        svg.addEventListener('mouseup', () => { selectedNode = null; });
+        svg.addEventListener('mouseleave', () => { selectedNode = null; });
+
+        closeModalBtn.addEventListener('click', () => {
+            resultsModal.classList.add('opacity-0');
+            modalContent.classList.add('scale-95');
+            setTimeout(() => {
+                resultsModal.classList.add('hidden');
+            }, 300);
+        });
+
+        window.addEventListener('resize', () => { if(nodes.length > 0) { handleReset() } });
+        window.onload = () => { setTimeout(handleReset, 100); };
+    </script>
+
+    <script>
+        // --- LÓGICA DE PROTECCIÓN ---
+
+
+        // 1. Deshabilitar el clic derecho en toda la página
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            showProtectionToast('El clic derecho está deshabilitado.');
+        });
+
+        // 2. Bloquear atajos de teclado comunes
+        document.addEventListener('keydown', function(e) {
+            // Bloquear F12 para dificultar el acceso a las herramientas de desarrollador
+            if (e.key === 'F12' || e.keyCode === 123) {
+                e.preventDefault();
+                showProtectionToast('Las herramientas de desarrollador están deshabilitadas.');
+            }
+
+            // Bloquear combinaciones con la tecla Ctrl
+            if (e.ctrlKey) {
+                const key = e.key.toLowerCase();
+                if (['c', 'x', 'u', 's', 'p'].includes(key)) {
+                    e.preventDefault();
+                    showProtectionToast(`La función (Ctrl+${key.toUpperCase()}) ha sido deshabilitada.`);
+                }
+            }
+        });
+    </script>    
+</body>
+</html>
+
