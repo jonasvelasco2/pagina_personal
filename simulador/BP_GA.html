@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bin Packing - Desafío de Contenedores</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #F0F4F8; color: #1a1a1a; }
+        .item-box, .item-in-bin { transition: all 0.2s ease-in-out; cursor: grab; }
+        .item-box:active, .item-in-bin:active { cursor: grabbing; transform: scale(1.05); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); z-index: 10; }
+        .bin-container-visual { height: 200px; border: 5px solid #9FB3C8; border-top: none; border-radius: 0 0 10px 10px; position: relative; transition: all 0.2s ease-in-out; background-color: #D9E2EC; }
+        .bin-items-wrapper { position: absolute; bottom: 0; left: 0; right: 0; display: flex; flex-direction: column-reverse; align-items: center; }
+        .item-in-bin { width: 80%; text-align: center; font-weight: bold; color: white; border-radius: 4px; margin-bottom: 2px; overflow: hidden; border: 2px solid rgba(0,0,0,0.2); }
+        .drag-over { background-color: #C7D5E5; border-color: #2563eb; }
+        .bin-full { border-color: #ef4444 !important; }
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.75); display: flex; justify-content: center; align-items: center; z-index: 50; }
+        .btn-type-active { background-color: #0284c7; color: white; }
+        .btn-type-inactive { background-color: #e5e7eb; color: #4b5563; }
+    </style>
+</head>
+
+<body class="bg-slate-50 text-slate-800">
+    <div class="container mx-auto p-4 md:p-8 relative">
+         <div class="absolute top-4 right-4 flex items-center gap-4 z-10">
+           <a href="../pasarela/buymeacoffee.html" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 bg-yellow-400 text-gray-900 font-bold py-2 px-4 rounded-lg shadow-sm transition-colors duration-300 hover:bg-yellow-500">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M1 12.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5M2 4v6h10V4zm11.5 0a.5.5 0 0 0-.5.5v5a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-5a.5.5 0 0 0-.5-.5zM1 3.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5m10.854-1.354a.5.5 0 0 0-.708 0L9 3.293 7.854 2.146a.5.5 0 1 0-.708.708L8.293 4 7.146 5.146a.5.5 0 1 0 .708.708L9 4.707l1.146 1.147a.5.5 0 0 0 .708-.708L9.707 4l1.147-1.146a.5.5 0 0 0 0-.708"/></svg>
+                <span>Invítame un café</span>
+            </a>
+            <a href="../index.html" class="bg-white hover:bg-slate-100 text-slate-600 font-semibold py-2 px-4 border border-slate-200 rounded-lg shadow-sm flex items-center transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+                Inicio
+            </a>
+        </div>
+
+        <header class="text-center mb-8 pt-16">
+            <h1 class="text-4xl font-bold text-slate-900">Desafío de contenedores: optimiza el espacio</h1>
+            <p class="text-lg text-slate-600 mt-2">Arrastra los objetos a los contenedores. ¡Usa la menor cantidad posible!</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-1 self-start sticky top-8 space-y-8">
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <h2 class="text-2xl font-bold mb-4">Controles</h2>
+                    <div class="space-y-4 mb-6">
+                        <div>
+                            <label for="num-items-input" class="font-semibold text-slate-600">Número de objetos:</label>
+                            <input type="number" id="num-items-input" value="12" min="5" max="50" class="w-full mt-1 p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label id="bin-capacity-label" for="bin-capacity-input" class="font-semibold text-slate-600">Capacidad máxima:</label>
+                            <input type="number" id="bin-capacity-input" value="100" min="20" max="500" class="w-full mt-1 p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="font-semibold text-slate-600">Tipo de contenedor:</label>
+                            <div class="grid grid-cols-2 gap-2 mt-1">
+                                <button id="type-homo" class="p-2 rounded-lg font-bold">Homogéneo</button>
+                                <button id="type-hetero" class="p-2 rounded-lg font-bold">Heterogéneo</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex space-x-4">
+                        <button id="reset-button" class="w-full bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700">Generar objetos</button>
+                        <button id="solve-button" class="w-full bg-teal-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-teal-700 disabled:bg-slate-400 disabled:cursor-not-allowed">Solución con algoritmo</button>
+                    </div>
+                    <p id="loading-text" class="mt-4 text-slate-500 hidden text-center">Calculando...</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <h2 class="text-2xl font-bold mb-4">Instrucciones de Uso</h2>
+                    <ol class="list-decimal list-inside space-y-2 text-slate-600">
+                        <li>Ajusta el número de objetos y su capacidad.</li>
+                        <li>Elige si los contenedores tendrán capacidades iguales (<b>Homogéneo</b>) o diferentes (<b>Heterogéneo</b>).</li>
+                        <li>Arrastra todos los objetos disponibles hacia los contenedores.</li>
+                        <li>Puedes mover objetos entre contenedores o devolverlos a la zona de disponibles.</li>
+                        <li>Cuando termines, pulsa <b>Solución con algoritmo</b> para comparar tu resultado.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2">
+                <div class="bg-white p-6 rounded-xl shadow-md mb-8">
+                    <h2 class="text-2xl font-bold mb-4">Objetos disponibles</h2>
+                    <div id="items-container" class="min-h-[100px] p-4 bg-slate-100 rounded-lg grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-4">
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold">Contenedores</h2>
+                        <div id="comparison-controls" class="hidden space-x-2">
+                            <button id="view-user-solution" class="bg-slate-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-slate-600 text-sm">Ver tu solución</button>
+                            <button id="view-ga-solution" class="bg-teal-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-teal-600 text-sm">Ver solución del algoritmo</button>
+                        </div>
+                    </div>
+                    <div id="bins-container" class="grid grid-cols-6 gap-x-4 gap-y-10">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Modal -->
+    <div id="results-modal" class="modal-overlay hidden">
+        <div class="bg-white rounded-xl shadow-2xl p-8 max-w-4xl w-full mx-4 transform transition-all duration-300 scale-95 opacity-0" id="modal-content">
+            <h2 class="text-3xl font-bold text-center mb-4">Resultados</h2>
+            <div id="winner-message" class="text-center text-2xl font-bold my-4 p-4 rounded-lg"></div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-center">
+                <div class="bg-slate-100 p-6 rounded-lg">
+                    <h3 class="text-xl font-bold mb-3">Tu solución</h3>
+                    <p class="text-lg">Contenedores usados: <span id="user-bins-used" class="font-bold text-blue-600"></span></p>
+                    <p class="text-sm mt-1">Objetos: <span id="user-items-packed"></span></p>
+                </div>
+                <div class="bg-teal-100 border-2 border-teal-500 p-6 rounded-lg">
+                    <h3 class="text-xl font-bold mb-3">Solución del algoritmo</h3>
+                    <p class="text-lg">Contenedores usados: <span id="ga-bins-used" class="font-bold text-blue-600"></span></p>
+                    <p class="text-sm mt-1">Objetos: <span id="ga-items-packed"></span></p>
+                </div>
+            </div>
+            <p id="ga-time" class="text-center text-slate-500 mt-4"></p>
+            <div id="modal-footer-buttons" class="mt-8 text-center space-x-4">
+                <button id="retry-ga-button" class="bg-orange-500 text-white font-bold py-2 px-8 rounded-lg hover:bg-orange-600 hidden">Reintentar solución</button>
+                <button id="close-modal-button" class="bg-gray-600 text-white font-bold py-2 px-8 rounded-lg hover:bg-gray-700">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <footer id="contact" class="bg-[#333333] text-white mt-12">
+        <div class="container mx-auto px-6 py-10">
+            <div class="text-center">
+                <p class="text-gray-300 mb-2">Si tienes alguna pregunta o te gustaría colaborar, no dudes en escribirme.</p>
+                <a href="../contacto.html" class="text-[#80CBC4] text-lg hover:underline">Contacto</a>
+                <p class="text-gray-500 mt-8 text-sm">&copy; 2025 Jonás Velasco. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const dom = {
+            itemsContainer: document.getElementById('items-container'),
+            binsContainer: document.getElementById('bins-container'),
+            numItemsInput: document.getElementById('num-items-input'),
+            binCapacityInput: document.getElementById('bin-capacity-input'),
+            binCapacityLabel: document.getElementById('bin-capacity-label'),
+            typeHomoButton: document.getElementById('type-homo'),
+            typeHeteroButton: document.getElementById('type-hetero'),
+            solveButton: document.getElementById('solve-button'),
+            resetButton: document.getElementById('reset-button'),
+            loadingText: document.getElementById('loading-text'),
+            resultsModal: document.getElementById('results-modal'),
+            modalContent: document.getElementById('modal-content'),
+            winnerMessage: document.getElementById('winner-message'),
+            userBinsUsed: document.getElementById('user-bins-used'),
+            gaBinsUsed: document.getElementById('ga-bins-used'),
+            userItemsPacked: document.getElementById('user-items-packed'),
+            gaItemsPacked: document.getElementById('ga-items-packed'),
+            gaTime: document.getElementById('ga-time'),
+            comparisonControls: document.getElementById('comparison-controls'),
+            closeModalButton: document.getElementById('close-modal-button'),
+            retryGaButton: document.getElementById('retry-ga-button'),
+        };
+
+        const state = {
+            items: [],
+            binCapacities: [],
+            isHeterogeneous: false,
+            draggedItemId: null,
+            draggedItemOrigin: null,
+            userAssignments: new Map(),
+            gaAssignments: new Map(),
+            currentAssignments: new Map(),
+        };
+
+        const GA_CONFIG = { populationSize: 100, generations: 100, mutationRate: 0.1, crossoverRate: 0.8, tournamentSize: 5 };
+        const ITEM_COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#EF4444', '#EC4899'];
+
+        function generateState() {
+            state.items = [];
+            state.binCapacities = [];
+            state.userAssignments.clear();
+            state.gaAssignments.clear();
+            const numItems = parseInt(dom.numItemsInput.value, 10);
+            const maxCapacity = parseInt(dom.binCapacityInput.value, 10);
+
+            for (let i = 0; i < numItems; i++) {
+                let size;
+                if (Math.random() < 0.7) { // 70% chance for a medium-large item
+                    const min = Math.floor(maxCapacity * 0.5);
+                    const max = Math.floor(maxCapacity * 0.85);
+                    size = Math.floor(Math.random() * (max - min + 1)) + min;
+                } else { // 30% chance for a small item
+                    const min = Math.floor(maxCapacity * 0.2);
+                    const max = Math.floor(maxCapacity * 0.45);
+                    size = Math.floor(Math.random() * (max - min + 1)) + min;
+                }
+                state.items.push({ id: `item-${i}`, size, color: ITEM_COLORS[i % ITEM_COLORS.length] });
+            }
+
+            for (let i = 0; i < numItems; i++) {
+                if (state.isHeterogeneous) {
+                    const minHetCapacity = Math.floor(maxCapacity * 0.6);
+                    const cap = Math.floor(Math.random() * (maxCapacity - minHetCapacity + 1)) + minHetCapacity;
+                    state.binCapacities.push(cap);
+                } else {
+                    state.binCapacities.push(maxCapacity);
+                }
+            }
+            state.currentAssignments = state.userAssignments;
+        }
+
+        function renderFullUI() {
+            renderAvailableItems();
+            renderBins();
+            updateSolveButtonState();
+            updateContainerTypeButtons();
+        }
+
+        function renderAvailableItems() {
+            dom.itemsContainer.innerHTML = '';
+            state.items.forEach(item => {
+                if (!state.userAssignments.has(item.id)) {
+                    const itemEl = createItemElement(item);
+                    dom.itemsContainer.appendChild(itemEl);
+                }
+            });
+        }
+
+        function renderBins() {
+            dom.binsContainer.innerHTML = '';
+            for (let i = 0; i < state.binCapacities.length; i++) {
+                dom.binsContainer.appendChild(createBinElement(i));
+            }
+            updateAllBinsVisuals();
+        }
+
+        function createItemElement(item) {
+            const div = document.createElement('div');
+            div.id = item.id;
+            div.className = 'item-box bg-white rounded-lg p-2 text-center shadow-sm hover:shadow-md';
+            div.draggable = true;
+            div.innerHTML = `<div class="font-bold text-md">${item.size}</div>`;
+            div.addEventListener('dragstart', e => handleItemDragStart(e, item, 'available'));
+            return div;
+        }
+
+        function createBinElement(index) {
+            const capacity = state.binCapacities[index];
+            const div = document.createElement('div');
+            div.id = `bin-${index}`;
+            div.className = 'text-center';
+            div.innerHTML = `
+                <div class="bin-container-visual">
+                    <div class="bin-items-wrapper"></div>
+                </div>
+                <div class="font-bold mt-2 text-sm">Contenedor ${index + 1}</div>
+                <div class="text-xs text-slate-600"><span class="current-size">0</span> / ${capacity}</div>
+            `;
+            const glass = div.querySelector('.bin-container-visual');
+            glass.addEventListener('dragover', e => { e.preventDefault(); glass.classList.add('drag-over'); });
+            glass.addEventListener('dragleave', e => { glass.classList.remove('drag-over'); });
+            glass.addEventListener('drop', e => handleDrop(e, `bin-${index}`));
+            return div;
+        }
+
+        function handleItemDragStart(e, item, origin) {
+            state.draggedItemId = item.id;
+            state.draggedItemOrigin = origin;
+        }
+
+        function handleDropOnAvailable(e) {
+            e.preventDefault();
+            if (!state.draggedItemId || state.draggedItemOrigin === 'available') return;
+            dom.itemsContainer.classList.remove('drag-over');
+            state.userAssignments.delete(state.draggedItemId);
+            state.currentAssignments = state.userAssignments;
+            renderFullUI();
+            updateAllBinsVisuals();
+        }
+
+        function handleDrop(e, binId) {
+            e.preventDefault();
+            if (!state.draggedItemId) return;
+
+            const glassEl = e.currentTarget.querySelector('.bin-container-visual') || e.currentTarget;
+            glassEl.classList.remove('drag-over');
+            
+            const item = state.items.find(i => i.id === state.draggedItemId);
+            const binIndex = parseInt(binId.split('-')[1]);
+            const capacity = state.binCapacities[binIndex];
+            
+            const assignmentsClone = new Map(state.userAssignments);
+            if (state.draggedItemOrigin !== 'available') {
+                 assignmentsClone.delete(item.id);
+            }
+            const currentSize = getBinSize(binId, assignmentsClone);
+
+            if (currentSize + item.size <= capacity) {
+                state.userAssignments.set(item.id, binId);
+                state.currentAssignments = state.userAssignments;
+                renderFullUI();
+                updateAllBinsVisuals();
+            } else {
+                glassEl.classList.add('bin-full');
+                setTimeout(() => glassEl.classList.remove('bin-full'), 300);
+            }
+            state.draggedItemId = null;
+        }
+
+        function getBinSize(binId, assignments) {
+            let size = 0;
+            for (const [itemId, assignedBinId] of assignments.entries()) {
+                if (assignedBinId === binId) {
+                    size += state.items.find(i => i.id === itemId).size;
+                }
+            }
+            return size;
+        }
+
+        function updateAllBinsVisuals() {
+            for (let i = 0; i < state.binCapacities.length; i++) {
+                updateBinVisuals(`bin-${i}`);
+            }
+        }
+
+        function updateBinVisuals(binId) {
+            const binEl = document.getElementById(binId);
+            if (!binEl) return;
+            const itemsWrapper = binEl.querySelector('.bin-items-wrapper');
+            const sizeEl = binEl.querySelector('.current-size');
+            const binIndex = parseInt(binId.split('-')[1]);
+            const capacity = state.binCapacities[binIndex];
+            
+            itemsWrapper.innerHTML = '';
+            let currentSize = 0;
+
+            for (const [itemId, assignedBinId] of state.currentAssignments.entries()) {
+                if (assignedBinId === binId) {
+                    const item = state.items.find(i => i.id === itemId);
+                    currentSize += item.size;
+                    const itemInBinEl = document.createElement('div');
+                    itemInBinEl.id = item.id;
+                    itemInBinEl.draggable = true;
+                    itemInBinEl.className = 'item-in-bin';
+                    itemInBinEl.style.height = `${(item.size / capacity) * 180}px`;
+                    itemInBinEl.style.backgroundColor = item.color;
+                    itemInBinEl.textContent = item.size;
+                    itemInBinEl.addEventListener('dragstart', e => handleItemDragStart(e, item, binId));
+                    itemsWrapper.appendChild(itemInBinEl);
+                }
+            }
+            sizeEl.textContent = currentSize;
+        }
+
+        function updateSolveButtonState() {
+            const allItemsPlaced = state.items.length > 0 && state.userAssignments.size === state.items.length;
+            dom.solveButton.disabled = !allItemsPlaced;
+        }
+
+        function updateContainerTypeButtons() {
+            const active = 'btn-type-active', inactive = 'btn-type-inactive';
+            dom.typeHomoButton.className = `p-2 rounded-lg font-bold ${state.isHeterogeneous ? inactive : active}`;
+            dom.typeHeteroButton.className = `p-2 rounded-lg font-bold ${state.isHeterogeneous ? active : inactive}`;
+            dom.binCapacityLabel.textContent = state.isHeterogeneous ? "Capacidad Máxima:" : "Capacidad Base:";
+        }
+
+        function solveHeuristicFFD() {
+            const startTime = performance.now();
+            const sortedItems = [...state.items].sort((a, b) => b.size - a.size);
+            const bins = new Array(state.binCapacities.length).fill(0);
+            const assignments = new Map();
+
+            sortedItems.forEach(item => {
+                for (let i = 0; i < state.binCapacities.length; i++) {
+                    if (bins[i] + item.size <= state.binCapacities[i]) {
+                        bins[i] += item.size;
+                        assignments.set(item.id, `bin-${i}`);
+                        break;
+                    }
+                }
+            });
+            const timeTaken = ((performance.now() - startTime) / 1000).toFixed(2);
+            return { assignments, fitness: bins.filter(s => s > 0).length, timeTaken };
+        }
+
+        function runGeneticAlgorithm() {
+            const startTime = performance.now();
+            let population = generateValidInitialPopulation();
+            let bestSolution = { chromosome: [], fitness: Infinity };
+
+            for (let gen = 0; gen < GA_CONFIG.generations; gen++) {
+                population.forEach((c, i) => population[i] = forceRepairChromosome(c));
+                let evaluated = population.map(c => ({ chromosome: c, fitness: calculateFitness(c) }));
+                let currentBest = evaluated.reduce((best, current) => (current.fitness < best.fitness) ? current : best, bestSolution);
+                if (currentBest.fitness < bestSolution.fitness) bestSolution = currentBest;
+
+                let newPopulation = [];
+                if(bestSolution.fitness !== Infinity) newPopulation.push(bestSolution.chromosome);
+
+                while (newPopulation.length < GA_CONFIG.populationSize) {
+                    const p1 = tournamentSelection(evaluated).chromosome, p2 = tournamentSelection(evaluated).chromosome;
+                    let [c1, c2] = crossover(p1, p2);
+                    mutate(c1);
+                    mutate(c2);
+                    newPopulation.push(c1, c2);
+                }
+                population = newPopulation.slice(0, GA_CONFIG.populationSize);
+            }
+            
+            const timeTaken = ((performance.now() - startTime) / 1000).toFixed(2);
+            if (bestSolution.fitness !== Infinity) {
+                const finalChromosome = normalizeChromosome(bestSolution.chromosome);
+                const assignments = new Map();
+                finalChromosome.forEach((binIndex, itemIndex) => {
+                    assignments.set(state.items[itemIndex].id, `bin-${binIndex}`);
+                });
+                return { assignments, fitness: calculateFitness(finalChromosome), timeTaken };
+            }
+            return { assignments: new Map(), fitness: Infinity, timeTaken };
+        }
+
+        function generateValidInitialPopulation() {
+            const population = [];
+            const sortedItems = [...state.items].sort((a, b) => b.size - a.size);
+            for (let i = 0; i < GA_CONFIG.populationSize; i++) {
+                const chromosome = new Array(state.items.length).fill(-1);
+                const bins = new Array(state.binCapacities.length).fill(0);
+                const shuffledItems = [...sortedItems].sort(() => Math.random() - 0.5);
+                shuffledItems.forEach(item => {
+                    const originalIndex = state.items.findIndex(it => it.id === item.id);
+                    const shuffledBins = [...Array(state.binCapacities.length).keys()].sort(() => Math.random() - 0.5);
+                    for (const binIndex of shuffledBins) {
+                        if (bins[binIndex] + item.size <= state.binCapacities[binIndex]) {
+                            bins[binIndex] += item.size;
+                            chromosome[originalIndex] = binIndex;
+                            break;
+                        }
+                    }
+                });
+                population.push(chromosome);
+            }
+            return population;
+        }
+
+        function forceRepairChromosome(chromosome) {
+            const bins = new Array(state.binCapacities.length).fill(0);
+            const homelessItemIndices = [];
+            for (let i = 0; i < chromosome.length; i++) {
+                const binIndex = chromosome[i];
+                if (binIndex === -1) {
+                    homelessItemIndices.push(i);
+                } else {
+                    bins[binIndex] += state.items[i].size;
+                }
+            }
+            for (let binIndex = 0; binIndex < bins.length; binIndex++) {
+                if (bins[binIndex] > state.binCapacities[binIndex]) {
+                    for (let itemIndex = 0; itemIndex < chromosome.length; itemIndex++) {
+                        if (chromosome[itemIndex] === binIndex) {
+                            homelessItemIndices.push(itemIndex);
+                        }
+                    }
+                }
+            }
+            const uniqueHomelessIndices = [...new Set(homelessItemIndices)];
+            if (uniqueHomelessIndices.length === 0) return chromosome;
+
+            uniqueHomelessIndices.forEach(itemIndex => { chromosome[itemIndex] = -1; });
+            
+            const repairedBins = new Array(state.binCapacities.length).fill(0);
+            for(let i=0; i<chromosome.length; i++) {
+                if(chromosome[i] !== -1) repairedBins[chromosome[i]] += state.items[i].size;
+            }
+
+            uniqueHomelessIndices.sort((a,b) => state.items[b].size - state.items[a].size).forEach(itemIndex => {
+                const item = state.items[itemIndex];
+                let placed = false;
+                for (let binIndex = 0; binIndex < state.binCapacities.length; binIndex++) {
+                    if (repairedBins[binIndex] > 0 && repairedBins[binIndex] + item.size <= state.binCapacities[binIndex]) {
+                        repairedBins[binIndex] += item.size;
+                        chromosome[itemIndex] = binIndex;
+                        placed = true;
+                        break;
+                    }
+                }
+                if (!placed) {
+                    for (let binIndex = 0; binIndex < state.binCapacities.length; binIndex++) {
+                        if (repairedBins[binIndex] === 0 && item.size <= state.binCapacities[binIndex]) {
+                            repairedBins[binIndex] += item.size;
+                            chromosome[itemIndex] = binIndex;
+                            break;
+                        }
+                    }
+                }
+            });
+            return chromosome;
+        }
+
+        function calculateFitness(chromosome) {
+            const bins = new Array(state.binCapacities.length).fill(0);
+            for (let i = 0; i < state.items.length; i++) {
+                const binIndex = chromosome[i];
+                if (binIndex === undefined || binIndex === -1) return Infinity;
+                bins[binIndex] += state.items[i].size;
+            }
+            for (let i = 0; i < state.binCapacities.length; i++) {
+                if (bins[i] > state.binCapacities[i]) return Infinity;
+            }
+            const binsUsed = bins.filter(size => size > 0).length;
+            return binsUsed === 0 && state.items.length > 0 ? Infinity : binsUsed;
+        }
+
+        function tournamentSelection(evaluated) {
+            const pool = evaluated.filter(s => s.fitness !== Infinity);
+            if (pool.length === 0) return evaluated[Math.floor(Math.random() * evaluated.length)];
+            let tournament = Array.from({ length: GA_CONFIG.tournamentSize }, () => pool[Math.floor(Math.random() * pool.length)]);
+            return tournament.reduce((best, current) => (current.fitness < best.fitness) ? current : best);
+        }
+
+        function crossover(p1, p2) {
+            if (Math.random() > GA_CONFIG.crossoverRate) return [[...p1], [...p2]];
+            const point = Math.floor(Math.random() * (p1.length - 1)) + 1;
+            return [p1.slice(0, point).concat(p2.slice(point)), p2.slice(0, point).concat(p1.slice(point))];
+        }
+
+        function mutate(chromosome) {
+            for (let i = 0; i < chromosome.length; i++) {
+                if (Math.random() < GA_CONFIG.mutationRate) {
+                    chromosome[i] = Math.floor(Math.random() * state.items.length);
+                }
+            }
+        }
+
+        function normalizeChromosome(chromosome) {
+            const mapping = {}; let nextBinIndex = 0;
+            return chromosome.map(binIndex => {
+                if (mapping[binIndex] === undefined) mapping[binIndex] = nextBinIndex++;
+                return mapping[binIndex];
+            });
+        }
+
+        function triggerSolve() {
+            dom.solveButton.disabled = true;
+            dom.resetButton.disabled = true;
+            dom.loadingText.classList.remove('hidden');
+            setTimeout(() => {
+                const result = state.isHeterogeneous ? solveHeuristicFFD() : runGeneticAlgorithm();
+                displayResults(result);
+                dom.loadingText.classList.add('hidden');
+            }, 50);
+        }
+
+        function displayResults(result) {
+            dom.resetButton.disabled = false;
+            const { assignments, fitness, timeTaken } = result;
+
+            const userItemsPacked = state.userAssignments.size;
+            const userBinsUsed = new Set(state.userAssignments.values()).size;
+            dom.userBinsUsed.textContent = userBinsUsed;
+            dom.userItemsPacked.textContent = `${userItemsPacked} / ${state.items.length}`;
+
+            state.gaAssignments = assignments;
+            const gaItemsPacked = state.gaAssignments.size;
+            const gaBinsUsed = fitness === Infinity ? "Falló" : fitness;
+            dom.gaBinsUsed.textContent = gaBinsUsed;
+            dom.gaItemsPacked.textContent = `${gaItemsPacked} / ${state.items.length}`;
+            dom.gaTime.textContent = `Calculado en ${timeTaken} segundos.`;
+
+            const gaFailed = fitness === Infinity;
+
+            if (gaFailed && !state.isHeterogeneous) { // Only show retry for GA
+                dom.winnerMessage.innerHTML = 'El algoritmo no encontró una solución válida. ¡Inténtalo de nuevo! 🤖';
+                dom.winnerMessage.className = 'text-center text-2xl font-bold my-4 p-4 rounded-lg bg-red-100 text-red-800';
+                dom.retryGaButton.classList.remove('hidden');
+                dom.comparisonControls.classList.add('hidden');
+            } else {
+                dom.retryGaButton.classList.add('hidden');
+                dom.comparisonControls.classList.remove('hidden');
+                if (gaFailed || userBinsUsed < gaBinsUsed) {
+                    dom.winnerMessage.innerHTML = '🏆 ¡Felicidades, has ganado! 🏆';
+                    dom.winnerMessage.className = 'text-center text-2xl font-bold my-4 p-4 rounded-lg bg-green-100 text-green-800';
+                } else if (gaBinsUsed < userBinsUsed) {
+                    dom.winnerMessage.innerHTML = '🤖 El Algoritmo ha ganado 🤖';
+                    dom.winnerMessage.className = 'text-center text-2xl font-bold my-4 p-4 rounded-lg bg-teal-100 text-teal-800';
+                } else {
+                    dom.winnerMessage.innerHTML = '🤝 ¡Es un empate! 🤝';
+                    dom.winnerMessage.className = 'text-center text-2xl font-bold my-4 p-4 rounded-lg bg-slate-100 text-slate-800';
+                }
+            }
+            
+            dom.comparisonControls.querySelector('#view-user-solution').onclick = () => {
+                state.currentAssignments = state.userAssignments;
+                renderBins();
+            };
+            dom.comparisonControls.querySelector('#view-ga-solution').onclick = () => {
+                state.currentAssignments = state.gaAssignments;
+                renderBins();
+            };
+
+            state.currentAssignments = state.gaAssignments;
+            renderBins();
+
+            dom.resultsModal.classList.remove('hidden');
+            setTimeout(() => dom.modalContent.classList.remove('scale-95', 'opacity-0'), 10);
+        }
+        
+        function initialize() {
+            generateState();
+            renderFullUI();
+            dom.solveButton.disabled = true;
+            dom.resetButton.disabled = false;
+            dom.comparisonControls.classList.add('hidden');
+            dom.resultsModal.classList.add('hidden');
+            dom.modalContent.classList.add('scale-95', 'opacity-0');
+            dom.retryGaButton.classList.add('hidden');
+            
+            dom.itemsContainer.addEventListener('dragover', e => { e.preventDefault(); dom.itemsContainer.classList.add('drag-over'); });
+            dom.itemsContainer.addEventListener('dragleave', e => { dom.itemsContainer.classList.remove('drag-over'); });
+            dom.itemsContainer.addEventListener('drop', handleDropOnAvailable);
+        }
+
+        dom.resetButton.addEventListener('click', initialize);
+        dom.solveButton.addEventListener('click', triggerSolve);
+        dom.retryGaButton.addEventListener('click', () => {
+            dom.modalContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                dom.resultsModal.classList.add('hidden');
+                triggerSolve();
+            }, 300);
+        });
+        dom.closeModalButton.addEventListener('click', () => {
+             dom.modalContent.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => {
+                    dom.resultsModal.classList.add('hidden');
+                    dom.resetButton.disabled = false;
+                }, 300);
+        });
+        dom.typeHomoButton.addEventListener('click', () => {
+            if (state.isHeterogeneous === false) return;
+            state.isHeterogeneous = false;
+            initialize();
+        });
+        dom.typeHeteroButton.addEventListener('click', () => {
+            if (state.isHeterogeneous === true) return;
+            state.isHeterogeneous = true;
+            initialize();
+        });
+
+        initialize();
+    });
+    </script>
+  <script>
+    // --- LÓGICA DE PROTECCIÓN ---
+
+
+    // 1. Deshabilitar el clic derecho en toda la página
+    document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+        showProtectionToast('El clic derecho está deshabilitado.');
+    });
+
+    // 2. Bloquear atajos de teclado comunes
+    document.addEventListener('keydown', function(e) {
+        // Bloquear F12 para dificultar el acceso a las herramientas de desarrollador
+        if (e.key === 'F12' || e.keyCode === 123) {
+            e.preventDefault();
+            showProtectionToast('Las herramientas de desarrollador están deshabilitadas.');
+        }
+
+        // Bloquear combinaciones con la tecla Ctrl
+        if (e.ctrlKey) {
+            const key = e.key.toLowerCase();
+            if (['c', 'x', 'u', 's', 'p'].includes(key)) {
+                e.preventDefault();
+                showProtectionToast(`La función (Ctrl+${key.toUpperCase()}) ha sido deshabilitada.`);
+            }
+        }
+    });
+</script>
+
+</body>
+</html>
