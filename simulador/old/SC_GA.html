@@ -93,7 +93,7 @@
             <div class="lg:w-2/3 flex-grow">
                 <div class="bg-white p-6 rounded-xl shadow-md h-full flex flex-col">
                     <h2 class="text-2xl font-bold mb-4">Plano de la galería</h2>
-                    <div class="flex-grow flex items-center justify-center p-4 min-h-[300px]">
+                    <div class="flex-grow flex items-center justify-center p-4">
                         <div id="gallery-grid" class="gallery-grid"></div>
                     </div>
                 </div>
@@ -167,7 +167,6 @@
             dom.comparisonControls.classList.add('hidden');
             dom.comparisonResults.classList.add('hidden');
             dom.infoDisplay.classList.remove('hidden');
-            dom.solveButton.disabled = true; // Disable solve button initially
 
             const cameraIconSize = `${Math.max(10, 40 - GRID_SIZE * 1.5)}px`;
             document.documentElement.style.setProperty('--camera-icon-size', cameraIconSize);
@@ -225,9 +224,6 @@
 
                 if (percentage === 100) {
                     dom.coveragePercentEl.textContent += " ¡Galería protegida!";
-                    dom.solveButton.disabled = false; // Enable solve button when 100% covered
-                } else {
-                    dom.solveButton.disabled = true; // Disable solve button otherwise
                 }
             }
         }
@@ -349,9 +345,6 @@
             dom.modalContent.classList.add('scale-95');
             setTimeout(() => {
                 dom.resultsModal.classList.add('hidden');
-                state.isComparing = false; // Re-enable interaction
-                dom.gridContainer.style.pointerEvents = 'auto'; // Re-enable grid clicks
-                updateUI(); // Re-evaluate button state and update display
             }, 300);
         }
 
