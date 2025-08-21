@@ -1,0 +1,289 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💎 Ejemplo de Uso - Cristales de Energía | Aventuras de Robi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .game-font { font-family: 'Press Start 2P', cursive; }
+        .hero-gradient { background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%); }
+        .step-card { 
+            transition: all 0.3s ease; 
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+        .step-card:hover { 
+            transform: translateY(-3px); 
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        .crystal-example {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 3px;
+            max-width: 160px;
+            aspect-ratio: 1;
+            border: 2px solid #8b5cf6;
+            border-radius: 8px;
+            padding: 4px;
+            background-color: #faf5ff;
+        }
+        .crystal-cell {
+            border: 1px solid #d8b4fe;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            border-radius: 4px;
+            background-color: #fefefe;
+        }
+        .sparkle {
+            animation: sparkle 2s infinite;
+        }
+        @keyframes sparkle {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        @keyframes floating {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 text-gray-800">
+
+    <!-- Hero Section -->
+    <section class="hero-gradient py-16 text-white">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <div class="floating">
+                <h1 class="game-font text-3xl md:text-5xl mb-6">
+                    💎 Ejemplo de Uso: Cristales de Energía
+                </h1>
+            </div>
+            <p class="text-xl mb-8 opacity-90">
+                Aprende el poder de los bucles - ¡Recoge energía de forma inteligente!
+            </p>
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="index.html" class="bg-white text-purple-600 px-6 py-3 rounded-full font-bold hover:bg-gray-100 transition-colors duration-300">
+                    🏠 Volver al Índice
+                </a>
+                <a href="cristales_robi.html" class="bg-yellow-400 text-gray-900 px-6 py-3 rounded-full font-bold hover:bg-yellow-300 transition-colors duration-300">
+                    ⚡ ¡Recolectar Energía!
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Example Content -->
+    <section class="py-16 bg-white">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">
+                    🔁 ¿Qué son los Bucles?
+                </h2>
+                <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+                    Los bucles son la forma mágica de decir "repite esta acción varias veces" sin escribir 
+                    la misma instrucción una y otra vez. ¡Es como tener un superpoder de eficiencia!
+                </p>
+            </div>
+
+            <!-- Step by Step Guide -->
+            <div class="space-y-8">
+                <!-- Step 1 -->
+                <div class="step-card rounded-xl p-8">
+                    <div class="grid md:grid-cols-2 gap-8 items-center">
+                        <div>
+                            <h3 class="text-2xl font-bold mb-4 text-purple-600">
+                                🌟 Paso 1: El Problema de la Energía
+                            </h3>
+                            <p class="text-gray-600 mb-4">
+                                Robi necesita recargar su energía recogiendo cristales mágicos (💎) esparcidos por el valle. 
+                                Cada cristal le da 10 puntos de energía, y necesita al menos 100 puntos para continuar su aventura.
+                            </p>
+                            <div class="bg-purple-50 border-l-4 border-purple-400 p-4 rounded">
+                                <p class="text-sm text-purple-800">
+                                    <strong>🧠 El Desafío:</strong> ¿Cómo recogemos muchos cristales sin repetir código?
+                                </p>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <div class="crystal-example mx-auto">
+                                <div class="crystal-cell">🤖</div>
+                                <div class="crystal-cell sparkle">💎</div>
+                                <div class="crystal-cell sparkle">💎</div>
+                                <div class="crystal-cell">🌟</div>
+                                <div class="crystal-cell sparkle">💎</div>
+                                <div class="crystal-cell">🌿</div>
+                                <div class="crystal-cell">🌿</div>
+                                <div class="crystal-cell sparkle">💎</div>
+                                <div class="crystal-cell">🌟</div>
+                                <div class="crystal-cell sparkle">💎</div>
+                                <div class="crystal-cell sparkle">💎</div>
+                                <div class="crystal-cell">🌿</div>
+                                <div class="crystal-cell sparkle">💎</div>
+                                <div class="crystal-cell">🌿</div>
+                                <div class="crystal-cell">🌟</div>
+                                <div class="crystal-cell">🏠</div>
+                            </div>
+                            <p class="text-sm text-gray-500 mt-2">Valle de cristales 4x4</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="step-card rounded-xl p-8">
+                    <div class="grid md:grid-cols-2 gap-8 items-center">
+                        <div class="order-2 md:order-1">
+                            <div class="bg-red-50 border-l-4 border-red-400 p-4 rounded mb-4">
+                                <h4 class="font-bold text-red-700 mb-2">❌ Forma Ineficiente:</h4>
+                                <div class="text-xs space-y-1 font-mono">
+                                    <div>1. Avanzar</div>
+                                    <div>2. Recoger cristal</div>
+                                    <div>3. Avanzar</div>
+                                    <div>4. Recoger cristal</div>
+                                    <div>5. Avanzar</div>
+                                    <div>6. Recoger cristal</div>
+                                    <div class="text-red-600">...¡12 líneas más!</div>
+                                </div>
+                            </div>
+                            <div class="bg-green-50 border-l-4 border-green-400 p-4 rounded">
+                                <h4 class="font-bold text-green-700 mb-2">✅ Con Bucle:</h4>
+                                <div class="text-sm font-mono">
+                                    <div class="text-green-600">REPETIR 7 veces:</div>
+                                    <div class="ml-4">• Avanzar</div>
+                                    <div class="ml-4">• Si hay cristal → Recoger</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="order-1 md:order-2">
+                            <h3 class="text-2xl font-bold mb-4 text-purple-600">
+                                🔁 Paso 2: El Poder del Bucle
+                            </h3>
+                            <p class="text-gray-600 mb-4">
+                                En lugar de escribir "Avanzar, Recoger" 7 veces diferentes, usamos un bucle que dice: 
+                                "Repite estas acciones 7 veces". ¡Mucho más inteligente!
+                            </p>
+                            <div class="bg-purple-50 border-l-4 border-purple-400 p-4 rounded">
+                                <p class="text-sm text-purple-800">
+                                    <strong>🧠 Concepto:</strong> Los bucles nos ahorran tiempo y hacen el código más limpio y fácil de entender.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="step-card rounded-xl p-8">
+                    <div class="grid md:grid-cols-2 gap-8 items-center">
+                        <div>
+                            <h3 class="text-2xl font-bold mb-4 text-purple-600">
+                                🎯 Paso 3: Tipos de Bucles
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
+                                    <h4 class="font-bold text-blue-700 mb-2">🔢 Bucle de Contador</h4>
+                                    <p class="text-sm text-blue-600">"Repite exactamente 5 veces"</p>
+                                </div>
+                                <div class="bg-green-50 border-2 border-green-200 rounded-lg p-4">
+                                    <h4 class="font-bold text-green-700 mb-2">🔍 Bucle Condicional</h4>
+                                    <p class="text-sm text-green-600">"Repite mientras haya cristales"</p>
+                                </div>
+                                <div class="bg-orange-50 border-2 border-orange-200 rounded-lg p-4">
+                                    <h4 class="font-bold text-orange-700 mb-2">🎯 Bucle de Objetivo</h4>
+                                    <p class="text-sm text-orange-600">"Repite hasta tener 100 puntos de energía"</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <div class="bg-purple-50 border-2 border-purple-200 rounded-lg p-6">
+                                <div class="text-4xl mb-3">⚡</div>
+                                <h4 class="font-bold text-purple-700 mb-2">Energía: 150/100</h4>
+                                <p class="text-sm text-purple-600 mb-3">¡Objetivo completado!</p>
+                                <div class="text-2xl">🎉</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Example -->
+    <section class="py-16 bg-purple-50">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <h2 class="text-3xl font-bold mb-8 text-purple-800">🎮 Ejemplo Interactivo</h2>
+            <div class="bg-white rounded-xl p-8 shadow-lg">
+                <h3 class="text-xl font-bold mb-4">Escenario: Robi necesita 50 puntos de energía</h3>
+                <div class="grid md:grid-cols-3 gap-6 text-center">
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h4 class="font-bold mb-2">🗺️ Mapa</h4>
+                        <p class="text-sm text-gray-600 mb-2">5 cristales en línea recta</p>
+                        <div class="text-xl">🤖 💎 💎 💎 💎 💎</div>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h4 class="font-bold mb-2">⚡ Valores</h4>
+                        <p class="text-sm text-gray-600 mb-1">Cada cristal = 10 puntos</p>
+                        <p class="text-sm text-gray-600">Total disponible = 50 puntos</p>
+                    </div>
+                    <div class="bg-purple-100 rounded-lg p-4">
+                        <h4 class="font-bold mb-2 text-purple-700">🔁 Solución</h4>
+                        <div class="text-sm font-mono text-purple-600">
+                            <div>REPETIR 5 veces:</div>
+                            <div class="ml-2">• Avanzar</div>
+                            <div class="ml-2">• Recoger cristal</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tips Section -->
+    <section class="py-16 bg-white">
+        <div class="max-w-4xl mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-12">💡 Consejos para Dominar los Bucles</h2>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="bg-purple-50 rounded-xl p-6 shadow-sm">
+                    <h3 class="font-bold text-lg mb-3 text-purple-600">🌟 Estrategias</h3>
+                    <ul class="text-sm text-gray-700 space-y-2">
+                        <li>• Cuenta cuántos cristales hay antes de empezar</li>
+                        <li>• Planifica el camino más eficiente</li>
+                        <li>• Combina bucles con condicionales para más poder</li>
+                        <li>• Recuerda: ¡los bucles ahorran tiempo y esfuerzo!</li>
+                    </ul>
+                </div>
+                <div class="bg-pink-50 rounded-xl p-6 shadow-sm">
+                    <h3 class="font-bold text-lg mb-3 text-pink-600">🚨 Errores Comunes</h3>
+                    <ul class="text-sm text-gray-700 space-y-2">
+                        <li>• Olvidar la condición de parada (bucle infinito)</li>
+                        <li>• Contar mal el número de repeticiones</li>
+                        <li>• No considerar qué pasa si no hay cristales</li>
+                        <li>• Hacer bucles muy complicados (¡mantén la simplicidad!)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Navigation Footer -->
+    <footer class="bg-purple-600 text-white py-8">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <h3 class="text-xl font-bold mb-4">¿Listo para Dominar los Bucles?</h3>
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="index.html" class="bg-white text-purple-600 px-6 py-3 rounded-full font-bold hover:bg-gray-100 transition-colors duration-300">
+                    🏠 Volver al Índice
+                </a>
+                <a href="cristales_robi.html" class="bg-yellow-400 text-gray-900 px-6 py-3 rounded-full font-bold hover:bg-yellow-300 transition-colors duration-300">
+                    ⚡ ¡Comenzar a Recolectar!
+                </a>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

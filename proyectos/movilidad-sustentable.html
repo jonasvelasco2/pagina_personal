@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movilidad Sustentable - Dr. Jonás Velasco</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .dropdown:hover .dropdown-menu { opacity: 1; visibility: visible; transform: translateY(0); }
+        .dropdown-menu { opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.3s ease; }
+    </style>
+    <script>
+        document.addEventListener('contextmenu', event => event.preventDefault());
+        document.onkeydown = function(e) {
+            if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) {
+                return false;
+            }
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenuBtn && mobileMenu) {
+                mobileMenuBtn.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+        });
+    </script>
+</head>
+<body class="bg-[#F5F5F5] text-gray-800">
+    <!-- Header -->
+    <header class="bg-white shadow-md sticky top-0 z-50 backdrop-blur-sm border-b border-gray-200">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-[#004D40] rounded-full flex items-center justify-center">
+                        <span class="text-white font-bold text-lg">JV</span>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-[#004D40]">Dr. Jonás Velasco</h1>
+                        <p class="text-sm text-gray-600">Investigación de Operaciones</p>
+                    </div>
+                </div>
+                
+                <!-- Desktop Navigation -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="../index.html" class="text-gray-700 hover:text-[#00796B] transition-colors duration-300">Inicio</a>
+                    <div class="relative dropdown">
+                        <button class="text-gray-700 hover:text-[#00796B] transition-colors duration-300 flex items-center">
+                            Recursos
+                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        <div class="dropdown-menu absolute top-full left-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2">
+                            <a href="../recursos.html" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-[#00796B] transition-colors duration-200">
+                                <svg class="w-4 h-4 mr-3 text-[#00796B]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                                </svg>
+                                Todos los Recursos
+                            </a>
+                            <a href="../recursos/docencia.html" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-[#00796B] transition-colors duration-200">
+                                <svg class="w-4 h-4 mr-3 text-[#00796B]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                                </svg>
+                                Docencia
+                            </a>
+                            <a href="../recursos/cursos.html" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-[#00796B] transition-colors duration-200">
+                                <svg class="w-4 h-4 mr-3 text-[#00796B]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                </svg>
+                                Cursos
+                            </a>
+                            <a href="../recursos/investigacion-operaciones.html" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-[#00796B] transition-colors duration-200">
+                                <svg class="w-4 h-4 mr-3 text-[#00796B]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                </svg>
+                                Investigación de Operaciones
+                            </a>
+                            <a href="../recursos/programacion.html" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-[#00796B] transition-colors duration-200">
+                                <svg class="w-4 h-4 mr-3 text-[#00796B]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                                </svg>
+                                Programación
+                            </a>
+                        </div>
+                    </div>
+                    <a href="../docencia.html" class="text-gray-700 hover:text-[#00796B] transition-colors duration-300">Docencia</a>
+                    <a href="../proyectos.html" class="text-[#00796B] font-semibold">Proyectos</a>
+                    <a href="../publicaciones.html" class="text-gray-700 hover:text-[#00796B] transition-colors duration-300">Publicaciones</a>
+                    <a href="../contacto.html" class="text-gray-700 hover:text-[#00796B] transition-colors duration-300">Contacto</a>
+                </nav>
+
+                <!-- Mobile menu button -->
+                <button class="md:hidden text-gray-700 hover:text-[#00796B]" id="mobile-menu-btn">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Mobile Navigation -->
+            <nav class="md:hidden mt-4 pb-4 border-t border-gray-200 pt-4 hidden" id="mobile-menu">
+                <div class="flex flex-col space-y-2">
+                    <a href="../index.html" class="text-gray-700 hover:text-[#00796B] py-2">Inicio</a>
+                    <a href="../recursos.html" class="text-gray-700 hover:text-[#00796B] py-2">Recursos</a>
+                    <a href="../docencia.html" class="text-gray-700 hover:text-[#00796B] py-2">Docencia</a>
+                    <a href="../proyectos.html" class="text-[#00796B] font-semibold py-2">Proyectos</a>
+                    <a href="../publicaciones.html" class="text-gray-700 hover:text-[#00796B] py-2">Publicaciones</a>
+                    <a href="../contacto.html" class="text-gray-700 hover:text-[#00796B] py-2">Contacto</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Breadcrumb -->
+        <nav class="mb-8">
+            <ol class="flex items-center space-x-2 text-sm text-gray-600">
+                <li><a href="../index.html" class="hover:text-[#00796B]">Inicio</a></li>
+                <li><span class="mx-2">/</span></li>
+                <li><a href="../proyectos.html" class="hover:text-[#00796B]">Proyectos</a></li>
+                <li><span class="mx-2">/</span></li>
+                <li class="text-[#00796B] font-semibold">Movilidad Sustentable</li>
+            </ol>
+        </nav>
+
+        <!-- Project Header -->
+        <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
+            <div class="flex items-center mb-6">
+                <div class="w-16 h-16 bg-gradient-to-br from-[#004D40] to-[#00796B] rounded-full flex items-center justify-center mr-6">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-3xl font-bold text-[#004D40] mb-2">Movilidad Sustentable</h1>
+                    <p class="text-lg text-gray-600">Modelos y Algoritmos de Optimización para Sistemas de Transporte Urbano</p>
+                </div>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-6 mt-8">
+                <div class="bg-[#F5F5F5] p-4 rounded-lg">
+                    <h3 class="font-semibold text-[#004D40] mb-2">Línea Estratégica</h3>
+                    <p class="text-sm text-gray-700">Pronaces "Energía y cambio climático"</p>
+                </div>
+                <div class="bg-[#F5F5F5] p-4 rounded-lg">
+                    <h3 class="font-semibold text-[#004D40] mb-2">Enfoque Principal</h3>
+                    <p class="text-sm text-gray-700">Reducción de emisiones y optimización energética</p>
+                </div>
+                <div class="bg-[#F5F5F5] p-4 rounded-lg">
+                    <h3 class="font-semibold text-[#004D40] mb-2">Aplicación</h3>
+                    <p class="text-sm text-gray-700">Sistemas urbanos de América Latina</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Project Content -->
+        <div class="grid lg:grid-cols-3 gap-8">
+            <!-- Main Content -->
+            <div class="lg:col-span-2 space-y-8">
+                <!-- Overview -->
+                <section class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-2xl font-bold text-[#004D40] mb-4">Problemática y Contexto</h2>
+                    <p class="text-gray-700 leading-relaxed mb-4">
+                        El transporte consume el 42.8% del total de energía generada, donde el 90% corresponde a vehículos particulares. La flota vehicular ha crecido 6.2% anual, rebasando el crecimiento económico y poblacional. Las emisiones representan el 35% del CO₂ en América Latina, con costos sociales de hasta 4% del PIB en ciudades mexicanas.
+                    </p>
+                    <p class="text-gray-700 leading-relaxed">
+                        Este proyecto desarrolla modelos y algoritmos de optimización para resolver problemas de movilidad sustentable, estableciendo estrategias para reducir y optimizar los traslados de forma generalizada.
+                    </p>
+                </section>
+
+                <!-- Research Strategies -->
+                <section class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-2xl font-bold text-[#004D40] mb-4">Estrategias de Investigación</h2>
+                    <div class="space-y-6">
+                        <div class="border-l-4 border-[#00796B] pl-6 bg-gradient-to-r from-[#E8F5E8] to-transparent p-4 rounded-r-lg">
+                            <h3 class="font-bold text-[#004D40] mb-3">I. Esquemas de Reducción, Planeación y Gestión Integral</h3>
+                            <ul class="space-y-2 text-gray-700 text-sm">
+                                <li>• Modelos matemáticos para optimizar patrones de movilidad urbana</li>
+                                <li>• Algoritmos para gestión inteligente de flotas de transporte público</li>
+                                <li>• Estrategias de reducción de distancias origen-destino</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="border-l-4 border-[#00796B] pl-6 bg-gradient-to-r from-[#E8F5E8] to-transparent p-4 rounded-r-lg">
+                            <h3 class="font-bold text-[#004D40] mb-3">II. Distribución y Logística de Paquetería Ligera</h3>
+                            <ul class="space-y-2 text-gray-700 text-sm">
+                                <li>• Modelos de optimización para redes de distribución urbana</li>
+                                <li>• Innovaciones en sistemas de entrega de última milla</li>
+                                <li>• Integración de vehículos eléctricos en logística urbana</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Impact -->
+                <section class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-2xl font-bold text-[#004D40] mb-4">Impacto Esperado</h2>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-gradient-to-br from-[#E8F5E8] to-[#F0F9FF] p-4 rounded-lg">
+                            <h3 class="font-semibold text-[#004D40] mb-2">Reducción de Emisiones</h3>
+                            <p class="text-sm text-gray-700">Contribuir a la disminución del 35% de emisiones de CO₂ del sector transporte en América Latina.</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-[#E8F5E8] to-[#F0F9FF] p-4 rounded-lg">
+                            <h3 class="font-semibold text-[#004D40] mb-2">Eficiencia Energética</h3>
+                            <p class="text-sm text-gray-700">Optimización del 42.8% de demanda energética actual del sector transporte.</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-[#E8F5E8] to-[#F0F9FF] p-4 rounded-lg">
+                            <h3 class="font-semibold text-[#004D40] mb-2">Costos Sociales</h3>
+                            <p class="text-sm text-gray-700">Reducción de hasta 4% del PIB en costos asociados a congestión y contaminación.</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-[#E8F5E8] to-[#F0F9FF] p-4 rounded-lg">
+                            <h3 class="font-semibold text-[#004D40] mb-2">Transición Energética</h3>
+                            <p class="text-sm text-gray-700">Apoyo a la transición energética justa y sustentable acorde con México.</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="lg:col-span-1 space-y-6">
+                <!-- Key Statistics -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-xl font-bold text-[#004D40] mb-4">Datos Clave del Sector</h3>
+                    <div class="space-y-4">
+                        <div class="bg-red-50 p-3 rounded-lg border-l-4 border-red-400">
+                            <div class="text-sm text-gray-600">Demanda Energética</div>
+                            <div class="font-bold text-red-600 text-lg">42.8%</div>
+                            <div class="text-xs text-gray-500">del total de energía generada</div>
+                        </div>
+                        <div class="bg-orange-50 p-3 rounded-lg border-l-4 border-orange-400">
+                            <div class="text-sm text-gray-600">Crecimiento Flota</div>
+                            <div class="font-bold text-orange-600 text-lg">6.2%</div>
+                            <div class="text-xs text-gray-500">promedio anual</div>
+                        </div>
+                        <div class="bg-red-50 p-3 rounded-lg border-l-4 border-red-400">
+                            <div class="text-sm text-gray-600">Emisiones CO₂</div>
+                            <div class="font-bold text-red-600 text-lg">35%</div>
+                            <div class="text-xs text-gray-500">vs 20% mundial</div>
+                        </div>
+                        <div class="bg-yellow-50 p-3 rounded-lg border-l-4 border-yellow-400">
+                            <div class="text-sm text-gray-600">Costos Sociales</div>
+                            <div class="font-bold text-yellow-600 text-lg">4%</div>
+                            <div class="text-xs text-gray-500">del PIB ciudades</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Methodology -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-xl font-bold text-[#004D40] mb-4">Metodología</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 text-[#00796B] mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span class="text-sm text-gray-700">Investigación de frontera</span>
+                        </div>
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 text-[#00796B] mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span class="text-sm text-gray-700">Investigación básica</span>
+                        </div>
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 text-[#00796B] mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span class="text-sm text-gray-700">Análisis datos INEGI</span>
+                        </div>
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 text-[#00796B] mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span class="text-sm text-gray-700">Modelos matemáticos</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Publications -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-xl font-bold text-[#004D40] mb-4">Publicaciones</h3>
+                    <div class="space-y-3">
+                        <div class="border-l-4 border-[#00796B] pl-3">
+                            <p class="text-sm font-medium text-[#004D40]">Sustainable Urban Mobility</p>
+                            <p class="text-xs text-gray-600">Transportation Research (2024)</p>
+                        </div>
+                        <div class="border-l-4 border-[#00796B] pl-3">
+                            <p class="text-sm font-medium text-[#004D40]">Electric Vehicle Routing</p>
+                            <p class="text-xs text-gray-600">Computers & OR (2023)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-[#004D40] text-white py-8 mt-16">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-lg font-bold mb-4">Dr. Jonás Velasco</h3>
+                    <p class="text-sm text-gray-300">Investigación de Operaciones y Optimización</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-3">Contacto</h4>
+                    <p class="text-sm text-gray-300">Universidad Autónoma de Nuevo León</p>
+                    <p class="text-sm text-gray-300">Facultad de Ingeniería Mecánica y Eléctrica</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-3">Enlaces</h4>
+                    <div class="space-y-2">
+                        <a href="../publicaciones.html" class="block text-sm text-gray-300 hover:text-white">Publicaciones</a>
+                        <a href="../proyectos.html" class="block text-sm text-gray-300 hover:text-white">Proyectos</a>
+                        <a href="../contacto.html" class="block text-sm text-gray-300 hover:text-white">Contacto</a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-600 mt-8 pt-8 text-center">
+                <p class="text-sm text-gray-400">&copy; 2025 Dr. Jonás Velasco. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zonificación Agrícola - Dr. Jonás Velasco</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom Styles & Color Palette -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F5F5F5;
+            color: #333333;
+        }
+        .nav-link.active {
+            color: #00796B;
+            font-weight: 700;
+        }
+        .fade-in-section {
+            opacity: 0;
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body class="antialiased flex flex-col min-h-screen">
+
+    <!-- Header & Navigation -->
+    <header class="bg-white/90 backdrop-blur-lg sticky top-0 z-50 border-b border-gray-200">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="../index.html" class="text-2xl font-bold text-[#004D40]">Dr. Jonás Velasco</a>
+            
+            <!-- Desktop Navigation -->
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="../index.html" class="nav-link text-gray-600 hover:text-[#00796B] transition-colors">Inicio</a>
+                <a href="../publicaciones.html" class="nav-link text-gray-600 hover:text-[#00796B] transition-colors">Publicaciones</a>
+                <a href="../proyectos.html" class="nav-link active text-gray-600 hover:text-[#00796B] transition-colors">Proyectos</a>
+                
+                <!-- Recursos Dropdown -->
+                <div class="relative group">
+                    <button class="nav-link text-gray-600 hover:text-[#00796B] transition-colors flex items-center">
+                        Recursos
+                        <svg class="w-4 h-4 ml-1 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <!-- Dropdown Menu -->
+                    <div class="absolute left-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                        <div class="py-2">
+                            <a href="../recursos.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-[#00796B] transition-colors">
+                                <div class="flex items-center">
+                                    <svg class="w-4 h-4 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                                    </svg>
+                                    Todos los Recursos
+                                </div>
+                            </a>
+                            <hr class="my-1 border-gray-200">
+                            <a href="../recursos/docencia.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-[#00796B] transition-colors">
+                                <div class="flex items-center">
+                                    <svg class="w-4 h-4 mr-3 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                                    </svg>
+                                    Docencia
+                                </div>
+                            </a>
+                            <a href="../recursos/cursos.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-[#00796B] transition-colors">
+                                <div class="flex items-center">
+                                    <svg class="w-4 h-4 mr-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                                    </svg>
+                                    Cursos
+                                </div>
+                            </a>
+                            <a href="../recursos/investigacion-operaciones.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-[#00796B] transition-colors">
+                                <div class="flex items-center">
+                                    <svg class="w-4 h-4 mr-3 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                    </svg>
+                                    Investigación de Operaciones
+                                </div>
+                            </a>
+                            <a href="../recursos/programacion.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-[#00796B] transition-colors">
+                                <div class="flex items-center">
+                                    <svg class="w-4 h-4 mr-3 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                                    </svg>
+                                    Programación
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <a href="../contacto.html" class="bg-[#00796B] text-white py-2 px-4 rounded-lg hover:bg-[#004D40] transition-all duration-300 ease-in-out transform hover:scale-105">
+                    Contacto
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Breadcrumb -->
+    <div class="bg-gray-100 py-3">
+        <div class="container mx-auto px-6">
+            <nav class="text-sm text-gray-600">
+                <a href="../index.html" class="hover:text-[#00796B]">Inicio</a>
+                <span class="mx-2">/</span>
+                <a href="../proyectos.html" class="hover:text-[#00796B]">Proyectos</a>
+                <span class="mx-2">/</span>
+                <span class="text-[#00796B] font-semibold">Zonificación Agrícola</span>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-12 flex-grow">
+        <!-- Project Header -->
+        <section class="mb-12 fade-in-section">
+            <div class="text-center mb-8">
+                <h1 class="text-4xl font-bold text-[#004D40] mb-4">Zonificación Agrícola Específica por Sitio</h1>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Desarrollo de metodologías avanzadas para la delimitación óptima de zonas de manejo agrícola utilizando técnicas de optimización y algoritmos de distribución de estimación.
+                </p>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                <img src="https://placehold.co/1200x400/8BC34A/FFFFFF?text=Zonificaci%C3%B3n+Agr%C3%ADcola" alt="Zonificación Agrícola" class="w-full h-64 object-cover">
+            </div>
+        </section>
+
+        <!-- Project Overview -->
+        <section class="mb-12 fade-in-section">
+            <div class="bg-white rounded-lg shadow-md p-8">
+                <h2 class="text-2xl font-bold text-[#004D40] mb-6">Resumen del Proyecto</h2>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-lg font-semibold text-[#00796B] mb-3">Objetivos Principales</h3>
+                        <ul class="space-y-2 text-gray-700">
+                            <li class="flex items-start">
+                                <span class="w-2 h-2 bg-[#00796B] rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                                Desarrollar modelos matemáticos para la delimitación óptima de zonas de manejo
+                            </li>
+                            <li class="flex items-start">
+                                <span class="w-2 h-2 bg-[#00796B] rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                                Implementar algoritmos heurísticos para resolver el problema de zonificación
+                            </li>
+                            <li class="flex items-start">
+                                <span class="w-2 h-2 bg-[#00796B] rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                                Optimizar la productividad agrícola mediante manejo diferenciado por zonas
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-[#00796B] mb-3">Metodología</h3>
+                        <ul class="space-y-2 text-gray-700">
+                            <li class="flex items-start">
+                                <span class="w-2 h-2 bg-[#FFA000] rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                                Programación entera mixta no lineal (MINLP)
+                            </li>
+                            <li class="flex items-start">
+                                <span class="w-2 h-2 bg-[#FFA000] rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                                Algoritmos de distribución de estimación (EDAs)
+                            </li>
+                            <li class="flex items-start">
+                                <span class="w-2 h-2 bg-[#FFA000] rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                                Heurísticas greedy mejoradas
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Research Results -->
+        <section class="mb-12 fade-in-section">
+            <div class="bg-white rounded-lg shadow-md p-8">
+                <h2 class="text-2xl font-bold text-[#004D40] mb-6">Resultados de Investigación</h2>
+                <div class="space-y-6">
+                    <div class="border-l-4 border-[#00796B] pl-6">
+                        <h3 class="text-lg font-semibold text-[#00796B] mb-2">Modelo MINLP para Zonificación</h3>
+                        <p class="text-gray-700 mb-3">
+                            Desarrollo de un modelo de programación entera mixta no lineal que considera múltiples variables del suelo y optimiza la delimitación de zonas de manejo específicas por sitio.
+                        </p>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <p class="text-sm text-gray-600 italic">
+                                "A mixed integer nonlinear programming model for site-specific management zone problem" - Urban-Rivero, L. E., Velasco, J. (2025)
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="border-l-4 border-[#FFA000] pl-6">
+                        <h3 class="text-lg font-semibold text-[#00796B] mb-2">Algoritmos de Distribución de Estimación</h3>
+                        <p class="text-gray-700 mb-3">
+                            Implementación de EDAs para resolver eficientemente el problema de delimitación de zonas de manejo, superando métodos tradicionales en términos de calidad de solución y tiempo computacional.
+                        </p>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <p class="text-sm text-gray-600 italic">
+                                "Delineation of Site-Specific Management Zones Using Estimation of Distribution Algorithms" - Velasco, J., et al. (2021)
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="border-l-4 border-[#8BC34A] pl-6">
+                        <h3 class="text-lg font-semibold text-[#00796B] mb-2">Heurística Greedy Simple</h3>
+                        <p class="text-gray-700 mb-3">
+                            Desarrollo de una heurística greedy simple y eficiente para el problema de zonificación, proporcionando soluciones de alta calidad con menor complejidad computacional.
+                        </p>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <p class="text-sm text-gray-600 italic">
+                                "A Simple Greedy Heuristic for Site Specific Management Zone Problem" - Urbán Rivero, L. E., Velasco, J., et al. (2022)
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Impact and Applications -->
+        <section class="mb-12 fade-in-section">
+            <div class="bg-white rounded-lg shadow-md p-8">
+                <h2 class="text-2xl font-bold text-[#004D40] mb-6">Impacto y Aplicaciones</h2>
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="text-center p-4 bg-gray-50 rounded-lg">
+                        <div class="w-16 h-16 bg-[#00796B] rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                            </svg>
+                        </div>
+                        <h3 class="font-semibold text-[#004D40] mb-2">Optimización de Rendimientos</h3>
+                        <p class="text-gray-600 text-sm">Mejora significativa en la productividad agrícola mediante manejo diferenciado por zonas</p>
+                    </div>
+                    
+                    <div class="text-center p-4 bg-gray-50 rounded-lg">
+                        <div class="w-16 h-16 bg-[#FFA000] rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                            </svg>
+                        </div>
+                        <h3 class="font-semibold text-[#004D40] mb-2">Reducción de Costos</h3>
+                        <p class="text-gray-600 text-sm">Optimización en el uso de insumos agrícolas y recursos mediante zonificación precisa</p>
+                    </div>
+                    
+                    <div class="text-center p-4 bg-gray-50 rounded-lg">
+                        <div class="w-16 h-16 bg-[#8BC34A] rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+                            </svg>
+                        </div>
+                        <h3 class="font-semibold text-[#004D40] mb-2">Sostenibilidad</h3>
+                        <p class="text-gray-600 text-sm">Contribución a prácticas agrícolas más sostenibles y respetuosas con el medio ambiente</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Publications -->
+        <section class="mb-12 fade-in-section">
+            <div class="bg-white rounded-lg shadow-md p-8">
+                <h2 class="text-2xl font-bold text-[#004D40] mb-6">Publicaciones Relacionadas</h2>
+                <div class="space-y-4">
+                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <h3 class="font-semibold text-[#00796B] mb-2">A mixed integer nonlinear programming model for site-specific management zone problem</h3>
+                        <p class="text-gray-600 text-sm mb-2">Urban-Rivero, L. E., Velasco, J. (2025)</p>
+                        <p class="text-gray-500 text-sm">IAES International Journal of Artificial Intelligence, 14(2), 1096–1105</p>
+                        <a href="https://doi.org/10.11591/ijai.v14.i2.pp1096-1105" class="text-[#FFA000] hover:underline text-sm" target="_blank">Ver publicación →</a>
+                    </div>
+                    
+                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <h3 class="font-semibold text-[#00796B] mb-2">A Simple Greedy Heuristic for Site Specific Management Zone Problem</h3>
+                        <p class="text-gray-600 text-sm mb-2">L. E. Urbán Rivero, J. Velasco, J. Ramírez Rodríguez (2022)</p>
+                        <p class="text-gray-500 text-sm">Axioms, 11(7)</p>
+                        <a href="https://doi.org/10.3390/axioms11070318" class="text-[#FFA000] hover:underline text-sm" target="_blank">Ver publicación →</a>
+                    </div>
+                    
+                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <h3 class="font-semibold text-[#00796B] mb-2">Delineation of Site-Specific Management Zones Using Estimation of Distribution Algorithms</h3>
+                        <p class="text-gray-600 text-sm mb-2">J. Velasco, Salvador Vicencio, J.A. Lozano y N.M. Cid-Garcia (2021)</p>
+                        <p class="text-gray-500 text-sm">International Transactions in Operational Research, 30(4), 1703-1729</p>
+                        <a href="https://doi.org/10.1111/itor.12970" class="text-[#FFA000] hover:underline text-sm" target="_blank">Ver publicación →</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Back to Projects -->
+        <div class="text-center">
+            <a href="../proyectos.html" class="inline-flex items-center px-6 py-3 bg-[#00796B] text-white rounded-lg hover:bg-[#004D40] transition-colors">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Volver a Proyectos
+            </a>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-[#333333] text-white">
+        <div class="container mx-auto px-6 py-10">
+            <div class="text-center">
+                <p class="text-gray-300 mb-2">Si tienes alguna pregunta o te gustaría colaborar, no dudes en escribirme.</p>
+                <a href="../contacto.html" class="text-[#80CBC4] text-lg hover:underline">Contacto</a>
+                <p class="text-gray-500 mt-8 text-sm">&copy; 2025 Jonás Velasco. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Disable right-click
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        // Disable F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'F12' || 
+                (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J')) || 
+                (e.ctrlKey && e.key === 'U')) {
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>

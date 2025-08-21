@@ -1,0 +1,252 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏰 Ejemplo de Uso - Laberinto Misterioso | Aventuras de Robi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .game-font { font-family: 'Press Start 2P', cursive; }
+        .hero-gradient { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .step-card { 
+            transition: all 0.3s ease; 
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+        .step-card:hover { 
+            transform: translateY(-3px); 
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        .maze-example {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 2px;
+            max-width: 200px;
+            aspect-ratio: 1;
+            border: 2px solid #4a5568;
+            border-radius: 8px;
+            padding: 4px;
+            background-color: #fff;
+        }
+        .maze-cell {
+            border: 1px solid #d1d5db;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            border-radius: 2px;
+        }
+        .wall { background-color: #374151; }
+        .path { background-color: #dcfce7; }
+        .goal { background-color: #fef3c7; }
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        @keyframes floating {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 text-gray-800">
+
+    <!-- Hero Section -->
+    <section class="hero-gradient py-16 text-white">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <div class="floating">
+                <h1 class="game-font text-3xl md:text-5xl mb-6">
+                    🏰 Ejemplo de Uso: Laberinto Misterioso
+                </h1>
+            </div>
+            <p class="text-xl mb-8 opacity-90">
+                Aprende cómo jugar con Robi paso a paso - ¡Conceptos de Secuencias!
+            </p>
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="index.html" class="bg-white text-indigo-600 px-6 py-3 rounded-full font-bold hover:bg-gray-100 transition-colors duration-300">
+                    🏠 Volver al Índice
+                </a>
+                <a href="laberinto_robi.html" class="bg-yellow-400 text-gray-900 px-6 py-3 rounded-full font-bold hover:bg-yellow-300 transition-colors duration-300">
+                    🎮 ¡Jugar Ahora!
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Example Content -->
+    <section class="py-16 bg-white">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">
+                    📖 ¿Cómo Funciona el Juego?
+                </h2>
+                <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+                    En el Laberinto Misterioso, ayudas a Robi a moverse paso a paso para encontrar el tesoro. 
+                    ¡Cada paso cuenta y el orden importa!
+                </p>
+            </div>
+
+            <!-- Step by Step Guide -->
+            <div class="space-y-8">
+                <!-- Step 1 -->
+                <div class="step-card rounded-xl p-8">
+                    <div class="grid md:grid-cols-2 gap-8 items-center">
+                        <div>
+                            <h3 class="text-2xl font-bold mb-4 text-indigo-600">
+                                🎯 Paso 1: Observa el Laberinto
+                            </h3>
+                            <p class="text-gray-600 mb-4">
+                                Primero, observa dónde está Robi (🤖) y dónde está el tesoro (💎). 
+                                Las paredes grises bloquean el camino, los espacios verdes son seguros para caminar.
+                            </p>
+                            <div class="bg-indigo-50 border-l-4 border-indigo-400 p-4 rounded">
+                                <p class="text-sm text-indigo-800">
+                                    <strong>🧠 Concepto:</strong> Antes de programar, siempre observa y planifica tu solución.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <div class="maze-example mx-auto">
+                                <div class="maze-cell path">🤖</div>
+                                <div class="maze-cell path"></div>
+                                <div class="maze-cell wall"></div>
+                                <div class="maze-cell path"></div>
+                                <div class="maze-cell goal">💎</div>
+                                <div class="maze-cell wall"></div>
+                                <div class="maze-cell path"></div>
+                                <div class="maze-cell wall"></div>
+                                <div class="maze-cell path"></div>
+                                <div class="maze-cell path"></div>
+                                <div class="maze-cell wall"></div>
+                                <div class="maze-cell path"></div>
+                                <div class="maze-cell path"></div>
+                                <div class="maze-cell path"></div>
+                                <div class="maze-cell wall"></div>
+                                <div class="maze-cell path"></div>
+                                <div class="maze-cell wall"></div>
+                                <div class="maze-cell wall"></div>
+                                <div class="maze-cell path"></div>
+                                <div class="maze-cell path"></div>
+                                <div class="maze-cell path"></div>
+                                <div class="maze-cell path"></div>
+                                <div class="maze-cell path"></div>
+                                <div class="maze-cell path"></div>
+                                <div class="maze-cell path"></div>
+                            </div>
+                            <p class="text-sm text-gray-500 mt-2">Laberinto de ejemplo 5x5</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="step-card rounded-xl p-8">
+                    <div class="grid md:grid-cols-2 gap-8 items-center">
+                        <div class="order-2 md:order-1 text-center">
+                            <div class="bg-gray-50 rounded-lg p-6">
+                                <h4 class="font-bold mb-4">🎯 Secuencia de Comandos:</h4>
+                                <div class="flex flex-wrap justify-center gap-2">
+                                    <span class="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm">1. ➡️ Derecha</span>
+                                    <span class="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm">2. ⬇️ Abajo</span>
+                                    <span class="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm">3. ⬇️ Abajo</span>
+                                    <span class="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm">4. ➡️ Derecha</span>
+                                    <span class="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm">5. ⬆️ Arriba</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="order-1 md:order-2">
+                            <h3 class="text-2xl font-bold mb-4 text-indigo-600">
+                                📝 Paso 2: Crea Tu Secuencia
+                            </h3>
+                            <p class="text-gray-600 mb-4">
+                                Ahora planifica el camino paso a paso. En programación, esto se llama una "secuencia" - 
+                                una lista ordenada de instrucciones que Robi seguirá exactamente en ese orden.
+                            </p>
+                            <div class="bg-indigo-50 border-l-4 border-indigo-400 p-4 rounded">
+                                <p class="text-sm text-indigo-800">
+                                    <strong>🧠 Concepto:</strong> Las secuencias son como recetas de cocina: cada paso debe estar en el orden correcto.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="step-card rounded-xl p-8">
+                    <div class="grid md:grid-cols-2 gap-8 items-center">
+                        <div>
+                            <h3 class="text-2xl font-bold mb-4 text-indigo-600">
+                                ⚡ Paso 3: Ejecuta y Observa
+                            </h3>
+                            <p class="text-gray-600 mb-4">
+                                Presiona "Ejecutar Secuencia" y mira cómo Robi sigue tus instrucciones paso a paso. 
+                                Si algo sale mal, ¡puedes reiniciar y probar una nueva secuencia!
+                            </p>
+                            <div class="space-y-3">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-green-500 text-xl">✅</span>
+                                    <span class="text-sm">Si Robi encuentra el tesoro = ¡Victoria!</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-red-500 text-xl">❌</span>
+                                    <span class="text-sm">Si Robi choca con una pared = Reintentar</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <div class="bg-green-50 border-2 border-green-200 rounded-lg p-6">
+                                <div class="text-4xl mb-3">🏆</div>
+                                <h4 class="font-bold text-green-700 mb-2">¡Tesoro Encontrado!</h4>
+                                <p class="text-sm text-green-600">
+                                    "¡Excelente trabajo! Has dominado las secuencias de programación."
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tips Section -->
+    <section class="py-16 bg-gray-50">
+        <div class="max-w-4xl mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-12">💡 Consejos para Jugar</h2>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="bg-white rounded-xl p-6 shadow-sm">
+                    <h3 class="font-bold text-lg mb-3 text-blue-600">🧩 Para Principiantes</h3>
+                    <ul class="text-sm text-gray-600 space-y-2">
+                        <li>• Empieza con laberintos pequeños (3x3 o 4x4)</li>
+                        <li>• Traza el camino con tu dedo antes de programar</li>
+                        <li>• No te preocupes por los errores, son parte del aprendizaje</li>
+                    </ul>
+                </div>
+                <div class="bg-white rounded-xl p-6 shadow-sm">
+                    <h3 class="font-bold text-lg mb-3 text-purple-600">🚀 Para Avanzados</h3>
+                    <ul class="text-sm text-gray-600 space-y-2">
+                        <li>• Intenta resolver en la menor cantidad de pasos</li>
+                        <li>• Busca patrones en laberintos más complejos</li>
+                        <li>• Desafía a tus amigos a crear laberintos</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Navigation Footer -->
+    <footer class="bg-indigo-600 text-white py-8">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <h3 class="text-xl font-bold mb-4">¿Listo para la Aventura?</h3>
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="index.html" class="bg-white text-indigo-600 px-6 py-3 rounded-full font-bold hover:bg-gray-100 transition-colors duration-300">
+                    🏠 Volver al Índice
+                </a>
+                <a href="laberinto_robi.html" class="bg-yellow-400 text-gray-900 px-6 py-3 rounded-full font-bold hover:bg-yellow-300 transition-colors duration-300">
+                    🎮 ¡Comenzar a Jugar!
+                </a>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

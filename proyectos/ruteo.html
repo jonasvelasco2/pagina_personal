@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Problemas de Ruteo - Dr. Jonás Velasco</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom Styles & Color Palette -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F5F5F5;
+            color: #333333;
+        }
+        .nav-link.active {
+            color: #00796B;
+            font-weight: 700;
+        }
+        .fade-in-section {
+            opacity: 0;
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body class="antialiased flex flex-col min-h-screen">
+
+    <!-- Header & Navigation -->
+    <header class="bg-white/90 backdrop-blur-lg sticky top-0 z-50 border-b border-gray-200">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="../index.html" class="text-2xl font-bold text-[#004D40]">Dr. Jonás Velasco</a>
+            
+            <!-- Desktop Navigation -->
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="../index.html" class="nav-link text-gray-600 hover:text-[#00796B] transition-colors">Inicio</a>
+                <a href="../publicaciones.html" class="nav-link text-gray-600 hover:text-[#00796B] transition-colors">Publicaciones</a>
+                <a href="../proyectos.html" class="nav-link active text-gray-600 hover:text-[#00796B] transition-colors">Proyectos</a>
+                
+                <!-- Recursos Dropdown -->
+                <div class="relative group">
+                    <button class="nav-link text-gray-600 hover:text-[#00796B] transition-colors flex items-center">
+                        Recursos
+                        <svg class="w-4 h-4 ml-1 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <!-- Dropdown Menu -->
+                    <div class="absolute left-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                        <div class="py-2">
+                            <a href="../recursos.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-[#00796B] transition-colors">
+                                <div class="flex items-center">
+                                    <svg class="w-4 h-4 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                                    </svg>
+                                    Todos los Recursos
+                                </div>
+                            </a>
+                            <hr class="my-1 border-gray-200">
+                            <a href="../recursos/docencia.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-[#00796B] transition-colors">
+                                <div class="flex items-center">
+                                    <svg class="w-4 h-4 mr-3 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                                    </svg>
+                                    Docencia
+                                </div>
+                            </a>
+                            <a href="../recursos/cursos.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-[#00796B] transition-colors">
+                                <div class="flex items-center">
+                                    <svg class="w-4 h-4 mr-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                                    </svg>
+                                    Cursos
+                                </div>
+                            </a>
+                            <a href="../recursos/investigacion-operaciones.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-[#00796B] transition-colors">
+                                <div class="flex items-center">
+                                    <svg class="w-4 h-4 mr-3 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                    </svg>
+                                    Investigación de Operaciones
+                                </div>
+                            </a>
+                            <a href="../recursos/programacion.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-[#00796B] transition-colors">
+                                <div class="flex items-center">
+                                    <svg class="w-4 h-4 mr-3 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                                    </svg>
+                                    Programación
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <a href="../contacto.html" class="bg-[#00796B] text-white py-2 px-4 rounded-lg hover:bg-[#004D40] transition-all duration-300 ease-in-out transform hover:scale-105">
+                    Contacto
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Breadcrumb -->
+    <div class="bg-gray-100 py-3">
+        <div class="container mx-auto px-6">
+            <nav class="text-sm text-gray-600">
+                <a href="../index.html" class="hover:text-[#00796B]">Inicio</a>
+                <span class="mx-2">/</span>
+                <a href="../proyectos.html" class="hover:text-[#00796B]">Proyectos</a>
+                <span class="mx-2">/</span>
+                <span class="text-[#00796B] font-semibold">Problemas de Ruteo</span>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-12 flex-grow">
+        <!-- Project Header -->
+        <section class="mb-12 fade-in-section">
+            <div class="text-center mb-8">
+                <h1 class="text-4xl font-bold text-[#004D40] mb-4">Problemas de Ruteo y Optimización de Rutas</h1>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Desarrollo de algoritmos avanzados y modelos probabilísticos para resolver problemas complejos de ruteo de vehículos, incluyendo ruteo por arcos con capacidad y ruteo de autobuses escolares.
+                </p>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                <img src="https://placehold.co/1200x400/FF9800/FFFFFF?text=Problemas+de+Ruteo" alt="Problemas de Ruteo" class="w-full h-64 object-cover">
+            </div>
+        </section>
+
+        <!-- Project Overview -->
+        <section class="mb-12 fade-in-section">
+            <div class="bg-white rounded-lg shadow-md p-8">
+                <h2 class="text-2xl font-bold text-[#004D40] mb-6">Resumen del Proyecto</h2>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-lg font-semibold text-[#00796B] mb-3">Objetivos Principales</h3>
+                        <ul class="space-y-2 text-gray-700">
+                            <li class="flex items-start">
+                                <span class="w-2 h-2 bg-[#00796B] rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                                Desarrollar algoritmos eficientes para el problema de ruteo por arcos con capacidad
+                            </li>
+                            <li class="flex items-start">
+                                <span class="w-2 h-2 bg-[#00796B] rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                                Crear modelos probabilísticos para ruteo de autobuses escolares
+                            </li>
+                            <li class="flex items-start">
+                                <span class="w-2 h-2 bg-[#00796B] rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                                Optimizar la selección de paradas y rutas para minimizar costos y tiempos
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-[#00796B] mb-3">Metodología</h3>
+                        <ul class="space-y-2 text-gray-700">
+                            <li class="flex items-start">
+                                <span class="w-2 h-2 bg-[#FFA000] rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                                Enfoque mejorado de dos etapas para CARP
+                            </li>
+                            <li class="flex items-start">
+                                <span class="w-2 h-2 bg-[#FFA000] rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                                Modelos probabilísticos para optimización estocástica
+                            </li>
+                            <li class="flex items-start">
+                                <span class="w-2 h-2 bg-[#FFA000] rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                                Algoritmos heurísticos y metaheurísticos
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Research Results -->
+        <section class="mb-12 fade-in-section">
+            <div class="bg-white rounded-lg shadow-md p-8">
+                <h2 class="text-2xl font-bold text-[#004D40] mb-6">Resultados de Investigación</h2>
+                <div class="space-y-6">
+                    <div class="border-l-4 border-[#FF9800] pl-6">
+                        <h3 class="text-lg font-semibold text-[#00796B] mb-2">Ruteo por Arcos con Capacidad (CARP)</h3>
+                        <p class="text-gray-700 mb-3">
+                            Desarrollo de un enfoque mejorado de dos etapas para resolver el problema de ruteo por arcos con capacidad, mejorando significativamente los tiempos de solución y la calidad de las rutas generadas.
+                        </p>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <p class="text-sm text-gray-600 italic">
+                                "Resolución del problema de ruteo por arcos con capacidad: un enfoque mejorado de dos etapas" - Urban-Rivero, L. E., Velasco-Álvarez, J. (2024)
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="border-l-4 border-[#2196F3] pl-6">
+                        <h3 class="text-lg font-semibold text-[#00796B] mb-2">Ruteo de Autobuses Escolares</h3>
+                        <p class="text-gray-700 mb-3">
+                            Implementación de un modelo probabilístico innovador para el problema de ruteo de autobuses escolares con selección de paradas, optimizando tanto las rutas como la ubicación estratégica de las paradas.
+                        </p>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <p class="text-sm text-gray-600 italic">
+                                "A probability model for the school bus routing problem with bus stop selection" - R. Pérez-Rodríguez, et al. (2017)
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Technical Approaches -->
+        <section class="mb-12 fade-in-section">
+            <div class="bg-white rounded-lg shadow-md p-8">
+                <h2 class="text-2xl font-bold text-[#004D40] mb-6">Enfoques Técnicos</h2>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="bg-gradient-to-br from-orange-50 to-orange-100 p-6 rounded-lg">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-[#FF9800] rounded-lg flex items-center justify-center mr-4">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-semibold text-[#004D40]">Algoritmos de Dos Etapas</h3>
+                        </div>
+                        <p class="text-gray-700 text-sm">
+                            Metodología que separa el problema en dos fases: primero la partición del grafo en componentes manejables, y luego la optimización de rutas dentro de cada componente.
+                        </p>
+                    </div>
+                    
+                    <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-lg">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-[#2196F3] rounded-lg flex items-center justify-center mr-4">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-semibold text-[#004D40]">Modelos Probabilísticos</h3>
+                        </div>
+                        <p class="text-gray-700 text-sm">
+                            Incorporación de incertidumbre y variabilidad en los modelos de ruteo, permitiendo soluciones más robustas ante condiciones cambiantes del mundo real.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Impact and Applications -->
+        <section class="mb-12 fade-in-section">
+            <div class="bg-white rounded-lg shadow-md p-8">
+                <h2 class="text-2xl font-bold text-[#004D40] mb-6">Impacto y Aplicaciones</h2>
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="text-center p-4 bg-gray-50 rounded-lg">
+                        <div class="w-16 h-16 bg-[#FF9800] rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="font-semibold text-[#004D40] mb-2">Optimización Logística</h3>
+                        <p class="text-gray-600 text-sm">Mejora en la eficiencia de operaciones de distribución y recolección urbana</p>
+                    </div>
+                    
+                    <div class="text-center p-4 bg-gray-50 rounded-lg">
+                        <div class="w-16 h-16 bg-[#2196F3] rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                            </svg>
+                        </div>
+                        <h3 class="font-semibold text-[#004D40] mb-2">Transporte Escolar</h3>
+                        <p class="text-gray-600 text-sm">Optimización de rutas escolares para reducir tiempos de viaje y costos operativos</p>
+                    </div>
+                    
+                    <div class="text-center p-4 bg-gray-50 rounded-lg">
+                        <div class="w-16 h-16 bg-[#4CAF50] rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                            </svg>
+                        </div>
+                        <h3 class="font-semibold text-[#004D40] mb-2">Servicios Urbanos</h3>
+                        <p class="text-gray-600 text-sm">Aplicación en servicios de limpieza, mantenimiento y recolección de residuos</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Publications -->
+        <section class="mb-12 fade-in-section">
+            <div class="bg-white rounded-lg shadow-md p-8">
+                <h2 class="text-2xl font-bold text-[#004D40] mb-6">Publicaciones Relacionadas</h2>
+                <div class="space-y-4">
+                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <h3 class="font-semibold text-[#00796B] mb-2">Resolución del problema de ruteo por arcos con capacidad: un enfoque mejorado de dos etapas</h3>
+                        <p class="text-gray-600 text-sm mb-2">Urban-Rivero, L. E., Velasco-Álvarez, J. (2024)</p>
+                        <p class="text-gray-500 text-sm">Capítulo X; AM Editores, ISBN 978-607-437-650-0</p>
+                        <a href="https://doi.org/10.62600/UGGX2009" class="text-[#FFA000] hover:underline text-sm" target="_blank">Ver publicación →</a>
+                    </div>
+                    
+                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <h3 class="font-semibold text-[#00796B] mb-2">A probability model for the school bus routing problem with bus stop selection</h3>
+                        <p class="text-gray-600 text-sm mb-2">R. Pérez-Rodríguez, A Hernández-Aguirre, S Jöns, I. Cruz, J. Velasco, J R. Pérez-Gallardo (2017)</p>
+                        <p class="text-gray-500 text-sm">DYNA, 92(2), 138</p>
+                        <a href="http://dx.doi.org/10.6036/8204" class="text-[#FFA000] hover:underline text-sm" target="_blank">Ver publicación →</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Back to Projects -->
+        <div class="text-center">
+            <a href="../proyectos.html" class="inline-flex items-center px-6 py-3 bg-[#00796B] text-white rounded-lg hover:bg-[#004D40] transition-colors">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Volver a Proyectos
+            </a>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-[#333333] text-white">
+        <div class="container mx-auto px-6 py-10">
+            <div class="text-center">
+                <p class="text-gray-300 mb-2">Si tienes alguna pregunta o te gustaría colaborar, no dudes en escribirme.</p>
+                <a href="../contacto.html" class="text-[#80CBC4] text-lg hover:underline">Contacto</a>
+                <p class="text-gray-500 mt-8 text-sm">&copy; 2025 Jonás Velasco. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Disable right-click
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        // Disable F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'F12' || 
+                (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J')) || 
+                (e.ctrlKey && e.key === 'U')) {
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>

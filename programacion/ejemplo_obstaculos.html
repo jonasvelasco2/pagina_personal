@@ -1,0 +1,342 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ Ejemplo de Uso - Campo de Obstáculos | Aventuras de Robi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .game-font { font-family: 'Press Start 2P', cursive; }
+        .hero-gradient { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+        .step-card { 
+            transition: all 0.3s ease; 
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+        .step-card:hover { 
+            transform: translateY(-3px); 
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        .obstacle-field {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 2px;
+            max-width: 200px;
+            aspect-ratio: 1;
+            border: 2px solid #dc2626;
+            border-radius: 8px;
+            padding: 4px;
+            background-color: #fef2f2;
+        }
+        .obstacle-cell {
+            border: 1px solid #fecaca;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            border-radius: 2px;
+            background-color: #fefefe;
+        }
+        .danger {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        @keyframes floating {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 text-gray-800">
+
+    <!-- Hero Section -->
+    <section class="hero-gradient py-16 text-white">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <div class="floating">
+                <h1 class="game-font text-3xl md:text-5xl mb-6">
+                    ⚡ Ejemplo de Uso: Campo de Obstáculos
+                </h1>
+            </div>
+            <p class="text-xl mb-8 opacity-90">
+                Aprende a tomar decisiones inteligentes - ¡El poder de los condicionales!
+            </p>
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="index.html" class="bg-white text-red-600 px-6 py-3 rounded-full font-bold hover:bg-gray-100 transition-colors duration-300">
+                    🏠 Volver al Índice
+                </a>
+                <a href="obstaculos_robi.html" class="bg-yellow-400 text-gray-900 px-6 py-3 rounded-full font-bold hover:bg-yellow-300 transition-colors duration-300">
+                    🛡️ ¡Enfrentar el Desafío!
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Example Content -->
+    <section class="py-16 bg-white">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">
+                    🤔 ¿Qué son los Condicionales?
+                </h2>
+                <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+                    Los condicionales son la forma de enseñar a Robi a tomar decisiones inteligentes. 
+                    Es como darle un cerebro que puede pensar: "SI esto pasa, ENTONCES hago aquello."
+                </p>
+            </div>
+
+            <!-- Step by Step Guide -->
+            <div class="space-y-8">
+                <!-- Step 1 -->
+                <div class="step-card rounded-xl p-8">
+                    <div class="grid md:grid-cols-2 gap-8 items-center">
+                        <div>
+                            <h3 class="text-2xl font-bold mb-4 text-red-600">
+                                🐲 Paso 1: El Campo Peligroso
+                            </h3>
+                            <p class="text-gray-600 mb-4">
+                                El dragón ha creado un campo lleno de peligros: fuego (🔥), rocas (🪨), y hoyos (🕳️). 
+                                Robi debe llegar al otro lado, pero necesita detectar cada peligro y reaccionar de forma diferente.
+                            </p>
+                            <div class="space-y-2">
+                                <div class="flex items-center gap-3 text-sm">
+                                    <span class="danger">🔥</span>
+                                    <span>Fuego = Usar escudo</span>
+                                </div>
+                                <div class="flex items-center gap-3 text-sm">
+                                    <span>🪨</span>
+                                    <span>Roca = Saltar por encima</span>
+                                </div>
+                                <div class="flex items-center gap-3 text-sm">
+                                    <span>🕳️</span>
+                                    <span>Hoyo = Ir alrededor</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <div class="obstacle-field mx-auto">
+                                <div class="obstacle-cell">🤖</div>
+                                <div class="obstacle-cell">🌿</div>
+                                <div class="obstacle-cell danger">🔥</div>
+                                <div class="obstacle-cell">🌿</div>
+                                <div class="obstacle-cell">🏁</div>
+                                <div class="obstacle-cell">🌿</div>
+                                <div class="obstacle-cell">🪨</div>
+                                <div class="obstacle-cell">🌿</div>
+                                <div class="obstacle-cell">🕳️</div>
+                                <div class="obstacle-cell">🌿</div>
+                                <div class="obstacle-cell danger">🔥</div>
+                                <div class="obstacle-cell">🌿</div>
+                                <div class="obstacle-cell">🌿</div>
+                                <div class="obstacle-cell">🪨</div>
+                                <div class="obstacle-cell">🌿</div>
+                                <div class="obstacle-cell">🌿</div>
+                                <div class="obstacle-cell">🌿</div>
+                                <div class="obstacle-cell">🌿</div>
+                                <div class="obstacle-cell">🕳️</div>
+                                <div class="obstacle-cell">🌿</div>
+                                <div class="obstacle-cell">🌿</div>
+                                <div class="obstacle-cell">🌿</div>
+                                <div class="obstacle-cell">🌿</div>
+                                <div class="obstacle-cell">🌿</div>
+                                <div class="obstacle-cell">🏆</div>
+                            </div>
+                            <p class="text-sm text-gray-500 mt-2">Campo de obstáculos 5x5</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="step-card rounded-xl p-8">
+                    <div class="grid md:grid-cols-2 gap-8 items-center">
+                        <div class="order-2 md:order-1">
+                            <div class="bg-gray-100 border-2 border-gray-300 rounded-lg p-4">
+                                <h4 class="font-bold text-gray-700 mb-3">🧠 Lógica de Condicionales:</h4>
+                                <div class="space-y-2 text-sm font-mono">
+                                    <div class="bg-red-100 p-2 rounded">
+                                        <span class="text-red-600">SI</span> detectas fuego 🔥
+                                    </div>
+                                    <div class="bg-blue-100 p-2 rounded ml-4">
+                                        <span class="text-blue-600">ENTONCES</span> activar escudo
+                                    </div>
+                                    <div class="bg-red-100 p-2 rounded">
+                                        <span class="text-red-600">SI NO, SI</span> detectas roca 🪨
+                                    </div>
+                                    <div class="bg-blue-100 p-2 rounded ml-4">
+                                        <span class="text-blue-600">ENTONCES</span> saltar
+                                    </div>
+                                    <div class="bg-red-100 p-2 rounded">
+                                        <span class="text-red-600">SI NO, SI</span> detectas hoyo 🕳️
+                                    </div>
+                                    <div class="bg-blue-100 p-2 rounded ml-4">
+                                        <span class="text-blue-600">ENTONCES</span> rodear
+                                    </div>
+                                    <div class="bg-green-100 p-2 rounded">
+                                        <span class="text-green-600">SI NO</span> avanzar normal
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="order-1 md:order-2">
+                            <h3 class="text-2xl font-bold mb-4 text-red-600">
+                                🧩 Paso 2: La Lógica SI-ENTONCES
+                            </h3>
+                            <p class="text-gray-600 mb-4">
+                                Los condicionales funcionan como las decisiones que tomamos todos los días: 
+                                "SI llueve, ENTONCES llevo paraguas". Robi usa esta misma lógica para sobrevivir.
+                            </p>
+                            <div class="bg-red-50 border-l-4 border-red-400 p-4 rounded">
+                                <p class="text-sm text-red-800">
+                                    <strong>🧠 Concepto:</strong> Los sensores de Robi le dicen qué hay adelante, 
+                                    y los condicionales le dicen qué hacer en cada situación.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="step-card rounded-xl p-8">
+                    <div class="grid md:grid-cols-2 gap-8 items-center">
+                        <div>
+                            <h3 class="text-2xl font-bold mb-4 text-red-600">
+                                🔍 Paso 3: Sensores de Robi
+                            </h3>
+                            <p class="text-gray-600 mb-4">
+                                Robi tiene sensores especiales que le permiten "ver" qué hay en cada casilla antes de moverse. 
+                                Estos sensores son la clave para tomar decisiones inteligentes.
+                            </p>
+                            <div class="space-y-3">
+                                <div class="bg-blue-50 border-2 border-blue-200 rounded-lg p-3">
+                                    <h4 class="font-bold text-blue-700 mb-1">👁️ Sensor Visual</h4>
+                                    <p class="text-sm text-blue-600">Detecta el tipo de obstáculo</p>
+                                </div>
+                                <div class="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-3">
+                                    <h4 class="font-bold text-yellow-700 mb-1">🌡️ Sensor de Calor</h4>
+                                    <p class="text-sm text-yellow-600">Identifica fuego a distancia</p>
+                                </div>
+                                <div class="bg-gray-50 border-2 border-gray-200 rounded-lg p-3">
+                                    <h4 class="font-bold text-gray-700 mb-1">🏗️ Sensor de Terreno</h4>
+                                    <p class="text-sm text-gray-600">Detecta hoyos y terreno inestable</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <div class="bg-red-50 border-2 border-red-200 rounded-lg p-6">
+                                <div class="text-4xl mb-3">🛡️</div>
+                                <h4 class="font-bold text-red-700 mb-2">¡Obstáculo Superado!</h4>
+                                <p class="text-sm text-red-600 mb-3">
+                                    Robi detectó fuego y activó su escudo protector
+                                </p>
+                                <div class="text-2xl">✨ 🤖 ✨</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Decision Tree Section -->
+    <section class="py-16 bg-red-50">
+        <div class="max-w-4xl mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-12 text-red-800">🌳 Árbol de Decisiones de Robi</h2>
+            <div class="bg-white rounded-xl p-8 shadow-lg">
+                <div class="text-center mb-6">
+                    <div class="bg-blue-100 rounded-lg p-4 inline-block">
+                        <h3 class="font-bold text-blue-700">🤖 Robi se acerca a una casilla</h3>
+                    </div>
+                </div>
+                
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="text-center">
+                        <div class="bg-red-100 rounded-lg p-4 mb-4">
+                            <div class="text-2xl mb-2 danger">🔥</div>
+                            <h4 class="font-bold text-red-700">Detecta Fuego</h4>
+                        </div>
+                        <div class="bg-red-200 rounded-lg p-3">
+                            <p class="text-sm text-red-800">🛡️ Activar Escudo + Avanzar</p>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <div class="bg-gray-100 rounded-lg p-4 mb-4">
+                            <div class="text-2xl mb-2">🪨</div>
+                            <h4 class="font-bold text-gray-700">Detecta Roca</h4>
+                        </div>
+                        <div class="bg-gray-200 rounded-lg p-3">
+                            <p class="text-sm text-gray-800">🦘 Saltar por Encima</p>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <div class="bg-yellow-100 rounded-lg p-4 mb-4">
+                            <div class="text-2xl mb-2">🕳️</div>
+                            <h4 class="font-bold text-yellow-700">Detecta Hoyo</h4>
+                        </div>
+                        <div class="bg-yellow-200 rounded-lg p-3">
+                            <p class="text-sm text-yellow-800">🔄 Buscar Camino Alternativo</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-6">
+                    <div class="bg-green-100 rounded-lg p-4 inline-block">
+                        <h3 class="font-bold text-green-700">Si no hay obstáculos → 🚶 Avanzar Normal</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tips Section -->
+    <section class="py-16 bg-white">
+        <div class="max-w-4xl mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-12">💡 Consejos para Dominar los Condicionales</h2>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="bg-red-50 rounded-xl p-6 shadow-sm">
+                    <h3 class="font-bold text-lg mb-3 text-red-600">🎯 Estrategias Avanzadas</h3>
+                    <ul class="text-sm text-gray-700 space-y-2">
+                        <li>• Siempre verifica TODOS los sensores antes de actuar</li>
+                        <li>• Piensa en el orden de las condiciones (¿qué es más peligroso?)</li>
+                        <li>• Ten un plan de respaldo para situaciones inesperadas</li>
+                        <li>• Combina condicionales con bucles para mayor eficiencia</li>
+                    </ul>
+                </div>
+                <div class="bg-orange-50 rounded-xl p-6 shadow-sm">
+                    <h3 class="font-bold text-lg mb-3 text-orange-600">⚠️ Errores Peligrosos</h3>
+                    <ul class="text-sm text-gray-700 space-y-2">
+                        <li>• Olvidar el caso "SI NO" (¿qué pasa si ninguna condición se cumple?)</li>
+                        <li>• No probar los sensores antes de confiar en ellos</li>
+                        <li>• Hacer condicionales demasiado complicados</li>
+                        <li>• No considerar múltiples obstáculos en la misma casilla</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Navigation Footer -->
+    <footer class="bg-red-600 text-white py-8">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <h3 class="text-xl font-bold mb-4">¿Listo para Dominar las Decisiones?</h3>
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="index.html" class="bg-white text-red-600 px-6 py-3 rounded-full font-bold hover:bg-gray-100 transition-colors duration-300">
+                    🏠 Volver al Índice
+                </a>
+                <a href="obstaculos_robi.html" class="bg-yellow-400 text-gray-900 px-6 py-3 rounded-full font-bold hover:bg-yellow-300 transition-colors duration-300">
+                    🛡️ ¡Enfrentar los Obstáculos!
+                </a>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

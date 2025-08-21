@@ -1,0 +1,629 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robi y los Obstáculos Peligrosos - Aventura de Condicionales</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .game-font { font-family: 'Press Start 2P', cursive; }
+        .grid-container { display: grid; width: 90vw; max-width: 400px; aspect-ratio: 1 / 1; border: 3px solid #4a5568; border-radius: 0.5rem; background-color: #fff; }
+        .grid-cell { border: 1px solid #d1d5db; position: relative; transition: all 0.3s ease; background-color: #f8fafc; }
+        .grid-cell.safe { background-color: #dcfce7; }
+        .grid-cell.danger { background-color: #fee2e2; animation: danger-pulse 2s infinite; }
+        .grid-cell.goal { background-color: #fef3c7; }
+        @keyframes danger-pulse { 0%, 100% { background-color: #fee2e2; } 50% { background-color: #fecaca; } }
+        .robot-marker { position: absolute; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 2rem; transition: all 0.4s ease-in-out; z-index: 10; }
+        .obstacle-marker { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 1.8rem; z-index: 5; }
+        .goal-marker { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 2rem; z-index: 5; animation: glow 2s infinite; }
+        @keyframes glow { 0%, 100% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-50%, -50%) scale(1.1); } }
+        .control-btn { transition: all 0.2s ease; }
+        .control-btn:active { transform: scale(0.95); box-shadow: inset 2px 2px 5px rgba(0,0,0,0.2); }
+        .conditional-container { background: linear-gradient(135deg, #e0f2fe, #b3e5fc); border: 2px solid #0288d1; border-radius: 8px; padding: 12px; margin: 8px 0; }
+        #message-box { transition: opacity 0.5s, transform 0.5s; }
+        .sensor-panel { background-color: #f0fdf4; border: 2px solid #16a34a; border-radius: 8px; padding: 16px; }
+        .sensor-light { width: 20px; height: 20px; border-radius: 50%; margin: 0 5px; display: inline-block; border: 2px solid #374151; }
+        .sensor-light.safe { background-color: #22c55e; }
+        .sensor-light.danger { background-color: #ef4444; }
+        .sensor-light.unknown { background-color: #9ca3af; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-red-50 to-orange-100 text-gray-800 flex flex-col min-h-screen">
+
+    <main class="w-full max-w-7xl mx-auto bg-white rounded-xl shadow-2xl p-4 md:p-8 my-8 flex-grow">
+        
+        <header class="text-center mb-6">
+            <h1 class="game-font text-2xl sm:text-3xl md:text-4xl text-red-600">🤖 Robi y los Obstáculos Peligrosos</h1>
+            <p class="mt-2 text-md md:text-lg text-gray-600">¡Ayuda a Robi a evitar los obstáculos usando sensores y decisiones inteligentes!</p>
+            <div class="mt-4 bg-red-50 border-l-4 border-red-400 p-4 rounded">
+                <p class="text-sm text-red-800"><strong>Concepto:</strong> Condicionales y Decisiones - Aprende a tomar decisiones basadas en condiciones</p>
+            </div>
+            <h2 id="level-display" class="game-font text-xl md:text-2xl text-amber-500 mt-4"></h2>
+            <div class="mt-4">
+                <a href="index.html" class="inline-block bg-red-100 text-red-600 border-2 border-red-200 px-6 py-3 rounded-lg font-semibold hover:bg-red-200 transition-colors duration-300">
+                    🏠 Volver
+                </a>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <!-- Panel de Sensores -->
+            <div class="lg:col-span-1">
+                <div class="sensor-panel mb-4">
+                    <h3 class="text-lg font-bold mb-3 text-green-700">🛡️ Sensores de Robi</h3>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex items-center">
+                            <span class="w-16">Arriba:</span>
+                            <div id="sensor-up" class="sensor-light unknown"></div>
+                            <span id="sensor-up-text" class="ml-2">Sin datos</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="w-16">Abajo:</span>
+                            <div id="sensor-down" class="sensor-light unknown"></div>
+                            <span id="sensor-down-text" class="ml-2">Sin datos</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="w-16">Izq:</span>
+                            <div id="sensor-left" class="sensor-light unknown"></div>
+                            <span id="sensor-left-text" class="ml-2">Sin datos</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="w-16">Der:</span>
+                            <div id="sensor-right" class="sensor-light unknown"></div>
+                            <span id="sensor-right-text" class="ml-2">Sin datos</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-orange-50 p-4 rounded-lg">
+                    <h3 class="text-lg font-bold mb-3 text-orange-700">📖 Misión</h3>
+                    <p id="level-story" class="text-sm text-orange-600 mb-3"></p>
+                    <div class="bg-yellow-100 p-2 rounded text-xs text-yellow-700">
+                        <strong>💡 Pista:</strong> <span id="level-hint"></span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Campo de Obstáculos -->
+            <div class="lg:col-span-2 flex flex-col items-center">
+                <h3 class="text-xl font-bold mb-3 text-gray-700">⚠️ Campo de Obstáculos</h3>
+                <div id="obstacle-grid" class="grid-container relative"></div>
+                
+                <div class="mt-4 flex items-center gap-4 text-sm">
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 bg-green-200 border mr-2"></div>
+                        <span>Seguro</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 bg-red-200 border mr-2"></div>
+                        <span>Peligroso</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 bg-yellow-200 border mr-2"></div>
+                        <span>Meta</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel de Control -->
+        <div class="bg-gray-50 p-6 rounded-lg shadow-inner">
+            <h3 class="text-lg font-semibold text-center mb-4">🎮 Programa a Robi con Decisiones Inteligentes</h3>
+            
+            <!-- Comandos básicos -->
+            <div class="mb-4">
+                <h4 class="font-semibold mb-2">Movimientos Básicos:</h4>
+                <div id="controls" class="flex justify-center flex-wrap gap-2">
+                    <button data-command="U" class="control-btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-3 rounded shadow text-sm">⬆️</button>
+                    <button data-command="D" class="control-btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-3 rounded shadow text-sm">⬇️</button>
+                    <button data-command="L" class="control-btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-3 rounded shadow text-sm">⬅️</button>
+                    <button data-command="R" class="control-btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-3 rounded shadow text-sm">➡️</button>
+                    <button data-command="SCAN" class="control-btn bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-3 rounded shadow text-sm">🔍 Explorar</button>
+                </div>
+            </div>
+            
+            <!-- Condicionales -->
+            <div class="mb-4">
+                <h4 class="font-semibold mb-2">🤔 Decisiones Inteligentes:</h4>
+                <div class="flex justify-center flex-wrap gap-2">
+                    <button id="add-if-btn" class="control-btn bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded shadow text-sm">➕ Si es seguro...</button>
+                    <button id="add-if-danger-btn" class="control-btn bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded shadow text-sm">⚠️ Si hay peligro...</button>
+                </div>
+                
+                <!-- Modal para crear condicionales -->
+                <div id="conditional-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+                    <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+                        <h3 class="text-lg font-bold mb-4 text-gray-800" id="modal-title">🤔 Crear Condición</h3>
+                        
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Dirección a verificar:</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button class="direction-btn bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-md text-sm" data-direction="up">⬆️ Arriba</button>
+                                <button class="direction-btn bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-md text-sm" data-direction="down">⬇️ Abajo</button>
+                                <button class="direction-btn bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-md text-sm" data-direction="left">⬅️ Izquierda</button>
+                                <button class="direction-btn bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-md text-sm" data-direction="right">➡️ Derecha</button>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-end gap-2">
+                            <button id="cancel-conditional-btn" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md text-sm">❌ Cancelar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-md shadow min-h-[120px] mb-6">
+                <h4 class="font-semibold mb-2">📝 Tu programa:</h4>
+                <div id="instructions-list" class="text-gray-700 flex flex-wrap gap-2 max-w-full"></div>
+            </div>
+
+            <div class="flex justify-center flex-wrap gap-4">
+                <button id="run-btn" class="control-btn bg-green-500 hover:bg-green-600 text-white game-font py-3 px-6 rounded-lg shadow-lg">🚀 ¡Ejecutar!</button>
+                <button id="reset-btn" class="control-btn bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg">🔄 Reiniciar</button>
+                <button id="next-level-btn" class="control-btn bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hidden">✨ Siguiente</button>
+            </div>
+        </div>
+    </main>
+
+    <footer class="w-full bg-violet-200 bg-opacity-55 py-3 mt-auto">
+        <div class="max-w-4xl mx-auto flex items-center justify-center gap-x-4 px-4">
+            <img src="https://filedn.com/lWi3DaH98FUFPSY0zy9EK3H/programacion_lili/img/pie.png" alt="Logo Matehuales CIMAT" class="h-12" onerror="this.onerror=null;this.src='https://placehold.co/200x50/e2e8f0/4a5568?text=Logo';">
+            <p class="text-gray-700 text-xs md:text-sm">
+                <strong>Recurso desarrollado por:</strong> Dra. Lili Guadarrama y Dr. Jonás Velasco.
+            </p>
+        </div>
+    </footer>
+
+    <div id="message-box" class="fixed top-5 right-5 bg-white p-4 rounded-lg shadow-xl border-l-4 opacity-0 transform translate-y-10 z-50">
+        <p id="message-text" class="font-semibold"></p>
+    </div>
+
+<script>
+    const obstacleGridEl = document.getElementById('obstacle-grid');
+    const controls = document.getElementById('controls');
+    const instructionsList = document.getElementById('instructions-list');
+    const runBtn = document.getElementById('run-btn');
+    const resetBtn = document.getElementById('reset-btn');
+    const nextLevelBtn = document.getElementById('next-level-btn');
+    const addIfBtn = document.getElementById('add-if-btn');
+    const addIfDangerBtn = document.getElementById('add-if-danger-btn');
+    const conditionalModal = document.getElementById('conditional-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const cancelConditionalBtn = document.getElementById('cancel-conditional-btn');
+    const messageBox = document.getElementById('message-box');
+    const messageText = document.getElementById('message-text');
+    const levelDisplay = document.getElementById('level-display');
+    const levelStory = document.getElementById('level-story');
+    const levelHint = document.getElementById('level-hint');
+
+    const levels = [
+        {
+            level: 1,
+            size: 5,
+            start: {x: 0, y: 2},
+            goal: {x: 4, y: 2},
+            obstacles: [{x: 2, y: 2}],
+            story: "¡Hay un obstáculo en el camino directo! Robi debe decidir cómo evitarlo.",
+            hint: "Explora primero, luego decide si ir arriba o abajo del obstáculo"
+        },
+        {
+            level: 2,
+            size: 6,
+            start: {x: 0, y: 0},
+            goal: {x: 5, y: 5},
+            obstacles: [{x: 2, y: 0}, {x: 2, y: 1}, {x: 3, y: 3}, {x: 4, y: 3}],
+            story: "Múltiples obstáculos bloquean diferentes caminos. ¡Robi debe ser muy cuidadoso!",
+            hint: "Combina exploraciones con movimientos seguros"
+        },
+        {
+            level: 3,
+            size: 7,
+            start: {x: 0, y: 3},
+            goal: {x: 6, y: 3},
+            obstacles: [{x: 1, y: 3}, {x: 3, y: 3}, {x: 5, y: 3}, {x: 2, y: 2}, {x: 4, y: 4}],
+            story: "¡Obstáculos por todas partes! Robi necesita un programa muy inteligente.",
+            hint: "Usa condicionales anidados: si hay peligro adelante, busca alternativas"
+        }
+    ];
+    
+    let currentLevelIndex = 0;
+    let instructions = [];
+    let robotPos = { x: 0, y: 0 };
+    let robotMarker;
+    let sensorData = {up: null, down: null, left: null, right: null};
+
+    function createGrid() {
+        const level = levels[currentLevelIndex];
+        obstacleGridEl.innerHTML = '';
+        obstacleGridEl.style.gridTemplateColumns = `repeat(${level.size}, 1fr)`;
+        obstacleGridEl.style.gridTemplateRows = `repeat(${level.size}, 1fr)`;
+        
+        for (let y = 0; y < level.size; y++) {
+            for (let x = 0; x < level.size; x++) {
+                const cell = document.createElement('div');
+                cell.classList.add('grid-cell');
+                cell.id = `cell-${x}-${y}`;
+                
+                if (level.obstacles.some(obs => obs.x === x && obs.y === y)) {
+                    cell.classList.add('danger');
+                    const obstacleEl = document.createElement('div');
+                    obstacleEl.classList.add('obstacle-marker');
+                    obstacleEl.innerHTML = '💥';
+                    cell.appendChild(obstacleEl);
+                } else {
+                    cell.classList.add('safe');
+                }
+                
+                if (x === level.goal.x && y === level.goal.y) {
+                    cell.classList.remove('safe');
+                    cell.classList.add('goal');
+                    const goalEl = document.createElement('div');
+                    goalEl.classList.add('goal-marker');
+                    goalEl.innerHTML = '🏆';
+                    cell.appendChild(goalEl);
+                }
+                
+                obstacleGridEl.appendChild(cell);
+            }
+        }
+        
+        robotMarker = document.createElement('div');
+        robotMarker.classList.add('robot-marker');
+        robotMarker.innerHTML = '🤖';
+        obstacleGridEl.appendChild(robotMarker);
+        updateRobotPosition(false);
+        updateSensors();
+    }
+
+    function updateRobotPosition(animate = true) {
+        const level = levels[currentLevelIndex];
+        if (!animate) robotMarker.style.transition = 'none';
+        
+        robotMarker.style.left = `${robotPos.x * (100 / level.size)}%`;
+        robotMarker.style.top = `${robotPos.y * (100 / level.size)}%`;
+        robotMarker.style.width = `${100 / level.size}%`;
+        robotMarker.style.height = `${100 / level.size}%`;
+
+        if (!animate) {
+            robotMarker.offsetHeight;
+            robotMarker.style.transition = 'all 0.4s ease-in-out';
+        }
+        
+        updateSensors();
+    }
+
+    function updateSensors() {
+        const level = levels[currentLevelIndex];
+        const directions = [
+            {dir: 'up', dx: 0, dy: -1, id: 'sensor-up', textId: 'sensor-up-text'},
+            {dir: 'down', dx: 0, dy: 1, id: 'sensor-down', textId: 'sensor-down-text'},
+            {dir: 'left', dx: -1, dy: 0, id: 'sensor-left', textId: 'sensor-left-text'},
+            {dir: 'right', dx: 1, dy: 0, id: 'sensor-right', textId: 'sensor-right-text'}
+        ];
+
+        directions.forEach(({dir, dx, dy, id, textId}) => {
+            const newX = robotPos.x + dx;
+            const newY = robotPos.y + dy;
+            const sensor = document.getElementById(id);
+            const text = document.getElementById(textId);
+            
+            if (newX < 0 || newX >= level.size || newY < 0 || newY >= level.size) {
+                sensorData[dir] = 'wall';
+                sensor.className = 'sensor-light danger';
+                text.textContent = 'Pared';
+            } else if (level.obstacles.some(obs => obs.x === newX && obs.y === newY)) {
+                sensorData[dir] = 'danger';
+                sensor.className = 'sensor-light danger';
+                text.textContent = 'Peligro';
+            } else {
+                sensorData[dir] = 'safe';
+                sensor.className = 'sensor-light safe';
+                text.textContent = 'Seguro';
+            }
+        });
+    }
+
+    function setupLevel() {
+        const level = levels[currentLevelIndex];
+        robotPos = { ...level.start };
+        instructions = [];
+        
+        levelDisplay.textContent = `Nivel ${level.level}`;
+        levelStory.textContent = level.story;
+        levelHint.textContent = level.hint;
+        createGrid();
+        updateInstructionsDisplay();
+        setButtonsState(true);
+        nextLevelBtn.classList.add('hidden');
+    }
+
+    function updateInstructionsDisplay() {
+        instructionsList.innerHTML = '';
+        
+        instructions.forEach((instr, index) => {
+            const instrEl = document.createElement('div');
+            
+            if (instr.type === 'if') {
+                instrEl.className = 'conditional-container w-full';
+                instrEl.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <strong>🤔 Si ${instr.condition === 'safe' ? 'es seguro' : 'hay peligro'} ir ${getDirectionText(instr.direction)}:</strong>
+                        <button onclick="removeInstruction(${index})" class="bg-red-500 text-white px-2 py-1 rounded text-xs">❌</button>
+                    </div>
+                    <div class="ml-4 border-l-2 border-cyan-400 pl-3">
+                        <div class="flex flex-wrap gap-1">
+                            ${instr.actions.map(action => 
+                                `<div class="text-sm bg-cyan-100 px-2 py-1 rounded whitespace-nowrap">${getCommandText(action)}</div>`
+                            ).join('')}
+                        </div>
+                        <button onclick="addToCondition(${index})" class="bg-cyan-300 text-cyan-800 px-2 py-1 rounded text-xs mt-2">+ Agregar acción</button>
+                    </div>
+                `;
+            } else {
+                const commandText = getCommandText(instr.command || instr);
+                instrEl.className = 'bg-blue-100 px-3 py-2 rounded flex items-center justify-between whitespace-nowrap';
+                instrEl.innerHTML = `
+                    <span class="text-sm">${commandText}</span>
+                    <button onclick="removeInstruction(${index})" class="bg-red-500 text-white px-2 py-1 rounded text-xs ml-2">❌</button>
+                `;
+            }
+            
+            instructionsList.appendChild(instrEl);
+        });
+    }
+
+    function getCommandText(command) {
+        const texts = {
+            'U': '⬆️ Arriba',
+            'D': '⬇️ Abajo',
+            'L': '⬅️ Izquierda', 
+            'R': '➡️ Derecha',
+            'SCAN': '🔍 Explorar'
+        };
+        return texts[command] || command;
+    }
+
+    function getDirectionText(direction) {
+        const texts = {
+            'up': 'arriba',
+            'down': 'abajo',
+            'left': 'izquierda',
+            'right': 'derecha'
+        };
+        return texts[direction] || direction;
+    }
+
+    function removeInstruction(index) {
+        instructions.splice(index, 1);
+        updateInstructionsDisplay();
+    }
+
+    function addToCondition(conditionIndex) {
+        // Crear modal temporal para agregar comandos a la condición
+        const actionModal = document.createElement('div');
+        actionModal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center';
+        actionModal.innerHTML = `
+            <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+                <h3 class="text-lg font-bold mb-4 text-gray-800">➕ Agregar Acción a la Condición</h3>
+                
+                <div class="grid grid-cols-2 gap-2 mb-4">
+                    <button class="action-btn bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-md text-sm" data-action="U">⬆️ Arriba</button>
+                    <button class="action-btn bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-md text-sm" data-action="D">⬇️ Abajo</button>
+                    <button class="action-btn bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-md text-sm" data-action="L">⬅️ Izquierda</button>
+                    <button class="action-btn bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-md text-sm" data-action="R">➡️ Derecha</button>
+                    <button class="action-btn bg-green-500 hover:bg-green-600 text-white p-3 rounded-md text-sm" data-action="SCAN">🔍 Explorar</button>
+                </div>
+                
+                <div class="flex justify-end gap-2">
+                    <button class="cancel-action-btn bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md text-sm">❌ Cancelar</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(actionModal);
+        
+        // Event listeners para los botones de acción
+        actionModal.querySelectorAll('.action-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const action = btn.dataset.action;
+                instructions[conditionIndex].actions.push(action);
+                updateInstructionsDisplay();
+                document.body.removeChild(actionModal);
+                showMessage(`✅ Comando ${getCommandText(action)} agregado a la condición`, true);
+            });
+        });
+        
+        // Event listener para cancelar
+        actionModal.querySelector('.cancel-action-btn').addEventListener('click', () => {
+            document.body.removeChild(actionModal);
+        });
+        
+        // Cerrar modal al hacer clic fuera de él
+        actionModal.addEventListener('click', (e) => {
+            if (e.target === actionModal) {
+                document.body.removeChild(actionModal);
+            }
+        });
+    }
+
+    function showMessage(text, isSuccess) {
+        messageText.textContent = text;
+        messageBox.className = 'fixed top-5 right-5 bg-white p-4 rounded-lg shadow-xl border-l-4 opacity-0 transform translate-y-10 z-50';
+        messageBox.classList.add(isSuccess ? 'border-green-500' : 'border-red-500');
+        messageBox.classList.remove('opacity-0', 'translate-y-10');
+        
+        setTimeout(() => {
+            messageBox.classList.add('opacity-0', 'translate-y-10');
+        }, 4000);
+    }
+
+    function setButtonsState(enabled) {
+        const buttons = [runBtn, resetBtn, addIfBtn, addIfDangerBtn, ...controls.getElementsByTagName('button')];
+        buttons.forEach(btn => {
+            btn.disabled = !enabled;
+            btn.style.opacity = enabled ? '1' : '0.6';
+            btn.style.cursor = enabled ? 'pointer' : 'not-allowed';
+        });
+    }
+
+    async function runProgram() {
+        setButtonsState(false);
+        const level = levels[currentLevelIndex];
+        robotPos = { ...level.start };
+        createGrid();
+        
+        try {
+            await executeInstructionList(instructions);
+            checkResult();
+        } catch (error) {
+            showMessage("Error en el programa", false);
+            setButtonsState(true);
+        }
+    }
+
+    async function executeInstructionList(instructionList) {
+        for (const instr of instructionList) {
+            if (instr.type === 'if') {
+                const directionSafe = sensorData[instr.direction] === 'safe';
+                const conditionMet = (instr.condition === 'safe' && directionSafe) || 
+                                  (instr.condition === 'danger' && !directionSafe);
+                
+                if (conditionMet) {
+                    await executeInstructionList(instr.actions);
+                }
+            } else {
+                await executeCommand(instr.command || instr);
+            }
+        }
+    }
+
+    function executeCommand(command) {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                const level = levels[currentLevelIndex];
+                
+                switch (command) {
+                    case 'R': 
+                        if (robotPos.x < level.size - 1 && !level.obstacles.some(obs => obs.x === robotPos.x + 1 && obs.y === robotPos.y)) {
+                            robotPos.x++;
+                        }
+                        break;
+                    case 'L': 
+                        if (robotPos.x > 0 && !level.obstacles.some(obs => obs.x === robotPos.x - 1 && obs.y === robotPos.y)) {
+                            robotPos.x--;
+                        }
+                        break;
+                    case 'U': 
+                        if (robotPos.y > 0 && !level.obstacles.some(obs => obs.x === robotPos.x && obs.y === robotPos.y - 1)) {
+                            robotPos.y--;
+                        }
+                        break;
+                    case 'D': 
+                        if (robotPos.y < level.size - 1 && !level.obstacles.some(obs => obs.x === robotPos.x && obs.y === robotPos.y + 1)) {
+                            robotPos.y++;
+                        }
+                        break;
+                    case 'SCAN':
+                        // La exploración actualiza los sensores automáticamente
+                        break;
+                }
+                
+                updateRobotPosition();
+                resolve();
+            }, 800);
+        });
+    }
+
+    function checkResult() {
+        const level = levels[currentLevelIndex];
+        const success = (robotPos.x === level.goal.x && robotPos.y === level.goal.y);
+
+        if (success) {
+            if (currentLevelIndex < levels.length - 1) {
+                showMessage('¡Fantástico! Robi evitó todos los obstáculos y llegó a la meta. 🎉', true);
+                nextLevelBtn.classList.remove('hidden');
+                nextLevelBtn.disabled = false;
+                nextLevelBtn.style.opacity = '1';
+                nextLevelBtn.style.cursor = 'pointer';
+            } else {
+                showMessage('¡INCREÍBLE! ¡Robi es ahora un maestro de las decisiones! 🧠', true);
+                levelDisplay.textContent = "¡MAESTRO DE DECISIONES!";
+            }
+        } else {
+            showMessage('Robi no llegó a la meta. ¡Revisa las condiciones y decisiones! 🤔', false);
+            setButtonsState(true);
+        }
+    }
+
+    // Event Listeners
+    controls.addEventListener('click', (e) => {
+        if (e.target.tagName === 'BUTTON') {
+            const command = e.target.dataset.command;
+            instructions.push({ command: command });
+            updateInstructionsDisplay();
+        }
+    });
+
+    // Variables para el modal de condicionales
+    let currentConditionType = 'safe';
+
+    addIfBtn.addEventListener('click', () => {
+        currentConditionType = 'safe';
+        modalTitle.textContent = '✅ Si es seguro...';
+        conditionalModal.classList.remove('hidden');
+    });
+
+    addIfDangerBtn.addEventListener('click', () => {
+        currentConditionType = 'danger';
+        modalTitle.textContent = '⚠️ Si hay peligro...';
+        conditionalModal.classList.remove('hidden');
+    });
+
+    // Event listeners para el modal de condicionales
+    cancelConditionalBtn.addEventListener('click', () => {
+        conditionalModal.classList.add('hidden');
+    });
+
+    // Cerrar modal al hacer clic fuera de él
+    conditionalModal.addEventListener('click', (e) => {
+        if (e.target === conditionalModal) {
+            conditionalModal.classList.add('hidden');
+        }
+    });
+
+    // Event listeners para los botones de dirección
+    document.addEventListener('click', (e) => {
+        if (e.target.classList.contains('direction-btn')) {
+            const direction = e.target.dataset.direction;
+            instructions.push({ 
+                type: 'if', 
+                condition: currentConditionType, 
+                direction: direction, 
+                actions: [] 
+            });
+            updateInstructionsDisplay();
+            conditionalModal.classList.add('hidden');
+            
+            const conditionText = currentConditionType === 'safe' ? 'es seguro' : 'hay peligro';
+            const directionText = getDirectionText(direction);
+            showMessage(`✅ Condición creada: Si ${conditionText} ir ${directionText}`, true);
+        }
+    });
+
+    runBtn.addEventListener('click', runProgram);
+    resetBtn.addEventListener('click', setupLevel);
+    nextLevelBtn.addEventListener('click', () => {
+        if (currentLevelIndex < levels.length - 1) {
+            currentLevelIndex++;
+            setupLevel();
+        }
+    });
+
+    // Inicializar
+    window.onload = setupLevel;
+</script>
+</body>
+</html>

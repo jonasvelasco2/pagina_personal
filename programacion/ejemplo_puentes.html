@@ -1,0 +1,354 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌉 Ejemplo de Uso - Constructor de Puentes | Aventuras de Robi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .game-font { font-family: 'Press Start 2P', cursive; }
+        .hero-gradient { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+        .step-card { 
+            transition: all 0.3s ease; 
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+        .step-card:hover { 
+            transform: translateY(-3px); 
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        .valley-map {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 1px;
+            max-width: 240px;
+            border: 2px solid #059669;
+            border-radius: 8px;
+            padding: 4px;
+            background-color: #f0fdf4;
+        }
+        .valley-cell {
+            aspect-ratio: 1;
+            border: 1px solid #bbf7d0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            border-radius: 2px;
+            background-color: #fefefe;
+        }
+        .river { background-color: #7dd3fc; }
+        .village { background-color: #fef3c7; }
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        @keyframes floating {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        .build-animation {
+            animation: build 3s ease-in-out infinite;
+        }
+        @keyframes build {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-green-50 via-blue-50 to-teal-50 text-gray-800">
+
+    <!-- Hero Section -->
+    <section class="hero-gradient py-16 text-white">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <div class="floating">
+                <h1 class="game-font text-3xl md:text-5xl mb-6">
+                    🌉 Ejemplo de Uso: Constructor de Puentes
+                </h1>
+            </div>
+            <p class="text-xl mb-8 opacity-90">
+                Aprende el arte de la planificación - ¡Conecta pueblos y corazones!
+            </p>
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="index.html" class="bg-white text-green-600 px-6 py-3 rounded-full font-bold hover:bg-gray-100 transition-colors duration-300">
+                    🏠 Volver al Índice
+                </a>
+                <a href="puentes_robi.html" class="bg-yellow-400 text-gray-900 px-6 py-3 rounded-full font-bold hover:bg-yellow-300 transition-colors duration-300">
+                    🔨 ¡Construir Puentes!
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Example Content -->
+    <section class="py-16 bg-white">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">
+                    🗺️ ¿Qué es la Planificación?
+                </h2>
+                <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+                    La planificación es como ser un arquitecto: antes de construir, necesitas ver el panorama completo, 
+                    considerar todos los recursos disponibles y diseñar la mejor solución posible.
+                </p>
+            </div>
+
+            <!-- Step by Step Guide -->
+            <div class="space-y-8">
+                <!-- Step 1 -->
+                <div class="step-card rounded-xl p-8">
+                    <div class="grid md:grid-cols-2 gap-8 items-center">
+                        <div>
+                            <h3 class="text-2xl font-bold mb-4 text-green-600">
+                                🦉 Paso 1: Entender el Problema
+                            </h3>
+                            <p class="text-gray-600 mb-4">
+                                El Búho Arquitecto explica la situación: una tormenta destruyó los puentes que conectaban 
+                                los pueblos del valle. Sin conexiones, los habitantes no pueden comerciar ni visitarse.
+                            </p>
+                            <div class="bg-green-50 border-l-4 border-green-400 p-4 rounded">
+                                <p class="text-sm text-green-800">
+                                    <strong>🎯 Misión:</strong> Reconectar todos los pueblos usando los materiales disponibles de forma eficiente.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <div class="valley-map mx-auto">
+                                <div class="valley-cell village">🏘️</div>
+                                <div class="valley-cell river">🌊</div>
+                                <div class="valley-cell">🌿</div>
+                                <div class="valley-cell river">🌊</div>
+                                <div class="valley-cell">🌿</div>
+                                <div class="valley-cell village">🏘️</div>
+                                <div class="valley-cell">🌿</div>
+                                <div class="valley-cell river">🌊</div>
+                                <div class="valley-cell river">🌊</div>
+                                <div class="valley-cell river">🌊</div>
+                                <div class="valley-cell">🌿</div>
+                                <div class="valley-cell">🌿</div>
+                                <div class="valley-cell village">🏘️</div>
+                                <div class="valley-cell">🌿</div>
+                                <div class="valley-cell">🌿</div>
+                                <div class="valley-cell">🌿</div>
+                                <div class="valley-cell river">🌊</div>
+                                <div class="valley-cell village">🏘️</div>
+                                <div class="valley-cell">🌿</div>
+                                <div class="valley-cell river">🌊</div>
+                                <div class="valley-cell">🌿</div>
+                                <div class="valley-cell">🌿</div>
+                                <div class="valley-cell">🌿</div>
+                                <div class="valley-cell">🌿</div>
+                                <div class="valley-cell">🌿</div>
+                                <div class="valley-cell">🌿</div>
+                                <div class="valley-cell">🌿</div>
+                                <div class="valley-cell">🌿</div>
+                                <div class="valley-cell">🌿</div>
+                                <div class="valley-cell">🌿</div>
+                                <div class="valley-cell">🌿</div>
+                                <div class="valley-cell">🌿</div>
+                                <div class="valley-cell village">🏘️</div>
+                                <div class="valley-cell">🌿</div>
+                                <div class="valley-cell">🌿</div>
+                                <div class="valley-cell village">🏘️</div>
+                            </div>
+                            <p class="text-sm text-gray-500 mt-2">Valle desconectado 6x6</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="step-card rounded-xl p-8">
+                    <div class="grid md:grid-cols-2 gap-8 items-center">
+                        <div class="order-2 md:order-1">
+                            <div class="bg-gray-50 rounded-lg p-6">
+                                <h4 class="font-bold mb-4 text-gray-700">📊 Análisis de Recursos:</h4>
+                                <div class="space-y-3">
+                                    <div class="bg-brown-100 border-2 border-amber-200 rounded p-3">
+                                        <div class="flex justify-between">
+                                            <span class="font-medium">🪵 Madera</span>
+                                            <span class="text-amber-700">20 unidades</span>
+                                        </div>
+                                        <p class="text-xs text-amber-600 mt-1">Puente corto = 3 unidades</p>
+                                    </div>
+                                    <div class="bg-gray-100 border-2 border-gray-300 rounded p-3">
+                                        <div class="flex justify-between">
+                                            <span class="font-medium">🪨 Piedra</span>
+                                            <span class="text-gray-700">15 unidades</span>
+                                        </div>
+                                        <p class="text-xs text-gray-600 mt-1">Puente resistente = 5 unidades</p>
+                                    </div>
+                                    <div class="bg-yellow-100 border-2 border-yellow-300 rounded p-3">
+                                        <div class="flex justify-between">
+                                            <span class="font-medium">⚒️ Herramientas</span>
+                                            <span class="text-yellow-700">Limitadas</span>
+                                        </div>
+                                        <p class="text-xs text-yellow-600 mt-1">Solo 3 proyectos por día</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="order-1 md:order-2">
+                            <h3 class="text-2xl font-bold mb-4 text-green-600">
+                                📋 Paso 2: Inventario de Recursos
+                            </h3>
+                            <p class="text-gray-600 mb-4">
+                                Antes de empezar a construir, Robi debe hacer un inventario completo: 
+                                ¿qué materiales hay disponibles? ¿cuánto cuesta cada tipo de puente? 
+                                ¿hay limitaciones de tiempo o herramientas?
+                            </p>
+                            <div class="bg-green-50 border-l-4 border-green-400 p-4 rounded">
+                                <p class="text-sm text-green-800">
+                                    <strong>🧠 Concepto:</strong> La planificación siempre empieza con conocer tus recursos y limitaciones.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="step-card rounded-xl p-8">
+                    <div class="grid md:grid-cols-2 gap-8 items-center">
+                        <div>
+                            <h3 class="text-2xl font-bold mb-4 text-green-600">
+                                🎯 Paso 3: Estrategia Óptima
+                            </h3>
+                            <p class="text-gray-600 mb-4">
+                                Robi debe planificar el orden de construcción: ¿qué puente conecta más pueblos? 
+                                ¿cuál es más urgente? ¿cómo optimizar el uso de materiales?
+                            </p>
+                            <div class="space-y-3">
+                                <div class="bg-blue-50 border-2 border-blue-200 rounded-lg p-3">
+                                    <h4 class="font-bold text-blue-700 text-sm">🥇 Prioridad 1: Puente Principal</h4>
+                                    <p class="text-xs text-blue-600">Conecta 4 pueblos - Máximo impacto</p>
+                                </div>
+                                <div class="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-3">
+                                    <h4 class="font-bold text-yellow-700 text-sm">🥈 Prioridad 2: Puente Comercial</h4>
+                                    <p class="text-xs text-yellow-600">Ruta de comercio más corta</p>
+                                </div>
+                                <div class="bg-green-50 border-2 border-green-200 rounded-lg p-3">
+                                    <h4 class="font-bold text-green-700 text-sm">🥉 Prioridad 3: Puente Auxiliar</h4>
+                                    <p class="text-xs text-green-600">Ruta alternativa por seguridad</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <div class="bg-green-50 border-2 border-green-200 rounded-lg p-6">
+                                <div class="text-4xl mb-3 build-animation">🌉</div>
+                                <h4 class="font-bold text-green-700 mb-2">¡Plan Ejecutado!</h4>
+                                <p class="text-sm text-green-600 mb-3">
+                                    Todos los pueblos conectados con recursos sobrantes
+                                </p>
+                                <div class="flex justify-center gap-2 text-xl">
+                                    <span>🏘️</span>
+                                    <span>🌉</span>
+                                    <span>🏘️</span>
+                                    <span>🌉</span>
+                                    <span>🏘️</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Planning Process -->
+    <section class="py-16 bg-green-50">
+        <div class="max-w-4xl mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-12 text-green-800">🧠 El Proceso de Planificación</h2>
+            <div class="bg-white rounded-xl p-8 shadow-lg">
+                <div class="grid md:grid-cols-4 gap-6">
+                    <div class="text-center">
+                        <div class="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                            <span class="text-2xl">🔍</span>
+                        </div>
+                        <h3 class="font-bold text-blue-700 mb-2">1. Analizar</h3>
+                        <p class="text-sm text-blue-600">Estudiar el problema y los recursos disponibles</p>
+                    </div>
+                    
+                    <div class="text-center">
+                        <div class="bg-yellow-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                            <span class="text-2xl">🎯</span>
+                        </div>
+                        <h3 class="font-bold text-yellow-700 mb-2">2. Priorizar</h3>
+                        <p class="text-sm text-yellow-600">Decidir qué es más importante y urgente</p>
+                    </div>
+                    
+                    <div class="text-center">
+                        <div class="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                            <span class="text-2xl">📋</span>
+                        </div>
+                        <h3 class="font-bold text-green-700 mb-2">3. Planificar</h3>
+                        <p class="text-sm text-green-600">Crear un plan paso a paso con alternativas</p>
+                    </div>
+                    
+                    <div class="text-center">
+                        <div class="bg-purple-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                            <span class="text-2xl">⚡</span>
+                        </div>
+                        <h3 class="font-bold text-purple-700 mb-2">4. Ejecutar</h3>
+                        <p class="text-sm text-purple-600">Implementar el plan y ajustar si es necesario</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Real World Applications -->
+    <section class="py-16 bg-white">
+        <div class="max-w-4xl mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-12">🌍 La Planificación en el Mundo Real</h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-blue-50 rounded-xl p-6 shadow-sm">
+                    <div class="text-3xl mb-4 text-center">🏗️</div>
+                    <h3 class="font-bold text-lg mb-3 text-blue-600">Construcción</h3>
+                    <ul class="text-sm text-gray-700 space-y-2">
+                        <li>• Arquitectos planifican edificios</li>
+                        <li>• Ingenieros calculan materiales</li>
+                        <li>• Se considera clima y terreno</li>
+                        <li>• Se planifica el cronograma</li>
+                    </ul>
+                </div>
+                <div class="bg-green-50 rounded-xl p-6 shadow-sm">
+                    <div class="text-3xl mb-4 text-center">🎯</div>
+                    <h3 class="font-bold text-lg mb-3 text-green-600">Proyectos Escolares</h3>
+                    <ul class="text-sm text-gray-700 space-y-2">
+                        <li>• Dividir el trabajo en partes</li>
+                        <li>• Asignar fechas límite</li>
+                        <li>• Distribuir responsabilidades</li>
+                        <li>• Preparar plan B por si algo falla</li>
+                    </ul>
+                </div>
+                <div class="bg-purple-50 rounded-xl p-6 shadow-sm">
+                    <div class="text-3xl mb-4 text-center">🎮</div>
+                    <h3 class="font-bold text-lg mb-3 text-purple-600">Videojuegos</h3>
+                    <ul class="text-sm text-gray-700 space-y-2">
+                        <li>• Estrategia antes de batalla</li>
+                        <li>• Gestión de recursos</li>
+                        <li>• Planificar rutas óptimas</li>
+                        <li>• Anticipar movimientos enemigos</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Navigation Footer -->
+    <footer class="bg-green-600 text-white py-8">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <h3 class="text-xl font-bold mb-4">¿Listo para Convertirte en un Maestro Planificador?</h3>
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="index.html" class="bg-white text-green-600 px-6 py-3 rounded-full font-bold hover:bg-gray-100 transition-colors duration-300">
+                    🏠 Volver al Índice
+                </a>
+                <a href="puentes_robi.html" class="bg-yellow-400 text-gray-900 px-6 py-3 rounded-full font-bold hover:bg-yellow-300 transition-colors duration-300">
+                    🔨 ¡Empezar a Construir!
+                </a>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
