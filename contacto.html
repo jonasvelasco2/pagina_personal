@@ -143,8 +143,12 @@
             </div>
             
             <!-- Contact Form -->
-            <!--             <form action="https://formspree.io/f/your_form_id" method="POST" class="max-w-xl mx-auto bg-white p-8 rounded-lg shadow-md"> -->
-            <form action="contact"  method="POST" data-netlify="true" class="max-w-xl mx-auto bg-white p-8 rounded-lg shadow-md">
+            <form name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field" class="max-w-xl mx-auto bg-white p-8 rounded-lg shadow-md">
+                <!-- Hidden field for spam protection -->
+                <div class="hidden">
+                    <label>No llenes este campo si eres humano: <input name="bot-field" /></label>
+                </div>
+                
                 <!-- Name Field -->
                 <div class="mb-4">
                     <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Nombre:</label>
