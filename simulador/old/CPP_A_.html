@@ -28,10 +28,6 @@
             stroke: #f59e0b; /* Naranja para grado impar */
             stroke-width: 4px;
         }
-        .node-circle-styling.start-node {
-            stroke: #10b981; /* Verde para nodo de inicio */
-            stroke-width: 5px;
-        }
         .node-circle-styling:active {
             cursor: grabbing;
         }
@@ -47,13 +43,6 @@
             stroke: #94a3b8;
             stroke-width: 3px;
             transition: all 0.3s;
-        }
-        #travelSVG {
-            background-color: #f8fafc;
-            background-image:
-                linear-gradient(to right, #e2e8f0 1px, transparent 1px),
-                linear-gradient(to bottom, #e2e8f0 1px, transparent 1px);
-            background-size: 20px 20px;
         }
         .edge-line.visited-by-user {
             stroke: #3b82f6;
@@ -126,20 +115,14 @@
 
         <!-- Panel de Instrucciones y Explicación -->
         <div class="my-8 info-card p-6">
-            <button id="toggleInstructions" class="w-full flex items-center justify-between text-2xl font-bold mb-4 text-indigo-600 hover:text-indigo-700 transition-colors">
-                <span>¿Cómo funciona?</span>
-                <svg id="instructionsChevron" class="w-6 h-6 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-            </button>
-            <div id="instructionsContent" class="grid md:grid-cols-2 gap-6 text-slate-600">
+            <h2 class="text-2xl font-bold mb-4 text-indigo-600">¿Cómo funciona?</h2>
+            <div class="grid md:grid-cols-2 gap-6 text-slate-600">
                 <div>
                     <h3 class="text-lg font-semibold mb-2">Instrucciones de uso</h3>
                     <ol class="list-decimal list-inside space-y-2">
                         <li><b>Arrastra los nodos</b> para organizar el grafo a tu gusto.</li>
                         <li>Haz clic en las <b>líneas (aristas)</b> para construir tu ruta, empezando desde tu posición (marcador azul).</li>
                         <li>Tu objetivo es que todas las líneas se pongan azules (visitadas).</li>
-                        <li><b>Debes regresar al nodo de inicio</b> (marcado con borde verde) para completar el circuito.</li>
                         <li>Si usas una arista más de una vez, se marcará con una <strong>línea roja punteada</strong>.</li>
                         <li>Cuando termines, presiona <b>"Resolver"</b> para ver la solución óptima y comparar resultados.</li>
                     </ol>
@@ -169,11 +152,11 @@
                         <h2 class="text-xl font-bold border-b border-gray-200 pb-3 mb-4 text-indigo-600">Panel de control</h2>
                         <div class="space-y-4">
                             <div class="flex flex-col gap-2">
-                                 <label for="node-slider" class="font-semibold text-slate-600">Número de nodos: <span id="node-count-label">8</span></label>
-                                 <input type="range" id="node-slider" min="6" max="16" value="8" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                 <label for="node-slider" class="font-semibold text-slate-600">Número de nodos: <span id="node-count-label">10</span></label>
+                                 <input type="range" id="node-slider" min="6" max="16" value="10" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
                             </div>
                             <button id="resetBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg">Generar nuevo mapa</button>
-                            <button id="runBtn" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg disabled:bg-gray-400 disabled:cursor-not-allowed" disabled>Resolver</button>
+                            <button id="runBtn" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg">Resolver</button>
                         </div>
                     </div>
                      <div class="info-card p-6">
@@ -192,27 +175,6 @@
                         </div>
                     </div>
                 </aside>
-            </div>
-        </div>
-        
-        <!-- Sección de Detalle de Recorridos -->
-        <div class="w-full mx-auto mt-8">
-            <div class="info-card p-6">
-                <h2 class="text-xl font-bold border-b border-gray-200 pb-3 mb-4 text-indigo-600">Detalle de recorridos</h2>
-                <div class="grid md:grid-cols-2 gap-6">
-                    <div>
-                        <h3 class="text-lg font-semibold text-blue-600 mb-2">Mi recorrido</h3>
-                        <div id="userPathList" class="text-sm text-slate-600 max-h-32 overflow-y-auto bg-slate-50 p-3 rounded-lg">
-                            <p class="text-slate-400 italic">Completa tu recorrido para ver la lista de aristas</p>
-                        </div>
-                    </div>
-                    <div>
-                        <h3 class="text-lg font-semibold text-green-600 mb-2">Recorrido óptimo</h3>
-                        <div id="algoPathList" class="text-sm text-slate-600 max-h-32 overflow-y-auto bg-slate-50 p-3 rounded-lg">
-                            <p class="text-slate-400 italic">Ejecuta el algoritmo para ver la lista de aristas</p>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -271,7 +233,7 @@
             const resetBtn = document.getElementById('resetBtn');
             const runBtn = document.getElementById('runBtn');
             const userDistanceEl = document.getElementById('userDistance');
-            const optimalDistanceEl = document.getElementById('gaDistance');
+            const gaDistanceEl = document.getElementById('gaDistance');
             const loadingEl = document.getElementById('loading');
             const nodeSlider = document.getElementById('node-slider');
             const nodeCountLabel = document.getElementById('node-count-label');
@@ -296,43 +258,47 @@
             let selectedNode = null, offset = { x: 0, y: 0 };
             let totalEdgeCount = 0;
 
-            // Variables globales para el SVG
-            let svgWidth = 800;
-            let svgHeight = 600;
-            let animationState = null;
-            let currentNode = startNode;
-            let userEdgeCounts = new Map();
+            function createGraph() {
+                nodes = []; edges = []; adjacency = {};
+                const { width, height } = svg.getBoundingClientRect();
+                if (width === 0 || height === 0) return;
+                const padding = 25;
 
-            // Funciones auxiliares
-            function showMessage(message, type) {
-                // Crear elemento de mensaje
-                const messageDiv = document.createElement('div');
-                messageDiv.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 max-w-md transition-all duration-300 ${
-                    type === 'success' ? 'bg-green-100 text-green-800 border border-green-200' :
-                    type === 'info' ? 'bg-blue-100 text-blue-800 border border-blue-200' :
-                    'bg-gray-100 text-gray-800 border border-gray-200'
-                }`;
-                messageDiv.innerHTML = `
-                    <div class="flex items-start">
-                        <div class="flex-1">
-                            <p class="font-medium">${message}</p>
-                        </div>
-                        <button class="ml-2 text-gray-400 hover:text-gray-600" onclick="this.parentElement.parentElement.remove()">
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-                            </svg>
-                        </button>
-                    </div>
-                `;
-                
-                document.body.appendChild(messageDiv);
-                
-                // Auto-remover después de 5 segundos
-                setTimeout(() => {
-                    if (messageDiv.parentNode) {
-                        messageDiv.remove();
+                for (let i = 0; i < NUM_NODES; i++) {
+                    nodes.push({ id: i, x: Math.random() * (width - padding * 2) + padding, y: Math.random() * (height - padding * 2) + padding });
+                    adjacency[i] = [];
+                }
+
+                const addEdge = (u, v) => {
+                    const weight = Math.floor(Math.random() * 90) + 10;
+                    edges.push({ from: u, to: v, weight, id: `${u}-${v}` });
+                    adjacency[u].push({ node: v, weight });
+                    adjacency[v].push({ node: u, weight });
+                };
+
+                let nodeIds = nodes.map(n => n.id);
+                for (let i = nodeIds.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [nodeIds[i], nodeIds[j]] = [nodeIds[j], nodeIds[i]];
+                }
+
+                for (let i = 0; i < nodeIds.length - 1; i++) {
+                    addEdge(nodeIds[i], nodeIds[i+1]);
+                }
+                 if (!adjacency[nodeIds[nodeIds.length - 1]].some(e => e.node === nodeIds[0])) {
+                    addEdge(nodeIds[nodeIds.length - 1], nodeIds[0]);
+                }
+
+                for (let i = 0; i < NUM_NODES; i++) {
+                    for (let j = i + 1; j < NUM_NODES; j++) {
+                        if (Math.random() < EXTRA_EDGE_PROBABILITY) {
+                            if (!adjacency[i].some(e => e.node === j)) {
+                                addEdge(i, j);
+                            }
+                        }
                     }
-                }, 5000);
+                }
+                totalEdgeCount = edges.length;
             }
             
             function draw(state = {}) {
@@ -361,11 +327,10 @@
                     line.setAttribute('x2', n2.x); line.setAttribute('y2', n2.y);
                     line.setAttribute('class', 'edge-line');
                     
-                    // Mostrar aristas visitadas durante animación o mientras el usuario juega
                     if (animationState) {
                         const visitedInAnim = animationState.visited.has(edge.id) || animationState.visited.has(`${edge.to}-${edge.from}`);
                         if(visitedInAnim) line.classList.add(animationState.type === 'user' ? 'visited-by-user' : 'visited-by-algo');
-                    } else if (visitedEdges.has(edgeId) && (userPath.length > 0 && visitedEdges.size <= totalEdgeCount)) {
+                    } else if (visitedEdges.has(edgeId)) {
                         line.classList.add('visited-by-user');
                     }
 
@@ -384,8 +349,7 @@
                     edgesGroup.appendChild(weightText);
                     edgesGroup.appendChild(hitbox);
 
-                    // Mostrar aristas duplicadas del usuario durante animación o mientras juega
-                    if ((userEdgeCounts.get(edgeId) || 0) > 1 && (animationState || (userPath.length > 0 && visitedEdges.size <= totalEdgeCount))) {
+                    if ((userEdgeCounts.get(edgeId) || 0) > 1) {
                          const dupLine = document.createElementNS(svgNS, 'line');
                          dupLine.setAttribute('x1', n1.x + 3); dupLine.setAttribute('y1', n1.y + 3);
                          dupLine.setAttribute('x2', n2.x + 3); dupLine.setAttribute('y2', n2.y + 3);
@@ -394,22 +358,14 @@
                     }
                 });
                 
-                // Mostrar aristas duplicadas según el estado
-                if (animationState) {
-                    // Durante animación: solo mostrar las que van apareciendo dinámicamente
-                    if (animationState.duplicatedEdges) {
-                        animationState.duplicatedEdges.forEach(edge => {
-                             const n1 = nodes[edge.from], n2 = nodes[edge.to];
-                             const line = document.createElementNS(svgNS, 'line');
-                             line.setAttribute('x1', n1.x + 3); line.setAttribute('y1', n1.y + 3);
-                             line.setAttribute('x2', n2.x + 3); line.setAttribute('y2', n2.y + 3);
-                             line.setAttribute('class', 'edge-line duplicated');
-                             edgesGroup.appendChild(line);
-                        });
-                    }
-                    // No mostrar duplicadas estáticas durante animación si hideStaticDuplicates está activo
-                }
-                // No mostrar duplicadas estáticas cuando no hay animación
+                duplicatedEdges.forEach(edge => {
+                     const n1 = nodes[edge.from], n2 = nodes[edge.to];
+                     const line = document.createElementNS(svgNS, 'line');
+                     line.setAttribute('x1', n1.x + 3); line.setAttribute('y1', n1.y + 3);
+                     line.setAttribute('x2', n2.x + 3); line.setAttribute('y2', n2.y + 3);
+                     line.setAttribute('class', 'edge-line duplicated');
+                     edgesGroup.appendChild(line);
+                });
 
                 nodes.forEach(node => {
                     const circle = document.createElementNS(svgNS, 'circle');
@@ -419,9 +375,6 @@
                     circle.setAttribute('class', 'node-circle-styling');
                     if (oddNodes.includes(node.id)) {
                         circle.classList.add('odd-degree');
-                    }
-                    if (node.id === startNode) {
-                        circle.classList.add('start-node');
                     }
                     
                     const text = document.createElementNS(svgNS, 'text');
@@ -433,17 +386,14 @@
                     nodesGroup.appendChild(text);
                 });
 
-                // Solo mostrar marcador durante animación o cuando el usuario está jugando
-                if (animationState || (userPath.length > 0 && visitedEdges.size < totalEdgeCount)) {
-                    const marker = document.createElementNS(svgNS, 'circle');
-                    marker.setAttribute('r', nodeRadius / 2);
-                    marker.setAttribute('class', 'path-marker');
-                    marker.style.fill = animationState ? (animationState.type === 'user' ? '#3b82f6' : '#10b981') : '#3b82f6';
-                    const markerNode = animationState ? nodes[animationState.currentNode] : nodes[lastUserNode];
-                    marker.setAttribute('cx', markerNode.x);
-                    marker.setAttribute('cy', markerNode.y);
-                    nodesGroup.appendChild(marker);
-                }
+                const marker = document.createElementNS(svgNS, 'circle');
+                marker.setAttribute('r', nodeRadius / 2);
+                marker.setAttribute('class', 'path-marker');
+                marker.style.fill = animationState ? (animationState.type === 'user' ? '#3b82f6' : '#10b981') : '#3b82f6';
+                const markerNode = animationState ? nodes[animationState.currentNode] : nodes[lastUserNode];
+                marker.setAttribute('cx', markerNode.x);
+                marker.setAttribute('cy', markerNode.y);
+                nodesGroup.appendChild(marker);
                 
                 svg.appendChild(edgesGroup); svg.appendChild(nodesGroup);
             }
@@ -494,66 +444,24 @@
                 if (oddNodes.length === 0) return [];
                 if (oddNodes.length === 2) return [[oddNodes[0], oddNodes[1]]];
                 
-                // Generar todas las posibles particiones en pares
-                function generateAllPairings(nodes) {
-                    if (nodes.length === 0) return [[]];
-                    if (nodes.length === 2) return [[[nodes[0], nodes[1]]]];
-                    
-                    const first = nodes[0];
-                    const allPairings = [];
-                    
-                    for (let i = 1; i < nodes.length; i++) {
-                        const partner = nodes[i];
-                        const remaining = nodes.slice(1, i).concat(nodes.slice(i + 1));
-                        const subPairings = generateAllPairings(remaining);
-                        
-                        subPairings.forEach(subPairing => {
-                            allPairings.push([[first, partner], ...subPairing]);
-                        });
-                    }
-                    return allPairings;
-                }
-                
-                const allPossiblePairings = generateAllPairings(oddNodes);
+                const first = oddNodes[0];
                 let bestPairing = [];
                 let minWeight = Infinity;
-                
-                allPossiblePairings.forEach(pairing => {
-                    const weight = pairing.reduce((sum, pair) => {
-                        return sum + allPaths[pair[0]].distances[pair[1]];
-                    }, 0);
-                    
-                    if (weight < minWeight) {
-                        minWeight = weight;
-                        bestPairing = pairing;
+
+                for (let i = 1; i < oddNodes.length; i++) {
+                    const partner = oddNodes[i];
+                    const remainingNodes = oddNodes.slice(1, i).concat(oddNodes.slice(i + 1));
+                    const remainingPairing = getMinWeightPerfectMatching(remainingNodes, allPaths);
+                    const currentWeight = allPaths[first].distances[partner] + remainingPairing.reduce((sum, p) => sum + allPaths[p[0]].distances[p[1]], 0);
+
+                    if (currentWeight < minWeight) {
+                        minWeight = currentWeight;
+                        bestPairing = [[first, partner]].concat(remainingPairing);
                     }
-                });
-                
+                }
                 return bestPairing;
             }
             
-            function updateUserPathList() {
-                const userPathListEl = document.getElementById('userPathList');
-                if (userPath.length === 0) {
-                    userPathListEl.innerHTML = '<p class="text-slate-400 italic">Completa tu recorrido para ver la lista de aristas</p>';
-                    return;
-                }
-                
-                const pathText = userPath.map(edge => `(${edge.from + 1}, ${edge.to + 1})`).join(', ');
-                userPathListEl.innerHTML = `<p><strong>Aristas:</strong> ${pathText}</p><p><strong>Total:</strong> ${userPath.length} aristas</p>`;
-            }
-
-            function updateAlgoPathList() {
-                const algoPathListEl = document.getElementById('algoPathList');
-                if (!optimalTour || optimalTour.length === 0) {
-                    algoPathListEl.innerHTML = '<p class="text-slate-400 italic">Ejecuta el algoritmo para ver la lista de aristas</p>';
-                    return;
-                }
-                
-                const pathText = optimalTour.map(edge => `(${edge.from + 1}, ${edge.to + 1})`).join(', ');
-                algoPathListEl.innerHTML = `<p><strong>Aristas:</strong> ${pathText}</p><p><strong>Total:</strong> ${optimalTour.length} aristas</p>`;
-            }
-
             async function solveCPP(){
                 loadingEl.style.display="flex";
                 runBtn.disabled = true;
@@ -563,16 +471,9 @@
                 await new Promise(e=>setTimeout(e,500));
 
                 if(0===oddNodes.length){
-                    const totalWeight = edges.reduce((sum, edge) => sum + edge.weight, 0);
-                    optimalDistanceEl.textContent = totalWeight;
+                    const totalWeight = edges.reduce((sum, edge) => sum + edge.weight, 0) / 2;
+                    gaDistanceEl.textContent = totalWeight;
                     optimalTour = nodePathToEdgePath(findEulerianTour(adjacency, startNode));
-                    document.getElementById('playAlgoTourBtn').disabled = false;
-                    
-                    // Actualizar la lista de aristas del algoritmo
-                    updateAlgoPathList();
-                    
-                    loadingEl.style.display="none";
-                    runBtn.disabled = false;
                 } else {
                     const allPaths={};
                     for(const node of oddNodes) allPaths[node]=dijkstra(node);
@@ -600,23 +501,20 @@
 
                     const eulerianNodePath=findEulerianTour(augmentedAdj,startNode);
                     optimalTour=nodePathToEdgePath(eulerianNodePath);
-                    
-                    const totalCost = edges.reduce((sum, edge) => sum + edge.weight, 0) + duplicatedCost;
-                    optimalDistanceEl.textContent = totalCost;
-                    document.getElementById('playAlgoTourBtn').disabled = false;
-                    
-                    // Actualizar la lista de aristas del algoritmo
-                    updateAlgoPathList();
-                    
-                    loadingEl.style.display="none";
-                    runBtn.disabled = false;
+                    const initialCost=edges.reduce((sum,edge)=>sum+edge.weight,0)/2;
+                    gaDistanceEl.textContent=initialCost+duplicatedCost;
                 }
+                
+                playAlgoTourBtn.disabled=false;
+                loadingEl.style.display="none";
+                runBtn.disabled=false;
+                displayResults();
             }
 
             function findEulerianTour(adj, start) {
+                const tour = [];
                 const tempAdj = JSON.parse(JSON.stringify(adj));
                 let currPath = [start];
-                let tour = [];
 
                 while (currPath.length > 0) {
                     let u = currPath[currPath.length-1];
@@ -654,196 +552,31 @@
                 playUserTourBtn.disabled = true;
                 playAlgoTourBtn.disabled = true;
                 let visitedInAnim = new Set();
-                let edgeUsageCount = new Map();
-                let duplicatedInAnim = [];
-                
-                // Iniciar animación sin aristas duplicadas visibles
-                draw({ 
-                    animationState: { 
-                        type, 
-                        visited: new Set(), 
-                        currentNode: path.length > 0 ? path[0].from : startNode,
-                        duplicatedEdges: [],
-                        hideStaticDuplicates: true
-                    } 
-                });
-                await new Promise(r => setTimeout(r, 300));
-                
                 for (let i = 0; i < path.length; i++) {
                     const edge = path[i];
                     const edgeId = `${Math.min(edge.from, edge.to)}-${Math.max(edge.from, edge.to)}`;
                     visitedInAnim.add(edgeId);
-                    
-                    // Contar el uso de cada arista
-                    const currentCount = edgeUsageCount.get(edgeId) || 0;
-                    edgeUsageCount.set(edgeId, currentCount + 1);
-                    
-                    // Si es la segunda vez que se usa esta arista, agregarla a duplicadas
-                    if (currentCount === 1) {
-                        duplicatedInAnim.push({from: edge.from, to: edge.to});
-                    }
-                    
-                    draw({ 
-                        animationState: { 
-                            type, 
-                            visited: visitedInAnim, 
-                            currentNode: edge.to,
-                            duplicatedEdges: type === 'algo' ? duplicatedInAnim : (type === 'user' ? duplicatedInAnim : []),
-                            hideStaticDuplicates: true
-                        } 
-                    });
+                    draw({ animationState: { type, visited: visitedInAnim, currentNode: edge.to } });
                     await new Promise(r => setTimeout(r, 500));
                 }
-                
-                // Al terminar la animación, restaurar vista normal
-                draw();
-                
                 if (userPath.length > 0 && visitedEdges.size === totalEdgeCount) playUserTourBtn.disabled = false;
                 if (optimalTour.length > 0) playAlgoTourBtn.disabled = false;
             }
             
             function handleReset() {
-                visitedEdges.clear();
-                userPath = [];
-                optimalTour = [];
-                animationState = null;
-                currentNode = startNode;
-                
-                // Generar grafo aleatorio usando el valor del slider
-                const nodeCount = parseInt(nodeSlider.value, 10);
-                nodes = [];
-                edges = [];
-                adjacency = {};
-                
-                // Crear nodos en posiciones aleatorias
-                for (let i = 0; i < nodeCount; i++) {
-                    nodes.push({
-                        id: i,
-                        x: Math.random() * (svgWidth - 100) + 50,
-                        y: Math.random() * (svgHeight - 100) + 50
-                    });
-                    adjacency[i] = [];
-                }
-                
-                // Crear aristas para garantizar conectividad (árbol de expansión mínimo)
-                const connected = new Set([0]);
-                const unconnected = new Set(nodes.slice(1).map(n => n.id));
-                
-                while (unconnected.size > 0) {
-                    const connectedNode = Array.from(connected)[Math.floor(Math.random() * connected.size)];
-                    const unconnectedNode = Array.from(unconnected)[Math.floor(Math.random() * unconnected.size)];
-                    
-                    const weight = Math.floor(Math.random() * 90) + 10;
-                    const edgeId = `${Math.min(connectedNode, unconnectedNode)}-${Math.max(connectedNode, unconnectedNode)}`;
-                    
-                    edges.push({
-                        id: edgeId,
-                        from: connectedNode,
-                        to: unconnectedNode,
-                        weight: weight
-                    });
-                    
-                    adjacency[connectedNode].push({node: unconnectedNode, weight: weight});
-                    adjacency[unconnectedNode].push({node: connectedNode, weight: weight});
-                    
-                    connected.add(unconnectedNode);
-                    unconnected.delete(unconnectedNode);
-                }
-                
-                // Añadir aristas adicionales aleatorias, asegurando que no haya nodos de grado 1
-                const additionalEdges = Math.floor(Math.random() * (nodeCount - 1)) + 1;
-                for (let i = 0; i < additionalEdges; i++) {
-                    let from, to;
-                    let attempts = 0;
-                    do {
-                        from = Math.floor(Math.random() * nodeCount);
-                        to = Math.floor(Math.random() * nodeCount);
-                        attempts++;
-                    } while ((from === to || adjacency[from].some(adj => adj.node === to)) && attempts < 50);
-                    
-                    if (attempts < 50) {
-                        const weight = Math.floor(Math.random() * 90) + 10;
-                        const edgeId = `${Math.min(from, to)}-${Math.max(from, to)}`;
-                        
-                        edges.push({
-                            id: edgeId,
-                            from: from,
-                            to: to,
-                            weight: weight
-                        });
-                        
-                        adjacency[from].push({node: to, weight: weight});
-                        adjacency[to].push({node: from, weight: weight});
-                    }
-                }
-                
-                // Verificar y corregir nodos de grado 1
-                let hasChanges = true;
-                while (hasChanges) {
-                    hasChanges = false;
-                    for (let nodeId = 0; nodeId < nodeCount; nodeId++) {
-                        if (adjacency[nodeId].length === 1) {
-                            // Encontrar otro nodo para conectar (preferiblemente que no sea el único vecino)
-                            let targetNode = -1;
-                            for (let candidate = 0; candidate < nodeCount; candidate++) {
-                                if (candidate !== nodeId && 
-                                    !adjacency[nodeId].some(adj => adj.node === candidate) &&
-                                    adjacency[candidate].length > 1) {
-                                    targetNode = candidate;
-                                    break;
-                                }
-                            }
-                            
-                            // Si no encontramos un nodo con grado > 1, usar cualquier nodo disponible
-                            if (targetNode === -1) {
-                                for (let candidate = 0; candidate < nodeCount; candidate++) {
-                                    if (candidate !== nodeId && 
-                                        !adjacency[nodeId].some(adj => adj.node === candidate)) {
-                                        targetNode = candidate;
-                                        break;
-                                    }
-                                }
-                            }
-                            
-                            if (targetNode !== -1) {
-                                const weight = Math.floor(Math.random() * 90) + 10;
-                                const edgeId = `${Math.min(nodeId, targetNode)}-${Math.max(nodeId, targetNode)}`;
-                                
-                                edges.push({
-                                    id: edgeId,
-                                    from: nodeId,
-                                    to: targetNode,
-                                    weight: weight
-                                });
-                                
-                                adjacency[nodeId].push({node: targetNode, weight: weight});
-                                adjacency[targetNode].push({node: nodeId, weight: weight});
-                                hasChanges = true;
-                            }
-                        }
-                    }
-                }
-                
-                totalEdgeCount = edges.length;
-                userDistanceEl.textContent = '0';
-                optimalDistanceEl.textContent = '0';
-                document.getElementById('progress').textContent = `0 / ${totalEdgeCount}`;
-                
-                // Deshabilitar botones
-                document.getElementById('runBtn').disabled = true;
-                document.getElementById('playUserTourBtn').disabled = true;
-                document.getElementById('playAlgoTourBtn').disabled = true;
-                
-                // Limpiar listas de recorridos
-                updateUserPathList();
-                updateAlgoPathList();
-                
+                NUM_NODES = parseInt(nodeSlider.value, 10);
+                createGraph(); 
+                userPath = []; visitedEdges.clear(); optimalTour = [];
+                userDistanceEl.textContent = '0'; gaDistanceEl.textContent = '0';
+                progressEl.textContent = `0 / ${totalEdgeCount}`;
+                playUserTourBtn.disabled = true;
+                playAlgoTourBtn.disabled = true;
                 draw();
             }
             
             function displayResults() {
                 const userCost = parseInt(userDistanceEl.textContent);
-                const algoCost = parseInt(optimalDistanceEl.textContent);
+                const algoCost = parseInt(gaDistanceEl.textContent);
 
                 modalUserCostEl.textContent = userCost;
                 modalGaCostEl.textContent = algoCost;
@@ -852,7 +585,7 @@
                     winnerMessageEl.innerHTML = '🏆 ¡Felicidades, has ganado! 🏆';
                     winnerMessageEl.className = 'text-center text-2xl font-bold my-6 p-4 rounded-lg bg-green-100 text-green-800';
                 } else if (algoCost < userCost) {
-                    winnerMessageEl.innerHTML = '🤖 El algoritmo ha ganado 🤖';
+                    winnerMessageEl.innerHTML = '🤖 El Algoritmo ha ganado 🤖';
                     winnerMessageEl.className = 'text-center text-2xl font-bold my-6 p-4 rounded-lg bg-indigo-100 text-indigo-800';
                 } else {
                     winnerMessageEl.innerHTML = '🤝 ¡Es un empate! 🤝';
@@ -888,20 +621,14 @@
                     visitedEdges.add(edgeToAdd.id);
 
                     userDistanceEl.textContent = userPath.reduce((sum, edge) => sum + edge.weight, 0);
-                    document.getElementById('progress').textContent = `${visitedEdges.size} / ${totalEdgeCount}`;
-                
-                    // Actualizar la lista de aristas del usuario
-                    updateUserPathList();
-                
-                    // Verificar si el usuario ha completado el recorrido
-                    if (visitedEdges.size === totalEdgeCount && nextNode === startNode) {
-                        document.getElementById('runBtn').disabled = false;
-                        document.getElementById('playUserTourBtn').disabled = false;
-                        showMessage('¡Felicidades! Has completado el recorrido. Ahora puedes resolver el algoritmo para comparar.', 'success');
-                    } else if (visitedEdges.size === totalEdgeCount) {
-                        showMessage('¡Has visitado todas las aristas! Ahora debes regresar al nodo de inicio (verde) para completar el circuito.', 'info');
-                        // Mostrar mensaje indicando que debe regresar al inicio
-                        progressEl.textContent = `${visitedEdges.size} / ${totalEdgeCount} - Regresa al nodo ${startNode + 1}`;
+                    progressEl.textContent = `${visitedEdges.size} / ${totalEdgeCount}`;
+                    if (visitedEdges.size === totalEdgeCount) {
+                        playUserTourBtn.disabled = false;
+                        completionModal.classList.remove('hidden');
+                        setTimeout(() => {
+                            completionModal.classList.remove('opacity-0');
+                            completionModalContent.classList.remove('scale-95');
+                        }, 10);
                     }
                     draw();
                 }
@@ -945,21 +672,6 @@
             });
             svg.addEventListener('mouseup', () => { selectedNode = null; });
             svg.addEventListener('mouseleave', () => { selectedNode = null; });
-
-            // Toggle instructions functionality
-            const toggleInstructionsBtn = document.getElementById('toggleInstructions');
-            const instructionsContent = document.getElementById('instructionsContent');
-            const instructionsChevron = document.getElementById('instructionsChevron');
-            
-            // Initialize as collapsed
-            instructionsContent.style.display = 'none';
-            instructionsChevron.style.transform = 'rotate(-90deg)';
-            
-            toggleInstructionsBtn.addEventListener('click', () => {
-                const isHidden = instructionsContent.style.display === 'none';
-                instructionsContent.style.display = isHidden ? 'grid' : 'none';
-                instructionsChevron.style.transform = isHidden ? 'rotate(0deg)' : 'rotate(-90deg)';
-            });
 
             window.addEventListener('resize', () => { if(nodes.length > 0) { handleReset() } });
             

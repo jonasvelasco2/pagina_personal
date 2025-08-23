@@ -40,13 +40,6 @@
             stroke-width: 2px;
             transition: opacity 0.3s, stroke 0.3s;
         }
-        #travelSVG {
-            background-color: #f8fafc;
-            background-image:
-                linear-gradient(to right, #e2e8f0 1px, transparent 1px),
-                linear-gradient(to bottom, #e2e8f0 1px, transparent 1px);
-            background-size: 20px 20px;
-        }
         .edge-line.transparent {
             opacity: 0.15;
         }
@@ -156,7 +149,6 @@
                         <ol class="list-decimal list-inside space-y-2 text-slate-600">
                             <li><b>Arrastra los nodos</b> para organizar el grafo a tu gusto.</li>
                             <li>Haz clic en las <b>líneas (aristas)</b> para construir tu ruta.</li>
-                            <li><b>Pasa el cursor</b> sobre las aristas para ver sus costos.</li>
                             <li>Las aristas posibles se mantendrán visibles para guiarte.</li>
                             <li>Para deshacer, haz clic de nuevo en la <b>última arista</b> seleccionada.</li>
                             <li>Al llegar al destino, corre el algoritmo y compara resultados.</li>
@@ -296,29 +288,6 @@
                         if (!adjacency[i].some(e => e.node === j)) {
                             addBidirectionalEdge(i, j);
                         }
-                    }
-                }
-            }
-            
-            // Verificar y corregir nodos de grado 1
-            let hasIsolatedNodes = true;
-            let attempts = 0;
-            const maxAttempts = 50;
-            
-            while (hasIsolatedNodes && attempts < maxAttempts) {
-                hasIsolatedNodes = false;
-                attempts++;
-                
-                for (let i = 0; i < NUM_NODES; i++) {
-                    if (adjacency[i].length === 1) {
-                        hasIsolatedNodes = true;
-                        // Conectar este nodo con al menos otro nodo aleatorio
-                        let targetNode;
-                        do {
-                            targetNode = Math.floor(Math.random() * NUM_NODES);
-                        } while (targetNode === i || adjacency[i].some(e => e.node === targetNode));
-                        
-                        addBidirectionalEdge(i, targetNode);
                     }
                 }
             }
@@ -646,7 +615,7 @@
             
             if (finalNode === endNode) {
                 runGABtn.disabled = false;
-                runGABtn.textContent = "Correr algoritmo";
+                runGABtn.textContent = "Correr algoritmo genético";
                 document.getElementById('sol-user').disabled = false;
             } else {
                  runGABtn.disabled = true;
