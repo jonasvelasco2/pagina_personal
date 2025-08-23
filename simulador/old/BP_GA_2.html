@@ -20,8 +20,6 @@
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.75); display: flex; justify-content: center; align-items: center; z-index: 50; }
         .btn-type-active { background-color: #0284c7; color: white; }
         .btn-type-inactive { background-color: #e5e7eb; color: #4b5563; }
-        .btn-difficulty-active { background-color: #dc2626; color: white; }
-        .btn-difficulty-inactive { background-color: #e5e7eb; color: #4b5563; }
     </style>
 </head>
 
@@ -44,38 +42,6 @@
             <p class="text-sm sm:text-base lg:text-lg text-slate-600 mt-2">Arrastra los objetos a los contenedores. ¡Usa la menor cantidad posible!</p>
         </header>
 
-        <!-- Panel de Instrucciones y Explicación -->
-        <div class="my-8 bg-white rounded-xl shadow-md p-6">
-            <button id="toggleInstructions" class="w-full flex items-center justify-between text-2xl font-bold mb-4 text-blue-600 hover:text-blue-700 transition-colors">
-                <span>¿Cómo funciona?</span>
-                <svg id="instructionsChevron" class="w-6 h-6 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-            </button>
-            <div id="instructionsContent" class="grid md:grid-cols-2 gap-6 text-slate-600 hidden">
-                <div>
-                    <h3 class="text-lg font-semibold mb-2">Instrucciones de uso</h3>
-                    <ol class="list-decimal list-inside space-y-2">
-                        <li><b>Ajusta el número de objetos</b> y la capacidad de los contenedores.</li>
-                        <li>Elige si los contenedores tendrán capacidades iguales (<b>Homogéneo</b>) o diferentes (<b>Heterogéneo</b>).</li>
-                        <li>Selecciona una <b>estrategia de dificultad</b> para generar objetos desafiantes.</li>
-                        <li><b>Arrastra todos los objetos</b> disponibles hacia los contenedores.</li>
-                        <li>Puedes mover objetos entre contenedores o devolverlos a la zona de disponibles.</li>
-                        <li>Cuando termines, presiona <b>"Solución con algoritmo"</b> para comparar tu resultado.</li>
-                    </ol>
-                </div>
-                <div>
-                    <h3 class="text-lg font-semibold mb-2">Estrategias de dificultad</h3>
-                    <p>
-                        <b>Muchos objetos pequeños:</b> Alta proporción de objetos pequeños que requieren combinación precisa para llenar contenedores sin desperdicio.<br><br>
-                        <b>Objetos grandes:</b> Mayoría de objetos grandes que son difíciles de combinar eficientemente.<br><br>
-                        <b>Mezcla extrema:</b> Combinación de tamaños muy diferentes que requiere estrategia sofisticada.<br><br>
-                        <b>Ajuste perfecto:</b> Objetos diseñados para maximizar la utilización de cada contenedor.
-                    </p>
-                </div>
-            </div>
-        </div>
-
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div class="lg:col-span-1 self-start lg:sticky lg:top-8 space-y-8">
                 <div class="bg-white p-6 rounded-xl shadow-md">
@@ -96,16 +62,6 @@
                                 <button id="type-hetero" class="p-2 rounded-lg font-bold">Heterogéneo</button>
                             </div>
                         </div>
-                        <div>
-                            <label class="font-semibold text-slate-600">Estrategia de dificultad:</label>
-                            <div class="grid grid-cols-3 gap-1 mt-1">
-                                <button id="difficulty-random" class="p-1 rounded-lg font-bold btn-difficulty-active text-xs">Aleatoria</button>
-                                <button id="difficulty-small-items" class="p-1 rounded-lg font-bold btn-difficulty-inactive text-xs">Muchos objetos pequeños</button>
-                                <button id="difficulty-large-items" class="p-1 rounded-lg font-bold btn-difficulty-inactive text-xs">Objetos grandes</button>
-                                <button id="difficulty-mixed" class="p-1 rounded-lg font-bold btn-difficulty-inactive text-xs">Mezcla extrema</button>
-                                <button id="difficulty-tight-fit" class="p-1 rounded-lg font-bold btn-difficulty-inactive text-xs">Ajuste perfecto</button>
-                            </div>
-                        </div>
                     </div>
                     <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
                         <button id="reset-button" class="w-full bg-blue-600 text-white font-bold py-3 px-4 sm:px-6 rounded-lg hover:bg-blue-700 text-sm sm:text-base">Generar objetos</button>
@@ -115,19 +71,14 @@
                 </div>
 
                 <div class="bg-white p-6 rounded-xl shadow-md">
-                    <h2 class="text-2xl font-bold mb-4">Estadísticas de la Instancia</h2>
-                    <div id="instance-stats" class="space-y-2 text-sm text-slate-600">
-                        <div>Total de objetos: <span id="total-items" class="font-semibold">-</span></div>
-                        <div>Capacidad del contenedor: <span id="bin-capacity" class="font-semibold">-</span></div>
-                        <div>Objetos pequeños (≤25%): <span id="small-items" class="font-semibold">-</span></div>
-                        <div>Objetos medianos (25-75%): <span id="medium-items" class="font-semibold">-</span></div>
-                        <div>Objetos grandes (>75%): <span id="large-items" class="font-semibold">-</span></div>
-                        <div>Utilización promedio: <span id="avg-utilization" class="font-semibold">-</span></div>
-                        <div class="mt-3 p-2 bg-slate-100 rounded text-xs">
-                            <strong>¿Por qué es difícil?</strong>
-                            <div id="difficulty-explanation" class="mt-1">Selecciona una estrategia para ver la explicación.</div>
-                        </div>
-                    </div>
+                    <h2 class="text-2xl font-bold mb-4">Instrucciones de Uso</h2>
+                    <ol class="list-decimal list-inside space-y-2 text-slate-600">
+                        <li>Ajusta el número de objetos y su capacidad.</li>
+                        <li>Elige si los contenedores tendrán capacidades iguales (<b>Homogéneo</b>) o diferentes (<b>Heterogéneo</b>).</li>
+                        <li>Arrastra todos los objetos disponibles hacia los contenedores.</li>
+                        <li>Puedes mover objetos entre contenedores o devolverlos a la zona de disponibles.</li>
+                        <li>Cuando termines, pulsa <b>Solución con algoritmo</b> para comparar tu resultado.</li>
+                    </ol>
                 </div>
             </div>
 
@@ -212,28 +163,12 @@
             comparisonControls: document.getElementById('comparison-controls'),
             closeModalButton: document.getElementById('close-modal-button'),
             retryGaButton: document.getElementById('retry-ga-button'),
-            difficultyRandom: document.getElementById('difficulty-random'),
-            difficultySmallItems: document.getElementById('difficulty-small-items'),
-            difficultyLargeItems: document.getElementById('difficulty-large-items'),
-            difficultyMixed: document.getElementById('difficulty-mixed'),
-            difficultyTightFit: document.getElementById('difficulty-tight-fit'),
-            totalItems: document.getElementById('total-items'),
-            binCapacity: document.getElementById('bin-capacity'),
-            smallItems: document.getElementById('small-items'),
-            mediumItems: document.getElementById('medium-items'),
-            largeItems: document.getElementById('large-items'),
-            avgUtilization: document.getElementById('avg-utilization'),
-            difficultyExplanation: document.getElementById('difficulty-explanation'),
-            toggleInstructions: document.getElementById('toggleInstructions'),
-            instructionsContent: document.getElementById('instructionsContent'),
-            instructionsChevron: document.getElementById('instructionsChevron'),
         };
 
         const state = {
             items: [],
             binCapacities: [],
             isHeterogeneous: false,
-            difficultyStrategy: 'random',
             draggedItemId: null,
             draggedItemOrigin: null,
             userAssignments: new Map(),
@@ -252,10 +187,20 @@
             const numItems = parseInt(dom.numItemsInput.value, 10);
             const maxCapacity = parseInt(dom.binCapacityInput.value, 10);
 
-            // Generar ítems según la estrategia de dificultad
-            state.items = generateItemsByStrategy(numItems, maxCapacity);
+            for (let i = 0; i < numItems; i++) {
+                let size;
+                if (Math.random() < 0.7) { // 70% chance for a medium-large item
+                    const min = Math.floor(maxCapacity * 0.5);
+                    const max = Math.floor(maxCapacity * 0.85);
+                    size = Math.floor(Math.random() * (max - min + 1)) + min;
+                } else { // 30% chance for a small item
+                    const min = Math.floor(maxCapacity * 0.2);
+                    const max = Math.floor(maxCapacity * 0.45);
+                    size = Math.floor(Math.random() * (max - min + 1)) + min;
+                }
+                state.items.push({ id: `item-${i}`, size, color: ITEM_COLORS[i % ITEM_COLORS.length] });
+            }
 
-            // Generar capacidades de contenedores
             for (let i = 0; i < numItems; i++) {
                 if (state.isHeterogeneous) {
                     const minHetCapacity = Math.floor(maxCapacity * 0.6);
@@ -268,159 +213,11 @@
             state.currentAssignments = state.userAssignments;
         }
 
-        function generateItemsByStrategy(numItems, maxCapacity) {
-            const items = [];
-            
-            switch (state.difficultyStrategy) {
-                case 'small-items':
-                    // Estrategia: Alta proporción de ítems pequeños (≤ 1/4 de la capacidad)
-                    // Esto es difícil porque requiere combinación precisa para llenar contenedores
-                    for (let i = 0; i < numItems; i++) {
-                        let size;
-                        if (Math.random() < 0.8) { // 80% ítems pequeños
-                            const min = Math.floor(maxCapacity * 0.05); // 5% de capacidad
-                            const max = Math.floor(maxCapacity * 0.25); // 25% de capacidad
-                            size = Math.floor(Math.random() * (max - min + 1)) + min;
-                        } else { // 20% ítems medianos
-                            const min = Math.floor(maxCapacity * 0.3);
-                            const max = Math.floor(maxCapacity * 0.6);
-                            size = Math.floor(Math.random() * (max - min + 1)) + min;
-                        }
-                        items.push({ 
-                            id: `item-${i}`, 
-                            size: Math.max(1, size), 
-                            color: ITEM_COLORS[i % ITEM_COLORS.length] 
-                        });
-                    }
-                    break;
-
-                case 'large-items':
-                    // Estrategia: Ítems grandes que son difíciles de combinar
-                    for (let i = 0; i < numItems; i++) {
-                        let size;
-                        if (Math.random() < 0.7) { // 70% ítems grandes
-                            const min = Math.floor(maxCapacity * 0.6);
-                            const max = Math.floor(maxCapacity * 0.95);
-                            size = Math.floor(Math.random() * (max - min + 1)) + min;
-                        } else { // 30% ítems medianos
-                            const min = Math.floor(maxCapacity * 0.3);
-                            const max = Math.floor(maxCapacity * 0.55);
-                            size = Math.floor(Math.random() * (max - min + 1)) + min;
-                        }
-                        items.push({ 
-                            id: `item-${i}`, 
-                            size: Math.max(1, size), 
-                            color: ITEM_COLORS[i % ITEM_COLORS.length] 
-                        });
-                    }
-                    break;
-
-                case 'mixed':
-                    // Estrategia: Mezcla extrema de tamaños muy diferentes
-                    for (let i = 0; i < numItems; i++) {
-                        let size;
-                        const rand = Math.random();
-                        if (rand < 0.4) { // 40% ítems muy pequeños
-                            const min = Math.floor(maxCapacity * 0.02);
-                            const max = Math.floor(maxCapacity * 0.15);
-                            size = Math.floor(Math.random() * (max - min + 1)) + min;
-                        } else if (rand < 0.7) { // 30% ítems medianos
-                            const min = Math.floor(maxCapacity * 0.4);
-                            const max = Math.floor(maxCapacity * 0.7);
-                            size = Math.floor(Math.random() * (max - min + 1)) + min;
-                        } else { // 30% ítems muy grandes
-                            const min = Math.floor(maxCapacity * 0.75);
-                            const max = Math.floor(maxCapacity * 0.98);
-                            size = Math.floor(Math.random() * (max - min + 1)) + min;
-                        }
-                        items.push({ 
-                            id: `item-${i}`, 
-                            size: Math.max(1, size), 
-                            color: ITEM_COLORS[i % ITEM_COLORS.length] 
-                        });
-                    }
-                    break;
-
-                case 'tight-fit':
-                    // Estrategia: Ítems que requieren ajuste perfecto
-                    // Genera ítems que se ajusten bien a la capacidad del contenedor
-                    const targetBins = Math.ceil(numItems * 0.7); // Usar ~70% de capacidad total
-                    const totalCapacity = maxCapacity * targetBins;
-                    let remainingCapacity = totalCapacity;
-                    
-                    for (let i = 0; i < numItems - 1; i++) {
-                        let size;
-                        if (remainingCapacity > maxCapacity) {
-                            // Generar ítems que se ajusten bien juntos
-                            const min = Math.floor(maxCapacity * 0.1);
-                            const max = Math.min(Math.floor(maxCapacity * 0.4), remainingCapacity - (numItems - i - 1));
-                            size = Math.floor(Math.random() * (max - min + 1)) + min;
-                        } else {
-                            // Últimos ítems: usar el espacio restante
-                            size = Math.max(1, Math.floor(remainingCapacity / (numItems - i)));
-                        }
-                        items.push({ 
-                            id: `item-${i}`, 
-                            size: Math.max(1, size), 
-                            color: ITEM_COLORS[i % ITEM_COLORS.length] 
-                        });
-                        remainingCapacity -= size;
-                    }
-                    // Último ítem: crear un objeto desafiante que requiera ajuste perfecto
-                    let lastItemSize;
-                    if (remainingCapacity > maxCapacity) {
-                        // Si queda mucho espacio, crear un objeto que requiera combinación específica
-                        lastItemSize = Math.floor(maxCapacity * 0.6) + Math.floor(Math.random() * Math.floor(maxCapacity * 0.2));
-                    } else if (remainingCapacity > maxCapacity * 0.5) {
-                        // Si queda espacio moderado, usar la mayor parte pero no todo
-                        lastItemSize = Math.floor(remainingCapacity * 0.8);
-                    } else {
-                        // Si queda poco espacio, usar todo lo disponible
-                        lastItemSize = remainingCapacity;
-                    }
-                    
-                    // Asegurar que no exceda la capacidad y sea al menos 1
-                    lastItemSize = Math.max(1, Math.min(lastItemSize, maxCapacity));
-                    
-                    items.push({ 
-                        id: `item-${numItems - 1}`, 
-                        size: lastItemSize, 
-                        color: ITEM_COLORS[(numItems - 1) % ITEM_COLORS.length] 
-                    });
-                    break;
-
-                default: // 'random'
-                    // Estrategia original: distribución aleatoria
-                    for (let i = 0; i < numItems; i++) {
-                        let size;
-                        if (Math.random() < 0.7) { // 70% chance for a medium-large item
-                            const min = Math.floor(maxCapacity * 0.5);
-                            const max = Math.floor(maxCapacity * 0.85);
-                            size = Math.floor(Math.random() * (max - min + 1)) + min;
-                        } else { // 30% chance for a small item
-                            const min = Math.floor(maxCapacity * 0.2);
-                            const max = Math.floor(maxCapacity * 0.45);
-                            size = Math.floor(Math.random() * (max - min + 1)) + min;
-                        }
-                        items.push({ 
-                            id: `item-${i}`, 
-                            size: Math.max(1, size), 
-                            color: ITEM_COLORS[i % ITEM_COLORS.length] 
-                        });
-                    }
-                    break;
-            }
-            
-            return items;
-        }
-
         function renderFullUI() {
             renderAvailableItems();
             renderBins();
             updateSolveButtonState();
             updateContainerTypeButtons();
-            updateDifficultyButtons();
-            updateInstanceStats();
         }
 
         function renderAvailableItems() {
@@ -569,53 +366,6 @@
             dom.typeHomoButton.className = `p-2 rounded-lg font-bold ${state.isHeterogeneous ? inactive : active}`;
             dom.typeHeteroButton.className = `p-2 rounded-lg font-bold ${state.isHeterogeneous ? active : inactive}`;
             dom.binCapacityLabel.textContent = state.isHeterogeneous ? "Capacidad Máxima:" : "Capacidad Base:";
-        }
-
-        function updateDifficultyButtons() {
-            const active = 'btn-difficulty-active', inactive = 'btn-difficulty-inactive';
-            dom.difficultyRandom.className = `p-2 rounded-lg font-bold ${state.difficultyStrategy === 'random' ? active : inactive}`;
-            dom.difficultySmallItems.className = `p-2 rounded-lg font-bold ${state.difficultyStrategy === 'small-items' ? active : inactive}`;
-            dom.difficultyLargeItems.className = `p-2 rounded-lg font-bold ${state.difficultyStrategy === 'large-items' ? active : inactive}`;
-            dom.difficultyMixed.className = `p-2 rounded-lg font-bold ${state.difficultyStrategy === 'mixed' ? active : inactive}`;
-            dom.difficultyTightFit.className = `p-2 rounded-lg font-bold ${state.difficultyStrategy === 'tight-fit' ? active : inactive}`;
-        }
-
-        function updateInstanceStats() {
-            if (state.items.length === 0) return;
-            
-            const maxCapacity = parseInt(dom.binCapacityInput.value, 10);
-            const totalItems = state.items.length;
-            
-            let smallCount = 0, mediumCount = 0, largeCount = 0;
-            let totalSize = 0;
-            
-            state.items.forEach(item => {
-                totalSize += item.size;
-                const percentage = (item.size / maxCapacity) * 100;
-                if (percentage <= 25) smallCount++;
-                else if (percentage <= 75) mediumCount++;
-                else largeCount++;
-            });
-            
-            const avgUtilization = ((totalSize / (maxCapacity * totalItems)) * 100).toFixed(1);
-            
-            dom.totalItems.textContent = totalItems;
-            dom.binCapacity.textContent = maxCapacity;
-            dom.smallItems.textContent = `${smallCount} (${((smallCount/totalItems)*100).toFixed(0)}%)`;
-            dom.mediumItems.textContent = `${mediumCount} (${((mediumCount/totalItems)*100).toFixed(0)}%)`;
-            dom.largeItems.textContent = `${largeCount} (${((largeCount/totalItems)*100).toFixed(0)}%)`;
-            dom.avgUtilization.textContent = `${avgUtilization}%`;
-            
-            // Explicación de por qué es difícil
-            const explanations = {
-                'random': 'Distribución aleatoria estándar. Dificultad moderada.',
-                'small-items': 'Alta proporción de objetos pequeños (≤25% de capacidad). Requiere combinación precisa para llenar contenedores sin desperdicio. Muy difícil de optimizar.',
-                'large-items': 'Mayoría de objetos grandes (>75% de capacidad). Difícil de combinar eficientemente, muchos contenedores se desperdician.',
-                'mixed': 'Mezcla extrema de tamaños muy diferentes. Requiere estrategia sofisticada para combinar objetos pequeños y grandes eficientemente.',
-                'tight-fit': 'Objetos diseñados para ajuste perfecto. Requiere encontrar la combinación exacta que maximice la utilización de cada contenedor.'
-            };
-            
-            dom.difficultyExplanation.textContent = explanations[state.difficultyStrategy] || explanations['random'];
         }
 
         function solveHeuristicFFD() {
@@ -898,47 +648,6 @@
             if (state.isHeterogeneous === true) return;
             state.isHeterogeneous = true;
             initialize();
-        });
-
-        // Event listeners para botones de dificultad
-        dom.difficultyRandom.addEventListener('click', () => {
-            if (state.difficultyStrategy === 'random') return;
-            state.difficultyStrategy = 'random';
-            initialize();
-        });
-        dom.difficultySmallItems.addEventListener('click', () => {
-            if (state.difficultyStrategy === 'small-items') return;
-            state.difficultyStrategy = 'small-items';
-            initialize();
-        });
-        dom.difficultyLargeItems.addEventListener('click', () => {
-            if (state.difficultyStrategy === 'large-items') return;
-            state.difficultyStrategy = 'large-items';
-            initialize();
-        });
-        dom.difficultyMixed.addEventListener('click', () => {
-            if (state.difficultyStrategy === 'mixed') return;
-            state.difficultyStrategy = 'mixed';
-            initialize();
-        });
-        dom.difficultyTightFit.addEventListener('click', () => {
-            if (state.difficultyStrategy === 'tight-fit') return;
-            state.difficultyStrategy = 'tight-fit';
-            initialize();
-        });
-
-        // Event listener para el menú desplegable de instrucciones
-        dom.toggleInstructions.addEventListener('click', () => {
-            const content = dom.instructionsContent;
-            const chevron = dom.instructionsChevron;
-            
-            if (content.classList.contains('hidden')) {
-                content.classList.remove('hidden');
-                chevron.style.transform = 'rotate(180deg)';
-            } else {
-                content.classList.add('hidden');
-                chevron.style.transform = 'rotate(0deg)';
-            }
         });
 
         initialize();
