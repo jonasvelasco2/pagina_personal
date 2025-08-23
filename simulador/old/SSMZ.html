@@ -146,42 +146,6 @@
             <p class="text-lg text-gray-600 mt-2">Colorea las celdas para crear zonas homogéneas y conexas. Luego, desafía a las heurísticas glotonas.</p>
         </header>
 
-        <!-- Panel de Instrucciones y Explicación -->
-        <div class="my-8 bg-white rounded-xl shadow-md p-6">
-            <button id="toggleInstructions" class="w-full flex items-center justify-between text-2xl font-bold mb-4 text-blue-600 hover:text-blue-700 transition-colors">
-                <span>¿Cómo funciona?</span>
-                <svg id="instructionsChevron" class="w-6 h-6 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-            </button>
-            <div id="instructionsContent" class="grid md:grid-cols-2 gap-6 text-slate-600 hidden">
-                <div>
-                    <h3 class="text-lg font-semibold mb-2">Instrucciones de uso</h3>
-                    <ol class="list-decimal list-inside space-y-2">
-                        <li><b>Selecciona un color</b> de la paleta de colores disponible.</li>
-                        <li><b>Haz clic en las celdas</b> del grid para colorearlas y crear zonas.</li>
-                        <li><b>Crea zonas conexas</b> (las celdas del mismo color deben estar conectadas).</li>
-                        <li><b>Ajusta la homogeneidad mínima</b> (α) según tus objetivos.</li>
-                        <li><b>Observa las estadísticas</b> que se actualizan en tiempo real.</li>
-                        <li><b>Ejecuta las heurísticas</b> (A1, A2, A3) para comparar con tu solución.</li>
-                        <li><b>Usa "Reiniciar"</b> para empezar de nuevo con un grid limpio.</li>
-                    </ol>
-                </div>
-                <div>
-                    <h3 class="text-lg font-semibold mb-2">Objetivo del juego</h3>
-                    <p>
-                        Tu objetivo es crear <b>zonas homogéneas y conexas</b> que cumplan con la homogeneidad mínima establecida (α) y que utilicen el <b>menor número posible de zonas</b>. Una zona es homogénea cuando los valores numéricos dentro de ella son similares entre sí.<br><br>
-                        <b>Restricciones importantes:</b><br>
-                        • Las celdas del mismo color deben estar conectadas (adyacentes)<br>
-                        • Cada celda debe estar coloreada para formar una partición completa<br>
-                        • La homogeneidad debe ser mayor o igual al valor α establecido<br>
-                        • Debes usar el menor número de colores/zonas posible<br>
-                        • La homogeneidad se calcula comparando la variabilidad interna de cada zona con la variabilidad total del mapa
-                    </p>
-                </div>
-            </div>
-        </div>
-
         <!-- Controles Principales -->
         <div class="bg-white p-4 rounded-xl shadow-md mb-8 flex flex-wrap items-center justify-center gap-6">
             <div>
@@ -319,9 +283,6 @@ Zone Problem. Axioms, 11(7), 318.</pre>
         const toggleBtn = document.getElementById('toggle-explanation-btn');
         const explanationContent = document.getElementById('explanation-content');
         const explanationArrow = document.getElementById('explanation-arrow');
-        const toggleInstructions = document.getElementById('toggleInstructions');
-        const instructionsContent = document.getElementById('instructionsContent');
-        const instructionsChevron = document.getElementById('instructionsChevron');
 
         // --- LÓGICA DE CÁLCULO ---
 
@@ -661,20 +622,6 @@ Zone Problem. Axioms, 11(7), 318.</pre>
         toggleBtn.addEventListener('click', () => {
             explanationContent.classList.toggle('hidden');
             explanationArrow.classList.toggle('rotate-180');
-        });
-        
-        // Event listener para el menú desplegable de instrucciones
-        toggleInstructions.addEventListener('click', () => {
-            const content = instructionsContent;
-            const chevron = instructionsChevron;
-            
-            if (content.classList.contains('hidden')) {
-                content.classList.remove('hidden');
-                chevron.style.transform = 'rotate(180deg)';
-            } else {
-                content.classList.add('hidden');
-                chevron.style.transform = 'rotate(0deg)';
-            }
         });
         
         document.getElementById('solve-a1-btn').addEventListener('click', () => runGreedyAlgorithm('A1'));
