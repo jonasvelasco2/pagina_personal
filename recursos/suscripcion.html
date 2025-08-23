@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suscripción - Dr. Jonás Velasco</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom Styles & Color Palette -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F5F5F5; /* Light Beige/Gray */
+            color: #333333; /* Dark Gray for text */
+        }
+        /* Active link style */
+        .nav-link.active {
+            color: #00796B; /* Teal for active link */
+            font-weight: 700;
+        }
+        /* Simple animation for section fade-in */
+        .fade-in-section {
+            opacity: 0;
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+        /* Form animations */
+        .form-group {
+            transition: all 0.3s ease;
+        }
+        .form-group:focus-within {
+            transform: translateY(-2px);
+        }
+        .success-message {
+            display: none;
+        }
+        .success-message.show {
+            display: block;
+            animation: slideIn 0.5s ease-out;
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body class="antialiased flex flex-col min-h-screen">
+
+    <!-- Header & Navigation -->
+    <header class="bg-white/90 backdrop-blur-lg sticky top-0 z-50 border-b border-gray-200">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="../index.html" class="text-2xl font-bold text-[#004D40]">Dr. Jonás Velasco</a>
+            
+            <!-- Desktop Navigation -->
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="../index.html" class="nav-link text-gray-600 hover:text-[#00796B] transition-colors">Inicio</a>
+                <a href="../publicaciones.html" class="nav-link text-gray-600 hover:text-[#00796B] transition-colors">Publicaciones</a>
+                <a href="../proyectos.html" class="nav-link text-gray-600 hover:text-[#00796B] transition-colors">Proyectos</a>
+                
+                <!-- Recursos Dropdown -->
+                <div class="relative group">
+                    <button class="nav-link active text-gray-600 hover:text-[#00796B] transition-colors flex items-center">
+                        Recursos
+                        <svg class="w-4 h-4 ml-1 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <!-- Dropdown Menu -->
+                    <div class="absolute left-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                        <div class="py-2">
+                            <a href="../recursos.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-[#00796B] transition-colors">
+                                <div class="flex items-center">
+                                    <svg class="w-4 h-4 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                                    </svg>
+                                    Todos los Recursos
+                                </div>
+                            </a>
+                            <hr class="my-1 border-gray-200">
+                            <a href="docencia.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-[#00796B] transition-colors">
+                                <div class="flex items-center">
+                                    <svg class="w-4 h-4 mr-3 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                                    </svg>
+                                    Docencia
+                                </div>
+                            </a>
+                            <a href="cursos.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-[#00796B] transition-colors">
+                                <div class="flex items-center">
+                                    <svg class="w-4 h-4 mr-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                                    </svg>
+                                    Cursos
+                                </div>
+                            </a>
+                            <a href="investigacion-operaciones.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-[#00796B] transition-colors">
+                                <div class="flex items-center">
+                                    <svg class="w-4 h-4 mr-3 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                    </svg>
+                                    Investigación de Operaciones
+                                </div>
+                            </a>
+                            <a href="programacion.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-[#00796B] transition-colors">
+                                <div class="flex items-center">
+                                    <svg class="w-4 h-4 mr-3 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                                    </svg>
+                                    Programación
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <a href="../contacto.html" class="bg-[#00796B] text-white py-2 px-4 rounded-lg hover:bg-[#004D40] transition-all duration-300 ease-in-out transform hover:scale-105">
+                    Contacto
+                </a>
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <div class="md:hidden">
+                <button id="mobile-menu-button" class="text-gray-800 hover:text-[#00796B] focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                    </svg>
+                </button>
+            </div>
+        </nav>
+        
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-200">
+            <a href="../index.html" class="block py-3 px-6 text-sm text-gray-800 hover:bg-gray-100">Inicio</a>
+            <a href="../publicaciones.html" class="block py-3 px-6 text-sm text-gray-800 hover:bg-gray-100">Publicaciones</a>
+            <a href="../proyectos.html" class="block py-3 px-6 text-sm text-gray-800 hover:bg-gray-100">Proyectos</a>
+            <a href="../recursos.html" class="block py-3 px-6 text-sm text-[#00796B] bg-gray-100 font-bold">Recursos</a>
+            <a href="../contacto.html" class="block py-3 px-6 text-sm text-gray-800 hover:bg-gray-100">Contacto</a>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="container mx-auto px-6 py-12 flex-grow">
+        <!-- Breadcrumb -->
+        <nav class="mb-8">
+            <ol class="flex items-center space-x-2 text-sm text-gray-600">
+                <li><a href="../index.html" class="hover:text-[#00796B]">Inicio</a></li>
+                <li><span class="mx-2">/</span></li>
+                <li><a href="../recursos.html" class="hover:text-[#00796B]">Recursos</a></li>
+                <li><span class="mx-2">/</span></li>
+                <li><a href="investigacion-operaciones.html" class="hover:text-[#00796B]">Investigación de Operaciones</a></li>
+                <li><span class="mx-2">/</span></li>
+                <li class="text-[#00796B] font-semibold">Suscripción</li>
+            </ol>
+        </nav>
+
+        <!-- Page Header -->
+        <section class="text-center mb-12 fade-in-section">
+            <div class="bg-teal-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg class="w-10 h-10 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM4 19h6v-2H4v2zM4 15h8v-2H4v2zM4 11h10V9H4v2zM4 7h12V5H4v2z"></path>
+                </svg>
+            </div>
+            <h1 class="text-4xl font-bold text-[#004D40] mb-4">Suscripción a notificaciones</h1>
+            <p class="text-xl text-gray-600 max-w-3xl mx-auto">Mantente al día con los últimos recursos y materiales de esta sección.</p>
+        </section>
+
+        <!-- Subscription Form Section -->
+        <section class="my-12 fade-in-section">
+            <div class="bg-white p-8 rounded-lg shadow-md max-w-2xl mx-auto">
+                <!-- Success Message -->
+                <div id="success-message" class="success-message bg-green-50 border border-green-200 rounded-lg p-6 mb-8">
+                    <div class="flex items-center">
+                        <div class="bg-green-500 w-12 h-12 rounded-full flex items-center justify-center mr-4">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-green-800 mb-1">¡Suscripción exitosa!</h3>
+                            <p class="text-green-700">Te has suscrito correctamente. Recibirás notificaciones sobre nuevo material de IO.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form -->
+                <form id="subscription-form" name="subscription" method="POST" data-netlify="true" netlify-honeypot="bot-field" action="/recursos/suscripcion.html?success=true">
+                    <!-- Honeypot field for spam protection -->
+                    <input type="hidden" name="bot-field" />
+                    <input type="hidden" name="form-name" value="subscription" />
+                    
+                    <div class="mb-8">
+                        <h2 class="text-2xl font-bold text-[#004D40] mb-4">Información requerida</h2>
+                        <p class="text-gray-600 mb-6">Completa el formulario para recibir notificaciones sobre nuevo material, recursos y actualizaciones relacionadas con Investigación de Operaciones.</p>
+                    </div>
+
+                    <!-- Name Field -->
+                    <div class="form-group mb-6">
+                        <label for="nombre" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Nombre completo *
+                        </label>
+                        <input 
+                            type="text" 
+                            id="nombre" 
+                            name="nombre" 
+                            required 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00796B] focus:border-transparent transition-all duration-300"
+                            placeholder="Ingresa tu nombre completo"
+                        >
+                    </div>
+
+                    <!-- Email Field -->
+                    <div class="form-group mb-6">
+                        <label for="correo" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Correo electrónico *
+                        </label>
+                        <input 
+                            type="email" 
+                            id="correo" 
+                            name="correo" 
+                            required 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00796B] focus:border-transparent transition-all duration-300"
+                            placeholder="tu@email.com"
+                        >
+                    </div>
+
+                    <!-- Country Field -->
+                    <div class="form-group mb-6">
+                        <label for="pais" class="block text-sm font-semibold text-gray-700 mb-2">
+                            País *
+                        </label>
+                        <select 
+                            id="pais" 
+                            name="pais" 
+                            required 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00796B] focus:border-transparent transition-all duration-300"
+                        >
+                            <option value="">Selecciona tu país</option>
+                            <option value="Argentina">Argentina</option>
+                            <option value="Bolivia">Bolivia</option>
+                            <option value="Brasil">Brasil</option>
+                            <option value="Chile">Chile</option>
+                            <option value="Colombia">Colombia</option>
+                            <option value="Costa Rica">Costa Rica</option>
+                            <option value="Cuba">Cuba</option>
+                            <option value="Ecuador">Ecuador</option>
+                            <option value="El Salvador">El Salvador</option>
+                            <option value="España">España</option>
+                            <option value="Estados Unidos">Estados Unidos</option>
+                            <option value="Guatemala">Guatemala</option>
+                            <option value="Honduras">Honduras</option>
+                            <option value="México">México</option>
+                            <option value="Nicaragua">Nicaragua</option>
+                            <option value="Panamá">Panamá</option>
+                            <option value="Paraguay">Paraguay</option>
+                            <option value="Perú">Perú</option>
+                            <option value="Puerto Rico">Puerto Rico</option>
+                            <option value="República Dominicana">República Dominicana</option>
+                            <option value="Uruguay">Uruguay</option>
+                            <option value="Venezuela">Venezuela</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+
+                    <!-- Interests -->
+                    <div class="form-group mb-6">
+                        <label for="areas-interes" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Áreas de interés (opcional)
+                        </label>
+                        <textarea 
+                            id="areas-interes" 
+                            name="areas-interes" 
+                            rows="3"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00796B] focus:border-transparent transition-all duration-300"
+                            placeholder="Escribe las áreas de investigación de operaciones que te interesan (ej: programación lineal, optimización, simulación, etc.)"
+                        ></textarea>
+                        <p class="text-xs text-gray-500 mt-1">Puedes escribir múltiples áreas separadas por comas o en líneas diferentes.</p>
+                    </div>
+
+                    <!-- Privacy Notice -->
+                    <div class="bg-gray-50 p-4 rounded-lg mb-6">
+                        <p class="text-sm text-gray-600">
+                            <strong>Privacidad:</strong> Tu información será utilizada únicamente para enviarte notificaciones sobre nuevo material educativo. No compartiremos tus datos con terceros y podrás cancelar tu suscripción en cualquier momento.
+                        </p>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="text-center">
+                        <button 
+                            type="submit" 
+                            class="bg-[#00796B] text-white py-4 px-8 rounded-lg hover:bg-[#004D40] transition-all duration-300 ease-in-out transform hover:scale-105 font-semibold text-lg shadow-lg"
+                        >
+                            Suscribirse
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Back Link -->
+                <div class="text-center mt-8">
+                    <a href="investigacion-operaciones.html" class="text-[#00796B] hover:text-[#004D40] transition-colors">
+                        ← Volver a Investigación de Operaciones
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer & Contact -->
+    <footer id="contact" class="bg-[#333333] text-white">
+        <div class="container mx-auto px-6 py-10">
+            <div class="text-center">
+                <p class="text-gray-300 mb-2">Si tienes alguna pregunta o te gustaría colaborar, no dudes en escribirme.</p>
+                <a href="../contacto.html" class="text-[#80CBC4] text-lg hover:underline">Contacto</a>
+                <p class="text-gray-500 mt-8 text-sm">&copy; 2025 Jonás Velasco. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Mobile menu script
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            // Form submission handling with Netlify
+            const form = document.getElementById('subscription-form');
+            const successMessage = document.getElementById('success-message');
+
+            // Check if we're on the success page (Netlify redirects here after form submission)
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('success') === 'true') {
+                successMessage.classList.add('show');
+                form.style.display = 'none';
+                successMessage.scrollIntoView({ behavior: 'smooth' });
+            }
+
+            form.addEventListener('submit', function(e) {
+                // Show loading state
+                const submitButton = form.querySelector('button[type="submit"]');
+                const originalText = submitButton.textContent;
+                submitButton.textContent = 'Enviando...';
+                submitButton.disabled = true;
+
+                // Let Netlify handle the form submission naturally
+                // The form will be submitted to Netlify's form handler
+            });
+        });
+    </script>
+    
+</body>
+</html>
