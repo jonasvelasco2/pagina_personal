@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Problema de Coloreo de Grafos - Simulador Interactivo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #F0F4F8; color: #1a1a1a; }
+        .node { transition: all 0.2s ease-in-out; cursor: pointer; }
+        .node:hover { transform: scale(1.1); }
+        .node.selected { stroke: #ef4444; stroke-width: 4px; }
+        .edge { stroke: #6b7280; stroke-width: 2px; }
+        .edge.highlight { stroke: #ef4444; stroke-width: 3px; }
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.75); display: flex; justify-content: center; align-items: center; z-index: 50; }
+        .btn-type-active { background-color: #0284c7; color: white; }
+        .btn-type-inactive { background-color: #e5e7eb; color: #4b5563; }
+        .btn-difficulty-active { background-color: #dc2626; color: white; }
+        .btn-difficulty-inactive { background-color: #e5e7eb; color: #4b5563; }
+        #gcCanvas { background-color: #f8fafc; border: 2px solid #e2e8f0; border-radius: 8px; }
+        .color-palette { display: flex; gap: 8px; flex-wrap: wrap; }
+        .color-option { width: 30px; height: 30px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; transition: all 0.2s; }
+        .color-option:hover { transform: scale(1.1); }
+        .color-option.selected { border-color: #000; }
+        .color-option.used { border-color: #10b981; }
+    </style>
+</head>
+
+<body class="bg-slate-50 text-slate-800">
+    <div class="container mx-auto p-4 md:p-8 relative">
+        <div class="absolute top-4 right-4 flex flex-col sm:flex-row items-end sm:items-center gap-2 sm:gap-4 z-10">
+            <a href="../pasarela/buymeacoffee.html" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 bg-yellow-400 text-gray-900 font-bold py-2 px-3 sm:px-4 rounded-lg shadow-sm transition-colors duration-300 hover:bg-yellow-500 text-sm sm:text-base">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" sm:width="20" sm:height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M1 12.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5M2 4v6h10V4zm11.5 0a.5.5 0 0 0-.5.5v5a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-5a.5.5 0 0 0-.5-.5zM1 3.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5m10.854-1.354a.5.5 0 0 0-.708 0L9 3.293 7.854 2.146a.5.5 0 1 0-.708.708L8.293 4 7.146 5.146a.5.5 0 1 0 .708.708L9 4.707l1.146 1.147a.5.5 0 0 0 .708-.708L9.707 4l1.147-1.146a.5.5 0 0 0 0-.708"/></svg>
+                <span class="hidden sm:inline">Invítame un café</span>
+                <span class="sm:hidden">Café</span>
+            </a>
+            <a href="../index.html" class="bg-white hover:bg-slate-100 text-slate-600 font-semibold py-2 px-3 sm:px-4 border border-slate-200 rounded-lg shadow-sm flex items-center transition-colors text-sm sm:text-base">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+                Inicio
+            </a>
+        </div>
+
+        <header class="text-center mb-8 pt-16">
+            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900">Problema de coloreo de grafos: colorea sin conflictos</h1>
+            <p class="text-sm sm:text-base lg:text-lg text-slate-600 mt-2">Colorea los nodos del grafo usando el mínimo número de colores posible, sin que nodos conectados tengan el mismo color</p>
+        </header>
+
+        <!-- Panel de Instrucciones -->
+        <div class="my-8 bg-white rounded-xl shadow-md p-6">
+            <button id="toggleInstructions" class="w-full flex items-center justify-between text-2xl font-bold mb-4 text-blue-600 hover:text-blue-700 transition-colors">
+                <span>¿Cómo funciona?</span>
+                <svg id="instructionsChevron" class="w-6 h-6 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+            </button>
+            <div id="instructionsContent" class="grid md:grid-cols-2 gap-6 text-slate-600 hidden">
+                <div>
+                    <h3 class="text-lg font-semibold mb-2">Instrucciones de uso</h3>
+                    <ol class="list-decimal list-inside space-y-2">
+                        <li><b>Ajusta el número de nodos</b> (4-15 nodos).</li>
+                        <li><b>Haz clic en "Generar grafo"</b> para crear un nuevo reto.</li>
+                                                 <li><b>Haz clic en un nodo</b> para seleccionarlo.</li>
+                         <li><b>Elige un color</b> de la paleta para colorear el nodo.</li>
+                         <li><b>Evita conflictos:</b> nodos conectados no pueden tener el mismo color.</li>
+                         <li><b>🖱️ Usa el botón "Modo Mover Nodos"</b> para activar el arrastre y reorganizar el grafo.</li>
+                        <li>Cuando termines, presiona <b>"Comparar con algoritmo"</b> para ver la solución óptima.</li>
+                    </ol>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-2">¿Cómo funciona?</h3>
+                    <p>
+                        <b>Regla principal:</b> Dos nodos conectados por una línea no pueden tener el mismo color.<br><br>
+                        <b>Objetivo:</b> Encontrar el mínimo número de colores necesarios para colorear el grafo.<br><br>
+                        <b>Algoritmos usados:</b><br>
+                        • ≤8 nodos: Fuerza bruta (solución óptima)<br>
+                        • >8 nodos: Algoritmo genético (aproximación)<br><br>
+                         <!-- <b>Complejidad:</b> El problema es NP-completo. -->
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-1 self-start lg:sticky lg:top-8 space-y-8">
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <h2 class="text-2xl font-bold mb-4">Controles</h2>
+                    <div class="space-y-4 mb-6">
+                        <div>
+                            <label for="num-nodes-input" class="font-semibold text-slate-600">Número de nodos:</label>
+                            <input type="number" id="num-nodes-input" value="8" min="4" max="15" class="w-full mt-1 p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="font-semibold text-slate-600">Tipo de grafo:</label>
+                             <!-- <div class="mt-1 p-2 bg-blue-50 rounded-lg text-xs text-blue-700">
+                                <strong>Aleatorio:</strong> Se generan conexiones aleatorias entre nodos, creando un desafío único cada vez.
+                            </div> -->
+                        </div>
+                    </div>
+                    <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
+                        <button id="reset-button" class="w-full bg-blue-600 text-white font-bold py-3 px-4 sm:px-6 rounded-lg hover:bg-blue-700 text-sm sm:text-base">Generar grafo</button>
+                        <button id="solve-button" class="w-full bg-teal-600 text-white font-bold py-3 px-4 sm:px-6 rounded-lg hover:bg-teal-700 disabled:bg-slate-400 disabled:cursor-not-allowed text-sm sm:text-base">Comparar con algoritmo</button>
+                    </div>
+                    <div class="mt-4">
+                        <button id="toggle-drag-mode" class="w-full bg-purple-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-purple-700 text-sm">🖱️ Modo Mover Nodos</button>
+
+                    </div>
+                    <p id="loading-text" class="mt-4 text-slate-500 hidden text-center">Calculando...</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <h2 class="text-2xl font-bold mb-4">Paleta de colores</h2>
+                    <div class="space-y-4">
+                        <div class="color-palette" id="color-palette">
+                            <!-- Los colores se generarán dinámicamente -->
+                        </div>
+                        <div class="text-sm text-slate-600">
+                            <div>Colores usados: <span id="colors-used" class="font-semibold">0</span></div>
+                            <div>Nodos coloreados: <span id="nodes-colored" class="font-semibold">0</span> / <span id="total-nodes" class="font-semibold">-</span></div>
+                        </div>
+                        <div class="mt-3 p-2 bg-blue-50 rounded text-xs text-blue-700">
+                            <strong>💡 Consejo:</strong>
+                            <div class="mt-1">Haz clic en un nodo y luego en un color para colorearlo.</div>
+                            <div class="mt-1">Los nodos conectados no pueden tener el mismo color.</div>
+                            <div class="mt-1">🖱️ Usa el botón "Modo Mover Nodos" para arrastrar.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <h2 class="text-2xl font-bold mb-4">Información del Problema</h2>
+                    <div id="stats" class="space-y-2 text-sm text-slate-600">
+                        <div>Número de aristas: <span id="num-edges" class="font-semibold">-</span></div>
+                        <div>Grado promedio: <span id="avg-degree" class="font-semibold">-</span></div>
+                        <div>Grado máximo: <span id="max-degree" class="font-semibold">-</span></div>
+                        <!--  <div class="mt-3 p-2 bg-green-50 rounded text-xs text-green-700">
+                            <strong>🎯 Objetivo:</strong>
+                            <div class="mt-1">Encontrar el mínimo número de colores para colorear el grafo sin conflictos.</div>
+                        </div> -->
+                        <!--  <div class="mt-3 p-2 bg-blue-50 rounded text-xs text-blue-700">
+                            <strong>🤖 Algoritmos:</strong>
+                            <div class="mt-1">≤8 nodos: Fuerza bruta (garantiza óptimo)</div>
+                            <div class="mt-1">>8 nodos: Algoritmo genético (aproximación)</div>
+                        </div> -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2">
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold">Grafo</h2>
+                        <div class="flex items-center space-x-2">
+                            <button id="toggle-grid" class="bg-gray-500 text-white font-bold py-2 px-3 rounded-lg hover:bg-gray-600 text-xs sm:text-sm">Ocultar Grid</button>
+                            <div id="comparison-controls" class="hidden flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                                <button id="view-user-coloring" class="bg-slate-500 text-white font-bold py-2 px-3 rounded-lg hover:bg-slate-600 text-xs sm:text-sm">Ver tu coloreo</button>
+                                <button id="view-optimal-coloring" class="bg-teal-500 text-white font-bold py-2 px-3 rounded-lg hover:bg-teal-600 text-xs sm:text-sm">Ver mejor coloreo</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="relative">
+                        <canvas id="gcCanvas" width="800" height="600" class="w-full h-auto cursor-crosshair"></canvas>
+                        <div id="canvas-overlay" class="absolute top-0 left-0 w-full h-full pointer-events-none"></div>
+                        <div id="mouse-coords" class="absolute bottom-2 right-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs hidden"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Modal -->
+    <div id="results-modal" class="modal-overlay hidden">
+        <div class="bg-white rounded-xl shadow-2xl p-8 max-w-4xl w-full mx-4 transform transition-all duration-300 scale-95 opacity-0" id="modal-content">
+            <h2 class="text-3xl font-bold text-center mb-4">Resultados</h2>
+            <div id="winner-message" class="text-center text-2xl font-bold my-4 p-4 rounded-lg"></div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-center">
+                <div class="bg-slate-100 p-6 rounded-lg">
+                    <h3 class="text-xl font-bold mb-3">Tu coloreo</h3>
+                    <p class="text-lg">Colores usados: <span id="modal-user-colors" class="font-bold text-blue-600"></span></p>
+                    <p class="text-sm mt-1">Nodos: <span id="modal-user-nodes"></span></p>
+                </div>
+                <div class="bg-teal-100 border-2 border-teal-500 p-6 rounded-lg">
+                    <h3 class="text-xl font-bold mb-3">Mejor coloreo encontrado</h3>
+                    <p class="text-lg">Colores usados: <span id="modal-optimal-colors" class="font-bold text-blue-600"></span></p>
+                    <p class="text-sm mt-1">Nodos: <span id="modal-optimal-nodes"></span></p>
+                </div>
+            </div>
+            <p id="algorithm-time" class="text-center text-slate-500 mt-4"></p>
+            <div id="modal-footer-buttons" class="mt-8 text-center space-x-4">
+                <button id="close-modal-button" class="bg-gray-600 text-white font-bold py-2 px-8 rounded-lg hover:bg-gray-700">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <footer id="contact" class="bg-[#333333] text-white mt-12">
+        <div class="container mx-auto px-6 py-10">
+            <div class="text-center">
+                <p class="text-gray-300 mb-2">Si tienes alguna pregunta o te gustaría colaborar, no dudes en escribirme.</p>
+                <a href="../contacto.html" class="text-[#80CBC4] text-lg hover:underline">Contacto</a>
+                <p class="text-gray-500 mt-8 text-sm">&copy; 2025 Jonás Velasco. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const canvas = document.getElementById('gcCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        const dom = {
+            numNodesInput: document.getElementById('num-nodes-input'),
+            resetButton: document.getElementById('reset-button'),
+            solveButton: document.getElementById('solve-button'),
+            toggleDragMode: document.getElementById('toggle-drag-mode'),
+
+            loadingText: document.getElementById('loading-text'),
+            resultsModal: document.getElementById('results-modal'),
+            modalContent: document.getElementById('modal-content'),
+            winnerMessage: document.getElementById('winner-message'),
+            colorsUsed: document.getElementById('colors-used'),
+            nodesColored: document.getElementById('nodes-colored'),
+            totalNodes: document.getElementById('total-nodes'),
+            colorPalette: document.getElementById('color-palette'),
+            numEdges: document.getElementById('num-edges'),
+            avgDegree: document.getElementById('avg-degree'),
+            maxDegree: document.getElementById('max-degree'),
+            modalUserColors: document.getElementById('modal-user-colors'),
+            modalOptimalColors: document.getElementById('modal-optimal-colors'),
+            modalUserNodes: document.getElementById('modal-user-nodes'),
+            modalOptimalNodes: document.getElementById('modal-optimal-nodes'),
+            algorithmTime: document.getElementById('algorithm-time'),
+            comparisonControls: document.getElementById('comparison-controls'),
+            closeModalButton: document.getElementById('close-modal-button'),
+            viewUserColoring: document.getElementById('view-user-coloring'),
+            viewOptimalColoring: document.getElementById('view-optimal-coloring'),
+            toggleInstructions: document.getElementById('toggleInstructions'),
+            instructionsContent: document.getElementById('instructionsContent'),
+            instructionsChevron: document.getElementById('instructionsChevron'),
+            mouseCoords: document.getElementById('mouse-coords'),
+            toggleGrid: document.getElementById('toggle-grid'),
+        };
+
+        const state = {
+            nodes: [],
+            edges: [],
+            userColoring: {},
+            optimalColoring: {},
+            selectedNode: null,
+            selectedColor: null,
+            isUserColoringVisible: true,
+            showGrid: true,
+            canvasWidth: 800,
+            canvasHeight: 600,
+            nodeRadius: 20,
+            padding: 50,
+            gridSize: 20,
+            colors: ['#ef4444', '#f97316', '#eab308', '#84cc16', '#22c55e', '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899', '#f43f5e', '#a855f7', '#6366f1', '#14b8a6', '#f59e0b', '#84cc16'],
+            dragMode: false,
+            selectedNodeForDrag: null,
+            dragOffset: { x: 0, y: 0 }
+        };
+
+        function generateGraph() {
+            const numNodes = parseInt(dom.numNodesInput.value, 10);
+            state.nodes = [];
+            state.edges = [];
+            state.userColoring = {};
+            state.optimalColoring = {};
+            state.selectedNode = null;
+            state.selectedColor = null;
+            
+            const availableWidth = state.canvasWidth - 2 * state.padding;
+            const availableHeight = state.canvasHeight - 2 * state.padding;
+            
+            // Generar nodos en posiciones aleatorias
+            for (let i = 0; i < numNodes; i++) {
+                const x = state.padding + Math.random() * availableWidth;
+                const y = state.padding + Math.random() * availableHeight;
+                state.nodes.push({ id: i, x, y, name: `Nodo ${i + 1}` });
+            }
+            
+            // Generar grafo garantizando grado mínimo de 2 para todos los nodos
+            generateConnectedGraphWithMinDegree(numNodes);
+            
+            updateStats();
+            generateColorPalette();
+        }
+        
+        function generateConnectedGraphWithMinDegree(numNodes) {
+            // Primero, crear un ciclo para garantizar conectividad
+            for (let i = 0; i < numNodes; i++) {
+                const next = (i + 1) % numNodes;
+                state.edges.push({ from: i, to: next });
+            }
+            
+            // Luego, agregar aristas adicionales para garantizar grado mínimo de 2
+            const nodeDegrees = new Array(numNodes).fill(0);
+            
+            // Contar grados iniciales del ciclo
+            state.edges.forEach(edge => {
+                nodeDegrees[edge.from]++;
+                nodeDegrees[edge.to]++;
+            });
+            
+            // Agregar aristas adicionales para nodos con grado < 2
+            for (let i = 0; i < numNodes; i++) {
+                while (nodeDegrees[i] < 2) {
+                    // Buscar un nodo diferente para conectar
+                    let targetNode = Math.floor(Math.random() * numNodes);
+                    let attempts = 0;
+                    
+                    while ((targetNode === i || 
+                           state.edges.some(edge => 
+                               (edge.from === i && edge.to === targetNode) || 
+                               (edge.from === targetNode && edge.to === i))) && 
+                           attempts < numNodes * 2) {
+                        targetNode = Math.floor(Math.random() * numNodes);
+                        attempts++;
+                    }
+                    
+                    if (attempts < numNodes * 2) {
+                        state.edges.push({ from: i, to: targetNode });
+                        nodeDegrees[i]++;
+                        nodeDegrees[targetNode]++;
+                    } else {
+                        // Si no se puede encontrar un nodo válido, conectar con el siguiente
+                        const next = (i + 1) % numNodes;
+                        if (!state.edges.some(edge => 
+                            (edge.from === i && edge.to === next) || 
+                            (edge.from === next && edge.to === i))) {
+                            state.edges.push({ from: i, to: next });
+                            nodeDegrees[i]++;
+                            nodeDegrees[next]++;
+                        }
+                    }
+                }
+            }
+            
+            // Agregar algunas aristas adicionales aleatorias para mayor complejidad
+            const maxAdditionalEdges = Math.floor(numNodes * 0.5);
+            let additionalEdges = 0;
+            
+            for (let i = 0; i < maxAdditionalEdges && additionalEdges < maxAdditionalEdges; i++) {
+                const node1 = Math.floor(Math.random() * numNodes);
+                let node2 = Math.floor(Math.random() * numNodes);
+                let attempts = 0;
+                
+                while ((node2 === node1 || 
+                       state.edges.some(edge => 
+                           (edge.from === node1 && edge.to === node2) || 
+                           (edge.from === node2 && edge.to === node1))) && 
+                       attempts < numNodes) {
+                    node2 = Math.floor(Math.random() * numNodes);
+                    attempts++;
+                }
+                
+                if (attempts < numNodes) {
+                    state.edges.push({ from: node1, to: node2 });
+                    additionalEdges++;
+                }
+            }
+        }
+
+        function generateColorPalette() {
+            dom.colorPalette.innerHTML = '';
+            state.colors.forEach((color, index) => {
+                const colorDiv = document.createElement('div');
+                colorDiv.className = 'color-option';
+                colorDiv.style.backgroundColor = color;
+                colorDiv.dataset.colorIndex = index;
+                colorDiv.addEventListener('click', () => selectColor(index));
+                dom.colorPalette.appendChild(colorDiv);
+            });
+        }
+
+        function selectColor(colorIndex) {
+            // Deseleccionar color anterior
+            document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
+            
+            // Seleccionar nuevo color
+            const colorOption = document.querySelector(`[data-color-index="${colorIndex}"]`);
+            colorOption.classList.add('selected');
+            
+            state.selectedColor = colorIndex;
+            
+            // Si hay un nodo seleccionado, colorearlo
+            if (state.selectedNode !== null) {
+                colorNode(state.selectedNode, colorIndex);
+                state.selectedNode = null;
+                document.querySelectorAll('.node').forEach(node => node.classList.remove('selected'));
+            }
+        }
+
+        function colorNode(nodeId, colorIndex) {
+            // Verificar si el color es válido (no hay conflictos)
+            const color = state.colors[colorIndex];
+            const adjacentNodes = getAdjacentNodes(nodeId);
+            const conflictingNodes = [];
+            
+            for (const adjNode of adjacentNodes) {
+                if (state.userColoring[adjNode] === colorIndex) {
+                    conflictingNodes.push(adjNode);
+                }
+            }
+            
+            if (conflictingNodes.length > 0) {
+                showConflictMessage(nodeId, conflictingNodes, colorIndex);
+                return;
+            }
+            
+            // Aplicar el color
+            state.userColoring[nodeId] = colorIndex;
+            updateColoringDisplay();
+            renderCanvas();
+        }
+
+        function showConflictMessage(nodeId, conflictingNodes, colorIndex) {
+            const nodeName = state.nodes[nodeId].name;
+            const conflictingNames = conflictingNodes.map(n => state.nodes[n].name).join(', ');
+            const colorName = getColorName(colorIndex);
+            
+            // Crear mensaje personalizado
+            const message = `❌ <strong>Conflicto de colores detectado</strong><br><br>
+                           No puedes colorear <strong>${nodeName}</strong> con <span style="color: ${state.colors[colorIndex]}">${colorName}</span><br>
+                           porque los nodos conectados <strong>${conflictingNames}</strong> ya tienen ese color.<br><br>
+                           <em>💡 Recuerda: Los nodos conectados no pueden tener el mismo color.</em>`;
+            
+            showNotification(message, 'error');
+        }
+
+        function getColorName(colorIndex) {
+            const colorNames = [
+                'Rojo', 'Naranja', 'Amarillo', 'Verde lima', 'Verde', 
+                'Cian', 'Azul', 'Violeta', 'Rosa', 'Rosa fuerte',
+                'Púrpura', 'Índigo', 'Verde azulado', 'Ámbar', 'Verde claro'
+            ];
+            return colorNames[colorIndex] || `Color ${colorIndex + 1}`;
+        }
+
+        function showNotification(message, type = 'info') {
+            // Remover notificación anterior si existe
+            const existingNotification = document.getElementById('notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+            
+            // Crear nueva notificación
+            const notification = document.createElement('div');
+            notification.id = 'notification';
+            notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-md transform transition-all duration-300 translate-x-full`;
+            
+            if (type === 'error') {
+                notification.className += ' bg-red-50 border border-red-200 text-red-800';
+            } else {
+                notification.className += ' bg-blue-50 border border-blue-200 text-blue-800';
+            }
+            
+            notification.innerHTML = message;
+            
+            // Agregar botón de cerrar
+            const closeButton = document.createElement('button');
+            closeButton.innerHTML = '×';
+            closeButton.className = 'absolute top-2 right-2 text-lg font-bold hover:text-red-600 transition-colors';
+            closeButton.onclick = () => removeNotification();
+            notification.appendChild(closeButton);
+            
+            document.body.appendChild(notification);
+            
+            // Animar entrada
+            setTimeout(() => {
+                notification.classList.remove('translate-x-full');
+            }, 10);
+            
+            // Auto-remover después de 5 segundos
+            setTimeout(removeNotification, 5000);
+        }
+
+        function removeNotification() {
+            const notification = document.getElementById('notification');
+            if (notification) {
+                notification.classList.add('translate-x-full');
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.remove();
+                    }
+                }, 300);
+            }
+        }
+
+        function getAdjacentNodes(nodeId) {
+            const adjacent = [];
+            state.edges.forEach(edge => {
+                if (edge.from === nodeId) adjacent.push(edge.to);
+                if (edge.to === nodeId) adjacent.push(edge.from);
+            });
+            return adjacent;
+        }
+
+        function updateColoringDisplay() {
+            const colorsUsed = new Set(Object.values(state.userColoring)).size;
+            const nodesColored = Object.keys(state.userColoring).length;
+            
+            dom.colorsUsed.textContent = colorsUsed;
+            dom.nodesColored.textContent = nodesColored;
+            dom.totalNodes.textContent = state.nodes.length;
+            
+            // Actualizar paleta de colores
+            document.querySelectorAll('.color-option').forEach((opt, index) => {
+                opt.classList.remove('used');
+                if (Object.values(state.userColoring).includes(index)) {
+                    opt.classList.add('used');
+                }
+            });
+            
+            dom.solveButton.disabled = nodesColored !== state.nodes.length;
+        }
+
+        function updateStats() {
+            const numEdges = state.edges.length;
+            const degrees = new Array(state.nodes.length).fill(0);
+            
+            state.edges.forEach(edge => {
+                degrees[edge.from]++;
+                degrees[edge.to]++;
+            });
+            
+            const avgDegree = degrees.reduce((sum, deg) => sum + deg, 0) / state.nodes.length;
+            const maxDegree = Math.max(...degrees);
+            
+            dom.numEdges.textContent = numEdges;
+            dom.avgDegree.textContent = avgDegree.toFixed(1);
+            dom.maxDegree.textContent = maxDegree;
+        }
+
+        function renderCanvas() {
+            ctx.clearRect(0, 0, state.canvasWidth, state.canvasHeight);
+            
+            // Resetear sombras
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+            
+            // Dibujar grid solo si está habilitado
+            if (state.showGrid) {
+                drawGrid();
+            }
+            
+            // Dibujar aristas
+            if (state.isUserColoringVisible) {
+                drawEdges(state.userColoring);
+            } else {
+                drawEdges(state.optimalColoring);
+            }
+            
+            // Dibujar nodos
+            state.nodes.forEach((node, index) => {
+                const isColored = state.isUserColoringVisible ? 
+                    state.userColoring.hasOwnProperty(index) : 
+                    state.optimalColoring.hasOwnProperty(index);
+                const colorIndex = state.isUserColoringVisible ? 
+                    state.userColoring[index] : 
+                    state.optimalColoring[index];
+                const isSelected = state.selectedNode === index;
+                
+                drawNode(node, isColored, colorIndex, isSelected);
+            });
+        }
+
+        function drawGrid() {
+            ctx.strokeStyle = '#e2e8f0';
+            ctx.lineWidth = 1;
+            
+            // Dibujar líneas verticales
+            for (let x = 0; x <= state.canvasWidth; x += state.gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, state.canvasHeight);
+                ctx.stroke();
+            }
+            
+            // Dibujar líneas horizontales
+            for (let y = 0; y <= state.canvasHeight; y += state.gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(state.canvasWidth, y);
+                ctx.stroke();
+            }
+            
+            // Dibujar bordes del área de juego
+            ctx.strokeStyle = '#cbd5e1';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(state.padding, state.padding, 
+                         state.canvasWidth - 2 * state.padding, 
+                         state.canvasHeight - 2 * state.padding);
+        }
+
+        function drawEdges(coloring) {
+            ctx.strokeStyle = '#6b7280';
+            ctx.lineWidth = 2;
+            
+            state.edges.forEach(edge => {
+                const node1 = state.nodes[edge.from];
+                const node2 = state.nodes[edge.to];
+                
+                // Verificar si hay conflicto de colores
+                const color1 = coloring[edge.from];
+                const color2 = coloring[edge.to];
+                const hasConflict = color1 !== undefined && color2 !== undefined && color1 === color2;
+                
+                if (hasConflict) {
+                    ctx.strokeStyle = '#ef4444';
+                    ctx.lineWidth = 3;
+                } else {
+                    ctx.strokeStyle = '#6b7280';
+                    ctx.lineWidth = 2;
+                }
+                
+                ctx.beginPath();
+                ctx.moveTo(node1.x, node1.y);
+                ctx.lineTo(node2.x, node2.y);
+                ctx.stroke();
+            });
+        }
+
+        function drawNode(node, isColored, colorIndex, isSelected) {
+            ctx.beginPath();
+            ctx.arc(node.x, node.y, state.nodeRadius, 0, 2 * Math.PI);
+            
+            if (isColored && colorIndex !== undefined) {
+                ctx.fillStyle = state.colors[colorIndex];
+            } else {
+                ctx.fillStyle = '#ffffff';
+            }
+            
+            ctx.fill();
+            
+            // Borde del nodo
+            if (isSelected) {
+                ctx.strokeStyle = '#ef4444';
+                ctx.lineWidth = 4;
+            } else if (state.selectedNodeForDrag === node) {
+                // Nodo siendo arrastrado
+                ctx.strokeStyle = '#3b82f6';
+                ctx.lineWidth = 3;
+            } else {
+                ctx.strokeStyle = '#374151';
+                ctx.lineWidth = 2;
+            }
+            
+            ctx.stroke();
+            
+            // Número del nodo
+            ctx.fillStyle = isColored ? '#ffffff' : '#374151';
+            ctx.font = 'bold 14px Inter';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(node.name.split(' ')[1], node.x, node.y);
+            
+            // Agregar sombra sutil para mejor visualización
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.1)';
+            ctx.shadowBlur = 3;
+            ctx.shadowOffsetX = 1;
+            ctx.shadowOffsetY = 1;
+            
+            // Mostrar indicador de que se puede mover (punto pequeño en la esquina)
+            if (!isColored && !isSelected && state.selectedNodeForDrag !== node) {
+                ctx.fillStyle = '#6b7280';
+                ctx.beginPath();
+                ctx.arc(node.x + state.nodeRadius - 5, node.y - state.nodeRadius + 5, 3, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+        }
+
+        function handleCanvasClick(event) {
+            // No procesar clic si estamos en modo arrastre
+            if (state.dragMode) {
+                return;
+            }
+            
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            
+            const x = (event.clientX - rect.left) * scaleX;
+            const y = (event.clientY - rect.top) * scaleY;
+            
+            // Encontrar nodo más cercano
+            let closestNode = null;
+            let minDistance = Infinity;
+            
+            for (let i = 0; i < state.nodes.length; i++) {
+                const node = state.nodes[i];
+                const distance = Math.sqrt((x - node.x) ** 2 + (y - node.y) ** 2);
+                if (distance < minDistance && distance < state.nodeRadius * 1.5) {
+                    minDistance = distance;
+                    closestNode = i;
+                }
+            }
+            
+            if (closestNode !== null) {
+                // Deseleccionar nodo anterior
+                if (state.selectedNode !== null) {
+                    document.querySelectorAll('.node').forEach(node => node.classList.remove('selected'));
+                }
+                
+                // Seleccionar nuevo nodo
+                state.selectedNode = closestNode;
+                
+                // Si hay un color seleccionado, colorear el nodo
+                if (state.selectedColor !== null) {
+                    colorNode(closestNode, state.selectedColor);
+                    state.selectedNode = null;
+                    state.selectedColor = null;
+                    document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
+                }
+                
+                renderCanvas();
+            }
+        }
+
+        function handleMouseDown(event) {
+            if (state.dragMode && event.button === 0) {
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = canvas.width / rect.width;
+                const scaleY = canvas.height / rect.height;
+                
+                const x = (event.clientX - rect.left) * scaleX;
+                const y = (event.clientY - rect.top) * scaleY;
+                
+                // Encontrar nodo más cercano
+                for (let i = 0; i < state.nodes.length; i++) {
+                    const node = state.nodes[i];
+                    const distance = Math.sqrt((x - node.x) ** 2 + (y - node.y) ** 2);
+                    if (distance < state.nodeRadius * 1.5) {
+                        state.selectedNodeForDrag = node;
+                        state.dragOffset.x = x - node.x;
+                        state.dragOffset.y = y - node.y;
+                        canvas.style.cursor = 'grabbing';
+                        break;
+                    }
+                }
+            }
+        }
+
+        function handleMouseMove(event) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            
+            const x = Math.round((event.clientX - rect.left) * scaleX);
+            const y = Math.round((event.clientY - rect.top) * scaleY);
+            
+            dom.mouseCoords.textContent = `(${x}, ${y})`;
+            dom.mouseCoords.classList.remove('hidden');
+            
+            // Si estamos arrastrando un nodo
+            if (state.selectedNodeForDrag) {
+                // Calcular nueva posición
+                let newX = x - state.dragOffset.x;
+                let newY = y - state.dragOffset.y;
+                
+                // Mantener el nodo dentro de los límites del canvas
+                newX = Math.max(state.padding + state.nodeRadius, Math.min(state.canvasWidth - state.padding - state.nodeRadius, newX));
+                newY = Math.max(state.padding + state.nodeRadius, Math.min(state.canvasHeight - state.padding - state.nodeRadius, newY));
+                
+                // Actualizar directamente el nodo
+                state.selectedNodeForDrag.x = newX;
+                state.selectedNodeForDrag.y = newY;
+                
+                // Renderizar inmediatamente
+                renderCanvas();
+            }
+        }
+
+        function handleMouseUp(event) {
+            if (state.selectedNodeForDrag) {
+                state.selectedNodeForDrag = null;
+                canvas.style.cursor = state.dragMode ? 'grab' : 'crosshair';
+                showNotification('✅ Nodo movido exitosamente', 'info');
+            }
+        }
+
+        function findBestColoring() {
+            const startTime = performance.now();
+            
+            // Algoritmo de fuerza bruta para problemas pequeños (≤8 nodos)
+            if (state.nodes.length <= 8) {
+                const result = bruteForceColoring();
+                const timeTaken = ((performance.now() - startTime) / 1000).toFixed(2);
+                return { coloring: result, timeTaken, algorithm: 'Fuerza bruta' };
+            } else {
+                // Algoritmo genético para problemas más grandes (>8 nodos)
+                const result = geneticAlgorithmColoring();
+                const timeTaken = ((performance.now() - startTime) / 1000).toFixed(2);
+                return { coloring: result, timeTaken, algorithm: 'Algoritmo genético' };
+            }
+        }
+
+        function bruteForceColoring() {
+            const numNodes = state.nodes.length;
+            const maxColors = Math.min(numNodes, state.colors.length);
+            
+            // Probar con diferentes números de colores
+            for (let numColors = 1; numColors <= maxColors; numColors++) {
+                const coloring = findValidColoring(numColors);
+                if (coloring) {
+                    return coloring;
+                }
+            }
+            
+            return null;
+        }
+
+        function findValidColoring(numColors) {
+            const numNodes = state.nodes.length;
+            const maxAttempts = 1000;
+            
+            for (let attempt = 0; attempt < maxAttempts; attempt++) {
+                const coloring = {};
+                let valid = true;
+                
+                // Colorear nodos aleatoriamente
+                for (let i = 0; i < numNodes; i++) {
+                    const color = Math.floor(Math.random() * numColors);
+                    coloring[i] = color;
+                }
+                
+                // Verificar si es válido
+                for (const edge of state.edges) {
+                    if (coloring[edge.from] === coloring[edge.to]) {
+                        valid = false;
+                        break;
+                    }
+                }
+                
+                if (valid) {
+                    return coloring;
+                }
+            }
+            
+            return null;
+        }
+
+        function geneticAlgorithmColoring() {
+            const populationSize = 50;
+            const generations = 100;
+            const mutationRate = 0.1;
+            
+            // Estimar el número de colores necesarios
+            const estimatedColors = Math.min(Math.max(3, Math.ceil(state.nodes.length / 3)), state.colors.length);
+            
+            // Generar población inicial
+            let population = [];
+            for (let i = 0; i < populationSize; i++) {
+                const coloring = {};
+                for (let j = 0; j < state.nodes.length; j++) {
+                    coloring[j] = Math.floor(Math.random() * estimatedColors);
+                }
+                population.push(coloring);
+            }
+            
+            let bestColoring = null;
+            let bestFitness = Infinity;
+            
+            for (let gen = 0; gen < generations; gen++) {
+                // Evaluar población
+                const fitness = population.map(coloring => ({
+                    coloring,
+                    fitness: evaluateColoring(coloring)
+                }));
+                
+                // Encontrar mejor coloreo
+                const currentBest = fitness.reduce((best, current) => 
+                    current.fitness < best.fitness ? current : best
+                );
+                
+                if (currentBest.fitness < bestFitness) {
+                    bestFitness = currentBest.fitness;
+                    bestColoring = { ...currentBest.coloring };
+                }
+                
+                // Si encontramos una solución válida, terminar
+                if (bestFitness === 0) {
+                    break;
+                }
+                
+                // Crear nueva población
+                const newPopulation = [];
+                newPopulation.push(bestColoring); // Elitismo
+                
+                while (newPopulation.length < populationSize) {
+                    const parent1 = tournamentSelection(fitness);
+                    const parent2 = tournamentSelection(fitness);
+                    const child = crossover(parent1, parent2);
+                    mutate(child, mutationRate);
+                    newPopulation.push(child);
+                }
+                
+                population = newPopulation;
+            }
+            
+            return bestColoring;
+        }
+
+        function evaluateColoring(coloring) {
+            let conflicts = 0;
+            
+            for (const edge of state.edges) {
+                if (coloring[edge.from] === coloring[edge.to]) {
+                    conflicts++;
+                }
+            }
+            
+            return conflicts;
+        }
+
+        function tournamentSelection(fitness) {
+            const tournamentSize = 3;
+            let best = fitness[Math.floor(Math.random() * fitness.length)];
+            
+            for (let i = 1; i < tournamentSize; i++) {
+                const candidate = fitness[Math.floor(Math.random() * fitness.length)];
+                if (candidate.fitness < best.fitness) {
+                    best = candidate;
+                }
+            }
+            
+            return best.coloring;
+        }
+
+        function crossover(parent1, parent2) {
+            const child = {};
+            const crossoverPoint = Math.floor(Math.random() * state.nodes.length);
+            
+            for (let i = 0; i < state.nodes.length; i++) {
+                child[i] = i < crossoverPoint ? parent1[i] : parent2[i];
+            }
+            
+            return child;
+        }
+
+        function mutate(coloring, rate) {
+            for (let i = 0; i < state.nodes.length; i++) {
+                if (Math.random() < rate) {
+                    coloring[i] = Math.floor(Math.random() * state.colors.length);
+                }
+            }
+        }
+
+        function displayResults(result) {
+            const { coloring, timeTaken, algorithm } = result;
+            state.optimalColoring = coloring;
+            
+            const userColorsUsed = new Set(Object.values(state.userColoring)).size;
+            const optimalColorsUsed = new Set(Object.values(state.optimalColoring)).size;
+            
+            dom.modalUserColors.textContent = userColorsUsed;
+            dom.modalOptimalColors.textContent = optimalColorsUsed;
+            dom.modalUserNodes.textContent = Object.keys(state.userColoring).length;
+            dom.modalOptimalNodes.textContent = Object.keys(state.optimalColoring).length;
+            dom.algorithmTime.textContent = `${algorithm} - Calculado en ${timeTaken} segundos.`;
+            
+            if (userColorsUsed < optimalColorsUsed) {
+                dom.winnerMessage.innerHTML = '🏆 ¡Felicidades, has ganado! 🏆';
+                dom.winnerMessage.className = 'text-center text-2xl font-bold my-4 p-4 rounded-lg bg-green-100 text-green-800';
+            } else if (optimalColorsUsed < userColorsUsed) {
+                dom.winnerMessage.innerHTML = '🤖 El algoritmo ha ganado 🤖';
+                dom.winnerMessage.className = 'text-center text-2xl font-bold my-4 p-4 rounded-lg bg-teal-100 text-teal-800';
+            } else {
+                dom.winnerMessage.innerHTML = '🤝 ¡Es un empate! 🤝';
+                dom.winnerMessage.className = 'text-center text-2xl font-bold my-4 p-4 rounded-lg bg-slate-100 text-slate-800';
+            }
+            
+            dom.comparisonControls.classList.remove('hidden');
+            dom.resultsModal.classList.remove('hidden');
+            setTimeout(() => dom.modalContent.classList.remove('scale-95', 'opacity-0'), 10);
+        }
+
+        function initialize() {
+            // Ajustar canvas al tamaño del contenedor
+            const container = canvas.parentElement;
+            const containerRect = container.getBoundingClientRect();
+            state.canvasWidth = Math.max(600, containerRect.width - 40);
+            state.canvasHeight = 600;
+            
+            canvas.width = state.canvasWidth;
+            canvas.height = state.canvasHeight;
+            
+            // Resetear estado de visualización
+            state.isUserColoringVisible = true;
+            
+            generateGraph();
+            renderCanvas();
+            updateColoringDisplay();
+            dom.solveButton.disabled = true;
+            dom.comparisonControls.classList.add('hidden');
+            dom.resultsModal.classList.add('hidden');
+            dom.modalContent.classList.add('scale-95', 'opacity-0');
+        }
+
+        // Event Listeners
+        canvas.addEventListener('click', handleCanvasClick);
+        canvas.addEventListener('mousedown', handleMouseDown);
+        canvas.addEventListener('mousemove', handleMouseMove);
+        canvas.addEventListener('mouseup', handleMouseUp);
+        canvas.addEventListener('contextmenu', (e) => e.preventDefault()); // Prevenir menú contextual
+        canvas.addEventListener('mouseleave', () => {
+            dom.mouseCoords.classList.add('hidden');
+            // Si estamos arrastrando y el mouse sale del canvas, detener el arrastre
+            if (state.selectedNodeForDrag) {
+                state.selectedNodeForDrag = null;
+                canvas.style.cursor = state.dragMode ? 'grab' : 'crosshair';
+            }
+        });
+        
+
+        
+
+        
+        // Toggle drag mode
+        dom.toggleDragMode.addEventListener('click', () => {
+            state.dragMode = !state.dragMode;
+            
+            if (state.dragMode) {
+                dom.toggleDragMode.textContent = '🎨 Modo Colorear';
+                dom.toggleDragMode.className = 'w-full bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 text-sm';
+                canvas.style.cursor = 'grab';
+                showNotification('🖱️ Modo mover nodos activado. Haz clic y arrastra para mover los nodos.', 'info');
+            } else {
+                dom.toggleDragMode.textContent = '🖱️ Modo Mover Nodos';
+                dom.toggleDragMode.className = 'w-full bg-purple-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-purple-700 text-sm';
+                canvas.style.cursor = 'crosshair';
+                showNotification('🎨 Modo colorear activado. Haz clic en nodos y colores para colorear.', 'info');
+            }
+        });
+        
+        // Ajustar canvas cuando cambie el tamaño de la ventana
+        window.addEventListener('resize', () => {
+            setTimeout(initialize, 100);
+        });
+        
+        dom.resetButton.addEventListener('click', () => {
+            state.userColoring = {};
+            state.selectedNode = null;
+            state.selectedColor = null;
+            initialize();
+        });
+        
+        dom.solveButton.addEventListener('click', () => {
+            dom.solveButton.disabled = true;
+            dom.loadingText.classList.remove('hidden');
+            
+            setTimeout(() => {
+                const result = findBestColoring();
+                displayResults(result);
+                dom.loadingText.classList.add('hidden');
+            }, 50);
+        });
+        
+        dom.closeModalButton.addEventListener('click', () => {
+            dom.modalContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                dom.resultsModal.classList.add('hidden');
+            }, 300);
+        });
+        
+        dom.viewUserColoring.addEventListener('click', () => {
+            state.isUserColoringVisible = true;
+            renderCanvas();
+        });
+        
+        dom.viewOptimalColoring.addEventListener('click', () => {
+            state.isUserColoringVisible = false;
+            renderCanvas();
+        });
+        
+        dom.toggleInstructions.addEventListener('click', () => {
+            const content = dom.instructionsContent;
+            const chevron = dom.instructionsChevron;
+            
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                chevron.style.transform = 'rotate(180deg)';
+            } else {
+                content.classList.add('hidden');
+                chevron.style.transform = 'rotate(0deg)';
+            }
+        });
+        
+        // Toggle grid button
+        dom.toggleGrid.addEventListener('click', () => {
+            state.showGrid = !state.showGrid;
+            dom.toggleGrid.textContent = state.showGrid ? 'Ocultar Grid' : 'Mostrar Grid';
+            renderCanvas();
+        });
+
+        // Initialize
+        setTimeout(initialize, 100);
+    });
+    </script>
+    <script>
+        // --- LÓGICA DE PROTECCIÓN ---
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'F12' || e.keyCode === 123) {
+                e.preventDefault();
+            }
+
+            if (e.ctrlKey) {
+                const key = e.key.toLowerCase();
+                if (['c', 'x', 'u', 's', 'p'].includes(key)) {
+                    e.preventDefault();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
