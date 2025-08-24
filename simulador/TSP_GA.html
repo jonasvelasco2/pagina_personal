@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Problema del Viajante - Simulador Interactivo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #F0F4F8; color: #1a1a1a; }
+        .city-node { transition: all 0.2s ease-in-out; cursor: grab; }
+        .city-node:active { cursor: grabbing; transform: scale(1.1); }
+        .city-node.selected { fill: #ef4444; stroke: #dc2626; stroke-width: 4px; }
+        .city-node.visited { fill: #10b981; stroke: #059669; }
+        .city-node.start { fill: #3b82f6; stroke: #2563eb; }
+        .path-line { stroke: #3b82f6; stroke-width: 3px; stroke-linecap: round; }
+        .path-line.optimal { stroke: #10b981; stroke-width: 4px; }
+        .path-line.user { stroke: #f59e0b; stroke-width: 3px; }
+        .distance-label { font-size: 12px; fill: #ef4444; font-weight: bold; text-anchor: middle; }
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.75); display: flex; justify-content: center; align-items: center; z-index: 50; }
+        .btn-type-active { background-color: #0284c7; color: white; }
+        .btn-type-inactive { background-color: #e5e7eb; color: #4b5563; }
+        .btn-difficulty-active { background-color: #dc2626; color: white; }
+        .btn-difficulty-inactive { background-color: #e5e7eb; color: #4b5563; }
+        #tspCanvas { background-color: #f8fafc; border: 2px solid #e2e8f0; border-radius: 8px; }
+    </style>
+</head>
+
+<body class="bg-slate-50 text-slate-800">
+    <div class="container mx-auto p-4 md:p-8 relative">
+        <div class="absolute top-4 right-4 flex flex-col sm:flex-row items-end sm:items-center gap-2 sm:gap-4 z-10">
+            <a href="../pasarela/buymeacoffee.html" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 bg-yellow-400 text-gray-900 font-bold py-2 px-3 sm:px-4 rounded-lg shadow-sm transition-colors duration-300 hover:bg-yellow-500 text-sm sm:text-base">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" sm:width="20" sm:height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M1 12.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5M2 4v6h10V4zm11.5 0a.5.5 0 0 0-.5.5v5a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-5a.5.5 0 0 0-.5-.5zM1 3.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5m10.854-1.354a.5.5 0 0 0-.708 0L9 3.293 7.854 2.146a.5.5 0 1 0-.708.708L8.293 4 7.146 5.146a.5.5 0 1 0 .708.708L9 4.707l1.146 1.147a.5.5 0 0 0 .708-.708L9.707 4l1.147-1.146a.5.5 0 0 0 0-.708"/></svg>
+                <span class="hidden sm:inline">Invítame un café</span>
+                <span class="sm:hidden">Café</span>
+            </a>
+            <a href="../index.html" class="bg-white hover:bg-slate-100 text-slate-600 font-semibold py-2 px-3 sm:px-4 border border-slate-200 rounded-lg shadow-sm flex items-center transition-colors text-sm sm:text-base">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+                Inicio
+            </a>
+        </div>
+
+        <header class="text-center mb-8 pt-16">
+            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900">Problema del Viajante: Encuentra la ruta más corta</h1>
+            <p class="text-sm sm:text-base lg:text-lg text-slate-600 mt-2">Conecta todas las ciudades visitando cada una exactamente una vez y regresando al inicio</p>
+        </header>
+
+        <!-- Panel de Instrucciones -->
+        <div class="my-8 bg-white rounded-xl shadow-md p-6">
+            <button id="toggleInstructions" class="w-full flex items-center justify-between text-2xl font-bold mb-4 text-blue-600 hover:text-blue-700 transition-colors">
+                <span>¿Cómo funciona?</span>
+                <svg id="instructionsChevron" class="w-6 h-6 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+            </button>
+            <div id="instructionsContent" class="grid md:grid-cols-2 gap-6 text-slate-600 hidden">
+                <div>
+                    <h3 class="text-lg font-semibold mb-2">Instrucciones de uso</h3>
+                    <ol class="list-decimal list-inside space-y-2">
+                        <li><b>Ajusta el número de ciudades</b> (4-20 ciudades).</li>
+                        <li><b>Haz clic en "Generar ciudades"</b> para crear un nuevo reto.</li>
+                        <li><b>Haz clic en las ciudades</b> en el orden que quieres visitarlas.</li>
+                        <li>La primera ciudad será tu punto de inicio y final (ruta cerrada).</li>
+                        <li><b>Observa las distancias</b> que aparecen en cada segmento de tu ruta.</li>
+                        <li>Puedes <b>reiniciar</b> tu ruta en cualquier momento.</li>
+                        <li>Cuando hayas visitado todas las ciudades, presiona <b>"Comparar con algoritmo"</b>.</li>
+                    </ol>
+                </div>
+                <div>
+                    <!-- <h3 class="text-lg font-semibold mb-2">¿Cómo funciona?</h3> -->
+                    <p>
+                        <b>Distancia euclidiana:</b> Se calcula usando la fórmula √[(x₂-x₁)² + (y₂-y₁)²]<br><br>
+                        <b>Ruta cerrada:</b> Debes regresar al punto de partida al final.<br><br>
+                        <b>Algoritmos usados:</b><br>
+                        • ≤10 ciudades: Fuerza bruta (solución óptima)<br>
+                        • >10 ciudades: Algoritmo genético (aproximación)<br><br>
+                        <!-- <b>Complejidad:</b> El número de rutas posibles crece factorialmente con el número de ciudades. -->
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-1 self-start lg:sticky lg:top-8 space-y-8">
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <h2 class="text-2xl font-bold mb-4">Controles</h2>
+                    <div class="space-y-4 mb-6">
+                        <div>
+                            <label for="num-cities-input" class="font-semibold text-slate-600">Número de ciudades:</label>
+                            <input type="number" id="num-cities-input" value="8" min="4" max="20" class="w-full mt-1 p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <!-- <div>
+                            <label class="font-semibold text-slate-600">Distribución de ciudades:</label>
+                            <div class="mt-1 p-2 bg-blue-50 rounded-lg text-xs text-blue-700">
+                                <strong>Aleatoria:</strong> Las ciudades se distribuyen al azar en el mapa, creando un desafío único cada vez.
+                            </div>
+                        </div> -->
+                    </div>
+                    <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
+                        <button id="reset-button" class="w-full bg-blue-600 text-white font-bold py-3 px-4 sm:px-6 rounded-lg hover:bg-blue-700 text-sm sm:text-base">Generar ciudades</button>
+                        <button id="solve-button" class="w-full bg-teal-600 text-white font-bold py-3 px-4 sm:px-6 rounded-lg hover:bg-teal-700 disabled:bg-slate-400 disabled:cursor-not-allowed text-sm sm:text-base">Comparar con algoritmo</button>
+                    </div>
+                    <p id="loading-text" class="mt-4 text-slate-500 hidden text-center">Calculando...</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <h2 class="text-2xl font-bold mb-4">Tu Ruta</h2>
+                    <div id="user-route" class="space-y-2 text-sm text-slate-600">
+                        <div>Distancia total: <span id="user-distance" class="font-semibold">-</span></div>
+                        <div>Ciudades visitadas: <span id="user-cities" class="font-semibold">0</span> / <span id="total-cities" class="font-semibold">-</span></div>
+                        <div id="route-sequence" class="mt-3 p-2 bg-slate-100 rounded text-xs">
+                            <strong>Secuencia:</strong>
+                            <div id="route-list" class="mt-1">Haz clic en las ciudades para crear tu ruta.</div>
+                        </div>
+                       <!--  <div class="mt-3 p-2 bg-blue-50 rounded text-xs text-blue-700">
+                            <strong>💡 Cómo se calcula la distancia:</strong>
+                            <div class="mt-1">Se usa la fórmula de distancia euclidiana: √[(x₂-x₁)² + (y₂-y₁)²]</div>
+                            <div class="mt-1">La ruta debe visitar cada ciudad exactamente una vez y regresar al inicio.</div>
+                        </div> -->
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <h2 class="text-2xl font-bold mb-4">Información del Problema</h2>
+                    <div id="stats" class="space-y-2 text-sm text-slate-600">
+                        <div>Distancia promedio entre ciudades: <span id="avg-distance" class="font-semibold">-</span></div>
+                        <div>Distancia mínima: <span id="min-distance" class="font-semibold">-</span></div>
+                        <div>Distancia máxima: <span id="max-distance" class="font-semibold">-</span></div>
+                       <!--                          <div class="mt-3 p-2 bg-green-50 rounded text-xs text-green-700">
+                            <strong>🎯 Objetivo:</strong>
+                            <div class="mt-1">Encontrar la ruta más corta que visite todas las ciudades una sola vez y regrese al punto de partida.</div>
+                        </div>
+                        <div class="mt-3 p-2 bg-blue-50 rounded text-xs text-blue-700">
+                            <strong>🤖 Algoritmos:</strong>
+                            <div class="mt-1">≤10 ciudades: Fuerza bruta (garantiza óptimo)</div>
+                            <div class="mt-1">>10 ciudades: Algoritmo genético (aproximación)</div>
+                        </div> -->
+                       <!--                          <div class="mt-3 p-2 bg-orange-50 rounded text-xs text-orange-700">
+                            <strong>⚠️ Complejidad:</strong>
+                            <div class="mt-1">Este es un problema NP-duro. Para n ciudades hay (n-1)!/2 rutas posibles.</div>
+                            <div class="mt-1">Con 8 ciudades: 2,520 rutas. Con 10 ciudades: 181,440 rutas.</div>
+                            <div class="mt-1">Con 12 ciudades: 19,958,400 rutas (¡imposible de calcular!)</div>
+                        </div> -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2">
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold">Mapa de Ciudades</h2>
+                        <div class="flex items-center space-x-2">
+                            <button id="toggle-grid" class="bg-gray-500 text-white font-bold py-2 px-3 rounded-lg hover:bg-gray-600 text-xs sm:text-sm">Ocultar Grid</button>
+                            <div id="comparison-controls" class="hidden flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                                <button id="view-user-route" class="bg-slate-500 text-white font-bold py-2 px-3 rounded-lg hover:bg-slate-600 text-xs sm:text-sm">Ver tu ruta</button>
+                                <button id="view-optimal-route" class="bg-teal-500 text-white font-bold py-2 px-3 rounded-lg hover:bg-teal-600 text-xs sm:text-sm">Ver mejor ruta encontrada</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="relative">
+                        <canvas id="tspCanvas" width="800" height="600" class="w-full h-auto cursor-crosshair"></canvas>
+                        <div id="canvas-overlay" class="absolute top-0 left-0 w-full h-full pointer-events-none"></div>
+                        <div id="mouse-coords" class="absolute bottom-2 right-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs hidden"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Modal -->
+    <div id="results-modal" class="modal-overlay hidden">
+        <div class="bg-white rounded-xl shadow-2xl p-8 max-w-4xl w-full mx-4 transform transition-all duration-300 scale-95 opacity-0" id="modal-content">
+            <h2 class="text-3xl font-bold text-center mb-4">Resultados</h2>
+            <div id="winner-message" class="text-center text-2xl font-bold my-4 p-4 rounded-lg"></div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-center">
+                <div class="bg-slate-100 p-6 rounded-lg">
+                    <h3 class="text-xl font-bold mb-3">Tu ruta</h3>
+                    <p class="text-lg">Distancia: <span id="modal-user-distance" class="font-bold text-blue-600"></span></p>
+                    <p class="text-sm mt-1">Ciudades: <span id="modal-user-cities"></span></p>
+                </div>
+                <div class="bg-teal-100 border-2 border-teal-500 p-6 rounded-lg">
+                    <h3 class="text-xl font-bold mb-3">Mejor ruta encontrada</h3>
+                    <p class="text-lg">Distancia: <span id="modal-optimal-distance" class="font-bold text-blue-600"></span></p>
+                    <p class="text-sm mt-1">Ciudades: <span id="modal-optimal-cities"></span></p>
+                </div>
+            </div>
+            <p id="algorithm-time" class="text-center text-slate-500 mt-4"></p>
+            <div id="modal-footer-buttons" class="mt-8 text-center space-x-4">
+                <button id="close-modal-button" class="bg-gray-600 text-white font-bold py-2 px-8 rounded-lg hover:bg-gray-700">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <footer id="contact" class="bg-[#333333] text-white mt-12">
+        <div class="container mx-auto px-6 py-10">
+            <div class="text-center">
+                <p class="text-gray-300 mb-2">Si tienes alguna pregunta o te gustaría colaborar, no dudes en escribirme.</p>
+                <a href="../contacto.html" class="text-[#80CBC4] text-lg hover:underline">Contacto</a>
+                <p class="text-gray-500 mt-8 text-sm">&copy; 2025 Jonás Velasco. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const canvas = document.getElementById('tspCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        const dom = {
+            numCitiesInput: document.getElementById('num-cities-input'),
+            resetButton: document.getElementById('reset-button'),
+            solveButton: document.getElementById('solve-button'),
+            loadingText: document.getElementById('loading-text'),
+            resultsModal: document.getElementById('results-modal'),
+            modalContent: document.getElementById('modal-content'),
+            winnerMessage: document.getElementById('winner-message'),
+            userDistance: document.getElementById('user-distance'),
+            userCities: document.getElementById('user-cities'),
+            totalCities: document.getElementById('total-cities'),
+            routeList: document.getElementById('route-list'),
+            avgDistance: document.getElementById('avg-distance'),
+            minDistance: document.getElementById('min-distance'),
+            maxDistance: document.getElementById('max-distance'),
+            difficultyExplanation: document.getElementById('difficulty-explanation'),
+            modalUserDistance: document.getElementById('modal-user-distance'),
+            modalOptimalDistance: document.getElementById('modal-optimal-distance'),
+            modalUserCities: document.getElementById('modal-user-cities'),
+            modalOptimalCities: document.getElementById('modal-optimal-cities'),
+            algorithmTime: document.getElementById('algorithm-time'),
+            comparisonControls: document.getElementById('comparison-controls'),
+            closeModalButton: document.getElementById('close-modal-button'),
+            viewUserRoute: document.getElementById('view-user-route'),
+            viewOptimalRoute: document.getElementById('view-optimal-route'),
+            toggleInstructions: document.getElementById('toggleInstructions'),
+            instructionsContent: document.getElementById('instructionsContent'),
+            instructionsChevron: document.getElementById('instructionsChevron'),
+            mouseCoords: document.getElementById('mouse-coords'),
+            toggleGrid: document.getElementById('toggle-grid'),
+        };
+
+        const state = {
+            cities: [],
+            userRoute: [],
+            optimalRoute: [],
+            distances: [],
+            isUserRouteVisible: true,
+            showGrid: true,
+            canvasWidth: 800,
+            canvasHeight: 600,
+            cityRadius: 15,
+            padding: 50,
+            gridSize: 20,
+        };
+
+        function generateCities() {
+            const numCities = parseInt(dom.numCitiesInput.value, 10);
+            state.cities = [];
+            state.userRoute = [];
+            state.optimalRoute = [];
+            
+            console.log('Generando ciudades - Ruta limpiada:', state.userRoute); // Debug
+            
+            const availableWidth = state.canvasWidth - 2 * state.padding;
+            const availableHeight = state.canvasHeight - 2 * state.padding;
+            
+            generateRandomCities(numCities, availableWidth, availableHeight);
+            calculateDistances();
+            updateStats();
+        }
+
+        function generateRandomCities(numCities, width, height) {
+            for (let i = 0; i < numCities; i++) {
+                const x = state.padding + Math.random() * width;
+                const y = state.padding + Math.random() * height;
+                state.cities.push({ id: i, x, y, name: `Ciudad ${i + 1}` });
+            }
+        }
+
+
+
+        function calculateDistances() {
+            state.distances = [];
+            for (let i = 0; i < state.cities.length; i++) {
+                state.distances[i] = [];
+                for (let j = 0; j < state.cities.length; j++) {
+                    if (i === j) {
+                        state.distances[i][j] = 0;
+                    } else {
+                        const dx = state.cities[i].x - state.cities[j].x;
+                        const dy = state.cities[i].y - state.cities[j].y;
+                        state.distances[i][j] = Math.sqrt(dx * dx + dy * dy);
+                    }
+                }
+            }
+        }
+
+        function updateStats() {
+            if (state.cities.length === 0) return;
+            
+            let totalDistance = 0;
+            let minDistance = Infinity;
+            let maxDistance = 0;
+            let count = 0;
+            
+            for (let i = 0; i < state.cities.length; i++) {
+                for (let j = i + 1; j < state.cities.length; j++) {
+                    const distance = state.distances[i][j];
+                    totalDistance += distance;
+                    minDistance = Math.min(minDistance, distance);
+                    maxDistance = Math.max(maxDistance, distance);
+                    count++;
+                }
+            }
+            
+            const avgDistance = count > 0 ? totalDistance / count : 0;
+            
+            dom.avgDistance.textContent = `${avgDistance.toFixed(1)}`;
+            dom.minDistance.textContent = `${minDistance.toFixed(1)}`;
+            dom.maxDistance.textContent = `${maxDistance.toFixed(1)}`;
+            dom.totalCities.textContent = state.cities.length;
+        }
+
+        function renderCanvas() {
+            ctx.clearRect(0, 0, state.canvasWidth, state.canvasHeight);
+            
+            // Dibujar grid solo si está habilitado
+            if (state.showGrid) {
+                drawGrid();
+            }
+            
+            // Dibujar rutas
+            console.log('RenderCanvas - Ruta del usuario:', state.userRoute, 'Longitud:', state.userRoute.length); // Debug
+            if (state.isUserRouteVisible && state.userRoute.length >= 2) {
+                console.log('Dibujando ruta del usuario'); // Debug
+                drawRoute(state.userRoute, '#f59e0b', 3);
+            } else if (!state.isUserRouteVisible && state.optimalRoute.length >= 2) {
+                console.log('Dibujando ruta óptima'); // Debug
+                drawRoute(state.optimalRoute, '#10b981', 4);
+            }
+            
+            // Dibujar línea temporal si solo hay una ciudad seleccionada
+            if (state.isUserRouteVisible && state.userRoute.length === 1) {
+                const city = state.cities[state.userRoute[0]];
+                ctx.strokeStyle = '#f59e0b';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 5]); // Línea punteada
+                ctx.beginPath();
+                ctx.moveTo(city.x, city.y);
+                ctx.lineTo(city.x, city.y); // Línea de longitud 0, solo para mostrar el punto
+                ctx.stroke();
+                ctx.setLineDash([]); // Resetear el patrón de línea
+            }
+            
+            // Dibujar ciudades
+            state.cities.forEach((city, index) => {
+                const isInUserRoute = state.userRoute.includes(index);
+                const isInOptimalRoute = state.optimalRoute.includes(index);
+                const isStart = state.userRoute.length > 0 && state.userRoute[0] === index;
+                
+                let color = '#3b82f6';
+                if (isStart) color = '#3b82f6';
+                else if (isInUserRoute) color = '#f59e0b';
+                else if (isInOptimalRoute && !state.isUserRouteVisible) color = '#10b981';
+                
+                drawCity(city, color, isInUserRoute || (isInOptimalRoute && !state.isUserRouteVisible));
+            });
+        }
+
+        function drawGrid() {
+            ctx.strokeStyle = '#e2e8f0';
+            ctx.lineWidth = 1;
+            
+            // Dibujar líneas verticales
+            for (let x = 0; x <= state.canvasWidth; x += state.gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, state.canvasHeight);
+                ctx.stroke();
+            }
+            
+            // Dibujar líneas horizontales
+            for (let y = 0; y <= state.canvasHeight; y += state.gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(state.canvasWidth, y);
+                ctx.stroke();
+            }
+            
+            // Dibujar bordes del área de juego
+            ctx.strokeStyle = '#cbd5e1';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(state.padding, state.padding, 
+                         state.canvasWidth - 2 * state.padding, 
+                         state.canvasHeight - 2 * state.padding);
+        }
+
+        function drawCity(city, color, isVisited) {
+            ctx.beginPath();
+            ctx.arc(city.x, city.y, state.cityRadius, 0, 2 * Math.PI);
+            ctx.fillStyle = color;
+            ctx.fill();
+            ctx.strokeStyle = isVisited ? '#059669' : '#2563eb';
+            ctx.lineWidth = isVisited ? 3 : 2;
+            ctx.stroke();
+            
+            // Dibujar número de ciudad
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 12px Inter';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(city.name.split(' ')[1], city.x, city.y);
+        }
+
+        function drawRoute(route, color, width) {
+            if (route.length < 2) return;
+            
+            ctx.strokeStyle = color;
+            ctx.lineWidth = width;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            
+            for (let i = 0; i < route.length; i++) {
+                const cityIndex = route[i];
+                const city = state.cities[cityIndex];
+                if (i === 0) {
+                    ctx.moveTo(city.x, city.y);
+                } else {
+                    ctx.lineTo(city.x, city.y);
+                }
+            }
+            
+            // Conectar de vuelta al inicio
+            if (route.length > 2) {
+                const firstCity = state.cities[route[0]];
+                ctx.lineTo(firstCity.x, firstCity.y);
+            }
+            
+            ctx.stroke();
+            
+            // Dibujar distancias en los segmentos
+            if (route.length > 1) {
+                ctx.font = '10px Inter';
+                ctx.fillStyle = '#ef4444';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                
+                for (let i = 0; i < route.length - 1; i++) {
+                    const city1 = state.cities[route[i]];
+                    const city2 = state.cities[route[i + 1]];
+                    const midX = (city1.x + city2.x) / 2;
+                    const midY = (city1.y + city2.y) / 2;
+                    const distance = state.distances[route[i]][route[i + 1]];
+                    
+                    // Fondo para el texto
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                    ctx.fillRect(midX - 15, midY - 8, 30, 16);
+                    
+                    // Texto de la distancia
+                    ctx.fillStyle = '#ef4444';
+                    ctx.fillText(distance.toFixed(0), midX, midY);
+                }
+                
+                // Distancia del último segmento (vuelta al inicio)
+                if (route.length > 2) {
+                    const city1 = state.cities[route[route.length - 1]];
+                    const city2 = state.cities[route[0]];
+                    const midX = (city1.x + city2.x) / 2;
+                    const midY = (city1.y + city2.y) / 2;
+                    const distance = state.distances[route[route.length - 1]][route[0]];
+                    
+                    // Fondo para el texto
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                    ctx.fillRect(midX - 15, midY - 8, 30, 16);
+                    
+                    // Texto de la distancia
+                    ctx.fillStyle = '#ef4444';
+                    ctx.fillText(distance.toFixed(0), midX, midY);
+                }
+            }
+        }
+
+        function calculateRouteDistance(route) {
+            if (route.length < 2) return 0;
+            
+            let totalDistance = 0;
+            for (let i = 0; i < route.length - 1; i++) {
+                totalDistance += state.distances[route[i]][route[i + 1]];
+            }
+            
+            // Agregar distancia de vuelta al inicio
+            if (route.length > 2) {
+                totalDistance += state.distances[route[route.length - 1]][route[0]];
+            }
+            
+            return totalDistance;
+        }
+
+        function updateUserRouteDisplay() {
+            const distance = calculateRouteDistance(state.userRoute);
+            dom.userDistance.textContent = `${distance.toFixed(1)}`;
+            dom.userCities.textContent = state.userRoute.length;
+            
+            const routeText = state.userRoute.length > 0 ? 
+                state.userRoute.map(i => state.cities[i].name).join(' → ') + ' → ' + state.cities[state.userRoute[0]].name :
+                'Haz clic en las ciudades para crear tu ruta.';
+            dom.routeList.textContent = routeText;
+            
+            dom.solveButton.disabled = state.userRoute.length !== state.cities.length;
+        }
+
+        function findBestRoute() {
+            const startTime = performance.now();
+            
+            // Algoritmo de fuerza bruta para problemas pequeños (≤10 ciudades)
+            if (state.cities.length <= 10) {
+                const result = bruteForceTSP();
+                const timeTaken = ((performance.now() - startTime) / 1000).toFixed(2);
+                return { route: result, timeTaken, algorithm: 'Fuerza bruta' };
+            } else {
+                // Algoritmo genético para problemas más grandes (>10 ciudades)
+                const result = geneticAlgorithmTSP();
+                const timeTaken = ((performance.now() - startTime) / 1000).toFixed(2);
+                return { route: result, timeTaken, algorithm: 'Algoritmo genético' };
+            }
+        }
+
+        function bruteForceTSP() {
+            const cities = Array.from({ length: state.cities.length }, (_, i) => i);
+            let bestRoute = [...cities];
+            let bestDistance = calculateRouteDistance(cities);
+            
+            function permute(arr, start) {
+                if (start === arr.length - 1) {
+                    const distance = calculateRouteDistance(arr);
+                    if (distance < bestDistance) {
+                        bestDistance = distance;
+                        bestRoute = [...arr];
+                    }
+                    return;
+                }
+                
+                for (let i = start; i < arr.length; i++) {
+                    [arr[start], arr[i]] = [arr[i], arr[start]];
+                    permute(arr, start + 1);
+                    [arr[start], arr[i]] = [arr[i], arr[start]];
+                }
+            }
+            
+            permute(cities, 0);
+            return bestRoute;
+        }
+
+        function geneticAlgorithmTSP() {
+            const populationSize = 50;
+            const generations = 100;
+            const mutationRate = 0.1;
+            
+            // Generar población inicial
+            let population = [];
+            for (let i = 0; i < populationSize; i++) {
+                const route = Array.from({ length: state.cities.length }, (_, i) => i);
+                shuffleArray(route);
+                population.push([...route]);
+            }
+            
+            let bestRoute = [...population[0]];
+            let bestDistance = calculateRouteDistance(bestRoute);
+            
+            for (let gen = 0; gen < generations; gen++) {
+                // Evaluar población
+                const fitness = population.map(route => ({
+                    route,
+                    distance: calculateRouteDistance(route)
+                }));
+                
+                // Encontrar mejor ruta
+                const currentBest = fitness.reduce((best, current) => 
+                    current.distance < best.distance ? current : best
+                );
+                
+                if (currentBest.distance < bestDistance) {
+                    bestDistance = currentBest.distance;
+                    bestRoute = [...currentBest.route];
+                }
+                
+                // Crear nueva población
+                const newPopulation = [];
+                newPopulation.push(bestRoute); // Elitismo
+                
+                while (newPopulation.length < populationSize) {
+                    const parent1 = tournamentSelection(fitness);
+                    const parent2 = tournamentSelection(fitness);
+                    const child = crossover(parent1, parent2);
+                    mutate(child, mutationRate);
+                    newPopulation.push(child);
+                }
+                
+                population = newPopulation;
+            }
+            
+            return bestRoute;
+        }
+
+        function tournamentSelection(fitness) {
+            const tournamentSize = 3;
+            let best = fitness[Math.floor(Math.random() * fitness.length)];
+            
+            for (let i = 1; i < tournamentSize; i++) {
+                const candidate = fitness[Math.floor(Math.random() * fitness.length)];
+                if (candidate.distance < best.distance) {
+                    best = candidate;
+                }
+            }
+            
+            return best.route;
+        }
+
+        function crossover(parent1, parent2) {
+            const child = new Array(parent1.length).fill(-1);
+            const start = Math.floor(Math.random() * parent1.length);
+            const end = Math.floor(Math.random() * (parent1.length - start)) + start;
+            
+            // Copiar segmento del primer padre
+            for (let i = start; i <= end; i++) {
+                child[i] = parent1[i];
+            }
+            
+            // Llenar el resto con elementos del segundo padre en orden
+            let parent2Index = 0;
+            for (let i = 0; i < child.length; i++) {
+                if (child[i] === -1) {
+                    while (child.includes(parent2[parent2Index])) {
+                        parent2Index++;
+                    }
+                    child[i] = parent2[parent2Index];
+                    parent2Index++;
+                }
+            }
+            
+            return child;
+        }
+
+        function mutate(route, rate) {
+            for (let i = 0; i < route.length; i++) {
+                if (Math.random() < rate) {
+                    const j = Math.floor(Math.random() * route.length);
+                    [route[i], route[j]] = [route[j], route[i]];
+                }
+            }
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function handleMouseMove(event) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            
+            const x = Math.round((event.clientX - rect.left) * scaleX);
+            const y = Math.round((event.clientY - rect.top) * scaleY);
+            
+            dom.mouseCoords.textContent = `(${x}, ${y})`;
+            dom.mouseCoords.classList.remove('hidden');
+        }
+
+        function handleCanvasClick(event) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            
+            const x = (event.clientX - rect.left) * scaleX;
+            const y = (event.clientY - rect.top) * scaleY;
+            
+            console.log('Click en:', x, y); // Debug
+            
+            // Encontrar ciudad más cercana
+            let closestCity = null;
+            let minDistance = Infinity;
+            
+            for (let i = 0; i < state.cities.length; i++) {
+                const city = state.cities[i];
+                const distance = Math.sqrt((x - city.x) ** 2 + (y - city.y) ** 2);
+                console.log(`Ciudad ${i}: distancia ${distance.toFixed(2)}`); // Debug
+                if (distance < minDistance && distance < state.cityRadius * 2) {
+                    minDistance = distance;
+                    closestCity = i;
+                }
+            }
+            
+            if (closestCity !== null) {
+                console.log('Ciudad seleccionada:', closestCity); // Debug
+                if (state.userRoute.length === 0) {
+                    // Primera ciudad
+                    state.userRoute.push(closestCity);
+                } else if (!state.userRoute.includes(closestCity)) {
+                    // Agregar ciudad a la ruta
+                    state.userRoute.push(closestCity);
+                }
+                
+                console.log('Ruta actual:', state.userRoute); // Debug
+                console.log('Longitud de ruta:', state.userRoute.length); // Debug
+                
+                updateUserRouteDisplay();
+                renderCanvas();
+            } else {
+                console.log('No se encontró ciudad cercana'); // Debug
+            }
+        }
+
+        function displayResults(result) {
+            const { route, timeTaken, algorithm } = result;
+            state.optimalRoute = route;
+            
+            const userDistance = calculateRouteDistance(state.userRoute);
+            const optimalDistance = calculateRouteDistance(state.optimalRoute);
+            
+            dom.modalUserDistance.textContent = `${userDistance.toFixed(1)}`;
+            dom.modalOptimalDistance.textContent = `${optimalDistance.toFixed(1)}`;
+            dom.modalUserCities.textContent = state.userRoute.length;
+            dom.modalOptimalCities.textContent = state.optimalRoute.length;
+            dom.algorithmTime.textContent = `${algorithm} - Calculado en ${timeTaken} segundos.`;
+            
+            if (userDistance < optimalDistance) {
+                dom.winnerMessage.innerHTML = '🏆 ¡Felicidades, has ganado! 🏆';
+                dom.winnerMessage.className = 'text-center text-2xl font-bold my-4 p-4 rounded-lg bg-green-100 text-green-800';
+            } else if (optimalDistance < userDistance) {
+                dom.winnerMessage.innerHTML = '🤖 El algoritmo ha ganado 🤖';
+                dom.winnerMessage.className = 'text-center text-2xl font-bold my-4 p-4 rounded-lg bg-teal-100 text-teal-800';
+            } else {
+                dom.winnerMessage.innerHTML = '🤝 ¡Es un empate! 🤝';
+                dom.winnerMessage.className = 'text-center text-2xl font-bold my-4 p-4 rounded-lg bg-slate-100 text-slate-800';
+            }
+            
+            dom.comparisonControls.classList.remove('hidden');
+            dom.resultsModal.classList.remove('hidden');
+            setTimeout(() => dom.modalContent.classList.remove('scale-95', 'opacity-0'), 10);
+        }
+
+
+
+        function initialize() {
+            // Ajustar canvas al tamaño del contenedor
+            const container = canvas.parentElement;
+            const containerRect = container.getBoundingClientRect();
+            state.canvasWidth = Math.max(600, containerRect.width - 40); // Mínimo 600px
+            state.canvasHeight = 600;
+            
+            canvas.width = state.canvasWidth;
+            canvas.height = state.canvasHeight;
+            
+            console.log('Canvas inicializado:', state.canvasWidth, 'x', state.canvasHeight);
+            
+            // Resetear estado de visualización
+            state.isUserRouteVisible = true;
+            console.log('Estado de visualización reseteado a usuario:', state.isUserRouteVisible);
+            
+            generateCities();
+            renderCanvas();
+            updateUserRouteDisplay();
+            dom.solveButton.disabled = true;
+            dom.comparisonControls.classList.add('hidden');
+            dom.resultsModal.classList.add('hidden');
+            dom.modalContent.classList.add('scale-95', 'opacity-0');
+        }
+
+        // Event Listeners
+        canvas.addEventListener('click', handleCanvasClick);
+        canvas.addEventListener('mousemove', handleMouseMove);
+        canvas.addEventListener('mouseleave', () => {
+            dom.mouseCoords.classList.add('hidden');
+        });
+        
+        // Ajustar canvas cuando cambie el tamaño de la ventana
+        window.addEventListener('resize', () => {
+            setTimeout(initialize, 100);
+        });
+        
+        dom.resetButton.addEventListener('click', () => {
+            state.userRoute = [];
+            initialize();
+        });
+        
+        dom.solveButton.addEventListener('click', () => {
+            dom.solveButton.disabled = true;
+            dom.loadingText.classList.remove('hidden');
+            
+            setTimeout(() => {
+                const result = findBestRoute();
+                displayResults(result);
+                dom.loadingText.classList.add('hidden');
+            }, 50);
+        });
+        
+        dom.closeModalButton.addEventListener('click', () => {
+            dom.modalContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                dom.resultsModal.classList.add('hidden');
+            }, 300);
+        });
+        
+        dom.viewUserRoute.addEventListener('click', () => {
+            state.isUserRouteVisible = true;
+            renderCanvas();
+        });
+        
+        dom.viewOptimalRoute.addEventListener('click', () => {
+            state.isUserRouteVisible = false;
+            renderCanvas();
+        });
+        
+        dom.toggleInstructions.addEventListener('click', () => {
+            const content = dom.instructionsContent;
+            const chevron = dom.instructionsChevron;
+            
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                chevron.style.transform = 'rotate(180deg)';
+            } else {
+                content.classList.add('hidden');
+                chevron.style.transform = 'rotate(0deg)';
+            }
+        });
+        
+        // Difficulty strategy buttons
+
+
+        // Toggle grid button
+        dom.toggleGrid.addEventListener('click', () => {
+            state.showGrid = !state.showGrid;
+            dom.toggleGrid.textContent = state.showGrid ? 'Ocultar Grid' : 'Mostrar Grid';
+            renderCanvas();
+        });
+
+        // Initialize
+        setTimeout(initialize, 100);
+    });
+    </script>
+    <script>
+        // --- LÓGICA DE PROTECCIÓN ---
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'F12' || e.keyCode === 123) {
+                e.preventDefault();
+            }
+
+            if (e.ctrlKey) {
+                const key = e.key.toLowerCase();
+                if (['c', 'x', 'u', 's', 'p'].includes(key)) {
+                    e.preventDefault();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
