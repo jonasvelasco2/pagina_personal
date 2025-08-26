@@ -245,12 +245,24 @@
         const ITEM_COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#EF4444', '#EC4899'];
 
         function generateState() {
+                // 1. Define tus valores mínimo y máximo
+            const MIN_VALUE = 10;
+            const MAX_VALUE = 100;
+
             state.items = [];
             state.binCapacities = [];
             state.userAssignments.clear();
             state.gaAssignments.clear();
             const numItems = parseInt(dom.numItemsInput.value, 10);
             const maxCapacity = parseInt(dom.binCapacityInput.value, 10);
+
+                        // 3. Valida y ajusta el número de ítems
+            if (numItems < MIN_VALUE || numItems > MAX_VALUE) {
+                alert(`El valor debe estar entre ${MIN_VALUE} y ${MAX_VALUE}. Se ajustará automáticamente.`);
+                // "Sujeta" el valor para que no sea menor que MIN_VALUE ni mayor que MAX_VALUE
+                numItems = Math.max(MIN_VALUE, Math.min(numItems, MAX_VALUE));
+                dom.numItemsInput.value = numItems; // Actualiza el campo en la página
+            }
 
             // Generar ítems según la estrategia de dificultad
             state.items = generateItemsByStrategy(numItems, maxCapacity);
