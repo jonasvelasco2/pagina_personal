@@ -257,6 +257,7 @@
         function generateCities() {
             // 1. Define tu número máximo de ciudades
             const MAX_CITIES = 100; 
+            const MIN_CITIES = 4; 
             
             // 2. Obtén el valor del input y conviértelo a número
             let numCities = parseInt(dom.numCitiesInput.value, 10);
@@ -266,6 +267,12 @@
                 alert(`El número máximo de ciudades es ${MAX_CITIES}. Se ajustará automáticamente.`);
                 numCities = MAX_CITIES; // Ajusta el número al máximo permitido
                 dom.numCitiesInput.value = MAX_CITIES; // Opcional: actualiza el valor en el campo de texto
+            }
+
+            if (numCities < MIN_CITIES) {
+                alert(`El número mínimo de ciudades es ${MIN_CITIES}. Se ajustará automáticamente.`);
+                numCities = MIN_CITIES; // Ajusta el número al mínimo permitido
+                dom.numCitiesInput.value = MIN_CITIES; // Opcional: actualiza el valor en el campo de texto
             }
 
             state.cities = [];
