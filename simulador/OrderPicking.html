@@ -1,0 +1,2659 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Picking - Desafío de Recogida</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #F0F4F8; color: #1a1a1a; }
+        .warehouse-grid { 
+            display: grid; 
+            gap: 2px; 
+            background-color: #CBD5E1; 
+            padding: 12px; 
+            border-radius: 8px; 
+            width: fit-content; 
+            max-width: 800px; 
+            max-height: 600px;
+            margin: 0 auto;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+        .warehouse-cell { 
+            aspect-ratio: 1; 
+            border-radius: 4px; 
+            transition: all 0.2s ease; 
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 12px;
+            position: relative;
+            box-sizing: border-box;
+            min-width: 0;
+            min-height: 0;
+        }
+        .warehouse-cell.vertical-aisle { 
+            background-color: #DBEAFE; 
+            border: 1px solid #93C5FD; 
+            box-sizing: border-box;
+        }
+        .warehouse-cell.horizontal-aisle { 
+            background-color: #DBEAFE; 
+            border: 1px solid #93C5FD; 
+            box-sizing: border-box;
+        }
+        .warehouse-cell.shelf { 
+            background-color: #D9E2EC; 
+            border: 1px solid #B8C5D1;
+            border-radius: 2px;
+            position: relative;
+            box-sizing: border-box;
+        }
+        
+        /* Hacer que los estantes se vean como bloques continuos */
+        .warehouse-cell.shelf {
+            border: 1px solid #B8C5D1;
+        }
+        
+        /* Eliminar bordes internos entre estantes del mismo bloque */
+        .warehouse-cell.shelf:not(:nth-child(3n+1)) {
+            border-left: none;
+        }
+        .warehouse-cell.product { 
+            background-color: #000000; 
+            color: white;
+            font-weight: bold;
+            border: 1px solid #000000;
+        }
+        .warehouse-cell.counter { 
+            background-color: #3B82F6; 
+            color: white; 
+            font-size: 16px;
+            border: 2px solid #1D4ED8;
+            border-radius: 8px;
+            grid-row: 1;
+            grid-column: 1;
+            align-self: start;
+            justify-self: start;
+            margin: 4px;
+        }
+        .warehouse-cell.picked { background-color: #F59E0B; color: white; }
+        .warehouse-cell.current { background-color: #EF4444; color: white; animation: pulse 1s infinite; }
+        .warehouse-cell.path { background-color: #8B5CF6; color: white; }
+        .warehouse-cell:hover:not(.vertical-aisle):not(.horizontal-aisle) { transform: scale(1.05); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+        
+        /* Animaciones para recolección */
+        .warehouse-cell.picking { 
+            animation: picking 0.6s ease-in-out; 
+            transform: scale(1.1);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+        }
+        
+        .warehouse-cell.moving { 
+            animation: moving 0.8s ease-in-out; 
+        }
+        
+        .warehouse-cell.path-step { 
+            animation: pathStep 0.8s ease-in-out forwards; 
+            background-color: #8B5CF6 !important;
+            color: white !important;
+            transform: scale(1);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.8);
+            position: relative;
+            z-index: 2;
+        }
+        
+        .warehouse-cell.path-used { 
+            background-color: #7C3AED !important;
+            opacity: 0.7;
+            border: 2px solid #6D28D9;
+            box-shadow: 0 2px 8px rgba(124, 58, 237, 0.5);
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+        
+        /* Asegurar que las celdas no se traslapen */
+        .warehouse-cell {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        /* Ajustar el tamaño de las celdas según el grid */
+        .warehouse-grid {
+            grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+            grid-template-rows: repeat(auto-fit, minmax(40px, 1fr));
+        }
+        
+        /* Asegurar que las celdas tengan un tamaño mínimo y no se traslapen */
+        .warehouse-cell {
+            width: 100%;
+            height: 100%;
+            min-width: 30px;
+            min-height: 30px;
+            max-width: 60px;
+            max-height: 60px;
+            box-sizing: border-box;
+        }
+        
+        .product-picked { 
+            animation: productPicked 0.8s ease-in-out; 
+        }
+        
+        /* Carrito animado */
+        .cart-animation {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background-color: #EF4444;
+            border-radius: 50%;
+            z-index: 100;
+            transition: all 0.4s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            border: 2px solid #DC2626;
+        }
+        
+        .cart-animation::before {
+            content: '🛒';
+            font-size: 14px;
+        }
+        
+        .warehouse-container {
+            position: relative;
+        }
+        
+        @keyframes picking {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); background-color: #F59E0B; }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes moving {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); background-color: #3B82F6; }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes pathStep {
+            0% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.15); opacity: 1; }
+            100% { transform: scale(1.1); opacity: 1; background-color: #7C3AED; }
+        }
+        
+        @keyframes productPicked {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.75); display: flex; justify-content: center; align-items: center; z-index: 50; }
+        .btn-type-active { background-color: #0284c7; color: white; }
+        .btn-type-inactive { background-color: #e5e7eb; color: #4b5563; }
+        .btn-mode-active { background-color: #059669; color: white; }
+        .btn-mode-inactive { background-color: #e5e7eb; color: #4b5563; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        .product-item { transition: all 0.2s ease; cursor: grab; }
+        .product-item:active { cursor: grabbing; transform: scale(1.05); }
+        .order-list { max-height: 300px; overflow-y: auto; }
+    </style>
+</head>
+
+<body class="bg-slate-50 text-slate-800">
+    <div class="container mx-auto p-4 md:p-8 relative">
+        <div class="absolute top-4 right-4 flex items-center gap-4 z-10">
+           <a href="../pasarela/buymeacoffee.html" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 bg-yellow-400 text-gray-900 font-bold py-2 px-4 rounded-lg shadow-sm transition-colors duration-300 hover:bg-yellow-500">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M1 12.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5M2 4v6h10V4zm11.5 0a.5.5 0 0 0-.5.5v5a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-5a.5.5 0 0 0-.5-.5zM1 3.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5m10.854-1.354a.5.5 0 0 0-.708 0L9 3.293 7.854 2.146a.5.5 0 1 0-.708.708L8.293 4 7.146 5.146a.5.5 0 1 0 .708.708L9 4.707l1.146 1.147a.5.5 0 0 0 .708-.708L9.707 4l1.147-1.146a.5.5 0 0 0 0-.708"/></svg>
+                <span>Invítame un café</span>
+            </a>
+            <a href="../index.html" class="bg-white hover:bg-slate-100 text-slate-600 font-semibold py-2 px-4 border border-slate-200 rounded-lg shadow-sm flex items-center transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+                Inicio
+            </a>
+        </div>
+
+        <header class="text-center mb-8 pt-16">
+            <h1 class="text-4xl font-bold text-slate-900">Recolección de pedidos: optimiza tu ruta de recogida</h1>
+            <p class="text-lg text-slate-600 mt-2">Recoge todos los productos del pedido siguiendo la ruta más eficiente</p>
+        </header>
+
+        <!-- Menú desplegable con el mismo ancho que el grid principal -->
+        <div class="mb-8">
+            <div id="how-it-works-content" class="bg-white p-6 rounded-xl shadow-md">
+                <div class="flex justify-between items-center mb-4 cursor-pointer" id="how-it-works-toggle">
+                    <h3 class="text-xl font-bold text-blue-600">¿Cómo funciona?</h3>
+                    <svg id="how-it-works-icon" class="w-5 h-5 text-blue-600 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                    </svg>
+                </div>
+                <div id="how-it-works-body" class="hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <h4 class="text-lg font-bold mb-4 text-slate-900">Instrucciones de uso</h4>
+                            <ol class="list-decimal list-inside space-y-2 text-slate-600">
+                                <li><strong>Ajusta</strong> el tamaño del almacén y el número de productos en el pedido.</li>
+                                <li><strong>Selecciona</strong> un producto negro para comenzar tu ruta.</li>
+                                <li><strong>Navega</strong> haciendo clic en celdas adyacentes (pasillos azules) para moverte paso a paso.</li>
+                                <li><strong>Recoge</strong> el producto cuando llegues a él, luego selecciona el siguiente.</li>
+                                <li><strong>Regresa</strong> al mostrador después de recoger todos los productos.</li>
+                                <li><strong>Presiona</strong> "Resolver y comparar" para ver la solución del algoritmo.</li>
+                            </ol>
+                        </div>
+                        
+                        <div>
+                            <h4 class="text-lg font-bold mb-4 text-slate-900">Comparación de soluciones</h4>
+                            <div class="space-y-3 text-slate-600">
+                                <p><strong>Tu solución manual:</strong> Navegas paso a paso tomando decisiones en tiempo real.</p>
+                                <p><strong>Algoritmo inteligente:</strong> Evoluciona múltiples generaciones para encontrar la ruta más eficiente.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-1 self-start sticky top-8 space-y-8">
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <h2 class="text-2xl font-bold mb-4">Controles</h2>
+                    <div class="space-y-4 mb-6">
+                        <div>
+                            <label for="warehouse-size-selector" class="font-semibold text-slate-600">Tamaño del almacén:</label>
+                            <select id="warehouse-size-selector" class="w-full mt-1 p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <option value="9">Pequeño (9x9)</option>
+                                <option value="12" selected>Mediano (12x12)</option>
+                                <option value="15">Grande (15x15)</option>
+                                <option value="18">Experto (18x18)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="order-size-selector" class="font-semibold text-slate-600">Productos en el pedido:</label>
+                            <select id="order-size-selector" class="w-full mt-1 p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <option value="5">5 productos</option>
+                                <option value="8" selected>8 productos</option>
+                                <option value="12">12 productos</option>
+                                <option value="15">15 productos</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex space-x-4">
+                        <button id="reset-button" class="w-full bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700">Generar almacén</button>
+                        <button id="solve-button" class="w-full bg-teal-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-teal-700 disabled:bg-slate-400 disabled:cursor-not-allowed">Resolver y comparar</button>
+                    </div>
+                    <p id="loading-text" class="mt-4 text-slate-500 hidden text-center">Calculando ruta óptima...</p>
+                </div>
+
+                                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <h2 class="text-2xl font-bold mb-4">Pedido actual</h2>
+                    <div id="order-display" class="order-list space-y-2">
+                        <!-- Los productos del pedido se mostrarán aquí -->
+                    </div>
+                    <div class="mt-4 p-3 bg-slate-100 rounded-lg">
+                        <p class="text-sm text-slate-600">Productos recogidos: <span id="picked-count" class="font-bold">0</span> / <span id="total-count" class="font-bold">0</span></p>
+                        <p class="text-sm text-slate-600">Pasos totales: <span id="distance-traveled" class="font-bold">0</span></p>
+                        <p class="text-sm text-slate-600">Celdas únicas: <span id="unique-cells" class="font-bold">0</span></p>
+                        <div id="game-status" class="mt-2 p-2 bg-blue-50 rounded border-l-4 border-blue-400">
+                            <p class="text-xs text-blue-700 font-semibold">Estado del juego</p>
+                            <p id="status-text" class="text-xs text-blue-600">Haz clic en los productos para recogerlos</p>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+
+            <div class="lg:col-span-2">
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold">Almacén</h2>
+                        <div id="comparison-controls" class="hidden space-x-2">
+                            <button id="view-user-solution" class="bg-slate-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-slate-600 text-sm">Ver tu ruta (<span id="user-steps-count">0</span> pasos)</button>
+                            <button id="view-algorithm-solution" class="bg-teal-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-teal-600 text-sm">Ver ruta algoritmo (<span id="algorithm-steps-count">0</span> pasos)</button>
+                        </div>
+                    </div>
+                    <div class="flex justify-center items-center min-h-[600px] warehouse-container">
+                        <div id="warehouse-container" class="warehouse-grid" style="max-width: 800px; max-height: 600px; overflow: hidden;">
+                            <!-- El grid del almacén se generará aquí -->
+                        </div>
+                        <div id="cart-animation" class="cart-animation hidden"></div>
+                    </div>
+                    <div class="mt-4 text-center text-sm text-slate-600">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <p><span class="inline-block w-4 h-4 bg-blue-500 rounded mr-2"></span>Mostrador</p>
+                                <p><span class="inline-block w-4 h-4 bg-black rounded mr-2"></span>Producto por recoger</p>
+                                <p><span class="inline-block w-4 h-4 bg-orange-500 rounded mr-2"></span>Producto recogido</p>
+                                <p><span class="inline-block w-4 h-4 bg-red-500 rounded mr-2"></span>Posición actual</p>
+                            </div>
+                            <div>
+                                <p><span class="inline-block w-4 h-4 bg-blue-200 border border-blue-400 rounded mr-2"></span>Pasillos</p>
+
+                                <p><span class="inline-block w-4 h-4 bg-slate-300 rounded mr-2"></span>Estantes</p>
+                                <p><span class="inline-block w-4 h-4 bg-purple-500 rounded mr-2"></span>Camino recorrido</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Modal -->
+    <div id="results-modal" class="modal-overlay hidden">
+        <div class="bg-white rounded-xl shadow-2xl p-8 max-w-4xl w-full mx-4 transform transition-all duration-300 scale-95 opacity-0" id="modal-content">
+            <h2 class="text-3xl font-bold text-center mb-4">Resultados de la ruta</h2>
+            <div id="winner-message" class="text-center text-2xl font-bold my-4 p-4 rounded-lg"></div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-center">
+                <div class="bg-slate-100 p-6 rounded-lg">
+                    <h3 class="text-xl font-bold mb-3">Tu ruta</h3>
+                    <p class="text-lg">Pasos totales: <span id="user-distance" class="font-bold text-blue-600"></span></p>
+                    <p class="text-sm mt-1">Productos recogidos: <span id="user-products"></span></p>
+                </div>
+                <div class="bg-teal-100 border-2 border-teal-500 p-6 rounded-lg">
+                    <h3 class="text-xl font-bold mb-3">Ruta del algoritmo</h3>
+                    <p class="text-lg">Pasos totales: <span id="algorithm-distance" class="font-bold text-blue-600"></span></p>
+                    <p class="text-sm mt-1">Productos recogidos: <span id="algorithm-products"></span></p>
+                </div>
+            </div>
+            <p id="algorithm-time" class="text-center text-slate-500 mt-4"></p>
+            <div id="modal-footer-buttons" class="mt-8 text-center space-x-4">
+                <button id="close-modal-button" class="bg-gray-600 text-white font-bold py-2 px-8 rounded-lg hover:bg-gray-700">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <footer id="contact" class="bg-[#333333] text-white mt-12">
+        <div class="container mx-auto px-6 py-10">
+            <div class="text-center">
+                <p class="text-gray-300 mb-2">Si tienes alguna pregunta o te gustaría colaborar, no dudes en escribirme.</p>
+                <a href="../contacto.html" class="text-[#80CBC4] text-lg hover:underline">Contacto</a>
+                <p class="text-gray-500 mt-8 text-sm">&copy; 2025 Jonás Velasco. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const dom = {
+            warehouseContainer: document.getElementById('warehouse-container'),
+            warehouseSizeSelector: document.getElementById('warehouse-size-selector'),
+            orderSizeSelector: document.getElementById('order-size-selector'),
+            solveButton: document.getElementById('solve-button'),
+            resetButton: document.getElementById('reset-button'),
+            loadingText: document.getElementById('loading-text'),
+            orderDisplay: document.getElementById('order-display'),
+            pickedCount: document.getElementById('picked-count'),
+            totalCount: document.getElementById('total-count'),
+            distanceTraveled: document.getElementById('distance-traveled'),
+            uniqueCells: document.getElementById('unique-cells'),
+            gameStatus: document.getElementById('game-status'),
+            statusText: document.getElementById('status-text'),
+            resultsModal: document.getElementById('results-modal'),
+            modalContent: document.getElementById('modal-content'),
+            winnerMessage: document.getElementById('winner-message'),
+            userDistance: document.getElementById('user-distance'),
+            algorithmDistance: document.getElementById('algorithm-distance'),
+            userProducts: document.getElementById('user-products'),
+            algorithmProducts: document.getElementById('algorithm-products'),
+            algorithmTime: document.getElementById('algorithm-time'),
+            comparisonControls: document.getElementById('comparison-controls'),
+            userStepsCount: document.getElementById('user-steps-count'),
+            algorithmStepsCount: document.getElementById('algorithm-steps-count'),
+            closeModalButton: document.getElementById('close-modal-button'),
+            howItWorksToggle: document.getElementById('how-it-works-toggle'),
+            howItWorksContent: document.getElementById('how-it-works-content'),
+            howItWorksBody: document.getElementById('how-it-works-body'),
+            howItWorksIcon: document.getElementById('how-it-works-icon'),
+            cartAnimation: document.getElementById('cart-animation'),
+        };
+
+        const state = {
+            warehouse: [],
+            size: 10,
+            products: [],
+            startPosition: { x: 0, y: 0 },
+            currentPosition: { x: 0, y: 0 },
+            pickedProducts: [],
+            userPath: [],
+            algorithmPath: [],
+            algorithmDetailedPath: [],
+            gameCompleted: false,
+            manualMode: true,
+            currentStep: 0,
+            targetProduct: null,
+            gamePhase: 'collection', // 'collection', 'return'
+        };
+
+        const PRODUCT_NAMES = ['📦', '📱', '💻', '🎮', '📷', '🎧', '⌚', '🔋', '📺', '🎵', '📚', '🎨', '🏃', '🍕', '☕'];
+
+        function isShelfAccessible(x, y, size) {
+            // Verificar si hay un pasillo adyacente al estante
+            const adjacentPositions = [
+                { x: x - 1, y: y }, // Izquierda
+                { x: x + 1, y: y }, // Derecha
+                { x: x, y: y - 1 }, // Arriba
+                { x: x, y: y + 1 }  // Abajo
+            ];
+            
+            for (const pos of adjacentPositions) {
+                // Verificar que la posición esté dentro de los límites
+                if (pos.x >= 0 && pos.x < size && pos.y >= 0 && pos.y < size) {
+                    // Verificar si hay un pasillo en esa posición
+                    if (state.warehouse[pos.y][pos.x] === 'vertical-aisle' || 
+                        state.warehouse[pos.y][pos.x] === 'horizontal-aisle') {
+                        return true;
+                    }
+                }
+            }
+            
+            return false;
+        }
+
+        function generateWarehouse() {
+            const size = parseInt(dom.warehouseSizeSelector.value);
+            state.size = size;
+            state.warehouse = [];
+            state.products = [];
+            state.pickedProducts = [];
+            state.userPath = [];
+            state.gameCompleted = false;
+
+            // Generar grid del almacén como en la imagen: bloques de estantes de 2 columnas
+            for (let y = 0; y < size; y++) {
+                state.warehouse[y] = [];
+                for (let x = 0; x < size; x++) {
+                    if (y === 0 || y === size - 1) {
+                        // Pasillos horizontales solo en la parte superior e inferior
+                        state.warehouse[y][x] = 'horizontal-aisle';
+                    } else if (x % 3 === 0) {
+                        // Pasillos verticales cada 3 columnas (columnas 0, 3, 6, 9, etc.)
+                        state.warehouse[y][x] = 'vertical-aisle';
+                    } else {
+                        // Estantes en bloques de 2 columnas entre los pasillos
+                        state.warehouse[y][x] = 'shelf';
+                    }
+                }
+            }
+
+            // Posición inicial (I/O) fuera del almacén en la esquina superior izquierda
+            state.startPosition = { x: -1, y: -1 };
+            state.currentPosition = { ...state.startPosition };
+            // El punto I/O no está en el grid del almacén, se maneja por separado
+
+            // Generar productos solo en estantes accesibles
+            const numProducts = parseInt(dom.orderSizeSelector.value);
+            const availablePositions = [];
+            
+            for (let y = 1; y < size - 1; y++) { // Evitar pasillos horizontales
+                for (let x = 0; x < size; x++) {
+                    if (state.warehouse[y][x] === 'shelf' && !(x === state.startPosition.x && y === state.startPosition.y)) {
+                        // Verificar que el estante sea accesible desde un pasillo
+                        if (isShelfAccessible(x, y, size)) {
+                            availablePositions.push({ x, y });
+                        }
+                    }
+                }
+            }
+
+            // Seleccionar posiciones aleatorias para productos
+            const shuffledPositions = availablePositions.sort(() => Math.random() - 0.5);
+            for (let i = 0; i < Math.min(numProducts, shuffledPositions.length); i++) {
+                const pos = shuffledPositions[i];
+                const productName = PRODUCT_NAMES[i % PRODUCT_NAMES.length];
+                state.products.push({
+                    id: i,
+                    name: productName,
+                    x: pos.x,
+                    y: pos.y,
+                    picked: false
+                });
+                state.warehouse[pos.y][pos.x] = 'product';
+            }
+
+            renderWarehouse();
+            renderOrderDisplay();
+            updateStats();
+            
+            // Posicionar el carrito en la posición inicial
+            setTimeout(() => {
+                animateCartMovement(state.startPosition.x, state.startPosition.y);
+            }, 100);
+        }
+
+        function renderWarehouse() {
+            // Obtener las dimensiones reales del contenedor
+            const warehouseContainer = document.querySelector('.warehouse-container');
+            const containerRect = warehouseContainer.getBoundingClientRect();
+            
+            // Calcular el tamaño de celda basado en el contenedor disponible
+            const containerWidth = Math.min(800, containerRect.width || 800); // Ancho máximo del contenedor
+            const containerHeight = Math.min(600, containerRect.height || 600); // Alto máximo del contenedor
+            const gap = 2; // Gap entre celdas
+            const padding = 12; // Padding del contenedor
+            
+            // Calcular el espacio disponible para el grid
+            const availableWidth = containerWidth - (padding * 2);
+            const availableHeight = containerHeight - (padding * 2);
+            
+            // Calcular el tamaño de celda basado en el tamaño del almacén
+            const maxCellsPerRow = state.size;
+            const maxCellsPerCol = state.size + 1; // +1 para la fila del punto I/O
+            
+            const cellSizeFromWidth = (availableWidth - (gap * (maxCellsPerRow - 1))) / maxCellsPerRow;
+            const cellSizeFromHeight = (availableHeight - (gap * (maxCellsPerCol - 1))) / maxCellsPerCol;
+            
+            // Usar el tamaño más pequeño para asegurar que quepa en el contenedor
+            const cellSize = Math.max(25, Math.min(60, Math.min(cellSizeFromWidth, cellSizeFromHeight)));
+            
+            console.log(`Tamaño del almacén: ${state.size}x${state.size}`);
+            console.log(`Dimensiones del contenedor: ${containerWidth}x${containerHeight}`);
+            console.log(`Tamaño de celda calculado: ${cellSize}px`);
+            
+            dom.warehouseContainer.style.gridTemplateRows = `60px repeat(${state.size}, ${cellSize}px)`;
+            dom.warehouseContainer.style.gridTemplateColumns = `repeat(${state.size}, ${cellSize}px)`;
+            dom.warehouseContainer.style.justifyContent = 'center';
+            dom.warehouseContainer.style.alignItems = 'center';
+            dom.warehouseContainer.style.width = `${(cellSize * state.size) + (gap * (state.size - 1)) + (padding * 2)}px`;
+            dom.warehouseContainer.style.height = `${60 + (cellSize * state.size) + (gap * (state.size + 1)) + (padding * 2)}px`;
+            dom.warehouseContainer.style.maxWidth = '100%';
+            dom.warehouseContainer.style.maxHeight = '100%';
+            dom.warehouseContainer.style.overflow = 'hidden';
+            dom.warehouseContainer.innerHTML = '';
+
+            // Renderizar el punto I/O (fila extra arriba, primera columna)
+            const counterCell = document.createElement('div');
+            counterCell.className = 'warehouse-cell counter';
+            counterCell.dataset.x = '-1';
+            counterCell.dataset.y = '-1';
+            counterCell.innerHTML = '🏢';
+            counterCell.title = 'Punto de entrada/salida';
+            counterCell.style.gridRow = '1 / 2';
+            counterCell.style.gridColumn = '1 / 2';
+            
+            // Marcar si es la posición actual
+            if (state.currentPosition.x === -1 && state.currentPosition.y === -1) {
+                counterCell.classList.add('current');
+            }
+            
+            // Agregar event listener para modo manual
+            if (state.manualMode && state.gamePhase === 'return') {
+                counterCell.addEventListener('click', () => selectCellForManualMode(-1, -1));
+            }
+            
+            dom.warehouseContainer.appendChild(counterCell);
+
+            // Renderizar el almacén
+            for (let y = 0; y < state.size; y++) {
+                for (let x = 0; x < state.size; x++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'warehouse-cell';
+                    cell.dataset.x = x;
+                    cell.dataset.y = y;
+                    
+                    // Posicionar la celda en el grid (fila y+2 porque la fila 1 es para el punto I/O)
+                    cell.style.gridRow = `${y + 2}`;
+                    cell.style.gridColumn = `${x + 1}`;
+
+                    const cellType = state.warehouse[y][x];
+                    cell.classList.add(cellType);
+
+                    if (cellType === 'product') {
+                        const product = state.products.find(p => p.x === x && p.y === y && !p.picked);
+                        if (product) {
+                            cell.textContent = product.name;
+                            if (state.manualMode) {
+                                cell.addEventListener('click', () => selectProductForManualMode(product));
+                                // Resaltar productos disponibles para seleccionar
+                                if (!state.targetProduct || state.targetProduct.id === product.id) {
+                                    cell.style.boxShadow = '0 0 10px rgba(0, 255, 0, 0.5)';
+                                    cell.style.border = '2px solid #10B981';
+                                }
+                            } else {
+                                cell.addEventListener('click', () => pickProduct(product));
+                            }
+                        }
+                    } else if (cellType === 'vertical-aisle' || cellType === 'horizontal-aisle') {
+                        // Permitir moverse a pasillos verticales y horizontales
+                        if (state.manualMode) {
+                            cell.addEventListener('click', () => selectCellForManualMode(x, y));
+                            // Resaltar celdas adyacentes válidas cuando hay un producto seleccionado
+                            if (state.targetProduct && isAdjacentCell(x, y)) {
+                                cell.style.boxShadow = '0 0 8px rgba(59, 130, 246, 0.6)';
+                                cell.style.border = '2px solid #3B82F6';
+                            }
+                        } else {
+                            cell.addEventListener('click', () => moveToPosition(x, y));
+                        }
+                    }
+
+                    // Marcar posición actual
+                    if (x === state.currentPosition.x && y === state.currentPosition.y) {
+                        cell.classList.add('current');
+                    }
+
+                    // Mantener celdas marcadas en modo manual (pero no sobrescribir productos recogidos)
+                    if (state.manualMode) {
+                        const stepNumbers = getCellStepNumbers(x, y);
+                        if (stepNumbers.length > 0) {
+                            cell.classList.add('path-used');
+                            cell.textContent = stepNumbers.join(', ');
+                            cell.style.fontWeight = 'bold';
+                            
+                            // Ajustar el tamaño de fuente según la cantidad de números
+                            if (stepNumbers.length <= 2) {
+                                cell.style.fontSize = '16px'; // Tamaño grande para pocos números
+                            } else if (stepNumbers.length <= 4) {
+                                cell.style.fontSize = '14px'; // Tamaño medio para varios números
+                            } else {
+                                cell.style.fontSize = '12px'; // Tamaño pequeño para muchos números
+                            }
+                            
+                            cell.style.color = 'white';
+                            cell.style.backgroundColor = '#7C3AED';
+                            cell.style.border = '2px solid #6D28D9';
+                            cell.style.boxShadow = '0 2px 8px rgba(124, 58, 237, 0.5)';
+                            cell.style.lineHeight = '1.2'; // Mejorar espaciado vertical
+                            cell.style.padding = '2px'; // Agregar padding para mejor legibilidad
+                        }
+                    }
+
+                    // Marcar productos recogidos (con prioridad sobre las celdas marcadas)
+                    const pickedProduct = state.pickedProducts.find(p => p.x === x && p.y === y);
+                    if (pickedProduct) {
+                        cell.classList.add('picked');
+                        cell.textContent = pickedProduct.name;
+                        // Mantener el estilo de producto recogido (naranja) pero con el número de paso
+                        cell.style.backgroundColor = '#F59E0B';
+                        cell.style.color = 'white';
+                        cell.style.fontWeight = 'bold';
+                        cell.style.fontSize = '14px';
+                        cell.style.border = '2px solid #D97706';
+                        cell.style.boxShadow = '0 2px 8px rgba(245, 158, 11, 0.5)';
+                    }
+
+                    dom.warehouseContainer.appendChild(cell);
+                }
+            }
+        }
+
+        function renderOrderDisplay() {
+            dom.orderDisplay.innerHTML = '';
+            state.products.forEach((product, index) => {
+                const productEl = document.createElement('div');
+                productEl.className = `p-2 rounded-lg border transition-all duration-300 ${product.picked ? 'bg-green-100 border-green-300 product-picked' : 'bg-slate-100 border-slate-300'}`;
+                productEl.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span class="text-lg">${product.name}</span>
+                        <span class="text-sm text-slate-600">${product.picked ? '✅' : '⏳'}</span>
+                    </div>
+                `;
+                dom.orderDisplay.appendChild(productEl);
+            });
+        }
+
+        function moveToPosition(x, y) {
+            // Generar ruta desde la posición actual hasta la nueva posición
+            const pathToPosition = generatePathBetweenPoints(state.currentPosition, { x, y });
+            
+            // Animar el movimiento celda por celda
+            animatePathToPosition(pathToPosition, { x, y });
+        }
+
+        function animatePathToPosition(path, targetPosition) {
+            if (path.length === 0) {
+                // Si no hay camino (mismo punto), actualizar directamente
+                updatePosition(targetPosition);
+                return;
+            }
+
+            // Animar cada paso del camino
+            path.forEach((step, index) => {
+                if (cell && !cell.classList.contains('counter')) {
+                    // Marcar inmediatamente como paso del camino
+                    cell.classList.add('path-step');
+                    
+                    // Después de la animación, cambiar a estado 'usado'
+                    setTimeout(() => {
+                        cell.classList.remove('path-step');
+                        cell.classList.add('path-used');
+                    }, 400);
+                }
+                setTimeout(() => {
+                    // Mover el carrito a cada paso
+                    animateCartMovement(step.x, step.y);
+                    
+                    // Si es el último paso, actualizar la posición
+                    if (index === path.length - 1) {
+                        setTimeout(() => {
+                            updatePosition(targetPosition);
+                        }, 300);
+                    }
+                }, index * 400); // Delay entre cada paso
+            });
+        }
+
+        function updatePosition(newPosition) {
+            // Actualizar la posición actual
+            state.currentPosition = { x: newPosition.x, y: newPosition.y };
+            state.userPath.push({ x: newPosition.x, y: newPosition.y });
+            
+            renderWarehouse();
+            updateStats();
+        }
+
+        function animateMovement(x, y) {
+            const cell = document.querySelector(`[data-x="${x}"][data-y="${y}"]`);
+            if (cell) {
+                cell.classList.add('moving');
+                setTimeout(() => {
+                    cell.classList.remove('moving');
+                }, 800);
+            }
+        }
+
+        function animateCartMovement(x, y) {
+            // Si es el punto I/O, usar la celda del contador
+            let cell;
+            if (x === -1 && y === -1) {
+                cell = document.querySelector('.warehouse-cell.counter');
+            } else {
+                cell = document.querySelector(`[data-x="${x}"][data-y="${y}"]`);
+            }
+            
+            // Debug: verificar si se encontró la celda
+            if (!cell) {
+                console.warn(`No se encontró celda para coordenadas (${x}, ${y})`);
+                return;
+            }
+            
+            if (dom.cartAnimation) {
+                // Obtener las posiciones de la celda y el contenedor del warehouse
+                const cellRect = cell.getBoundingClientRect();
+                const warehouseContainer = document.querySelector('.warehouse-container');
+                const containerRect = warehouseContainer.getBoundingClientRect();
+                
+                // Calcular posición relativa al contenedor del warehouse
+                const left = cellRect.left - containerRect.left + (cellRect.width / 2) - 12;
+                const top = cellRect.top - containerRect.top + (cellRect.height / 2) - 12;
+                
+                // Debug: verificar posiciones
+                console.log(`Moviendo carrito a (${x}, ${y})`);
+                console.log(`Celda: left=${cellRect.left}, top=${cellRect.top}, width=${cellRect.width}, height=${cellRect.height}`);
+                console.log(`Contenedor: left=${containerRect.left}, top=${containerRect.top}`);
+                console.log(`Posición calculada: left=${left}, top=${top}`);
+                
+                // Mostrar y mover el carrito con animación suave
+                dom.cartAnimation.classList.remove('hidden');
+                dom.cartAnimation.style.transition = 'all 0.4s ease';
+                dom.cartAnimation.style.left = left + 'px';
+                dom.cartAnimation.style.top = top + 'px';
+                dom.cartAnimation.style.position = 'absolute';
+                dom.cartAnimation.style.zIndex = '1000';
+                
+                // Animar la celda
+                cell.classList.add('moving');
+                setTimeout(() => {
+                    cell.classList.remove('moving');
+                }, 400);
+            }
+        }
+
+        function pickProduct(product) {
+            if (product.picked) return;
+
+            // Generar ruta desde la posición actual hasta el producto
+            const pathToProduct = generatePathBetweenPoints(state.currentPosition, product);
+            
+            // Animar el movimiento celda por celda hasta el producto
+            animatePathToProduct(pathToProduct, product);
+        }
+
+        function selectProductForManualMode(product) {
+            if (product.picked) {
+                showToast('Este producto ya ha sido recogido.');
+                return;
+            }
+            
+            if (!state.targetProduct) {
+                // Seleccionar este producto como objetivo
+                state.targetProduct = product;
+                updateGameStatus();
+                showToast(`Producto ${product.name} seleccionado. Ahora selecciona celdas adyacentes para llegar hasta él.`);
+            } else if (state.targetProduct.id === product.id) {
+                // Verificar que estemos en una celda adyacente al producto antes de recogerlo
+                if (isAdjacentCell(product.x, product.y)) {
+                    // Llegamos al producto objetivo, recogerlo
+                    collectProductInManualMode(product);
+                } else {
+                    showToast('Debes estar en una celda adyacente al producto para recogerlo.');
+                }
+            } else {
+                showToast('Primero debes llegar al producto seleccionado antes de seleccionar otro.');
+            }
+        }
+
+        function selectCellForManualMode(x, y) {
+            if (!state.targetProduct && state.gamePhase === 'collection') {
+                showToast('Primero selecciona un producto para recoger.');
+                return;
+            }
+
+            // Verificar que la celda sea adyacente a la posición actual
+            if (!isAdjacentCell(x, y)) {
+                showToast('Solo puedes seleccionar celdas adyacentes a tu posición actual.');
+                return;
+            }
+
+            // Mover a la nueva posición (ahora permitimos reutilizar celdas)
+            moveToPositionInManualMode(x, y);
+        }
+
+        function isAdjacentCell(x, y) {
+            // Caso especial para el punto I/O
+            if (x === -1 && y === -1) {
+                // El punto I/O es adyacente si estamos en la celda (0,0)
+                return state.currentPosition.x === 0 && state.currentPosition.y === 0;
+            }
+            
+            // Si estamos en el punto I/O, solo podemos ir a (0,0)
+            if (state.currentPosition.x === -1 && state.currentPosition.y === -1) {
+                return x === 0 && y === 0;
+            }
+            
+            // Verificar si el destino es un producto en un estante
+            if (state.warehouse[y] && state.warehouse[y][x] === 'product') {
+                // Para recoger un producto, debes estar en un pasillo adyacente
+                const dx = Math.abs(x - state.currentPosition.x);
+                const dy = Math.abs(y - state.currentPosition.y);
+                return (dx === 1 && dy === 0) || (dx === 0 && dy === 1);
+            }
+            
+            // Para movimientos normales entre celdas
+            const dx = Math.abs(x - state.currentPosition.x);
+            const dy = Math.abs(y - state.currentPosition.y);
+            return (dx === 1 && dy === 0) || (dx === 0 && dy === 1);
+        }
+
+        function moveToPositionInManualMode(x, y) {
+            // Actualizar posición actual
+            state.currentPosition = { x, y };
+            state.userPath.push({ x, y });
+            
+            // Marcar la celda inmediatamente con color morado y números de paso
+            markCellAsSelected(x, y, state.userPath.length);
+            
+            // Renderizar el almacén
+            renderWarehouse();
+            updateStats();
+            
+            // Verificar si llegamos al producto objetivo
+            if (state.targetProduct && x === state.targetProduct.x && y === state.targetProduct.y) {
+                // Marcar la celda del producto como recogida inmediatamente
+                markCellAsSelected(x, y, state.userPath.length);
+                collectProductInManualMode(state.targetProduct);
+            } else if (state.gamePhase === 'return' && x === -1 && y === -1) {
+                // Llegamos al punto I/O, agregar a la ruta y completar juego
+                state.userPath.push({ x, y });
+                completeManualGame();
+            }
+            
+            updateGameStatus();
+        }
+
+        function isCellAlreadySelected(x, y) {
+            // Permitir reutilizar celdas ya marcadas
+            return false;
+        }
+
+        function getCellStepNumbers(x, y) {
+            const steps = [];
+            state.userPath.forEach((step, index) => {
+                if (step.x === x && step.y === y) {
+                    steps.push(index + 1);
+                }
+            });
+            return steps;
+        }
+
+        function getReusedCellsInfo() {
+            const cellUsage = {};
+            state.userPath.forEach((step, index) => {
+                const key = `${step.x},${step.y}`;
+                if (!cellUsage[key]) {
+                    cellUsage[key] = [];
+                }
+                cellUsage[key].push(index + 1);
+            });
+            
+            const reusedCells = Object.entries(cellUsage)
+                .filter(([key, steps]) => steps.length > 1)
+                .map(([key, steps]) => ({ cell: key, steps }));
+            
+            return reusedCells;
+        }
+
+        function markCellAsSelected(x, y, stepNumber) {
+            const cell = document.querySelector(`[data-x="${x}"][data-y="${y}"]`);
+            if (cell) {
+                cell.classList.add('path-used');
+                
+                // Obtener todos los números de paso para esta celda
+                const stepNumbers = getCellStepNumbers(x, y);
+                
+                // Mostrar todos los números separados por comas
+                cell.textContent = stepNumbers.join(', ');
+                cell.style.fontWeight = 'bold';
+                
+                // Ajustar el tamaño de fuente según la cantidad de números
+                if (stepNumbers.length <= 2) {
+                    cell.style.fontSize = '16px'; // Tamaño grande para pocos números
+                } else if (stepNumbers.length <= 4) {
+                    cell.style.fontSize = '14px'; // Tamaño medio para varios números
+                } else {
+                    cell.style.fontSize = '12px'; // Tamaño pequeño para muchos números
+                }
+                
+                cell.style.color = 'white';
+                cell.style.backgroundColor = '#7C3AED';
+                cell.style.border = '2px solid #6D28D9';
+                cell.style.boxShadow = '0 2px 8px rgba(124, 58, 237, 0.5)';
+                cell.style.lineHeight = '1.2'; // Mejorar espaciado vertical
+                cell.style.padding = '2px'; // Agregar padding para mejor legibilidad
+            }
+        }
+
+        function collectProductInManualMode(product) {
+            // Animar la recolección
+            animatePicking(product);
+            
+            // Marcar producto como recogido
+            product.picked = true;
+            state.pickedProducts.push(product);
+            state.targetProduct = null;
+            
+            // Verificar si todos los productos han sido recogidos
+            if (state.pickedProducts.length === state.products.length) {
+                state.gamePhase = 'return';
+                showToast('¡Todos los productos recogidos! Ahora haz clic en el mostrador 🏢 para completar el juego.');
+            } else {
+                showToast(`Producto ${product.name} recogido. Selecciona el siguiente producto.`);
+            }
+            
+            // Renderizar después de un pequeño delay para la animación
+            setTimeout(() => {
+                renderWarehouse();
+                renderOrderDisplay();
+                updateStats();
+                updateGameStatus();
+            }, 300);
+        }
+
+        function completeManualGame() {
+            state.gameCompleted = true;
+            state.gamePhase = 'completed';
+            dom.solveButton.disabled = false;
+            showToast('¡Juego completado! Ahora puedes comparar tu ruta con el algoritmo.');
+            updateGameStatus();
+            
+            // Agregar el punto I/O al final de la ruta del usuario
+            state.userPath.push({ x: -1, y: -1 });
+            
+            // Mostrar mensaje de finalización
+            console.log('Juego manual completado. Ruta final:', state.userPath);
+        }
+
+        function animatePathToProduct(path, product) {
+            if (path.length === 0) {
+                collectProduct(product);
+                return;
+            }
+
+            // Marcar todas las celdas del camino primero
+            markPathCells(path);
+            
+            // Animar el movimiento del carrito
+            let currentStep = 0;
+            
+            function moveNextStep() {
+                if (currentStep >= path.length) {
+                    // Al final del camino, recoger el producto
+                    setTimeout(() => {
+                        collectProduct(product);
+                    }, 300);
+                    return;
+                }
+                
+                const step = path[currentStep];
+                const cell = document.querySelector(`[data-x="${step.x}"][data-y="${step.y}"]`);
+                
+                if (cell) {
+                    // Resaltar la celda actual como parte del camino activo
+                    cell.classList.add('path-step');
+                    
+                    // Mover el carrito
+                    animateCartMovement(step.x, step.y);
+                    
+                    // Actualizar la posición actual para el siguiente paso
+                    state.currentPosition = { x: step.x, y: step.y };
+                    
+                    // Avanzar al siguiente paso después de un delay
+                    currentStep++;
+                    setTimeout(moveNextStep, 400);
+                }
+            }
+            
+            // Iniciar la animación
+            moveNextStep();
+        }
+
+        function collectProduct(product) {
+            // Animar la recolección
+            animatePicking(product);
+            
+            // Marcar producto como recogido
+            product.picked = true;
+            state.pickedProducts.push(product);
+            
+            // Actualizar la posición actual al producto recogido
+            state.currentPosition = { x: product.x, y: product.y };
+            state.userPath.push({ x: product.x, y: product.y });
+
+            // Renderizar después de un pequeño delay para la animación
+            setTimeout(() => {
+                renderWarehouse();
+                renderOrderDisplay();
+                updateStats();
+                
+                // Verificar si el juego está completo
+                if (state.pickedProducts.length === state.products.length) {
+                    state.gameCompleted = true;
+                    dom.solveButton.disabled = false;
+                    showToast('¡Felicidades! Has recogido todos los productos. Ahora puedes ver tu ruta completa.');
+                }
+            }, 300);
+        }
+
+        
+
+        function animatePicking(product) {
+            const cell = document.querySelector(`[data-x="${product.x}"][data-y="${product.y}"]`);
+            if (cell) {
+                cell.classList.add('picking');
+                setTimeout(() => {
+                    cell.classList.remove('picking');
+                }, 600);
+            }
+        }
+
+        function updateStats() {
+            // Animar el contador de productos recogidos
+            animateCounter(dom.pickedCount, state.pickedProducts.length);
+            dom.totalCount.textContent = state.products.length;
+
+            // Calcular distancia total recorrida
+            let totalDistance = 0;
+            
+            if (state.manualMode) {
+                // En modo manual, usar la ruta real del usuario
+                totalDistance = state.userPath.length;
+                
+                // Calcular celdas únicas utilizadas
+                const uniqueCellsSet = new Set();
+                state.userPath.forEach(step => {
+                    uniqueCellsSet.add(`${step.x},${step.y}`);
+                });
+                const uniqueCellsCount = uniqueCellsSet.size;
+                dom.uniqueCells.textContent = uniqueCellsCount;
+            } else {
+                // En modo automático, usar pathfinding real
+                let lastPos = state.startPosition;
+
+                for (const product of state.pickedProducts) {
+                    const route = generatePathBetweenPoints(lastPos, product);
+                    totalDistance += route.length;
+                    lastPos = { x: product.x, y: product.y };
+                }
+
+                // Agregar distancia de regreso al I/O para mostrar la ruta completa
+                if (state.pickedProducts.length > 0) {
+                    const returnRoute = generatePathBetweenPoints(lastPos, state.startPosition);
+                    totalDistance += returnRoute.length;
+                }
+                
+                // En modo automático, no mostrar celdas únicas
+                dom.uniqueCells.textContent = '-';
+            }
+
+            // Animar el contador de distancia
+            animateCounter(dom.distanceTraveled, totalDistance);
+        }
+
+        function animateCounter(element, newValue) {
+            const currentValue = parseInt(element.textContent) || 0;
+            if (currentValue !== newValue) {
+                element.style.transform = 'scale(1.2)';
+                element.style.color = '#3B82F6';
+                element.textContent = newValue;
+                
+                setTimeout(() => {
+                    element.style.transform = 'scale(1)';
+                    element.style.color = '';
+                }, 300);
+            }
+        }
+
+        function calculateNearestNeighborPath() {
+            const startTime = performance.now();
+            const path = [];
+            const unvisited = [...state.products];
+            let currentPos = { ...state.startPosition };
+            let totalDistance = 0;
+
+            while (unvisited.length > 0) {
+                let nearestIndex = -1;
+                let minDistance = Infinity;
+
+                for (let i = 0; i < unvisited.length; i++) {
+                    const route = generatePathBetweenPoints(currentPos, unvisited[i]);
+                    const distance = route.length;
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        nearestIndex = i;
+                    }
+                }
+
+                const nearest = unvisited[nearestIndex];
+                path.push(nearest);
+                totalDistance += minDistance;
+                currentPos = { x: nearest.x, y: nearest.y };
+                unvisited.splice(nearestIndex, 1);
+            }
+            
+            // Agregar distancia de regreso al I/O
+            const returnRoute = generatePathBetweenPoints(currentPos, state.startPosition);
+            totalDistance += returnRoute.length;
+
+            const timeTaken = ((performance.now() - startTime) / 1000).toFixed(3);
+            return { path, totalDistance, timeTaken };
+        }
+
+        function calculateOptimalPathWithSearch() {
+            const startTime = performance.now();
+            
+            // Usar TODOS los productos del almacén, no solo los no recogidos
+            const products = [...state.products];
+            if (products.length === 0) return { path: [], detailedPath: [], totalDistance: 0, timeTaken: 0 };
+
+            console.log('Iniciando búsqueda de ruta óptima para productos:', products.map(p => `${p.name} en (${p.x},${p.y})`));
+            
+            // Usar algoritmo de búsqueda A* con TSP heurístico
+            const optimalOrder = findOptimalProductOrder(products);
+            const detailedPath = generateOptimalDetailedPath(optimalOrder);
+            const totalDistance = detailedPath.length;
+            
+            const timeTaken = ((performance.now() - startTime) / 1000).toFixed(3);
+            
+            // Almacenar la ruta detallada en el estado
+            state.algorithmDetailedPath = detailedPath;
+            
+            console.log('Ruta óptima encontrada:', {
+                order: optimalOrder.map(p => `${p.name} en (${p.x},${p.y})`),
+                steps: totalDistance,
+                time: timeTaken + 's',
+                detailedPath: detailedPath.map(p => `(${p.x},${p.y})`)
+            });
+            
+            return { 
+                path: optimalOrder, 
+                detailedPath: detailedPath,
+                totalDistance: totalDistance,
+                timeTaken 
+            };
+        }
+        
+        function findOptimalProductOrder(products) {
+            // Usar heurística del vecino más cercano mejorada con búsqueda local
+            const unvisited = [...products];
+            const visited = [];
+            let currentPos = { x: 0, y: 0 }; // Posición inicial en el almacén
+            
+            while (unvisited.length > 0) {
+                let nearestProduct = null;
+                let shortestDistance = Infinity;
+                
+                // Encontrar el producto más cercano considerando la ruta real
+                for (const product of unvisited) {
+                    const aislePos = { x: findNearestAisle(product.x), y: product.y };
+                    const pathToProduct = findPathAStar(currentPos, aislePos);
+                    const distance = pathToProduct.length;
+                    
+                    if (distance < shortestDistance) {
+                        shortestDistance = distance;
+                        nearestProduct = product;
+                    }
+                }
+                
+                if (nearestProduct) {
+                    visited.push(nearestProduct);
+                    unvisited.splice(unvisited.indexOf(nearestProduct), 1);
+                    currentPos = { x: findNearestAisle(nearestProduct.x), y: nearestProduct.y };
+                }
+            }
+            
+            // Aplicar optimización 2-opt para mejorar la ruta
+            return optimize2Opt(visited);
+        }
+        
+        function optimize2Opt(tour) {
+            if (tour.length < 4) return tour; // 2-opt necesita al menos 4 nodos
+            
+            let improved = true;
+            let bestTour = [...tour];
+            let bestDistance = calculateTourDistance(bestTour);
+            
+            while (improved) {
+                improved = false;
+                
+                for (let i = 1; i < tour.length - 1; i++) {
+                    for (let j = i + 1; j < tour.length; j++) {
+                        // Crear nueva ruta intercambiando segmento
+                        const newTour = [...tour];
+                        const segment = newTour.slice(i, j + 1).reverse();
+                        newTour.splice(i, j - i + 1, ...segment);
+                        
+                        const newDistance = calculateTourDistance(newTour);
+                        
+                        if (newDistance < bestDistance) {
+                            bestTour = newTour;
+                            bestDistance = newDistance;
+                            improved = true;
+                        }
+                    }
+                }
+                
+                tour = bestTour;
+            }
+            
+            return bestTour;
+        }
+        
+        function calculateTourDistance(tour) {
+            if (tour.length === 0) return 0;
+            
+            let totalDistance = 0;
+            let currentPos = { x: 0, y: 0 };
+            
+            // Distancia desde I/O al primer producto
+            const firstAisle = { x: findNearestAisle(tour[0].x), y: tour[0].y };
+            totalDistance += findPathAStar(currentPos, firstAisle).length;
+            currentPos = firstAisle;
+            
+            // Distancias entre productos
+            for (let i = 0; i < tour.length - 1; i++) {
+                const fromAisle = { x: findNearestAisle(tour[i].x), y: tour[i].y };
+                const toAisle = { x: findNearestAisle(tour[i + 1].x), y: tour[i + 1].y };
+                totalDistance += findPathAStar(fromAisle, toAisle).length;
+                currentPos = toAisle;
+            }
+            
+            // Distancia de regreso al I/O
+            const exitPos = { x: 0, y: 0 };
+            totalDistance += findPathAStar(currentPos, exitPos).length;
+            totalDistance += 1; // Paso final al I/O
+            
+            return totalDistance;
+        }
+        
+        function generateOptimalDetailedPath(productOrder) {
+            if (productOrder.length === 0) return [];
+            
+            const detailedPath = [];
+            let currentPos = { x: 0, y: 0 };
+            
+            console.log('Generando ruta detallada para productos:', productOrder.map(p => `${p.name} en (${p.x},${p.y})`));
+            
+            // Agregar posición inicial en el almacén
+            detailedPath.push({ ...currentPos });
+            
+            // Ruta a cada producto
+            for (let i = 0; i < productOrder.length; i++) {
+                const product = productOrder[i];
+                const aislePos = { x: findNearestAisle(product.x), y: product.y };
+                
+                console.log(`Producto ${i + 1}: ${product.name} en (${product.x},${product.y}), pasillo en (${aislePos.x},${aislePos.y})`);
+                
+                // Solo agregar ruta si no estamos ya en la posición objetivo
+                if (currentPos.x !== aislePos.x || currentPos.y !== aislePos.y) {
+                    const pathToProduct = findPathAStar(currentPos, aislePos);
+                    console.log(`Ruta desde (${currentPos.x},${currentPos.y}) hasta (${aislePos.x},${aislePos.y}):`, pathToProduct);
+                    
+                    // Agregar todos los pasos excepto el punto de partida (que ya está en detailedPath)
+                    for (let j = 1; j < pathToProduct.length; j++) {
+                        detailedPath.push({ ...pathToProduct[j] });
+                    }
+                }
+                
+                currentPos = { ...aislePos };
+            }
+            
+            // Ruta de regreso al I/O
+            const exitPos = { x: 0, y: 0 };
+            if (currentPos.x !== exitPos.x || currentPos.y !== exitPos.y) {
+                const pathToExit = findPathAStar(currentPos, exitPos);
+                console.log(`Ruta de regreso desde (${currentPos.x},${currentPos.y}) hasta (${exitPos.x},${exitPos.y}):`, pathToExit);
+                
+                // Agregar pasos de regreso (excluyendo el punto de partida)
+                for (let i = 1; i < pathToExit.length; i++) {
+                    detailedPath.push({ ...pathToExit[i] });
+                }
+            }
+            
+            // Agregar paso final al I/O
+            detailedPath.push({ x: -1, y: -1 });
+            
+            console.log('Ruta detallada final:', detailedPath.map(p => `(${p.x},${p.y})`));
+            console.log('Total de pasos:', detailedPath.length);
+            return detailedPath;
+        }
+
+        function generateDetailedPathFromChromosome(chromosome) {
+            const detailedPath = [];
+            let currentPos = { ...state.startPosition };
+            
+            // 1. Salida del punto I/O al primer producto
+            if (chromosome.length > 0) {
+                const firstProduct = chromosome[0];
+                const pathToFirst = generatePathFromCounterToAisle(firstProduct);
+                detailedPath.push(...pathToFirst);
+                currentPos = { x: pathToFirst[pathToFirst.length - 1].x, y: pathToFirst[pathToFirst.length - 1].y };
+            }
+            
+            // 2. Ruta entre productos (solo por pasillos)
+            for (let i = 0; i < chromosome.length - 1; i++) {
+                const currentProduct = chromosome[i];
+                const nextProduct = chromosome[i + 1];
+                
+                // Generar ruta desde el pasillo del producto actual hasta el pasillo del siguiente
+                const pathBetweenProducts = generatePathBetweenProductAisles(currentProduct, nextProduct);
+                detailedPath.push(...pathBetweenProducts);
+                currentPos = { x: pathBetweenProducts[pathBetweenProducts.length - 1].x, y: pathBetweenProducts[pathBetweenProducts.length - 1].y };
+            }
+            
+            // 3. Regreso al punto I/O desde el último producto
+            if (chromosome.length > 0) {
+                const lastProduct = chromosome[chromosome.length - 1];
+                const pathToIO = generatePathFromAisleToCounter(lastProduct);
+                detailedPath.push(...pathToIO);
+            }
+            
+            // Eliminar duplicados consecutivos
+            const cleanedPath = [];
+            for (let i = 0; i < detailedPath.length; i++) {
+                if (i === 0 || 
+                    detailedPath[i].x !== detailedPath[i-1].x || 
+                    detailedPath[i].y !== detailedPath[i-1].y) {
+                    cleanedPath.push(detailedPath[i]);
+                }
+            }
+            
+            return cleanedPath;
+        }
+
+        function calculateDetailedPathDistance(detailedPath) {
+            let distance = detailedPath.length;
+            let totalTurns = 0;
+            let previousDirection = null;
+
+            // Calcular cambios de dirección (penalización por giros)
+            for (let i = 0; i < detailedPath.length - 1; i++) {
+                const currentStep = detailedPath[i];
+                const nextStep = detailedPath[i + 1];
+                
+                const currentDirection = getDirection(currentStep, nextStep);
+                if (previousDirection && currentDirection !== previousDirection) {
+                    totalTurns++;
+                }
+                previousDirection = currentDirection;
+            }
+            
+            // Penalización por giros (simula el esfuerzo de cambiar dirección)
+            const turnPenalty = totalTurns * 1.5;
+            
+            return distance + turnPenalty;
+        }
+
+        function calculateEnhancedPathDistance(path) {
+            // Generar ruta detallada y calcular su distancia
+            const detailedPath = generateDetailedPathFromChromosome(path);
+            return calculateDetailedPathDistance(detailedPath);
+        }
+
+        function getDirection(from, to) {
+            const dx = to.x - from.x;
+            const dy = to.y - from.y;
+            
+            if (Math.abs(dx) > Math.abs(dy)) {
+                return dx > 0 ? 'right' : 'left';
+            } else {
+                return dy > 0 ? 'down' : 'up';
+            }
+        }
+
+
+        function generateZigzagPath() {
+            const products = [...state.products];
+            const path = [];
+            
+            // Ordenar productos por posición (izquierda a derecha, arriba a abajo)
+            products.sort((a, b) => {
+                if (a.y !== b.y) return a.y - b.y;
+                return a.x - b.x;
+            });
+            
+            // Crear patrón zigzag
+            for (let i = 0; i < products.length; i++) {
+                if (i % 2 === 0) {
+                    // Fila de izquierda a derecha
+                    path.push(products[i]);
+                } else {
+                    // Fila de derecha a izquierda (si hay siguiente)
+                    if (i + 1 < products.length) {
+                        path.push(products[i + 1]);
+                        path.push(products[i]);
+                        i++; // Saltar el siguiente producto
+                    } else {
+                        path.push(products[i]);
+                    }
+                }
+            }
+            
+            return path;
+        }
+
+        function generateSpiralPath() {
+            const products = [...state.products];
+            const path = [];
+            
+            // Calcular centro del almacén
+            const centerX = state.size / 2;
+            const centerY = state.size / 2;
+            
+            // Ordenar productos por distancia al centro (espiral)
+            products.sort((a, b) => {
+                const distA = Math.sqrt((a.x - centerX) ** 2 + (a.y - centerY) ** 2);
+                const distB = Math.sqrt((b.x - centerX) ** 2 + (b.y - centerY) ** 2);
+                return distA - distB;
+            });
+            
+            return products;
+        }
+
+        function generateSectorPath() {
+            const products = [...state.products];
+            const path = [];
+            
+            // Dividir el almacén en sectores
+            const sectors = {
+                topLeft: [],
+                topRight: [],
+                bottomLeft: [],
+                bottomRight: []
+            };
+            
+            const midX = state.size / 2;
+            const midY = state.size / 2;
+            
+            // Clasificar productos por sector
+            products.forEach(product => {
+                if (product.y < midY) {
+                    if (product.x < midX) sectors.topLeft.push(product);
+                    else sectors.topRight.push(product);
+                } else {
+                    if (product.x < midX) sectors.bottomLeft.push(product);
+                    else sectors.bottomRight.push(product);
+                }
+            });
+            
+            // Recorrer sectores en orden: topLeft -> topRight -> bottomLeft -> bottomRight
+            const sectorOrder = ['topLeft', 'topRight', 'bottomLeft', 'bottomRight'];
+            sectorOrder.forEach(sector => {
+                // Ordenar productos dentro de cada sector por proximidad
+                sectors[sector].sort((a, b) => {
+                    const distA = Math.sqrt(a.x ** 2 + a.y ** 2);
+                    const distB = Math.sqrt(b.x ** 2 + b.y ** 2);
+                    return distA - distB;
+                });
+                path.push(...sectors[sector]);
+            });
+            
+            return path;
+        }
+
+        function generateSmartRandomPath() {
+            const products = [...state.products];
+            const path = [];
+            
+            // Ordenar productos por proximidad al punto I/O
+            products.sort((a, b) => {
+                const distA = Math.sqrt((a.x + 1) ** 2 + (a.y + 1) ** 2);
+                const distB = Math.sqrt((b.x + 1) ** 2 + (b.y + 1) ** 2);
+                return distA - distB;
+            });
+            
+            // Aplicar pequeñas variaciones aleatorias
+            for (let i = 0; i < products.length - 1; i++) {
+                if (Math.random() < 0.3) { // 30% de probabilidad de intercambiar
+                    const j = i + 1 + Math.floor(Math.random() * (products.length - i - 1));
+                    [products[i], products[j]] = [products[j], products[i]];
+                }
+            }
+            
+            return products;
+        }
+
+        function calculatePathDistance(path) {
+            let distance = 0;
+            let currentPos = { ...state.startPosition };
+
+            for (const product of path) {
+                // Usar distancia de ruta real (pasos por pasillos) en lugar de Manhattan
+                const route = generatePathBetweenPoints(currentPos, product);
+                distance += route.length;
+                currentPos = { x: product.x, y: product.y };
+            }
+            
+            // Agregar distancia de regreso al punto I/O usando ruta real
+            const returnRoute = generatePathBetweenPoints(currentPos, state.startPosition);
+            distance += returnRoute.length;
+
+            return distance;
+        }
+
+        function tournamentSelection(fitnessScores, tournamentSize = 3) {
+            const tournament = [];
+            for (let i = 0; i < tournamentSize; i++) {
+                const randomIndex = Math.floor(Math.random() * fitnessScores.length);
+                tournament.push(fitnessScores[randomIndex]);
+            }
+            return tournament.reduce((best, current) => 
+                current.fitness < best.fitness ? current : best
+            ).chromosome;
+        }
+
+        function crossover(parent1, parent2) {
+            const crossoverPoint = Math.floor(Math.random() * (parent1.length - 1)) + 1;
+            const child1 = [...parent1.slice(0, crossoverPoint)];
+            const child2 = [...parent2.slice(0, crossoverPoint)];
+
+            // Completar con elementos únicos del otro padre
+            for (const product of parent2) {
+                if (!child1.find(p => p.id === product.id)) {
+                    child1.push(product);
+                }
+            }
+            for (const product of parent1) {
+                if (!child2.find(p => p.id === product.id)) {
+                    child2.push(product);
+                }
+            }
+
+            return [child1, child2];
+        }
+
+        function mutate(chromosome, mutationRate) {
+            for (let i = 0; i < chromosome.length; i++) {
+                if (Math.random() < mutationRate) {
+                    const j = Math.floor(Math.random() * chromosome.length);
+                    [chromosome[i], chromosome[j]] = [chromosome[j], chromosome[i]];
+                }
+            }
+        }
+
+        function solveAlgorithm() {
+            dom.solveButton.disabled = true;
+            dom.resetButton.disabled = true;
+            dom.loadingText.classList.remove('hidden');
+
+            setTimeout(() => {
+                const result = calculateOptimalPathWithSearch();
+                displayResults(result);
+                dom.loadingText.classList.add('hidden');
+                dom.resetButton.disabled = false;
+            }, 100);
+        }
+
+        function showGeneticAlgorithmEvolution(generationHistory) {
+            // Crear modal para mostrar la evolución
+            const evolutionModal = document.createElement('div');
+            evolutionModal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            evolutionModal.innerHTML = `
+                <div class="bg-white rounded-xl shadow-2xl p-8 max-w-4xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+                    <h2 class="text-3xl font-bold text-center mb-6">🤖 Evolución del Algoritmo Genético</h2>
+                    <div class="mb-6">
+                        <p class="text-lg text-center text-slate-600 mb-4">
+                            El algoritmo evolucionó a través de ${generationHistory.length} generaciones, 
+                            mejorando gradualmente la solución.
+                        </p>
+                    </div>
+                    <div class="space-y-4">
+                        ${generationHistory.map((gen, index) => `
+                            <div class="bg-slate-50 p-4 rounded-lg border-l-4 border-blue-500">
+                                <div class="flex justify-between items-center mb-2">
+                                    <h3 class="text-lg font-bold text-blue-600">Generación ${gen.generation}</h3>
+                                    <span class="text-sm font-bold text-green-600">Distancia: ${gen.fitness} pasos</span>
+                                </div>
+                                <div class="text-sm text-slate-600">
+                                    <strong>Orden de recolección:</strong> ${gen.solution.map(p => p.name).join(' → ')}
+                                </div>
+                                ${index === generationHistory.length - 1 ? 
+                                    '<div class="mt-2 text-xs text-green-600 font-bold">✨ Solución final</div>' : 
+                                    '<div class="mt-2 text-xs text-blue-600">↗️ Mejora encontrada</div>'
+                                }
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="mt-8 text-center">
+                        <button id="close-evolution-modal" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-blue-700 transition-colors">
+                            Continuar con la comparación
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(evolutionModal);
+            
+            // Event listener para cerrar el modal
+            document.getElementById('close-evolution-modal').addEventListener('click', () => {
+                document.body.removeChild(evolutionModal);
+            });
+        }
+
+        function displayResults(result) {
+            const { path, detailedPath, totalDistance, timeTaken } = result;
+            state.algorithmPath = path;
+            
+            // Guardar la ruta detallada si está disponible
+            if (detailedPath) {
+                state.algorithmDetailedPath = detailedPath;
+            }
+
+            // Usar la distancia ya calculada por updateStats
+            const userDistance = parseInt(dom.distanceTraveled.textContent) || 0;
+            const algorithmSteps = detailedPath ? detailedPath.length : totalDistance;
+
+            dom.userDistance.textContent = userDistance;
+            dom.algorithmDistance.textContent = algorithmSteps;
+            dom.userProducts.textContent = `${state.pickedProducts.length} / ${state.products.length}`;
+            dom.algorithmProducts.textContent = `${state.products.length} / ${state.products.length}`;
+            dom.algorithmTime.textContent = `Calculado en ${timeTaken} segundos.`;
+            
+            // Actualizar contadores en los botones
+            dom.userStepsCount.textContent = userDistance;
+            dom.algorithmStepsCount.textContent = algorithmSteps;
+
+            // Determinar ganador
+            if (userDistance < algorithmSteps) {
+                dom.winnerMessage.innerHTML = '🏆 ¡Felicidades, tu ruta es más eficiente! 🏆';
+                dom.winnerMessage.className = 'text-center text-2xl font-bold my-4 p-4 rounded-lg bg-green-100 text-green-800';
+            } else if (algorithmSteps < userDistance) {
+                dom.winnerMessage.innerHTML = '🤖 El algoritmo encontró una ruta mejor 🤖';
+                dom.winnerMessage.className = 'text-center text-2xl font-bold my-4 p-4 rounded-lg bg-teal-100 text-teal-800';
+            } else {
+                dom.winnerMessage.innerHTML = '🤝 ¡Es un empate! Ambas rutas son igual de eficientes 🤝';
+                dom.winnerMessage.className = 'text-center text-2xl font-bold my-4 p-4 rounded-lg bg-slate-100 text-slate-800';
+            }
+
+            dom.comparisonControls.classList.remove('hidden');
+            dom.resultsModal.classList.remove('hidden');
+            setTimeout(() => dom.modalContent.classList.remove('scale-95', 'opacity-0'), 10);
+        }
+
+
+        function updateGameStatus() {
+            if (state.gamePhase === 'collection') {
+                if (state.targetProduct) {
+                    const isAdjacent = isAdjacentCell(state.targetProduct.x, state.targetProduct.y);
+                    if (isAdjacent) {
+                        dom.statusText.textContent = `¡Producto ${state.targetProduct.name} alcanzado! Haz clic en él para recogerlo.`;
+                    } else {
+                        dom.statusText.textContent = `Dirígete al producto ${state.targetProduct.name} seleccionando celdas adyacentes (puedes reutilizar celdas)`;
+                    }
+                } else {
+                    const remainingProducts = state.products.filter(p => !p.picked).length;
+                    dom.statusText.textContent = `Selecciona un producto para recoger (${remainingProducts} restantes) - Puedes reutilizar celdas`;
+                }
+            } else {
+                dom.statusText.textContent = 'Dirígete al mostrador seleccionando celdas adyacentes (puedes reutilizar celdas)';
+            }
+        }
+
+        function initialize() {
+            generateWarehouse();
+            dom.solveButton.disabled = true;
+            dom.comparisonControls.classList.add('hidden');
+            dom.resultsModal.classList.add('hidden');
+            dom.modalContent.classList.add('scale-95', 'opacity-0');
+            
+            // Resetear estado del juego
+            state.manualMode = true;
+            state.currentStep = 0;
+            state.targetProduct = null;
+            state.gamePhase = 'collection';
+            state.userPath = [];
+            
+            // Limpiar todas las celdas marcadas
+            clearAllPathMarkers();
+            
+            // Mostrar mensaje inicial
+            showToast('Selecciona productos y navega paso a paso por el almacén. Al terminar, usa "Resolver y comparar" para ver la solución del algoritmo.');
+            updateGameStatus();
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #3B82F6;
+                color: white;
+                padding: 12px 24px;
+                border-radius: 8px;
+                z-index: 1000;
+                font-family: 'Inter', sans-serif;
+                font-weight: 500;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            // Animar entrada
+            setTimeout(() => toast.style.opacity = '1', 10);
+
+            // Remover después de 4 segundos
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => document.body.removeChild(toast), 300);
+            }, 4000);
+        }
+
+        // Event listeners
+        dom.resetButton.addEventListener('click', initialize);
+        dom.solveButton.addEventListener('click', solveAlgorithm);
+        dom.closeModalButton.addEventListener('click', () => {
+            dom.modalContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                dom.resultsModal.classList.add('hidden');
+            }, 300);
+        });
+
+        dom.comparisonControls.querySelector('#view-user-solution').addEventListener('click', () => {
+            // Limpiar marcas del algoritmo genético
+            clearPathMarkers();
+            // Animar la ruta del usuario
+            animateUserPath();
+        });
+
+        dom.comparisonControls.querySelector('#view-algorithm-solution').addEventListener('click', () => {
+            // Limpiar marcas de la ruta manual
+            clearUserPathMarkers();
+            // Mostrar ruta del algoritmo
+            showAlgorithmPath();
+        });
+
+        // Event listener para el menú "¿Cómo funciona?" como en la imagen
+        dom.howItWorksToggle.addEventListener('click', () => {
+            const isHidden = dom.howItWorksBody.classList.contains('hidden');
+            if (isHidden) {
+                dom.howItWorksBody.classList.remove('hidden');
+                dom.howItWorksIcon.style.transform = 'rotate(180deg)';
+            } else {
+                dom.howItWorksBody.classList.add('hidden');
+                dom.howItWorksIcon.style.transform = 'rotate(0deg)';
+            }
+        });
+
+        // Event listeners para adaptación dinámica del grid
+        dom.warehouseSizeSelector.addEventListener('change', () => {
+            const newSize = parseInt(dom.warehouseSizeSelector.value);
+            if (newSize !== state.size) {
+                state.size = newSize;
+                console.log(`Tamaño del almacén cambiado a: ${state.size}x${state.size}`);
+                // Generar automáticamente el nuevo almacén
+                initialize();
+            }
+        });
+
+        dom.orderSizeSelector.addEventListener('change', () => {
+            const newOrderSize = parseInt(dom.orderSizeSelector.value);
+            console.log(`Tamaño del pedido cambiado a: ${newOrderSize} productos`);
+            // Generar automáticamente el nuevo almacén con el nuevo pedido
+            initialize();
+        });
+
+        // Event listener para redimensionamiento de ventana
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                console.log('Ventana redimensionada, recalculando grid...');
+                if (state.warehouse.length > 0) {
+                    renderWarehouse();
+                }
+            }, 250); // Debounce para evitar demasiadas recálculos
+        });
+
+ 
+
+        function showAlgorithmPath() {
+            // Limpiar marcadores actuales
+            clearAllPathMarkers();
+            
+            // Restaurar productos en el grid
+            for (let y = 0; y < state.size; y++) {
+                for (let x = 0; x < state.size; x++) {
+                    if (state.warehouse[y][x] === 'product') {
+                        state.warehouse[y][x] = 'shelf';
+                    }
+                }
+            }
+
+            // Mostrar ruta del algoritmo sin animación, solo marcas estáticas
+            showStaticAlgorithmPath();
+        }
+
+        function showStaticAlgorithmPath() {
+            dom.cartAnimation.classList.add('hidden');
+            
+            const completePath = generateCompleteAlgorithmPathWithReturn();
+            
+            console.log('Ruta completa del algoritmo:', completePath.map((step, index) => `${index + 1}: (${step.x}, ${step.y})`));
+            
+            // Crear mapa para rastrear números de pasos por celda
+            const cellSteps = new Map();
+            
+            // Recopilar todos los números de paso para cada celda
+            completePath.forEach((step, index) => {
+                if (!(step.x === -1 && step.y === -1)) {
+                    const cellKey = `${step.x},${step.y}`;
+                    const stepNumber = index + 1;
+                    
+                    if (!cellSteps.has(cellKey)) {
+                        cellSteps.set(cellKey, []);
+                    }
+                    cellSteps.get(cellKey).push(stepNumber);
+                }
+            });
+            
+            // Mostrar todas las marcas estáticas con numeración acumulativa
+            cellSteps.forEach((steps, cellKey) => {
+                const [x, y] = cellKey.split(',').map(Number);
+                const cell = document.querySelector(`[data-x="${x}"][data-y="${y}"]`);
+                
+                if (cell) {
+                    cell.classList.add('path-used');
+                    
+                    // Mostrar todos los números de paso separados por comas
+                    cell.textContent = steps.join(',');
+                    cell.style.fontWeight = 'bold';
+                    cell.style.fontSize = steps.length > 1 ? '12px' : '14px'; // Fuente más pequeña si hay múltiples números
+                    cell.style.color = 'white';
+                    cell.style.backgroundColor = '#7C3AED';
+                    cell.style.border = '2px solid #6D28D9';
+                    cell.style.boxShadow = '0 2px 8px rgba(124, 58, 237, 0.5)';
+                }
+            });
+            
+            console.log('Ruta del algoritmo mostrada. Total de pasos:', completePath.length);
+        }
+
+        function clearPathMarkers() {
+            const cells = document.querySelectorAll('.warehouse-cell');
+            cells.forEach(cell => {
+                cell.classList.remove('path-used', 'path-step');
+                // Solo limpiar las celdas del algoritmo genético (color púrpura)
+                if (cell.style.backgroundColor === 'rgb(124, 58, 237)') {
+                    cell.textContent = '';
+                    cell.style.fontWeight = '';
+                    cell.style.fontSize = '';
+                    cell.style.color = '';
+                    cell.style.backgroundColor = '';
+                    cell.style.border = '';
+                    cell.style.boxShadow = '';
+                }
+            });
+        }
+        
+        function clearUserPathMarkers() {
+            const cells = document.querySelectorAll('.warehouse-cell');
+            cells.forEach(cell => {
+                // Solo limpiar las celdas de la ruta manual (color azul)
+                if (cell.style.backgroundColor === 'rgb(59, 130, 246)') {
+                    cell.classList.remove('path-used', 'path-step');
+                    cell.textContent = '';
+                    cell.style.fontWeight = '';
+                    cell.style.fontSize = '';
+                    cell.style.color = '';
+                    cell.style.backgroundColor = '';
+                    cell.style.border = '';
+                    cell.style.boxShadow = '';
+                }
+            });
+        }
+
+        function clearAllPathMarkers() {
+            const cells = document.querySelectorAll('.warehouse-cell');
+            cells.forEach(cell => {
+                cell.classList.remove('path-used', 'path-step');
+                // Limpiar numeración y estilos de todas las celdas
+                if (cell.style.backgroundColor === 'rgb(124, 58, 237)' || 
+                    cell.style.backgroundColor === 'rgb(59, 130, 246)' ||
+                    cell.classList.contains('path-used') ||
+                    (cell.textContent && /^\d+$/.test(cell.textContent))) {
+                    cell.textContent = '';
+                    cell.style.fontWeight = '';
+                    cell.style.fontSize = '';
+                    cell.style.color = '';
+                    cell.style.backgroundColor = '';
+                    cell.style.border = '';
+                    cell.style.boxShadow = '';
+                }
+            });
+        }
+
+        function markPathCells(path) {
+            // Limpiar marcadores de ruta anteriores
+            document.querySelectorAll('.warehouse-cell.path-step, .warehouse-cell.path-used').forEach(cell => {
+                cell.classList.remove('path-step', 'path-used');
+            });
+            
+            // Marcar cada paso del camino con un pequeño retraso para efecto de secuencia
+            path.forEach((step, index) => {
+                // Usar setTimeout para crear un efecto de secuencia
+                setTimeout(() => {
+                    const cell = document.querySelector(`[data-x="${step.x}"][data-y="${step.y}"]`);
+                    // Marcar celdas del camino que no sean productos ni el punto I/O
+                    if (cell && !cell.classList.contains('product') && !(step.x === -1 && step.y === -1)) {
+                        // Añadir clase de paso activo
+                        cell.classList.add('path-step');
+                        
+                        // Después de la animación, cambiar a estado 'usado'
+                        setTimeout(() => {
+                            cell.classList.remove('path-step');
+                            cell.classList.add('path-used');
+                        }, 400);
+                    }
+                }, index * 100); // Pequeño retraso entre cada paso para el efecto de secuencia
+            });
+        }
+
+        function generateCompleteAlgorithmPathWithReturn() {
+            // Si tenemos una ruta detallada del algoritmo genético, usarla
+            if (state.algorithmDetailedPath && state.algorithmDetailedPath.length > 0) {
+                return state.algorithmDetailedPath;
+            }
+            
+            // Fallback: generar ruta usando el orden de productos del algoritmo
+            const completePath = [];
+            
+            // 1. Salida del punto I/O al primer producto
+            if (state.algorithmPath.length > 0) {
+                const firstProduct = state.algorithmPath[0];
+                const pathToFirst = generatePathFromCounter(firstProduct);
+                completePath.push(...pathToFirst);
+                
+                // Agregar el primer producto a la ruta
+                completePath.push({ x: firstProduct.x, y: firstProduct.y });
+            }
+            
+            // 2. Ruta entre productos (recolección optimizada)
+            for (let i = 0; i < state.algorithmPath.length - 1; i++) {
+                const currentProduct = state.algorithmPath[i];
+                const nextProduct = state.algorithmPath[i + 1];
+                
+                // Generar ruta desde el producto actual hasta el siguiente
+                const pathBetweenProducts = generatePathBetweenProducts(currentProduct, nextProduct);
+                completePath.push(...pathBetweenProducts);
+                
+                // Agregar el siguiente producto a la ruta
+                completePath.push({ x: nextProduct.x, y: nextProduct.y });
+            }
+            
+            // 3. Regreso al punto I/O desde el último producto
+            if (state.algorithmPath.length > 0) {
+                const lastProduct = state.algorithmPath[state.algorithmPath.length - 1];
+                const pathToIO = generatePathToCounter(lastProduct);
+                completePath.push(...pathToIO);
+            }
+            
+            // Eliminar duplicados consecutivos
+            const cleanedPath = [];
+            for (let i = 0; i < completePath.length; i++) {
+                if (i === 0 || 
+                    completePath[i].x !== completePath[i-1].x || 
+                    completePath[i].y !== completePath[i-1].y) {
+                    cleanedPath.push(completePath[i]);
+                }
+            }
+            
+            return cleanedPath;
+        }
+
+        function generatePathBetweenProducts(fromProduct, toProduct) {
+            // Generar ruta desde un producto hasta otro producto (SOLO POR PASILLOS)
+            const path = [];
+            
+            // Encontrar los pasillos más cercanos a cada producto
+            const fromNearestAisle = findNearestAisle(fromProduct.x);
+            const toNearestAisle = findNearestAisle(toProduct.x);
+            
+            // Posiciones en los pasillos (NO en los estantes)
+            const fromAislePosition = { x: fromNearestAisle, y: fromProduct.y };
+            const toAislePosition = { x: toNearestAisle, y: toProduct.y };
+            
+            // Generar ruta entre pasillos (sin entrar a estantes)
+            const routeBetweenAisles = findPathAStar(fromAislePosition, toAislePosition);
+            path.push(...routeBetweenAisles);
+            
+            return path;
+        }
+
+        function generateCompletePath(productPath) {
+            const completePath = [];
+            let currentPos = { ...state.startPosition };
+            
+            for (const product of productPath) {
+                // Generar ruta desde la posición actual hasta el producto
+                const pathToProduct = generatePathBetweenPoints(currentPos, product);
+                completePath.push(...pathToProduct);
+                currentPos = { x: product.x, y: product.y };
+            }
+            
+            return completePath;
+        }
+
+        function generatePathBetweenPoints(start, end) {
+            const path = [];
+            let current = { ...start };
+            
+            // Si estamos en la misma posición, no hay movimiento
+            if (start.x === end.x && start.y === end.y) {
+                return path;
+            }
+            
+            // Si el destino es el punto I/O, generar ruta especial
+            if (end.x === -1 && end.y === -1) {
+                return generatePathToCounter(start);
+            }
+            
+            // Si el origen es el punto I/O, generar ruta especial
+            if (start.x === -1 && start.y === -1) {
+                return generatePathFromCounter(end);
+            }
+            
+            // Si el destino es un producto (está en un estante), ir al pasillo adyacente
+            if (state.warehouse[end.y][end.x] === 'product') {
+                const nearestAisle = findNearestAisle(end.x);
+                const aislePosition = { x: nearestAisle, y: end.y };
+                
+                // Generar ruta hasta el pasillo adyacente al producto
+                const route = findPathAStar(current, aislePosition);
+                return route;
+            }
+            
+            // Si el origen es un producto, ir al pasillo adyacente primero
+            if (state.warehouse[start.y][start.x] === 'product') {
+                const nearestAisle = findNearestAisle(start.x);
+                const aislePosition = { x: nearestAisle, y: start.y };
+                
+                // Generar ruta desde el pasillo adyacente hasta el destino
+                const route = findPathAStar(aislePosition, end);
+                return route;
+            }
+            
+            // Usar A* para encontrar el camino más corto evitando obstáculos
+            const route = findPathAStar(current, end);
+            
+            return route;
+        }
+
+        function generatePathToCounter(from) {
+            // Ruta desde cualquier punto del almacén al punto I/O (esquina superior izquierda)
+            const path = [];
+            let current = { ...from };
+
+            // Si estamos en un producto o estante, la ruta comienza desde el pasillo adyacente.
+            if (state.warehouse[current.y] && (state.warehouse[current.y][current.x] === 'product' || state.warehouse[current.y][current.x] === 'shelf')) {
+                const nearestAisle = findNearestAisle(current.x);
+                current = { x: nearestAisle, y: current.y };
+                path.push({ ...current });
+            }
+            
+            // Ir hacia arriba hasta la fila superior (pasillo horizontal)
+            while (current.y > 0) {
+                current = { x: current.x, y: current.y - 1 };
+                path.push({ ...current });
+            }
+            
+            // Ir hacia la izquierda hasta la primera columna
+            while (current.x > 0) {
+                current = { x: current.x - 1, y: current.y };
+                path.push({ ...current });
+            }
+            
+            return path;
+        }
+
+        function generatePathFromCounter(to) {
+            // Ruta desde el punto I/O (esquina superior izquierda) a cualquier punto del almacén
+            const path = [];
+            
+            // Empezar desde la entrada del almacén (pasillo horizontal superior, columna 0)
+            let current = { x: 0, y: 0 };
+            path.push({ ...current });
+            
+            // Si el destino es un producto (está en un estante), ir al pasillo vertical más cercano
+            if (state.warehouse[to.y][to.x] === 'product') {
+                const nearestAisle = findNearestAisle(to.x);
+                const aislePosition = { x: nearestAisle, y: to.y };
+                
+                // Generar ruta desde la entrada hasta el pasillo adyacente al producto
+                const routeToAisle = findPathAStar(current, aislePosition);
+                path.push(...routeToAisle);
+                
+                // NO incluir el paso final hacia el producto aquí, se agregará en generateCompleteAlgorithmPathWithReturn
+            } else {
+                // Si el destino está en un pasillo, ir directamente
+                const route = findPathAStar(current, to);
+                path.push(...route);
+            }
+            
+            return path;
+        }
+        
+        function generatePathFromCounterToAisle(product) {
+            // Ruta desde el punto I/O hasta el pasillo adyacente al producto
+            const path = [];
+            
+            // Empezar desde la entrada del almacén
+            let current = { x: 0, y: 0 };
+            path.push({ ...current });
+            
+            // Encontrar el pasillo más cercano al producto
+            const nearestAisle = findNearestAisle(product.x);
+            const aislePosition = { x: nearestAisle, y: product.y };
+            
+            // Generar ruta hasta el pasillo (sin entrar al estante)
+            const routeToAisle = findPathAStar(current, aislePosition);
+            path.push(...routeToAisle);
+            
+            return path;
+        }
+        
+        function generatePathBetweenProductAisles(fromProduct, toProduct) {
+            // Ruta entre pasillos de dos productos (sin entrar a los estantes)
+            const path = [];
+            
+            // Posiciones en los pasillos adyacentes a cada producto
+            const fromAisle = findNearestAisle(fromProduct.x);
+            const toAisle = findNearestAisle(toProduct.x);
+            
+            const fromAislePosition = { x: fromAisle, y: fromProduct.y };
+            const toAislePosition = { x: toAisle, y: toProduct.y };
+            
+            // Si ya estamos en el mismo pasillo y fila, no hay movimiento
+            if (fromAisle === toAisle && fromProduct.y === toProduct.y) {
+                return path;
+            }
+            
+            // Generar ruta entre pasillos
+            const routeBetweenAisles = findPathAStar(fromAislePosition, toAislePosition);
+            path.push(...routeBetweenAisles);
+            
+            return path;
+        }
+        
+        function generatePathFromAisleToCounter(product) {
+            // Ruta desde el pasillo del producto hasta el punto I/O
+            const path = [];
+            
+            // Posición en el pasillo adyacente al producto
+            const nearestAisle = findNearestAisle(product.x);
+            const aislePosition = { x: nearestAisle, y: product.y };
+            
+            // Ruta desde el pasillo hasta la salida
+            const exitPosition = { x: 0, y: 0 };
+            const routeToExit = findPathAStar(aislePosition, exitPosition);
+            path.push(...routeToExit);
+            
+            // Agregar el punto I/O final
+            path.push({ x: -1, y: -1 });
+            
+            return path;
+        }
+
+        function optimizeRouteForUTurns(route) {
+            if (route.length <= 2) return route;
+            
+            const optimizedRoute = [route[0]];
+            
+            for (let i = 1; i < route.length - 1; i++) {
+                const prev = route[i - 1];
+                const current = route[i];
+                const next = route[i + 1];
+                
+                // Detectar si hay un cambio de dirección brusco
+                const prevDir = getDirection(prev, current);
+                const nextDir = getDirection(current, next);
+                
+                if (prevDir !== nextDir) {
+                    // Agregar puntos intermedios para suavizar el giro
+                    const intermediatePoints = generateUTurn(prev, current, next);
+                    optimizedRoute.push(...intermediatePoints);
+                } else {
+                    optimizedRoute.push(current);
+                }
+            }
+            
+            optimizedRoute.push(route[route.length - 1]);
+            return optimizedRoute;
+        }
+
+        function getDirection(from, to) {
+            const dx = to.x - from.x;
+            const dy = to.y - from.y;
+            
+            if (dx > 0) return 'right';
+            if (dx < 0) return 'left';
+            if (dy > 0) return 'down';
+            if (dy < 0) return 'up';
+            return 'none';
+        }
+
+        function generateUTurn(prev, current, next) {
+            const points = [];
+            
+            // Generar puntos intermedios para un giro en U más suave
+            const prevDir = getDirection(prev, current);
+            const nextDir = getDirection(current, next);
+            
+            // Si es un giro de 90 grados, agregar un punto intermedio
+            if ((prevDir === 'up' && nextDir === 'right') || 
+                (prevDir === 'right' && nextDir === 'down') ||
+                (prevDir === 'down' && nextDir === 'left') ||
+                (prevDir === 'left' && nextDir === 'up')) {
+                
+                // Agregar un punto intermedio para suavizar el giro
+                const intermediate = { x: current.x, y: current.y };
+                points.push(intermediate);
+            }
+            
+            return points;
+        }
+
+        function findPathAStar(start, end) {
+            // Si ya estamos en el destino, devolver solo el punto actual
+            if (start.x === end.x && start.y === end.y) {
+                return [start];
+            }
+            
+            console.log(`A* buscando ruta desde (${start.x},${start.y}) hasta (${end.x},${end.y})`);
+            
+            const openSet = [{ ...start }];
+            const closedSet = new Set();
+            const cameFrom = new Map();
+            const gScore = new Map();
+            const fScore = new Map();
+            
+            const startKey = `${start.x},${start.y}`;
+            gScore.set(startKey, 0);
+            fScore.set(startKey, heuristic(start, end));
+            
+            while (openSet.length > 0) {
+                // Encontrar el nodo con menor fScore
+                let currentIndex = 0;
+                for (let i = 1; i < openSet.length; i++) {
+                    const currentF = fScore.get(`${openSet[i].x},${openSet[i].y}`) || Infinity;
+                    const bestF = fScore.get(`${openSet[currentIndex].x},${openSet[currentIndex].y}`) || Infinity;
+                    if (currentF < bestF) {
+                        currentIndex = i;
+                    }
+                }
+                
+                const current = openSet[currentIndex];
+                const currentKey = `${current.x},${current.y}`;
+                
+                // Si llegamos al destino
+                if (current.x === end.x && current.y === end.y) {
+                    const path = reconstructPath(cameFrom, current);
+                    console.log(`A* encontró ruta de ${path.length} pasos:`, path.map(p => `(${p.x},${p.y})`));
+                    return path;
+                }
+                
+                // Mover current de openSet a closedSet
+                openSet.splice(currentIndex, 1);
+                closedSet.add(currentKey);
+                
+                // Explorar vecinos
+                const neighbors = getNeighbors(current);
+                for (const neighbor of neighbors) {
+                    const neighborKey = `${neighbor.x},${neighbor.y}`;
+                    
+                    // Saltar si ya está en closedSet
+                    if (closedSet.has(neighborKey)) {
+                        continue;
+                    }
+                    
+                    const tentativeGScore = (gScore.get(currentKey) || Infinity) + getMoveCost(current, neighbor);
+                    
+                    // Si no está en openSet, agregarlo
+                    if (!openSet.some(node => node.x === neighbor.x && node.y === neighbor.y)) {
+                        openSet.push({ ...neighbor });
+                    } else if (tentativeGScore >= (gScore.get(neighborKey) || Infinity)) {
+                        continue; // Este no es un mejor camino
+                    }
+                    
+                    // Este camino es el mejor hasta ahora
+                    cameFrom.set(neighborKey, { ...current });
+                    gScore.set(neighborKey, tentativeGScore);
+                    fScore.set(neighborKey, tentativeGScore + heuristic(neighbor, end));
+                }
+            }
+            
+            // Si no se encuentra camino, generar ruta directa simple
+            console.log(`A* no encontró ruta, generando ruta directa`);
+            return generateDirectPath(start, end);
+        }
+        
+        function generateDirectPath(start, end) {
+            const path = [{ ...start }];
+            let current = { ...start };
+            
+            // Movimiento horizontal primero
+            while (current.x !== end.x) {
+                if (current.x < end.x) {
+                    current.x++;
+                } else {
+                    current.x--;
+                }
+                if (isValidMove(current.x, current.y)) {
+                    path.push({ ...current });
+                }
+            }
+            
+            // Luego movimiento vertical
+            while (current.y !== end.y) {
+                if (current.y < end.y) {
+                    current.y++;
+                } else {
+                    current.y--;
+                }
+                if (isValidMove(current.x, current.y)) {
+                    path.push({ ...current });
+                }
+            }
+            
+            return path;
+        }
+
+        function getMoveCost(from, to) {
+            // Costo base de movimiento (Manhattan distance)
+            let cost = 1;
+            
+            // Verificar si es un movimiento diagonal (no permitido)
+            const dx = Math.abs(to.x - from.x);
+            const dy = Math.abs(to.y - from.y);
+            
+            if (dx === 1 && dy === 1) {
+                cost = Infinity; // Bloquear movimientos diagonales
+            }
+            
+            // Preferir movimientos dentro del mismo pasillo
+            const fromVerticalAisle = Math.floor(from.x / 3);
+            const toVerticalAisle = Math.floor(to.x / 3);
+            
+            // Si se mantiene en el mismo pasillo vertical
+            if (fromVerticalAisle === toVerticalAisle) {
+                cost *= 0.9; // Reducir ligeramente el costo
+            }
+            
+            return cost;
+        }
+
+        function getNeighbors(node) {
+            const neighbors = [];
+            const directions = [
+                { x: 0, y: -1 }, // arriba
+                { x: 1, y: 0 },  // derecha
+                { x: 0, y: 1 },  // abajo
+                { x: -1, y: 0 }  // izquierda
+            ];
+            
+            for (const dir of directions) {
+                const newX = node.x + dir.x;
+                const newY = node.y + dir.y;
+                
+                if (isValidMove(newX, newY)) {
+                    neighbors.push({ x: newX, y: newY });
+                }
+            }
+            
+            return neighbors;
+        }
+
+        function heuristic(a, b) {
+            // Distancia Manhattan
+            return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+        }
+
+        function reconstructPath(cameFrom, current) {
+            const path = [current];
+            
+            while (cameFrom.has(`${current.x},${current.y}`)) {
+                current = cameFrom.get(`${current.x},${current.y}`);
+                path.unshift(current);
+            }
+            
+            return path;
+        }
+
+        function findNearestAisle(x) {
+            // Encontrar el pasillo vertical más cercano (cada 3 columnas: 0, 3, 6, 9, etc.)
+            const aisles = [];
+            for (let i = 0; i < state.size; i += 3) {
+                aisles.push(i);
+            }
+            
+            // Encontrar el más cercano
+            return aisles.reduce((nearest, aisle) => {
+                return Math.abs(aisle - x) < Math.abs(nearest - x) ? aisle : nearest;
+            });
+        }
+
+        function isValidMove(x, y) {
+            // Permitir movimiento al punto I/O (fuera del almacén)
+            if (x === -1 && y === -1) {
+                return true;
+            }
+            
+            // Verificar que la posición esté dentro de los límites del almacén
+            if (x < 0 || x >= state.size || y < 0 || y >= state.size) {
+                return false;
+            }
+            
+            // El pathfinding solo debe viajar por los pasillos.
+            const cellType = state.warehouse[y][x];
+            return cellType === 'vertical-aisle' || cellType === 'horizontal-aisle';
+        }
+
+        function findAlternativePath(start, end) {
+            // Usar A* para encontrar el camino alternativo
+            return findPathAStar(start, end);
+        }
+
+        function animateUserPath() {
+            // Ocultar el carrito primero
+            dom.cartAnimation.classList.add('hidden');
+            
+            // Limpiar solo las marcas del algoritmo genético
+            clearPathMarkers();
+            
+            // En modo manual, usar la ruta real del usuario
+            const completePath = state.userPath;
+            
+            console.log('Animando ruta manual del usuario:', completePath);
+            console.log('Total de pasos de la ruta manual:', completePath.length);
+            
+            let currentStep = 0;
+            let stepNumber = 1;
+            
+            function moveNextStep() {
+                if (currentStep >= completePath.length) {
+                    // Animación completada
+                    console.log('Animación de ruta manual completada');
+                    return;
+                }
+
+                const step = completePath[currentStep];
+                console.log(`Paso ${currentStep + 1}/${completePath.length}: (${step.x}, ${step.y})`);
+                
+                let cell;
+                if (step.x === -1 && step.y === -1) {
+                    cell = document.querySelector('.warehouse-cell.counter');
+                } else {
+                    cell = document.querySelector(`[data-x="${step.x}"][data-y="${step.y}"]`);
+                }
+
+                // Marcar la celda actual como parte del camino con numeración
+                if (cell && !(step.x === -1 && step.y === -1)) {
+                    cell.classList.add('path-used');
+                    
+                    // Verificar si la celda ya tiene contenido (números previos)
+                    const existingText = cell.textContent;
+                    let newText;
+                    
+                    if (existingText && existingText !== stepNumber.toString()) {
+                        // Si ya tiene números, agregar el nuevo separado por coma
+                        newText = existingText + ',' + stepNumber.toString();
+                    } else {
+                        // Si no tiene números o es el mismo, usar solo el actual
+                        newText = stepNumber.toString();
+                    }
+                    
+                    // Agregar numeración secuencial con estilo azul para la ruta manual
+                    cell.textContent = newText;
+                    cell.style.fontWeight = 'bold';
+                    cell.style.fontSize = newText.includes(',') ? '12px' : '14px'; // Fuente más pequeña si hay múltiples números
+                    cell.style.color = 'white';
+                    cell.style.backgroundColor = '#3B82F6';
+                    cell.style.border = '2px solid #1D4ED8';
+                    cell.style.boxShadow = '0 2px 8px rgba(59, 130, 246, 0.5)';
+                    
+                    stepNumber++;
+                }
+                
+                // Mover el carrito a la celda actual
+                animateCartMovement(step.x, step.y);
+
+                // Avanzar al siguiente paso
+                currentStep++;
+                setTimeout(moveNextStep, 150); // Velocidad para mejor experiencia
+            }
+
+            // Iniciar la animación
+            moveNextStep();
+        }
+
+        function generateCompleteUserPathWithReturn() {
+            const completePath = [];
+            let currentPos = { ...state.startPosition };
+            
+            // 1. Salida del punto I/O al primer producto
+            if (state.pickedProducts.length > 0) {
+                const firstProduct = state.pickedProducts[0];
+                const pathToFirst = generatePathFromCounter(firstProduct);
+                completePath.push(...pathToFirst);
+                currentPos = { x: pathToFirst[pathToFirst.length - 1].x, y: pathToFirst[pathToFirst.length - 1].y };
+            }
+            
+            // 2. Ruta entre productos (recolección)
+            for (let i = 0; i < state.pickedProducts.length - 1; i++) {
+                const currentProduct = state.pickedProducts[i];
+                const nextProduct = state.pickedProducts[i + 1];
+                const pathBetweenProducts = generatePathBetweenPoints(currentPos, nextProduct);
+                completePath.push(...pathBetweenProducts);
+                currentPos = { x: pathBetweenProducts[pathBetweenProducts.length - 1].x, y: pathBetweenProducts[pathBetweenProducts.length - 1].y };
+            }
+            
+            // 3. Regreso al punto I/O desde el último producto
+            if (state.pickedProducts.length > 0) {
+                const pathToIO = generatePathToCounter(currentPos);
+                completePath.push(...pathToIO);
+            }
+            
+            return completePath;
+        }
+
+        function generateCompleteUserPath() {
+            const completePath = [];
+            let currentPos = { ...state.startPosition };
+            
+            for (const step of state.userPath) {
+                // Generar ruta desde la posición actual hasta el paso
+                const pathToStep = generatePathBetweenPoints(currentPos, step);
+                completePath.push(...pathToStep);
+                currentPos = { x: step.x, y: step.y };
+            }
+            
+            return completePath;
+        }
+
+        initialize();
+    });
+    </script>
+
+    <script>
+        // --- LÓGICA DE PROTECCIÓN ---
+
+        // 1. Deshabilitar el clic derecho en toda la página
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            showProtectionToast('El clic derecho está deshabilitado.');
+        });
+
+        // 2. Bloquear atajos de teclado comunes
+        document.addEventListener('keydown', function(e) {
+            // Bloquear F12 para dificultar el acceso a las herramientas de desarrollador
+            if (e.key === 'F12' || e.keyCode === 123) {
+                e.preventDefault();
+                showProtectionToast('Las herramientas de desarrollador están deshabilitadas.');
+            }
+
+            // Bloquear combinaciones con la tecla Ctrl
+            if (e.ctrlKey) {
+                const key = e.key.toLowerCase();
+                if (['c', 'x', 'u', 's', 'p'].includes(key)) {
+                    e.preventDefault();
+                    showProtectionToast(`La función (Ctrl+${key.toUpperCase()}) ha sido deshabilitada.`);
+                }
+            }
+        });
+
+    </script>
+</body>
+</html>
