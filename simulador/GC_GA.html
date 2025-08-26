@@ -65,8 +65,8 @@
                                                  <li><b>Haz clic en un nodo</b> para seleccionarlo.</li>
                          <li><b>Elige un color</b> de la paleta para colorear el nodo.</li>
                          <li><b>Evita conflictos:</b> nodos conectados no pueden tener el mismo color.</li>
-                         <li><b>🖱️ Usa el botón "Modo Mover Nodos"</b> para activar el arrastre y reorganizar el grafo.</li>
-                        <li>Cuando termines, presiona <b>"Comparar con algoritmo"</b> para ver la solución óptima.</li>
+                         <li><b>🖱️ Usa el botón "Modo mover nodos"</b> para activar el arrastre y reorganizar el grafo.</li>
+                        <li>Cuando termines, presiona <b>"Comparar con algoritmo"</b> para ver la mejor solución encontrada.</li>
                     </ol>
                 </div>
                 <div>
@@ -104,7 +104,7 @@
                         <button id="solve-button" class="w-full bg-teal-600 text-white font-bold py-3 px-4 sm:px-6 rounded-lg hover:bg-teal-700 disabled:bg-slate-400 disabled:cursor-not-allowed text-sm sm:text-base">Comparar con algoritmo</button>
                     </div>
                     <div class="mt-4">
-                        <button id="toggle-drag-mode" class="w-full bg-purple-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-purple-700 text-sm">🖱️ Modo Mover Nodos</button>
+                        <button id="toggle-drag-mode" class="w-full bg-purple-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-purple-700 text-sm">🖱️ Modo mover nodos</button>
 
                     </div>
                     <p id="loading-text" class="mt-4 text-slate-500 hidden text-center">Calculando...</p>
@@ -124,7 +124,7 @@
                             <strong>💡 Consejo:</strong>
                             <div class="mt-1">Haz clic en un nodo y luego en un color para colorearlo.</div>
                             <div class="mt-1">Los nodos conectados no pueden tener el mismo color.</div>
-                            <div class="mt-1">🖱️ Usa el botón "Modo Mover Nodos" para arrastrar.</div>
+                            <div class="mt-1">🖱️ Usa el botón "Modo mover nodos" para arrastrar.</div>
                         </div>
                     </div>
                 </div>
@@ -1025,12 +1025,12 @@
             state.dragMode = !state.dragMode;
             
             if (state.dragMode) {
-                dom.toggleDragMode.textContent = '🎨 Modo Colorear';
+                dom.toggleDragMode.textContent = '🎨 Modo colorear';
                 dom.toggleDragMode.className = 'w-full bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 text-sm';
                 canvas.style.cursor = 'grab';
                 showNotification('🖱️ Modo mover nodos activado. Haz clic y arrastra para mover los nodos.', 'info');
             } else {
-                dom.toggleDragMode.textContent = '🖱️ Modo Mover Nodos';
+                dom.toggleDragMode.textContent = '🖱️ Modo mover nodos';
                 dom.toggleDragMode.className = 'w-full bg-purple-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-purple-700 text-sm';
                 canvas.style.cursor = 'crosshair';
                 showNotification('🎨 Modo colorear activado. Haz clic en nodos y colores para colorear.', 'info');
