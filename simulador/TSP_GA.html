@@ -255,7 +255,19 @@
         };
 
         function generateCities() {
-            const numCities = parseInt(dom.numCitiesInput.value, 10);
+            // 1. Define tu número máximo de ciudades
+            const MAX_CITIES = 100; 
+            
+            // 2. Obtén el valor del input y conviértelo a número
+            let numCities = parseInt(dom.numCitiesInput.value, 10);
+
+            // 3. Comprueba si el valor excede el máximo
+            if (numCities > MAX_CITIES) {
+                alert(`El número máximo de ciudades es ${MAX_CITIES}. Se ajustará automáticamente.`);
+                numCities = MAX_CITIES; // Ajusta el número al máximo permitido
+                dom.numCitiesInput.value = MAX_CITIES; // Opcional: actualiza el valor en el campo de texto
+            }
+
             state.cities = [];
             state.userRoute = [];
             state.optimalRoute = [];
