@@ -235,7 +235,22 @@
             // --- GENERACIÓN DE ITEMS ---
             function generateItems() {
                 items = [];
+
+                // 1. Define tus límites
+                const MIN_ITEMS = 10;
+                const MAX_ITEMS = 100;
+                
                 const numItems = parseInt(numItemsInput.value, 10) || 12;
+
+                // 3. Valida y ajusta el valor si está fuera de los límites
+                if (numItems < MIN_ITEMS || numItems > MAX_ITEMS) {
+                    alert(`El número de objetos debe estar entre ${MIN_ITEMS} y ${MAX_ITEMS}. El valor se ajustará.`);
+                    // "Sujeta" el valor para que no sea menor que el mínimo ni mayor que el máximo
+                    numItems = Math.max(MIN_ITEMS, Math.min(numItems, MAX_ITEMS));
+                    numItemsInput.value = numItems; // Actualiza el campo en la página
+                }
+
+
                 let totalWeightOfAllItems = 0;
                 
                 for (let i = 0; i < numItems; i++) {

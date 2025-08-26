@@ -256,7 +256,7 @@
             const numItems = parseInt(dom.numItemsInput.value, 10);
             const maxCapacity = parseInt(dom.binCapacityInput.value, 10);
 
-                        // 3. Valida y ajusta el número de ítems
+            // 3. Valida y ajusta el número de ítems
             if (numItems < MIN_VALUE || numItems > MAX_VALUE) {
                 alert(`El valor debe estar entre ${MIN_VALUE} y ${MAX_VALUE}. Se ajustará automáticamente.`);
                 // "Sujeta" el valor para que no sea menor que MIN_VALUE ni mayor que MAX_VALUE
