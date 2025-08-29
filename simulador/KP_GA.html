@@ -114,7 +114,7 @@
                         <li>Observa la barra de capacidad: <b>no puedes exceder el peso máximo</b> de la mochila.</li>
                         <li>Puedes mover cajas de vuelta a la zona disponible si necesitas hacer ajustes.</li>
                         <li>Tu objetivo es <b>maximizar el valor total</b> sin sobrepasar el límite de peso.</li>
-                        <li>Cuando termines, presiona <b>"¡Calcular Solución!"</b> para comparar tu resultado con el algoritmo genético.</li>
+                        <li>Cuando termines, presiona <b>"¡Resolver y comparar!"</b> para comparar tu resultado con el algoritmo.</li>
                     </ol>
                 </div>
                 <div>
@@ -184,7 +184,7 @@
                 <!-- Action Button -->
                 <div class="mt-8 text-center">
                     <button id="solve-button" class="w-full bg-[#004D40] text-white font-bold py-3 px-6 rounded-lg hover:bg-[#00695C] transition-colors duration-300 disabled:bg-slate-400 disabled:cursor-not-allowed">
-                        ¡Calcular Solución!
+                        ¡Resolver y comparar!
                     </button>
                     <p id="loading-text" class="mt-4 text-slate-500 hidden">Calculando con algoritmo genético...</p>
                 </div>
@@ -200,7 +200,7 @@
     <!-- Results Modal -->
     <div id="results-modal" class="modal-overlay hidden">
         <div class="bg-white rounded-xl shadow-2xl p-8 max-w-2xl w-full mx-4 transform transition-all duration-300 scale-95 opacity-0" id="modal-content">
-            <h2 class="text-3xl font-bold text-center mb-4">Resultados de la Simulación</h2>
+            <h2 class="text-3xl font-bold text-center mb-4">Resultados</h2>
             
             <div id="winner-message" class="text-center text-2xl font-bold my-4 p-4 rounded-lg">
                 <!-- Winner message will be injected here -->
@@ -209,14 +209,14 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-center">
                 <!-- User's Result -->
                 <div class="bg-slate-100 p-6 rounded-lg">
-                    <h3 class="text-xl font-bold mb-3">Tu Solución</h3>
+                    <h3 class="text-xl font-bold mb-3">Tu solución</h3>
                     <p class="text-lg">Valor: <span id="user-final-value" class="font-bold text-green-600"></span></p>
                     <p class="text-lg">Peso: <span id="user-final-weight" class="font-bold"></span></p>
                 </div>
                 
                 <!-- GA's Result -->
                 <div class="bg-indigo-100 border-2 border-indigo-500 p-6 rounded-lg">
-                    <h3 class="text-xl font-bold mb-3">Solución del Algoritmo</h3>
+                    <h3 class="text-xl font-bold mb-3">Solución del algoritmo</h3>
                     <p class="text-lg">Valor: <span id="ga-final-value" class="font-bold text-green-600"></span></p>
                     <p class="text-lg">Peso: <span id="ga-final-weight" class="font-bold"></span></p>
                 </div>
@@ -403,6 +403,9 @@
                     weightBar.classList.add('bg-indigo-600');
                     weightBar.classList.remove('bg-red-600');
                 }
+
+                // Enable/disable solve button based on whether knapsack has items
+                solveButton.disabled = knapsackItems.size === 0;
             }
             
             // --- LÓGICA DEL ALGORITMO GENÉTICO ---
@@ -597,7 +600,7 @@
                 setupDropZones();
                 maxWeightDisplayEl.textContent = `${maxWeight} kg`;
                 updateStats();
-                solveButton.disabled = false;
+                // solveButton.disabled will be set by updateStats() based on knapsack content
                 resetButton.disabled = false;
                 resultsModal.classList.add('hidden');
                 modalContent.classList.add('scale-95', 'opacity-0');
