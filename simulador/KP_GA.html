@@ -92,9 +92,42 @@
 </div>
         <!-- Header -->
         <header class="text-center mb-8 pt-16">
-            <h1 class="text-4xl font-bold text-slate-900">Empaca y vence: tu ingenio vs. la evolución algorítmica</h1>
+            <h1 class="text-4xl font-bold text-slate-900">Empaca y vence: tu ingenio vs. la evolución algorítmica</h1>
             <p class="text-lg text-slate-600 mt-2">¡Intenta llenar la mochila para maximizar el valor sin pasarte del peso!</p>
         </header>
+
+        <!-- Panel de Instrucciones y Explicación -->
+        <div class="my-8 bg-white rounded-xl shadow-md p-6">
+            <button id="toggleInstructions" class="w-full flex items-center justify-between text-2xl font-bold mb-4 text-blue-600 hover:text-blue-700 transition-colors">
+                <span>¿Cómo funciona?</span>
+                <svg id="instructionsChevron" class="w-6 h-6 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+            </button>
+            <div id="instructionsContent" class="grid md:grid-cols-2 gap-6 text-slate-600 hidden">
+                <div>
+                    <h3 class="text-lg font-semibold mb-2">Instrucciones de uso</h3>
+                    <ol class="list-decimal list-inside space-y-2">
+                        <li><b>Ajusta el número de cajas</b> disponibles usando el control numérico.</li>
+                        <li><b>Arrastra las cajas</b> desde la zona de disponibles hacia tu mochila.</li>
+                        <li>Cada caja muestra su <b>valor</b> (número grande) y su <b>peso</b> (número pequeño en kg).</li>
+                        <li>Observa la barra de capacidad: <b>no puedes exceder el peso máximo</b> de la mochila.</li>
+                        <li>Puedes mover cajas de vuelta a la zona disponible si necesitas hacer ajustes.</li>
+                        <li>Tu objetivo es <b>maximizar el valor total</b> sin sobrepasar el límite de peso.</li>
+                        <li>Cuando termines, presiona <b>"¡Calcular Solución!"</b> para comparar tu resultado con el algoritmo genético.</li>
+                    </ol>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-2">El problema de la mochila</h3>
+                    <p>
+                        <b>¿Qué es?</b> Un problema clásico de optimización donde debes seleccionar objetos con diferentes valores y pesos para maximizar el valor total sin exceder la capacidad de peso.<br><br>
+                        <b>¿Por qué es difícil?</b> No siempre los objetos más valiosos son la mejor opción. A veces, combinar varios objetos de menor valor pero más ligeros puede dar un resultado superior.<br><br>
+  <!--                      <b>Estrategia:</b> Considera la relación valor/peso de cada objeto. Los objetos con mayor "eficiencia" (valor por unidad de peso) suelen ser buenas opciones.<br><br>
+                        <b>Algoritmo genético:</b> Utiliza principios de evolución natural para encontrar soluciones óptimas mediante selección, cruce y mutación de soluciones candidatas.-->
+                    </p>
+                </div>
+            </div>
+        </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <!-- Left Side: Items and Knapsack -->
@@ -478,6 +511,22 @@
             });
             
             resetButton.addEventListener('click', initialize);
+
+            // Instructions toggle functionality
+            const toggleInstructions = document.getElementById('toggleInstructions');
+            const instructionsContent = document.getElementById('instructionsContent');
+            const instructionsChevron = document.getElementById('instructionsChevron');
+
+            toggleInstructions.addEventListener('click', () => {
+                const isHidden = instructionsContent.classList.contains('hidden');
+                if (isHidden) {
+                    instructionsContent.classList.remove('hidden');
+                    instructionsChevron.style.transform = 'rotate(180deg)';
+                } else {
+                    instructionsContent.classList.add('hidden');
+                    instructionsChevron.style.transform = 'rotate(0deg)';
+                }
+            });
 
             closeModalButton.addEventListener('click', () => {
                 modalContent.classList.add('scale-95', 'opacity-0');
