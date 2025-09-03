@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acceso Privado - Recurso Avanzado - Jonás Velasco</title>
+    <title>Acceso privado - Jonás Velasco</title>
+    <link rel="icon" type="image/x-icon" href="/img/favicon.ico">
+
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -107,7 +109,7 @@
                         const data = await response.json();
                         if (response.ok) {
                             sessionStorage.setItem('privateAccessGranted2', 'true');
-                            window.location.href = 'recursos-privados2.html';
+                            window.location.href = 'programacion/index.html';
                         } else {
                             errorMessage.textContent = data.message || "Error desconocido.";
                             errorMessage.classList.remove('hidden');
