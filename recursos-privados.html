@@ -218,7 +218,7 @@
 
         // Access Control - Check authentication
         function checkAccess() {
-            const hasAccess = sessionStorage.getItem('privateAccessGranted2') === 'true';
+            const hasAccess = sessionStorage.getItem('privateAccessGranted') === 'true';
             const accessTime = sessionStorage.getItem('accessTime');
             const currentTime = new Date().getTime();
             
@@ -227,7 +227,7 @@
             
             if (!hasAccess || !accessTime || (currentTime - parseInt(accessTime)) > ACCESS_DURATION) {
                 // Clear expired session
-                sessionStorage.removeItem('privateAccessGranted2');
+                sessionStorage.removeItem('privateAccessGranted');
                 sessionStorage.removeItem('accessTime');
                 
                 // Show access denied screen
