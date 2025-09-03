@@ -24,7 +24,7 @@ exports.handler = async function(event, context) {
     }
 
     if (passcode === CORRECT_PASSCODE) {
-        console.log("Acceso CONCEDIDO para recurso 2.");
+        console.log("Acceso CONCEDIDO para recurso de programación.");
         return {
             statusCode: 200,
             headers: { 'Content-Type': 'application/json' },
@@ -34,7 +34,7 @@ exports.handler = async function(event, context) {
             })
         };
     } else {
-        console.log("Acceso DENEGADO para recurso 2. Código incorrecto.");
+        console.log("Acceso DENEGADO para recurso de programación. Código incorrecto.");
         return {
             statusCode: 401, // No autorizado
             headers: { 'Content-Type': 'application/json' },
