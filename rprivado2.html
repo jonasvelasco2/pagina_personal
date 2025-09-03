@@ -109,7 +109,8 @@
                         const data = await response.json();
                         if (response.ok) {
                             sessionStorage.setItem('privateAccessGranted2', 'true');
-                            window.location.href = 'programacion/index.html';
+                            window.location.href = data.redirectUrl || 'index.html';
+
                         } else {
                             errorMessage.textContent = data.message || "Error desconocido.";
                             errorMessage.classList.remove('hidden');
