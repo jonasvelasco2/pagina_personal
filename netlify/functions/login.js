@@ -30,7 +30,10 @@ exports.handler = async function(event, context) {
         return {
             statusCode: 200,
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: "Acceso concedido" })
+            body: JSON.stringify({ 
+                message: "Acceso concedido",
+                redirectUrl: "../../recursos-privados.html"
+            })
         };
     } else {
         console.log("Acceso DENEGADO. Código incorrecto.");
