@@ -184,17 +184,6 @@
                 </div>
                 
                 <!-- Action Button -->
-                <!-- Capacity Warning -->
-                <div id="capacity-warning" class="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg hidden">
-                    <div class="flex items-center">
-                        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                        </svg>
-                        <span class="font-semibold">¡Capacidad excedida!</span>
-                    </div>
-                    <p class="mt-1 text-sm">Por favor, ajusta tu solución removiendo algunos objetos para no exceder el peso máximo de la mochila.</p>
-                </div>
-                
                 <div class="mt-8 text-center">
                     <button id="solve-button" class="w-full bg-[#004D40] text-white font-bold py-3 px-6 rounded-lg hover:bg-[#00695C] transition-colors duration-300 disabled:bg-slate-400 disabled:cursor-not-allowed">
                         ¡Resolver y comparar!
@@ -212,14 +201,14 @@
 
     <!-- Results Modal -->
     <div id="results-modal" class="modal-overlay hidden">
-        <div class="bg-white rounded-xl shadow-2xl p-8 max-w-6xl w-full mx-4 transform transition-all duration-300 scale-95 opacity-0" id="modal-content">
+        <div class="bg-white rounded-xl shadow-2xl p-8 max-w-2xl w-full mx-4 transform transition-all duration-300 scale-95 opacity-0" id="modal-content">
             <h2 class="text-3xl font-bold text-center mb-4">Resultados</h2>
             
             <div id="winner-message" class="text-center text-2xl font-bold my-4 p-4 rounded-lg">
                 <!-- Winner message will be injected here -->
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-center mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-center">
                 <!-- User's Result -->
                 <div class="bg-slate-100 p-6 rounded-lg">
                     <h3 class="text-xl font-bold mb-3">Tu solución</h3>
@@ -235,28 +224,9 @@
                 </div>
             </div>
 
-            <!-- Solutions Visualization -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                <!-- User's Solution Items -->
-                <div class="bg-slate-50 p-4 rounded-lg">
-                    <h4 class="text-lg font-semibold mb-3 text-center">Objetos en tu solución</h4>
-                    <div id="user-solution-items" class="grid grid-cols-3 sm:grid-cols-4 gap-2 min-h-[100px]">
-                        <!-- User's selected items will be shown here -->
-                    </div>
-                </div>
-                
-                <!-- GA's Solution Items -->
-                <div class="bg-indigo-50 p-4 rounded-lg">
-                    <h4 class="text-lg font-semibold mb-3 text-center">Objetos en solución del algoritmo</h4>
-                    <div id="ga-solution-items" class="grid grid-cols-3 sm:grid-cols-4 gap-2 min-h-[100px]">
-                        <!-- GA's selected items will be shown here -->
-                    </div>
-                </div>
-            </div>
-
-            <p id="ga-time" class="text-center text-slate-500 mb-4"></p>
+            <p id="ga-time" class="text-center text-slate-500 mt-4"></p>
             
-            <div class="text-center">
+            <div class="mt-8 text-center">
                 <button id="close-modal-button" class="bg-indigo-600 text-white font-bold py-2 px-8 rounded-lg hover:bg-indigo-700 transition-colors">Cerrar</button>
             </div>
         </div>
@@ -430,12 +400,10 @@
                     currentWeightEl.classList.add('weight-exceeded');
                     weightBar.classList.remove('bg-indigo-600');
                     weightBar.classList.add('bg-red-600');
-                    showCapacityWarning();
                 } else {
                     currentWeightEl.classList.remove('weight-exceeded');
                     weightBar.classList.add('bg-indigo-600');
                     weightBar.classList.remove('bg-red-600');
-                    hideCapacityWarning();
                 }
 
                 // Enable/disable solve button based on whether knapsack has items
@@ -534,21 +502,6 @@
                 }
             }
 
-            // --- FUNCIONES DE ADVERTENCIA DE CAPACIDAD ---
-            function showCapacityWarning() {
-                const warningEl = document.getElementById('capacity-warning');
-                if (warningEl) {
-                    warningEl.classList.remove('hidden');
-                }
-            }
-
-            function hideCapacityWarning() {
-                const warningEl = document.getElementById('capacity-warning');
-                if (warningEl) {
-                    warningEl.classList.add('hidden');
-                }
-            }
-
             // --- MANEJO DE EVENTOS DE BOTONES ---
             solveButton.addEventListener('click', () => {
                 solveButton.disabled = true;
@@ -593,76 +546,34 @@
                 // User's solution
                 let userWeight = 0;
                 let userValue = 0;
-                const userSolutionItems = document.getElementById('user-solution-items');
-                const gaSolutionItems = document.getElementById('ga-solution-items');
-                
-                // Clear previous results
-                userSolutionItems.innerHTML = '';
-                gaSolutionItems.innerHTML = '';
-                
-                // Store user's items for display
-                const userItems = [];
                 knapsackItems.forEach(item => {
                     userWeight += item.weight;
                     userValue += item.value;
-                    userItems.push(item);
                 });
-                
                 if (userWeight > maxWeight) {
                     userValue = 0; // Invalid solution has 0 value
                 }
                 userFinalValueEl.textContent = userValue;
                 userFinalWeightEl.textContent = `${userWeight} kg / ${maxWeight} kg`;
 
-                // Display user's solution items
-                userItems.forEach(item => {
-                    const itemEl = createItemElement(item);
-                    itemEl.classList.add('item-in-knapsack');
-                    itemEl.style.transform = 'scale(0.8)';
-                    userSolutionItems.appendChild(itemEl);
-                });
-
                 // GA's solution
                 const gaValue = bestSolution.fitness;
                 let gaWeight = 0;
-                const gaItems = [];
-                
+                knapsackContainer.innerHTML = ''; // Clear user's items
                 if (bestSolution.chromosome.length > 0) {
                     for (let i = 0; i < bestSolution.chromosome.length; i++) {
                         if (bestSolution.chromosome[i] === 1) {
                             const item = items[i];
                             gaWeight += item.weight;
-                            gaItems.push(item);
+                            const itemEl = createItemElement(item);
+                            itemEl.classList.add('item-in-knapsack');
+                            knapsackContainer.appendChild(itemEl);
                         }
                     }
                 }
-                
                 gaFinalValueEl.textContent = gaValue;
                 gaFinalWeightEl.textContent = `${gaWeight} kg / ${maxWeight} kg`;
                 gaTimeEl.textContent = `Calculado en ${timeTaken} segundos.`;
-
-                // Display GA's solution items
-                gaItems.forEach(item => {
-                    const itemEl = createItemElement(item);
-                    itemEl.classList.add('item-in-knapsack');
-                    itemEl.style.transform = 'scale(0.8)';
-                    gaSolutionItems.appendChild(itemEl);
-                });
-                
-                // Update the main knapsack display with GA solution
-                knapsackContainer.innerHTML = '';
-                gaItems.forEach(item => {
-                    const itemEl = createItemElement(item);
-                    itemEl.classList.add('item-in-knapsack');
-                    knapsackContainer.appendChild(itemEl);
-                });
-                
-                // Update knapsack items map with GA solution
-                knapsackItems.clear();
-                gaItems.forEach(item => {
-                    knapsackItems.set(item.id, item);
-                });
-                updateStats();
 
                 // Determine and display winner
                 if (userValue > gaValue) {
