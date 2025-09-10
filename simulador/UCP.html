@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZLLCPFX9W7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-ZLLCPFX9W7');
+</script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optimización Eléctrica</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #EEDFCF;
+            color: #1a1a1a;
+        }
+        .generator-card {
+            transition: all 0.3s ease-in-out;
+            cursor: pointer;
+        }
+        .generator-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        .generator-active {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+        .generator-inactive {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+        .power-bar {
+            transition: width 0.5s ease-in-out;
+        }
+        .vs-badge {
+            background: linear-gradient(45deg, #ef4444, #dc2626);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .difficulty-selector {
+            transition: all 0.2s ease-in-out;
+        }
+        .difficulty-selected {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 text-slate-800">
+
+    <!--   <div class="container mx-auto p-4 md:p-8 max-w-7xl">-->
+      <div class="container mx-auto p-4 md:p-8 relative">
+              <div class="absolute top-4 right-4 flex items-center gap-4 z-10">
+  
+             <a href="../pasarela/buymeacoffee.html" 
+                 target="_blank" 
+                 rel="noopener noreferrer" 
+                 class="inline-flex items-center gap-2 bg-yellow-400 text-gray-900 font-bold py-2 px-4 rounded-lg shadow-sm transition-colors duration-300 hover:bg-yellow-500">
+                  
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                      <path d="M1 12.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5M2 4v6h10V4zm11.5 0a.5.5 0 0 0-.5.5v5a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-5a.5.5 0 0 0-.5-.5zM1 3.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5m10.854-1.354a.5.5 0 0 0-.708 0L9 3.293 7.854 2.146a.5.5 0 1 0-.708.708L8.293 4 7.146 5.146a.5.5 0 1 0 .708.708L9 4.707l1.146 1.147a.5.5 0 0 0 .708-.708L9.707 4l1.147-1.146a.5.5 0 0 0 0-.708"/>
+                  </svg>
+                  <span>Invítame un café</span>
+              </a>
+  
+              <a href="../index.html" class="bg-white hover:bg-slate-100 text-slate-600 font-semibold py-2 px-4 border border-slate-200 rounded-lg shadow-sm flex items-center transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                  </svg>
+                  Inicio
+              </a>
+  </div>
+  
+        
+        <!-- Header -->
+        <header class="text-center mb-8 pt-16">
+            <!--  <div class="flex justify-center items-center mb-4">
+              <div class="vs-badge text-white font-bold py-3 px-6 rounded-full text-xl">
+                    🧠 TÚ vs 🤖 ALGORITMO
+                </div>
+            </div>-->
+            <h1 class="text-4xl font-bold text-slate-900">Programación de unidades de generación</h1>
+            <p class="text-lg text-slate-600 mt-2">¿Puedes superar al algoritmo en la optimización de costos energéticos?</p>
+        </header>
+
+        <!-- Instructions Panel -->
+        <div class="my-8 bg-white rounded-xl shadow-md p-6">
+            <button id="toggleInstructions" class="w-full flex items-center justify-between text-2xl font-bold mb-4 text-blue-600 hover:text-blue-700 transition-colors">
+                <span>¿Cómo funciona?</span>
+                <svg id="instructionsChevron" class="w-6 h-6 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+            </button>
+            <div id="instructionsContent" class="grid md:grid-cols-2 gap-6 text-slate-600 hidden">
+                <div>
+                    <ol class="list-decimal list-inside space-y-2">
+                        <li><b>Selecciona la dificultad</b> y genera un desafío aleatorio.</li>
+                        <li><b>Activa generadores</b> haciendo clic en las tarjetas.</li>
+                        <li><b>Ajusta la potencia</b> con los controles deslizantes.</li>
+                        <li>La <b>demanda debe ser exacta</b> (barra verde completa).</li>
+                        <li><b>Minimiza costos</b> para vencer al algoritmo.</li>
+                    </ol>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-2">Algoritmo</h3>
+                    <p>
+                        <b>¿Qué hace?</b> Encuentra la mejor solución posible usando técnicas de optimización avanzadas.<br><br>
+                        <b>Tu ventaja:</b> Intuición humana y estrategias creativas que el algoritmo podría no considerar.<br><br>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Left Side: Generators -->
+            <div>
+                <!-- Difficulty Selector -->
+                <div class="bg-white p-6 rounded-xl shadow-md mb-8">
+                    <h2 class="text-2xl font-bold mb-4">🎯 Selecciona la dificultad</h2>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <button class="difficulty-selector p-3 rounded-lg border-2 border-slate-300 text-center hover:border-blue-500" data-difficulty="facil">
+                            <div class="text-xl mb-1">😊</div>
+                            <div class="font-bold text-sm">Fácil</div>
+                            <div class="text-xs text-slate-600">4-6 gen<br>500-800 MW</div>
+                        </button>
+                        <button class="difficulty-selector p-3 rounded-lg border-2 border-slate-300 text-center hover:border-blue-500" data-difficulty="medio">
+                            <div class="text-xl mb-1">🤔</div>
+                            <div class="font-bold text-sm">Medio</div>
+                            <div class="text-xs text-slate-600">6-8 gen<br>800-1200 MW</div>
+                        </button>
+                        <button class="difficulty-selector p-3 rounded-lg border-2 border-slate-300 text-center hover:border-blue-500" data-difficulty="dificil">
+                            <div class="text-xl mb-1">😤</div>
+                            <div class="font-bold text-sm">Difícil</div>
+                            <div class="text-xs text-slate-600">8-10 gen<br>1200-1800 MW</div>
+                        </button>
+                        <button class="difficulty-selector p-3 rounded-lg border-2 border-slate-300 text-center hover:border-blue-500" data-difficulty="extremo">
+                            <div class="text-xl mb-1">🔥</div>
+                            <div class="font-bold text-sm">Extremo</div>
+                            <div class="text-xs text-slate-600">10-12 gen<br>1800-2500 MW</div>
+                        </button>
+                    </div>
+                    <div class="text-center mt-4">
+                        <button id="generate-challenge" class="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors disabled:bg-slate-400" disabled>
+                            🎲 Generar nuevo
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Generators Panel -->
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <h2 class="text-2xl font-bold mb-4">🏭 Generadores disponibles</h2>
+                    <div id="generators-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="text-center text-slate-500 py-8">
+                            Selecciona una dificultad y genera un desafío para comenzar
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: Control Panel -->
+            <div class="bg-white p-6 rounded-xl shadow-md self-start sticky top-8">
+                <h2 class="text-2xl font-bold mb-6">📊 Panel de control</h2>
+                
+                <!-- Current Challenge Info -->
+                <div class="mb-6 p-4 bg-blue-50 rounded-lg">
+                    <div class="text-center">
+                        <div class="text-sm text-blue-600 font-semibold">Desafío actual</div>
+                        <div id="current-difficulty" class="text-lg font-bold text-blue-800">Ninguno</div>
+                    </div>
+                </div>
+                
+                <!-- Demand Display -->
+                <div class="mb-6">
+                    <div class="flex justify-between items-baseline mb-2">
+                        <span class="font-semibold text-slate-600">Demanda objetivo</span>
+                        <span id="current-demand" class="font-bold text-lg text-slate-800">- MW</span>
+                    </div>
+                    <div class="w-full bg-slate-200 rounded-full h-4">
+                        <div id="demand-bar" class="bg-blue-600 h-4 rounded-full transition-all duration-300" style="width: 100%;"></div>
+                    </div>
+                </div>
+
+                <!-- Generation vs Demand -->
+                <div class="mb-6">
+                    <div class="flex justify-between items-baseline mb-2">
+                        <span class="font-semibold text-slate-600">Tu generación</span>
+                        <span id="generation-status" class="font-bold text-lg">0 / - MW</span>
+                    </div>
+                    <div class="w-full bg-slate-200 rounded-full h-4">
+                        <div id="generation-bar" class="power-bar bg-green-600 h-4 rounded-full" style="width: 0%;"></div>
+                    </div>
+                </div>
+
+                <!-- Stats -->
+                <div class="space-y-4 mb-6">
+                    <div class="flex justify-between items-center p-4 bg-slate-100 rounded-lg">
+                        <span class="font-semibold">Tu costo:</span>
+                        <span id="total-cost" class="text-xl font-bold text-red-600">$0</span>
+                    </div>
+                    <div class="flex justify-between items-center p-4 bg-slate-100 rounded-lg">
+                        <span class="font-semibold">Generadores activos:</span>
+                        <span id="active-generators" class="text-xl font-bold text-blue-600">0</span>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="space-y-3">
+                    <button id="submit-solution" class="w-full bg-green-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-700 transition-colors duration-300 disabled:bg-slate-400">
+                        Resolver y comparar
+                    </button>
+                    <button id="reset-button" class="w-full bg-slate-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-slate-700 transition-colors duration-300">
+                        🔄 Reiniciar solución
+                    </button>
+                    <button id="new-challenge" class="w-full bg-purple-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-purple-700 transition-colors duration-300">
+                        🎲 Generar nuevo
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Modal -->
+    <div id="results-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl shadow-2xl p-8 max-w-4xl w-full mx-4">
+            <h2 class="text-3xl font-bold text-center mb-4">Resultados</h2>
+            
+            <div id="winner-announcement" class="text-center text-2xl font-bold mb-6 p-6 rounded-lg">
+                <!-- Winner announcement will be injected here -->
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <!-- User's Result -->
+                <div class="bg-blue-50 border-2 border-blue-300 p-6 rounded-lg">
+                    <h3 class="text-xl font-bold mb-3 text-center">🧠 Tu solución</h3>
+                    <div class="space-y-2">
+                        <p class="text-lg">Costo: <span id="user-final-cost" class="font-bold text-red-600">$0</span></p>
+                        <p class="text-lg">Generadores: <span id="user-final-generators" class="font-bold">0</span></p>
+                        <p class="text-lg">Tiempo: <span id="user-time" class="font-bold">Manual</span></p>
+                    </div>
+                    <div class="mt-4">
+                        <h4 class="font-semibold mb-2">Generadores usados:</h4>
+                        <div id="user-solution-items" class="grid grid-cols-3 gap-2 min-h-[60px]">
+                            <!-- User's selected generators will be shown here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Algorithm's Result -->
+                <div class="bg-green-50 border-2 border-green-300 p-6 rounded-lg">
+                    <h3 class="text-xl font-bold mb-3 text-center">🤖 Solución del algoritmo</h3>
+                    <div class="space-y-2">
+                        <p class="text-lg">Costo: <span id="algo-final-cost" class="font-bold text-red-600">$0</span></p>
+                        <p class="text-lg">Generadores: <span id="algo-final-generators" class="font-bold">0</span></p>
+                        <p class="text-lg">Tiempo: <span id="algo-time" class="font-bold">0.00s</span></p>
+                    </div>
+                    <div class="mt-4">
+                        <h4 class="font-semibold mb-2">Generadores usados:</h4>
+                        <div id="algo-solution-items" class="grid grid-cols-3 gap-2 min-h-[60px]">
+                            <!-- Algorithm's selected generators will be shown here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mb-6">
+                <div class="text-lg">Diferencia de costo: <span id="cost-difference" class="font-bold">$0</span></div>
+                <div class="text-sm text-slate-600">Eficiencia relativa: <span id="efficiency-percent">0%</span></div>
+            </div>
+            
+            <div class="text-center space-x-4">
+                <button id="close-modal" class="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors">
+                    Cerrar
+                </button>
+                <button id="rematch-button" class="bg-green-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-green-700 transition-colors">
+                    🔄 Revancha
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Footer & Contact -->
+    <footer id="contact" class="bg-[#333333] text-white">
+        <div class="container mx-auto px-6 py-10">
+            <div class="text-center">
+             <!--   <h2 class="text-2xl font-bold mb-4">Ponte en Contacto</h2> -->
+                <p class="text-gray-300 mb-2">Si tienes alguna pregunta o te gustaría colaborar, no dudes en escribirme.</p>
+              <!--  <a href="mailto:jvelasco@cimat.mx" class="text-[#80CBC4] text-lg hover:underline">jvelasco@cimat.mx</a> -->
+                <a href="../contacto.html" class="text-[#80CBC4] text-lg hover:underline">Contacto</a>
+                <p class="text-gray-500 mt-8 text-sm">&copy; 2025 Jonás Velasco. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Game State
+        let gameState = {
+            currentDifficulty: null,
+            generators: [],
+            currentDemand: 0,
+            activeGenerators: new Set(),
+            generatorPowers: new Map(),
+            algorithmSolution: null
+        };
+
+        // Difficulty configurations
+        const DIFFICULTIES = {
+            facil: { 
+                name: 'Fácil 😊',
+                generators: [4, 5, 6], 
+                demand: [500, 600, 700, 800],
+                costRange: { fixed: [50, 150], variable: [5, 25] },
+                powerRange: { min: [30, 80], max: [100, 250] }
+            },
+            medio: { 
+                name: 'Medio 🤔',
+                generators: [6, 7, 8], 
+                demand: [800, 900, 1000, 1100, 1200],
+                costRange: { fixed: [80, 200], variable: [8, 35] },
+                powerRange: { min: [40, 100], max: [150, 350] }
+            },
+            dificil: { 
+                name: 'Difícil 😤',
+                generators: [8, 9, 10], 
+                demand: [1200, 1300, 1400, 1500, 1600, 1700, 1800],
+                costRange: { fixed: [100, 250], variable: [10, 40] },
+                powerRange: { min: [50, 120], max: [200, 400] }
+            },
+            extremo: { 
+                name: 'Extremo 🔥',
+                generators: [10, 11, 12], 
+                demand: [1800, 1900, 2000, 2100, 2200, 2300, 2400, 2500],
+                costRange: { fixed: [120, 300], variable: [12, 45] },
+                powerRange: { min: [60, 150], max: [250, 500] }
+            }
+        };
+
+        // Initialize game
+        document.addEventListener('DOMContentLoaded', () => {
+            setupEventListeners();
+            updateStats(); // Initialize button states
+        });
+
+        function setupEventListeners() {
+            // Difficulty selection
+            document.querySelectorAll('.difficulty-selector').forEach(btn => {
+                btn.addEventListener('click', () => selectDifficulty(btn.dataset.difficulty));
+            });
+
+            // Generate challenge
+            document.getElementById('generate-challenge').addEventListener('click', generateChallenge);
+
+            // Instructions toggle
+            document.getElementById('toggleInstructions').addEventListener('click', toggleInstructions);
+
+            // Game actions
+            document.getElementById('submit-solution').addEventListener('click', submitSolution);
+            document.getElementById('reset-button').addEventListener('click', resetSolution);
+            document.getElementById('new-challenge').addEventListener('click', newChallenge);
+
+            // Modal actions
+            document.getElementById('close-modal').addEventListener('click', closeModal);
+            document.getElementById('rematch-button').addEventListener('click', rematch);
+        }
+
+        function selectDifficulty(difficulty) {
+            // Update UI
+            document.querySelectorAll('.difficulty-selector').forEach(btn => {
+                btn.classList.remove('difficulty-selected');
+            });
+            document.querySelector(`[data-difficulty="${difficulty}"]`).classList.add('difficulty-selected');
+            
+            gameState.currentDifficulty = difficulty;
+            document.getElementById('generate-challenge').disabled = false;
+        }
+
+        function generateChallenge() {
+            if (!gameState.currentDifficulty) return;
+
+            const config = DIFFICULTIES[gameState.currentDifficulty];
+            
+            // Generate random parameters within difficulty range
+            const numGenerators = config.generators[Math.floor(Math.random() * config.generators.length)];
+            gameState.currentDemand = config.demand[Math.floor(Math.random() * config.demand.length)];
+            
+            // Generate generators ensuring they can meet the demand
+            gameState.generators = generateGenerators(numGenerators, config, gameState.currentDemand);
+            gameState.activeGenerators.clear();
+            gameState.generatorPowers.clear();
+            
+            // Update generator container message
+            const container = document.getElementById('generators-container');
+            container.innerHTML = '';
+            
+            // Update displays
+            document.getElementById('current-difficulty').textContent = config.name;
+            updateDisplay();
+            renderGenerators();
+        }
+
+        function generateGenerators(count, config, targetDemand) {
+            const generators = [];
+            const types = ['Carbón', 'Gas', 'Nuclear', 'Hidro', 'Eólica', 'Solar', 'Biomasa', 'Geotérmica'];
+            const emojis = ['⚫', '🔵', '🟡', '💙', '🟢', '🟠', '🟤', '🔴'];
+            
+            // Calculate required total capacity (with some buffer)
+            const requiredCapacity = targetDemand * 1.3; // 30% buffer
+            let totalMaxCapacity = 0;
+            
+            for (let i = 0; i < count; i++) {
+                const minPower = config.powerRange.min[0] + Math.random() * (config.powerRange.min[1] - config.powerRange.min[0]);
+                
+                // Ensure we have enough capacity to meet demand
+                let maxPower;
+                if (i === count - 1) {
+                    // Last generator: ensure we reach the required capacity
+                    const remainingCapacity = requiredCapacity - totalMaxCapacity;
+                    maxPower = Math.max(minPower + 50, remainingCapacity / (count - i));
+                } else {
+                    maxPower = minPower + Math.random() * (config.powerRange.max[1] - config.powerRange.max[0]);
+                }
+                
+                totalMaxCapacity += maxPower;
+                
+                const fixedCost = config.costRange.fixed[0] + Math.random() * (config.costRange.fixed[1] - config.costRange.fixed[0]);
+                const variableCost = config.costRange.variable[0] + Math.random() * (config.costRange.variable[1] - config.costRange.variable[0]);
+                
+                generators.push({
+                    id: i,
+                    name: `${types[i % types.length]} ${i + 1}`,
+                    minPower: Math.round(minPower),
+                    maxPower: Math.round(maxPower),
+                    fixedCost: Math.round(fixedCost),
+                    variableCost: Math.round(variableCost * 100) / 100,
+                    emoji: emojis[i % emojis.length]
+                });
+            }
+            
+            // Final check: if total capacity is still insufficient, boost the largest generators
+            if (totalMaxCapacity < targetDemand) {
+                const deficit = targetDemand - totalMaxCapacity + 100; // Add small buffer
+                generators.sort((a, b) => b.maxPower - a.maxPower);
+                
+                for (let i = 0; i < Math.min(3, generators.length) && deficit > 0; i++) {
+                    const boost = Math.ceil(deficit / (3 - i));
+                    generators[i].maxPower += boost;
+                }
+                
+                // Re-sort by id to maintain original order
+                generators.sort((a, b) => a.id - b.id);
+            }
+            
+            return generators;
+        }
+
+        function renderGenerators() {
+            const container = document.getElementById('generators-container');
+            container.innerHTML = '';
+            
+            gameState.generators.forEach(gen => {
+                const isActive = gameState.activeGenerators.has(gen.id);
+                const currentPower = gameState.generatorPowers.get(gen.id) || gen.minPower;
+                
+                const genCard = document.createElement('div');
+                genCard.className = `generator-card p-4 rounded-lg border-2 ${isActive ? 'generator-active border-green-500' : 'generator-inactive border-slate-300'}`;
+                genCard.onclick = () => toggleGenerator(gen.id);
+                
+                genCard.innerHTML = `
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center">
+                            <span class="text-2xl mr-2">${gen.emoji}</span>
+                            <div>
+                                <div class="font-bold">${gen.name}</div>
+                                <div class="text-sm opacity-75">${gen.minPower}-${gen.maxPower} MW</div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm">Fijo: $${gen.fixedCost}</div>
+                            <div class="text-sm">Var: $${gen.variableCost}/MW</div>
+                        </div>
+                    </div>
+                    ${isActive ? `
+                        <div class="mt-3">
+                            <label id="power-label-${gen.id}" class="block text-sm font-medium mb-1">Potencia: ${currentPower} MW</label>
+                            <input type="range" 
+                                   min="${gen.minPower}" 
+                                   max="${gen.maxPower}" 
+                                   value="${currentPower}"
+                                   class="w-full"
+                                   oninput="updateGeneratorPower(${gen.id}, this.value)"
+                                   onclick="event.stopPropagation()">
+                        </div>
+                    ` : ''}
+                `;
+                
+                container.appendChild(genCard);
+            });
+        }
+
+        function toggleGenerator(genId) {
+            if (gameState.activeGenerators.has(genId)) {
+                gameState.activeGenerators.delete(genId);
+                gameState.generatorPowers.delete(genId);
+            } else {
+                gameState.activeGenerators.add(genId);
+                const gen = gameState.generators.find(g => g.id === genId);
+                gameState.generatorPowers.set(genId, gen.minPower);
+            }
+            renderGenerators();
+            updateStats();
+        }
+
+        function updateGeneratorPower(genId, power) {
+            gameState.generatorPowers.set(genId, parseInt(power));
+            
+            // Update the power display in the generator card
+            const powerLabel = document.getElementById(`power-label-${genId}`);
+            if (powerLabel) {
+                powerLabel.textContent = `Potencia: ${power} MW`;
+            }
+            
+            updateStats();
+        }
+
+        function updateStats() {
+            let totalGeneration = 0;
+            let totalCost = 0;
+            
+            gameState.activeGenerators.forEach(genId => {
+                const gen = gameState.generators.find(g => g.id === genId);
+                const power = gameState.generatorPowers.get(genId);
+                totalGeneration += power;
+                totalCost += gen.fixedCost + (gen.variableCost * power);
+            });
+            
+            // Update displays
+            document.getElementById('current-demand').textContent = `${gameState.currentDemand} MW`;
+            document.getElementById('generation-status').textContent = `${totalGeneration} / ${gameState.currentDemand} MW`;
+            document.getElementById('total-cost').textContent = `$${Math.round(totalCost)}`;
+            document.getElementById('active-generators').textContent = gameState.activeGenerators.size;
+            
+            // Update generation bar - handle division by zero
+            let generationPercent = 0;
+            if (gameState.currentDemand > 0) {
+                generationPercent = Math.min((totalGeneration / gameState.currentDemand) * 100, 100);
+            }
+            const genBar = document.getElementById('generation-bar');
+            genBar.style.width = `${generationPercent}%`;
+            
+            // Color coding for generation bar
+            if (totalGeneration < gameState.currentDemand) {
+                genBar.className = 'power-bar bg-red-600 h-4 rounded-full';
+            } else if (totalGeneration === gameState.currentDemand) {
+                genBar.className = 'power-bar bg-green-600 h-4 rounded-full';
+            } else {
+                genBar.className = 'power-bar bg-yellow-600 h-4 rounded-full';
+            }
+            
+            // Enable/disable submit button
+            const submitBtn = document.getElementById('submit-solution');
+            const hasActiveChallenge = gameState.currentDifficulty && gameState.currentDemand > 0;
+            submitBtn.disabled = !hasActiveChallenge || totalGeneration !== gameState.currentDemand;
+        }
+
+        function updateDisplay() {
+            updateStats();
+        }
+
+        function toggleInstructions() {
+            const content = document.getElementById('instructionsContent');
+            const chevron = document.getElementById('instructionsChevron');
+            const isHidden = content.classList.contains('hidden');
+            
+            if (isHidden) {
+                content.classList.remove('hidden');
+                chevron.style.transform = 'rotate(180deg)';
+            } else {
+                content.classList.add('hidden');
+                chevron.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        function submitSolution() {
+            let userCost = calculateUserCost();
+            
+            if (!isValidSolution()) {
+                alert('¡La generación debe igualar exactamente la demanda!');
+                return;
+            }
+            
+            // Calculate algorithm solution
+            const startTime = performance.now();
+            gameState.algorithmSolution = calculateOptimalSolution();
+            const endTime = performance.now();
+            const algoTime = ((endTime - startTime) / 1000).toFixed(3);
+            
+            // Show results
+            showDuelResults(userCost, gameState.algorithmSolution, algoTime);
+        }
+
+        function calculateUserCost() {
+            let totalCost = 0;
+            gameState.activeGenerators.forEach(genId => {
+                const gen = gameState.generators.find(g => g.id === genId);
+                const power = gameState.generatorPowers.get(genId);
+                totalCost += gen.fixedCost + (gen.variableCost * power);
+            });
+            return totalCost;
+        }
+
+        function isValidSolution() {
+            let totalGeneration = 0;
+            gameState.activeGenerators.forEach(genId => {
+                const power = gameState.generatorPowers.get(genId);
+                totalGeneration += power;
+            });
+            return totalGeneration === gameState.currentDemand;
+        }
+
+        function calculateOptimalSolution() {
+            // Simple greedy algorithm for demonstration
+            const sortedGens = gameState.generators
+                .map(gen => ({
+                    ...gen,
+                    efficiency: gen.maxPower / (gen.fixedCost + gen.variableCost * gen.maxPower)
+                }))
+                .sort((a, b) => b.efficiency - a.efficiency);
+            
+            let remainingDemand = gameState.currentDemand;
+            let optimalCost = 0;
+            const usedGenerators = [];
+            
+            for (const gen of sortedGens) {
+                if (remainingDemand <= 0) break;
+                
+                const powerNeeded = Math.min(remainingDemand, gen.maxPower);
+                if (powerNeeded >= gen.minPower) {
+                    optimalCost += gen.fixedCost + (gen.variableCost * powerNeeded);
+                    usedGenerators.push({ ...gen, usedPower: powerNeeded });
+                    remainingDemand -= powerNeeded;
+                }
+            }
+            
+            return { cost: optimalCost, generators: usedGenerators };
+        }
+
+        function showDuelResults(userCost, algoSolution, algoTime) {
+            // Determine winner
+            const userWins = userCost < algoSolution.cost;
+            const tie = Math.abs(userCost - algoSolution.cost) < 1;
+            
+            const winnerEl = document.getElementById('winner-announcement');
+            if (tie) {
+                winnerEl.innerHTML = '🤝 ¡EMPATE! 🤝<br><span class="text-lg">Ambos encontraron soluciones equivalentes</span>';
+                winnerEl.className = 'text-center text-2xl font-bold mb-6 p-6 rounded-lg bg-yellow-100 text-yellow-800';
+            } else if (userWins) {
+                winnerEl.innerHTML = '🎉 ¡GANASTE! 🎉<br><span class="text-lg">Tu intuición humana venció al algoritmo</span>';
+                winnerEl.className = 'text-center text-2xl font-bold mb-6 p-6 rounded-lg bg-green-100 text-green-800';
+            } else {
+                winnerEl.innerHTML = '🤖 ¡EL ALGORITMO GANÓ! 🤖<br><span class="text-lg">La optimización avanzada fue superior</span>';
+                winnerEl.className = 'text-center text-2xl font-bold mb-6 p-6 rounded-lg bg-red-100 text-red-800';
+            }
+            
+            // Update result displays
+            document.getElementById('user-final-cost').textContent = `$${Math.round(userCost)}`;
+            document.getElementById('user-final-generators').textContent = gameState.activeGenerators.size;
+            document.getElementById('algo-final-cost').textContent = `$${Math.round(algoSolution.cost)}`;
+            document.getElementById('algo-final-generators').textContent = algoSolution.generators.length;
+            document.getElementById('algo-time').textContent = `${algoTime}s`;
+            
+            const costDiff = Math.abs(userCost - algoSolution.cost);
+            const efficiency = Math.min(userCost, algoSolution.cost) / Math.max(userCost, algoSolution.cost) * 100;
+            document.getElementById('cost-difference').textContent = `$${Math.round(costDiff)}`;
+            document.getElementById('efficiency-percent').textContent = `${Math.round(efficiency)}%`;
+            
+            // Show generator solutions
+            displaySolutionGenerators();
+            
+            document.getElementById('results-modal').classList.remove('hidden');
+        }
+
+        function displaySolutionGenerators() {
+            const userContainer = document.getElementById('user-solution-items');
+            const algoContainer = document.getElementById('algo-solution-items');
+            
+            userContainer.innerHTML = '';
+            algoContainer.innerHTML = '';
+            
+            // User's generators
+            gameState.activeGenerators.forEach(genId => {
+                const gen = gameState.generators.find(g => g.id === genId);
+                const power = gameState.generatorPowers.get(genId);
+                const genEl = createMiniGenerator(gen, power);
+                userContainer.appendChild(genEl);
+            });
+            
+            // Algorithm's generators
+            gameState.algorithmSolution.generators.forEach(gen => {
+                const genEl = createMiniGenerator(gen, gen.usedPower);
+                algoContainer.appendChild(genEl);
+            });
+        }
+
+        function createMiniGenerator(gen, power) {
+            const div = document.createElement('div');
+            div.className = 'bg-slate-100 p-2 rounded text-center text-xs';
+            div.innerHTML = `
+                <div>${gen.emoji}</div>
+                <div class="font-bold">${power}MW</div>
+            `;
+            return div;
+        }
+
+        function resetSolution() {
+            gameState.activeGenerators.clear();
+            gameState.generatorPowers.clear();
+            renderGenerators();
+            updateStats();
+        }
+
+        function newChallenge() {
+            generateChallenge();
+        }
+
+        function closeModal() {
+            document.getElementById('results-modal').classList.add('hidden');
+        }
+
+        function rematch() {
+            closeModal();
+            resetSolution();
+        }
+    </script>
+
+<script>
+    // --- LÓGICA DE PROTECCIÓN ---
+
+
+    // 1. Deshabilitar el clic derecho en toda la página
+    document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+        showProtectionToast('El clic derecho está deshabilitado.');
+    });
+
+    // 2. Bloquear atajos de teclado comunes
+    document.addEventListener('keydown', function(e) {
+        // Bloquear F12 para dificultar el acceso a las herramientas de desarrollador
+        if (e.key === 'F12' || e.keyCode === 123) {
+            e.preventDefault();
+            showProtectionToast('Las herramientas de desarrollador están deshabilitadas.');
+        }
+
+        // Bloquear combinaciones con la tecla Ctrl
+        if (e.ctrlKey) {
+            const key = e.key.toLowerCase();
+            if (['c', 'x', 'u', 's', 'p'].includes(key)) {
+                e.preventDefault();
+                showProtectionToast(`La función (Ctrl+${key.toUpperCase()}) ha sido deshabilitada.`);
+            }
+        }
+    });
+</script>
+
+
+</body>
+</html>
