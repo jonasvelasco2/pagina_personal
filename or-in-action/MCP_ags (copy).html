@@ -15,6 +15,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Accidentes en aguascalientes</title>
+    <link rel="icon" type="image/x-icon" href="../img/favicon.ico">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         body {
@@ -23,9 +29,9 @@
             font-family: 'Arial', sans-serif;
             background: #f9f4f5ff;
             color: white;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            height: 100vh;
         }
         #controls {
             padding: 20px;
@@ -65,18 +71,45 @@
         }
         #map {
             flex: 1;
-            height: 500px;
+            min-height: 80vh;
+            width: 100%;
+        }
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
         }
         .info-panel {
             position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(255, 255, 255, 0.9);
-            color: black;
-            padding: 15px;
-            border-radius: 8px;
-            max-width: 300px;
+            top: 80px;
+            right: 200px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #1a1a1a;
+            padding: 20px;
+            border-radius: 12px;
+            max-width: 320px;
             z-index: 1000;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            font-family: 'Arial', sans-serif;
+        }
+        .info-panel h3 {
+            margin: 0 0 15px 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #315c2bff;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 8px;
+        }
+        .info-panel p {
+            margin: 10px 0;
+            line-height: 1.5;
+            font-size: 0.9rem;
+            color: #4b5563;
+        }
+        .info-panel p:first-child {
+            margin-top: 0;
         }
         .completion-modal {
             position: fixed;
@@ -136,9 +169,33 @@
     </style>
 </head>
 <body>
+
+    <!-- Header Navigation -->
+    <header class="w-full bg-slate-50 border-b border-slate-200 sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4 flex justify-end items-center gap-4">
+            <a href="../pasarela/buymeacoffee.html" 
+               target="_blank" 
+               rel="noopener noreferrer" 
+               class="inline-flex items-center gap-2 bg-yellow-400 text-gray-900 font-bold py-2 px-4 rounded-lg shadow-sm transition-colors duration-300 hover:bg-yellow-500">
+                
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M1 12.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5M2 4v6h10V4zm11.5 0a.5.5 0 0 0-.5.5v5a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-5a.5.5 0 0 0-.5-.5zM1 3.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5m10.854-1.354a.5.5 0 0 0-.708 0L9 3.293 7.854 2.146a.5.5 0 1 0-.708.708L8.293 4 7.146 5.146a.5.5 0 1 0 .708.708L9 4.707l1.146 1.147a.5.5 0 0 0 .708-.708L9.707 4l1.147-1.146a.5.5 0 0 0 0-.708"/>
+                </svg>
+                <span>Invítame un café</span>
+            </a>
+
+            <a href="../index.html" class="bg-white hover:bg-slate-100 text-slate-600 font-semibold py-2 px-4 border border-slate-200 rounded-lg shadow-sm flex items-center transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                Inicio
+            </a>
+        </div>
+    </header>
+
     <div id="controls">
         <div id="data-loading">
-            <h2>Cargar datos de accidentes en Aguascalientes</h2>
+            <h2 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 20px;">Cargar datos de accidentes en Aguascalientes</h2>
             <div id="remote-loading">
                 <p>Selecciona el año de los datos:</p>
                 <select id="year-select">
@@ -225,21 +282,36 @@
         </div>
     </div>
 
-    <div id="map" style="display: none;"></div>
+    <main class="flex-1">
+        <div id="map" style="display: none;"></div>
 
-    <div class="info-panel">
-        <h3 id="info-title">Información</h3>
-        <div id="filter-info">
-            <p>Primero carga el archivo CSV de accidentes para comenzar.</p>
+        <div class="info-panel">
+            <h3 id="info-title">Información</h3>
+            <div id="filter-info">
+                <p>Primero carga el archivo CSV de accidentes para comenzar.</p>
+            </div>
+            <div id="optimization-info" style="display: none;">
+                <p>Elige el número de unidades y el radio de cobertura.</p>
+                <p>Haz clic en el botón de Iniciar optimización.</p>
+                <p>Después haz clic en el mapa para colocar unidades de cobertura (🚑).</p>
+                <p>Arrastra las unidades para reposicionarlas y optimizar la cobertura.</p>
+                <p>Objetivo: Cubrir la mayor cantidad posible de accidentes con las unidades disponibles.</p>
+            </div>
         </div>
-        <div id="optimization-info" style="display: none;">
-            <p>Elige el número de unidades y el radio de cobertura.</p>
-            <p>Haz clic en el botón de Iniciar optimización.</p>
-            <p>Después haz clic en el mapa para colocar unidades de cobertura (🚑).</p>
-            <p>Arrastra las unidades para reposicionarlas y optimizar la cobertura.</p>
-            <p>Objetivo: Cubrir la mayor cantidad posible de accidentes con las unidades disponibles.</p>
+    </main>
+
+    <!-- Footer & Contact -->
+    <footer id="contact" class="w-full bg-[#333333] text-white mt-auto">
+        <div class="w-full px-6 py-10">
+            <div class="text-center">
+             <!--   <h2 class="text-2xl font-bold mb-4">Ponte en Contacto</h2> -->
+                <p class="text-gray-300 mb-2">Si tienes alguna pregunta o te gustaría colaborar, no dudes en escribirme.</p>
+              <!--  <a href="mailto:jvelasco@cimat.mx" class="text-[#80CBC4] text-lg hover:underline">jvelasco@cimat.mx</a> -->
+                <a href="../contacto.html" class="text-[#80CBC4] text-lg hover:underline">Contacto</a>
+                <p class="text-gray-500 mt-8 text-sm">&copy; 2025 Jonás Velasco. Todos los derechos reservados.</p>
+            </div>
         </div>
-    </div>
+    </footer>
 
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>

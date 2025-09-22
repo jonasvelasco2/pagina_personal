@@ -93,14 +93,62 @@
             border: 1px solid rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(10px);
             font-family: 'Arial', sans-serif;
+            transition: all 0.3s ease;
+        }
+        .info-panel.minimized {
+            padding: 10px;
+            max-width: 60px;
+            height: 50px;
+            overflow: hidden;
+        }
+        .info-panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .info-panel-controls {
+            display: flex;
+            gap: 5px;
+        }
+        .panel-btn {
+            background: #315c2bff;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+        .panel-btn:hover {
+            background: #60712f;
+        }
+        .panel-content {
+            transition: opacity 0.3s ease;
+        }
+        .info-panel.minimized .panel-content {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .info-panel.minimized .info-panel-header {
+            margin-bottom: 0;
+        }
+        .info-panel.minimized h3 {
+            display: none;
         }
         .info-panel h3 {
-            margin: 0 0 15px 0;
+            margin: 0;
             font-size: 1.25rem;
             font-weight: 600;
             color: #315c2bff;
             border-bottom: 2px solid #e5e7eb;
             padding-bottom: 8px;
+            flex: 1;
         }
         .info-panel p {
             margin: 10px 0;
@@ -285,17 +333,25 @@
     <main class="flex-1">
         <div id="map" style="display: none;"></div>
 
-        <div class="info-panel">
-            <h3 id="info-title">Información</h3>
-            <div id="filter-info">
-                <p>Primero carga el archivo CSV de accidentes para comenzar.</p>
+        <div class="info-panel" id="info-panel">
+            <div class="info-panel-header">
+                <h3 id="info-title">Información</h3>
+                <div class="info-panel-controls">
+                    <button class="panel-btn" id="minimize-btn" title="Minimizar panel">−</button>
+                    <button class="panel-btn" id="close-btn" title="Cerrar panel">×</button>
+                </div>
             </div>
-            <div id="optimization-info" style="display: none;">
-                <p>Elige el número de unidades y el radio de cobertura.</p>
-                <p>Haz clic en el botón de Iniciar optimización.</p>
-                <p>Después haz clic en el mapa para colocar unidades de cobertura (🚑).</p>
-                <p>Arrastra las unidades para reposicionarlas y optimizar la cobertura.</p>
-                <p>Objetivo: Cubrir la mayor cantidad posible de accidentes con las unidades disponibles.</p>
+            <div class="panel-content">
+                <div id="filter-info">
+                    <p>Primero carga el archivo CSV de accidentes para comenzar.</p>
+                </div>
+                <div id="optimization-info" style="display: none;">
+                    <p>Elige el número de unidades y el radio de cobertura.</p>
+                    <p>Haz clic en el botón de Iniciar optimización.</p>
+                    <p>Después haz clic en el mapa para colocar unidades de cobertura (🚑).</p>
+                    <p>Arrastra las unidades para reposicionarlas y optimizar la cobertura.</p>
+                    <p>Objetivo: Cubrir la mayor cantidad posible de accidentes con las unidades disponibles.</p>
+                </div>
             </div>
         </div>
     </main>
@@ -735,6 +791,70 @@
                 
                 // Reset accident colors to original gradient
                 updateVisualization();
+            });
+
+            // Info panel controls
+            document.getElementById('minimize-btn').addEventListener('click', function() {
+                const panel = document.getElementById('info-panel');
+                const btn = document.getElementById('minimize-btn');
+                
+                if (panel.classList.contains('minimized')) {
+                    panel.classList.remove('minimized');
+                    btn.textContent = '−';
+                    btn.title = 'Minimizar panel';
+                } else {
+                    panel.classList.add('minimized');
+                    btn.textContent = '+';
+                    btn.title = 'Expandir panel';
+                }
+            });
+
+            document.getElementById('close-btn').addEventListener('click', function() {
+                const panel = document.getElementById('info-panel');
+                panel.style.display = 'none';
+                
+                // Add a small button to restore the panel
+                if (!document.getElementById('restore-panel-btn')) {
+                    const restoreBtn = document.createElement('button');
+                    restoreBtn.id = 'restore-panel-btn';
+                    restoreBtn.innerHTML = 'ℹ️';
+                    restoreBtn.title = 'Mostrar panel de información';
+                    restoreBtn.style.cssText = `
+                        position: absolute;
+                        top: 80px;
+                        right: 20px;
+                        background: rgba(255, 255, 255, 0.95);
+                        border: 1px solid #315c2bff;
+                        border-radius: 50%;
+                        width: 40px;
+                        height: 40px;
+                        cursor: pointer;
+                        font-size: 18px;
+                        z-index: 1000;
+                        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                        transition: all 0.2s;
+                    `;
+                    
+                    restoreBtn.addEventListener('click', function() {
+                        panel.style.display = 'block';
+                        panel.classList.remove('minimized');
+                        document.getElementById('minimize-btn').textContent = '−';
+                        document.getElementById('minimize-btn').title = 'Minimizar panel';
+                        this.remove();
+                    });
+                    
+                    restoreBtn.addEventListener('mouseenter', function() {
+                        this.style.transform = 'scale(1.1)';
+                        this.style.background = 'rgba(255, 255, 255, 1)';
+                    });
+                    
+                    restoreBtn.addEventListener('mouseleave', function() {
+                        this.style.transform = 'scale(1)';
+                        this.style.background = 'rgba(255, 255, 255, 0.95)';
+                    });
+                    
+                    document.body.appendChild(restoreBtn);
+                }
             });
         });
     </script>
