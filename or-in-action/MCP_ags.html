@@ -57,35 +57,12 @@
             color: white;
             cursor: pointer;
         }
-        .day-checkboxes {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            align-items: center;
+        #day-select {
+            min-height: 120px;
+            max-height: 150px;
         }
-        .day-checkbox {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            background: rgba(49, 92, 43, 0.2);
-            padding: 5px 10px;
-            border-radius: 5px;
-            border: 1px solid #315c2b;
-            transition: background 0.2s;
-        }
-        .day-checkbox:hover {
-            background: rgba(49, 92, 43, 0.3);
-        }
-        .day-checkbox input[type="checkbox"] {
-            margin: 0;
-            padding: 0;
-            width: auto;
-            background: transparent;
-        }
-        .day-checkbox label {
-            margin: 0;
-            font-size: 0.9rem;
-            cursor: pointer;
+        #day-select option {
+            padding: 5px;
         }
         #controls input[type="file"] {
             background: #9ea93f;
@@ -313,39 +290,17 @@
                 <option value="12">Diciembre</option>
             </select>
 
-            <label>Días de la semana:</label>
-            <div class="day-checkboxes">
-                <div class="day-checkbox">
-                    <input type="checkbox" id="day-1" value="1">
-                    <label for="day-1">Dom</label>
-                </div>
-                <div class="day-checkbox">
-                    <input type="checkbox" id="day-2" value="2">
-                    <label for="day-2">Lun</label>
-                </div>
-                <div class="day-checkbox">
-                    <input type="checkbox" id="day-3" value="3">
-                    <label for="day-3">Mar</label>
-                </div>
-                <div class="day-checkbox">
-                    <input type="checkbox" id="day-4" value="4">
-                    <label for="day-4">Mié</label>
-                </div>
-                <div class="day-checkbox">
-                    <input type="checkbox" id="day-5" value="5">
-                    <label for="day-5">Jue</label>
-                </div>
-                <div class="day-checkbox">
-                    <input type="checkbox" id="day-6" value="6">
-                    <label for="day-6">Vie</label>
-                </div>
-                <div class="day-checkbox">
-                    <input type="checkbox" id="day-7" value="7">
-                    <label for="day-7">Sáb</label>
-                </div>
-                <button type="button" id="select-all-days" style="padding: 5px 10px; font-size: 0.8rem; background: #9ea93f;">Todos</button>
-                <button type="button" id="clear-all-days" style="padding: 5px 10px; font-size: 0.8rem; background: #666;">Ninguno</button>
-            </div>
+            <label for="day-select">Días de la semana:</label>
+            <select id="day-select" multiple>
+                <option value="">Todos los días</option>
+                <option value="1">Domingo</option>
+                <option value="2">Lunes</option>
+                <option value="3">Martes</option>
+                <option value="4">Miércoles</option>
+                <option value="5">Jueves</option>
+                <option value="6">Viernes</option>
+                <option value="7">Sábado</option>
+            </select>
 
             <label for="hour-select">Hora:</label>
             <select id="hour-select">
@@ -450,18 +405,23 @@
             const selectedMonth = document.getElementById('month-select').value;
             const selectedHour = document.getElementById('hour-select').value;
             
-            // Get selected days from checkboxes
+            // Get selected days from multi-select
+            const daySelect = document.getElementById('day-select');
             const selectedDays = [];
-            for (let i = 1; i <= 7; i++) {
-                const checkbox = document.getElementById(`day-${i}`);
-                if (checkbox && checkbox.checked) {
-                    selectedDays.push(i);
+            let showAllDays = false;
+            
+            for (let option of daySelect.selectedOptions) {
+                if (option.value === '') {
+                    showAllDays = true;
+                    break;
+                } else {
+                    selectedDays.push(parseInt(option.value));
                 }
             }
 
             filteredAccidents = allAccidents.filter(accident => {
                 const monthMatch = !selectedMonth || accident.mes == parseInt(selectedMonth);
-                const dayMatch = selectedDays.length === 0 || selectedDays.includes(accident.dia);
+                const dayMatch = showAllDays || selectedDays.length === 0 || selectedDays.includes(accident.dia);
                 
                 let hourMatch = true;
                 if (selectedHour) {
@@ -612,7 +572,7 @@
 
                     // Update info panel
                     const sourceText = source === 'local' ? 'archivo local' : `año ${source}`;
-                    document.getElementById('filter-info').innerHTML = `<p>Datos cargados desde ${sourceText} (${allAccidents.length} registros).</p><p>Selecciona filtros para visualizar patrones de accidentes por mes, días de la semana y hora.</p><p>Puedes seleccionar múltiples días de la semana. Los puntos representan accidentes. El tamaño y color indican la cantidad.</p>`;
+                    document.getElementById('filter-info').innerHTML = `<p>Datos cargados desde ${sourceText} (${allAccidents.length} registros).</p><p>Selecciona filtros para visualizar patrones de accidentes por mes, días de la semana y hora.</p><p>Mantén presionado Ctrl (o Cmd en Mac) para seleccionar múltiples días. Los puntos representan accidentes. El tamaño y color indican la cantidad.</p>`;
 
                     // Apply default filters (show all data)
                     applyFilters();
@@ -767,28 +727,8 @@
 
             // Filter change handlers
             document.getElementById('month-select').addEventListener('change', applyFilters);
+            document.getElementById('day-select').addEventListener('change', applyFilters);
             document.getElementById('hour-select').addEventListener('change', applyFilters);
-            
-            // Day checkbox handlers
-            for (let i = 1; i <= 7; i++) {
-                document.getElementById(`day-${i}`).addEventListener('change', applyFilters);
-            }
-            
-            // Select all days button
-            document.getElementById('select-all-days').addEventListener('click', function() {
-                for (let i = 1; i <= 7; i++) {
-                    document.getElementById(`day-${i}`).checked = true;
-                }
-                applyFilters();
-            });
-            
-            // Clear all days button
-            document.getElementById('clear-all-days').addEventListener('click', function() {
-                for (let i = 1; i <= 7; i++) {
-                    document.getElementById(`day-${i}`).checked = false;
-                }
-                applyFilters();
-            });
 
             // Reset page button
             document.getElementById('reset-page').addEventListener('click', function() {
