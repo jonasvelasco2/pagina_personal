@@ -127,9 +127,9 @@
 <body>
     <div id="controls">
         <div id="data-loading">
-            <h2>Cargar Datos de Accidentes</h2>
+            <h2>Cargar datos de accidentes en Aguascalientes</h2>
             <div id="remote-loading">
-                <p>Selecciona el año de los datos de accidentes:</p>
+                <p>Selecciona el año de los datos:</p>
                 <select id="year-select">
                     <option value="">Selecciona un año...</option>
                     <option value="2019">2019</option>
@@ -138,17 +138,11 @@
                     <option value="2022">2022</option>
                     <option value="2023">2023</option>
                 </select>
-                <button id="load-remote-btn" disabled>Cargar Datos</button>
-                <p style="font-size: 0.9em; color: #9ea93f;">
-                    💡 Para despliegue en GitHub/Netlify con archivos CSV en carpeta ./data/
-                </p>
+                <button id="load-remote-btn" disabled>Cargar datos</button>
             </div>
             <div id="local-loading" style="margin-top: 15px;">
-                <p>O carga un archivo local:</p>
+                <p>Puedes probar cargando un archivo local:</p>
                 <input type="file" id="csv-file-input" accept=".csv">
-                <p style="font-size: 0.9em; color: #9ea93f;">
-                    💡 Para pruebas locales con archivos CSV descargados
-                </p>
             </div>
             <div id="loading-status" style="margin-top: 10px; display: none;">
                 <p style="color: #9ea93f;">⏳ Cargando datos...</p>
@@ -195,9 +189,9 @@
                 <option value="20">20:00-23:59</option>
             </select>
 
-            <button id="continue-to-optimization">Continuar a Optimización</button>
-            <button id="back-to-filters" style="display: none;">Regresar a Filtros</button>
-            <button id="reset-page">Reiniciar Página</button>
+            <button id="continue-to-optimization">Continuar a optimización</button>
+            <button id="back-to-filters" style="display: none;">Regresar a filtros</button>
+            <button id="reset-page">Cargar datos</button>
         </div>
 
         <div id="optimization-controls" style="display: none;">
@@ -207,9 +201,9 @@
             <label for="radius-input">Radio de cobertura (km):</label>
             <input type="number" id="radius-input" min="0.5" max="5" step="0.5" value="1">
 
-            <button id="start-optimization">Iniciar Optimización</button>
-            <button id="reset-optimization">Reiniciar Optimización</button>
-            <button id="back-to-filters-from-opt">Regresar a Filtros</button>
+            <button id="start-optimization">Iniciar optimización</button>
+            <button id="reset-optimization">Reiniciar optimización</button>
+            <button id="back-to-filters-from-opt">Regresar a filtros</button>
         </div>
     </div>
 
@@ -504,15 +498,15 @@
 
         // Show completion modal
         function showCompletionModal() {
-            const score = coveredCount * 10;
-            const totalPossible = filteredAccidents.length * 10;
+            const score = coveredCount * 1;
+            const totalPossible = filteredAccidents.length * 1;
             const percentage = ((coveredCount / filteredAccidents.length) * 100).toFixed(1);
             
             const modal = document.createElement('div');
             modal.className = 'completion-modal';
             modal.innerHTML = `
                 <div class="completion-content">
-                    <h2>🎉 ¡Optimización Completada!</h2>
+                    <h2>🎉 ¡Optimización completada!</h2>
                     <div class="score">
                         Puntuación: ${score} de ${totalPossible} posibles
                     </div>
