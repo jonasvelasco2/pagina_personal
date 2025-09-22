@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualización Interactiva de Accidentes</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background: #f9f4f5ff;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        #controls {
+            padding: 20px;
+            background: rgba(24, 31, 28, 0.9);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        #filter-controls, #optimization-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+        }
+        #controls label {
+            font-weight: bold;
+        }
+        #controls select, #controls button, #controls input {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            background: #315c2b;
+            color: white;
+            cursor: pointer;
+        }
+        #controls input[type="file"] {
+            background: #9ea93f;
+            color: #181f1c;
+        }
+        #controls button:hover {
+            background: #60712f;
+        }
+        #stats {
+            padding: 10px 20px;
+            background: rgba(39, 64, 41, 0.9);
+            text-align: center;
+        }
+        #map {
+            flex: 1;
+            height: 500px;
+        }
+        .info-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            color: black;
+            padding: 15px;
+            border-radius: 8px;
+            max-width: 300px;
+            z-index: 1000;
+        }
+        .completion-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        .completion-content {
+            background: linear-gradient(135deg, #315c2b, #60712f, #9ea93f);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(24, 31, 28, 0.5);
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .completion-content h2 {
+            margin: 0 0 20px 0;
+            font-size: 2em;
+        }
+        .completion-content .score {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+        .completion-content .tip {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .completion-content button {
+            padding: 12px 25px;
+            margin: 10px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background 0.3s;
+        }
+        .completion-content button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div id="controls">
+        <div id="data-loading">
+            <h2>Cargar Datos de Accidentes</h2>
+            <div id="remote-loading">
+                <p>Selecciona el año de los datos de accidentes:</p>
+                <select id="year-select">
+                    <option value="">Selecciona un año...</option>
+                    <option value="2019">2019</option>
+                    <option value="2020">2020</option>
+                    <option value="2021">2021</option>
+                    <option value="2022">2022</option>
+                    <option value="2023">2023</option>
+                </select>
+                <button id="load-remote-btn" disabled>Cargar Datos</button>
+                <p style="font-size: 0.9em; color: #9ea93f;">
+                    💡 Para despliegue en GitHub/Netlify con archivos CSV en carpeta ./data/
+                </p>
+            </div>
+            <div id="local-loading" style="margin-top: 15px;">
+                <p>O carga un archivo local:</p>
+                <input type="file" id="csv-file-input" accept=".csv">
+                <p style="font-size: 0.9em; color: #9ea93f;">
+                    💡 Para pruebas locales con archivos CSV descargados
+                </p>
+            </div>
+            <div id="loading-status" style="margin-top: 10px; display: none;">
+                <p style="color: #9ea93f;">⏳ Cargando datos...</p>
+            </div>
+        </div>
+
+        <div id="filter-controls" style="display: none;">
+            <label for="month-select">Mes:</label>
+            <select id="month-select">
+                <option value="">Todos</option>
+                <option value="1">Enero</option>
+                <option value="2">Febrero</option>
+                <option value="3">Marzo</option>
+                <option value="4">Abril</option>
+                <option value="5">Mayo</option>
+                <option value="6">Junio</option>
+                <option value="7">Julio</option>
+                <option value="8">Agosto</option>
+                <option value="9">Septiembre</option>
+                <option value="10">Octubre</option>
+                <option value="11">Noviembre</option>
+                <option value="12">Diciembre</option>
+            </select>
+
+            <label for="day-select">Día de la semana:</label>
+            <select id="day-select">
+                <option value="">Todos</option>
+                <option value="1">Domingo</option>
+                <option value="2">Lunes</option>
+                <option value="3">Martes</option>
+                <option value="4">Miércoles</option>
+                <option value="5">Jueves</option>
+                <option value="6">Viernes</option>
+                <option value="7">Sábado</option>
+            </select>
+
+            <label for="hour-select">Hora:</label>
+            <select id="hour-select">
+                <option value="">Todas</option>
+                <option value="0">00:00-05:59</option>
+                <option value="6">06:00-11:59</option>
+                <option value="12">12:00-15:59</option>
+                <option value="16">16:00-19:59</option>
+                <option value="20">20:00-23:59</option>
+            </select>
+
+            <button id="continue-to-optimization">Continuar a Optimización</button>
+            <button id="back-to-filters" style="display: none;">Regresar a Filtros</button>
+            <button id="reset-page">Reiniciar Página</button>
+        </div>
+
+        <div id="optimization-controls" style="display: none;">
+            <label for="units-input">Unidades disponibles:</label>
+            <input type="number" id="units-input" min="1" max="10" value="5">
+
+            <label for="radius-input">Radio de cobertura (km):</label>
+            <input type="number" id="radius-input" min="0.5" max="5" step="0.5" value="1">
+
+            <button id="start-optimization">Iniciar Optimización</button>
+            <button id="reset-optimization">Reiniciar Optimización</button>
+            <button id="back-to-filters-from-opt">Regresar a Filtros</button>
+        </div>
+    </div>
+
+    <div id="stats" style="display: none;">
+        <p>Accidentes mostrados: <span id="shown-count">0</span> | Total en datos: <span id="total-count">0</span></p>
+        <div id="optimization-stats" style="display: none;">
+            <p>Unidades colocadas: <span id="units-placed">0</span>/<span id="units-available">5</span> | Accidentes cubiertos: <span id="covered-count">0</span> | Puntuación: <span id="score">0</span></p>
+        </div>
+    </div>
+
+    <div id="map" style="display: none;"></div>
+
+    <div class="info-panel">
+        <h3 id="info-title">Información</h3>
+        <div id="filter-info">
+            <p>Primero carga el archivo CSV de accidentes para comenzar.</p>
+        </div>
+        <div id="optimization-info" style="display: none;">
+            <p>Haz clic en el mapa para colocar unidades de cobertura (🚑).</p>
+            <p>Arrastra las unidades para reposicionarlas y optimizar la cobertura.</p>
+            <p>Objetivo: Cubrir la mayor cantidad posible de accidentes con las unidades disponibles.</p>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+    <script>
+        let map;
+        let allAccidents = [];
+        let filteredAccidents = [];
+        let accidentMarkers = [];
+        let coverageUnits = [];
+        let unitsAvailable = 5;
+        let coverageRadius = 1000; // meters
+        let unitColors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#85C1E9', '#F7DC6F', '#BB8FCE', '#85C1E9'];
+        let unitIndex = 0;
+        let coveredCount = 0;
+        let isOptimizationMode = false;
+
+        // Initialize map
+        function initMap() {
+            map = L.map('map').setView([21.885, -102.291], 12);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+        }
+
+        // Apply filters
+        function applyFilters() {
+            const selectedMonth = document.getElementById('month-select').value;
+            const selectedDay = document.getElementById('day-select').value;
+            const selectedHour = document.getElementById('hour-select').value;
+
+            filteredAccidents = allAccidents.filter(accident => {
+                const monthMatch = !selectedMonth || accident.mes == parseInt(selectedMonth);
+                const dayMatch = !selectedDay || accident.dia == parseInt(selectedDay);
+                
+                let hourMatch = true;
+                if (selectedHour) {
+                    const hour = accident.hora;
+                    const hourRange = parseInt(selectedHour);
+                    if (hourRange === 0) hourMatch = hour >= 0 && hour <= 5;
+                    else if (hourRange === 6) hourMatch = hour >= 6 && hour <= 11;
+                    else if (hourRange === 12) hourMatch = hour >= 12 && hour <= 15;
+                    else if (hourRange === 16) hourMatch = hour >= 16 && hour <= 19;
+                    else if (hourRange === 20) hourMatch = hour >= 20 && hour <= 23;
+                }
+                
+                return monthMatch && dayMatch && hourMatch;
+            });
+
+            updateVisualization();
+        }
+
+        // Update visualization
+        function updateVisualization() {
+            // Clear existing markers
+            accidentMarkers.forEach(marker => map.removeLayer(marker));
+            accidentMarkers = [];
+
+            // Group by location
+            const locationMap = new Map();
+            filteredAccidents.forEach(accident => {
+                const key = `${accident.lat.toFixed(4)},${accident.lng.toFixed(4)}`;
+                if (!locationMap.has(key)) {
+                    locationMap.set(key, { lat: accident.lat, lng: accident.lng, count: 0 });
+                }
+                locationMap.get(key).count++;
+            });
+
+            // Create markers with color gradient
+            if (locationMap.size > 0) {
+                const counts = Array.from(locationMap.values()).map(l => l.count);
+                const minCount = Math.min(...counts);
+                const maxCount = Math.max(...counts);
+
+                locationMap.forEach(location => {
+                    const radius = Math.max(5, Math.min(20, 5 + location.count));
+                    
+                    // Color from blue (low count) to red (high count)
+                    const ratio = counts.length > 1 ? (location.count - minCount) / (maxCount - minCount) : 0.5;
+                    const hue = 240 - (ratio * 240); // 240 = blue, 0 = red
+                    const saturation = 80 + (ratio * 20);
+                    const lightness = 40 + (ratio * 20);
+                    const color = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+                    const opacity = 0.4 + (ratio * 0.6);
+
+                    const marker = L.circleMarker([location.lat, location.lng], {
+                        color: color,
+                        fillColor: color,
+                        fillOpacity: opacity,
+                        radius: radius
+                    }).addTo(map);
+
+                    marker.bindPopup(`<b>${location.count} accidente(s)</b><br>Ubicación: ${location.lat.toFixed(4)}, ${location.lng.toFixed(4)}`);
+                    accidentMarkers.push(marker);
+                });
+            }
+
+            document.getElementById('shown-count').textContent = filteredAccidents.length;
+        }
+
+        // Load CSV file from same domain (for GitHub/Netlify deployment)
+        function loadRemoteFile(year) {
+            const url = `./data/accidentes_Ags_${year}.csv`;
+            
+            document.getElementById('loading-status').style.display = 'block';
+            document.getElementById('load-remote-btn').disabled = true;
+            
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Error al cargar datos: ${response.status}`);
+                    }
+                    return response.text();
+                })
+                .then(csv => {
+                    parseCSVData(csv, year);
+                })
+                .catch(error => {
+                    console.error('Error loading remote file:', error);
+                    document.getElementById('loading-status').style.display = 'none';
+                    document.getElementById('load-remote-btn').disabled = false;
+                    alert(`Error al cargar los datos remotos: ${error.message}\n\nIntenta cargar un archivo local en su lugar.`);
+                });
+        }
+
+        // Load local CSV file
+        function loadLocalFile(file) {
+            document.getElementById('loading-status').style.display = 'block';
+            
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const csv = event.target.result;
+                parseCSVData(csv, 'local');
+            };
+            reader.readAsText(file);
+        }
+
+        // Parse CSV data
+        function parseCSVData(csvText, source) {
+            Papa.parse(csvText, {
+                header: true,
+                skipEmptyLines: true,
+                complete: function(results) {
+                    console.log('Papa parse results:', results);
+                    console.log('Raw data rows:', results.data.length);
+                    
+                    if (results.errors && results.errors.length > 0) {
+                        console.warn('CSV parsing errors:', results.errors);
+                    }
+                    
+                    allAccidents = results.data.filter(row => {
+                        const lat = parseFloat(row.LATITUD);
+                        const lng = parseFloat(row.LONGITUD);
+                        return !isNaN(lat) && !isNaN(lng) && lat !== 0 && lng !== 0;
+                    }).map(row => ({
+                        lat: parseFloat(row.LATITUD),
+                        lng: parseFloat(row.LONGITUD),
+                        mes: parseInt(row.MES) || 0,
+                        dia: parseInt(row.DIASEMANA) || 0,
+                        hora: parseInt(row.HORA) || 0,
+                        marker: null
+                    }));
+
+                    console.log('Filtered accidents:', allAccidents.length);
+                    
+                    if (allAccidents.length === 0) {
+                        throw new Error('No se encontraron datos válidos de accidentes');
+                    }
+
+                    document.getElementById('total-count').textContent = allAccidents.length;
+                    document.getElementById('loading-status').style.display = 'none';
+                    document.getElementById('load-remote-btn').disabled = false;
+                    
+                    // Show interface after successful loading
+                    document.getElementById('data-loading').style.display = 'none';
+                    document.getElementById('filter-controls').style.display = 'flex';
+                    document.getElementById('stats').style.display = 'block';
+                    document.getElementById('map').style.display = 'block';
+
+                    // Initialize map
+                    initMap();
+
+                    // Update info panel
+                    const sourceText = source === 'local' ? 'archivo local' : `año ${source}`;
+                    document.getElementById('filter-info').innerHTML = `<p>Datos cargados desde ${sourceText} (${allAccidents.length} registros).</p><p>Selecciona filtros para visualizar patrones de accidentes por mes, día de la semana y hora.</p><p>Los puntos representan accidentes. El tamaño y color indican la cantidad.</p>`;
+
+                    // Apply default filters (show all data)
+                    applyFilters();
+                },
+                error: function(error) {
+                    console.error('Papa parse error:', error);
+                    document.getElementById('loading-status').style.display = 'none';
+                    document.getElementById('load-remote-btn').disabled = false;
+                    alert('Error al procesar los datos CSV: ' + error.message);
+                }
+            });
+        }
+
+        // Place coverage unit
+        function placeUnit(lat, lng) {
+            if (!isOptimizationMode || unitsAvailable <= 0) return;
+
+            const color = unitColors[unitIndex % unitColors.length];
+            unitIndex++;
+
+            const ambulanceIcon = L.divIcon({
+                className: 'ambulance-icon',
+                html: `<div style="font-size: 24px; color: ${color}; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">&#x1F691;</div>`,
+                iconSize: [24, 24],
+                iconAnchor: [12, 12]
+            });
+
+            const marker = L.marker([lat, lng], {
+                icon: ambulanceIcon,
+                draggable: true
+            }).addTo(map);
+
+            marker.on('dragend', function(e) {
+                const newLatLng = e.target.getLatLng();
+                const unit = coverageUnits.find(u => u.marker === e.target);
+                if (unit) {
+                    unit.lat = newLatLng.lat;
+                    unit.lng = newLatLng.lng;
+                    updateCoverage();
+                    updateOptimizationStats();
+                }
+            });
+
+            coverageUnits.push({ lat, lng, marker });
+            unitsAvailable--;
+            updateCoverage();
+            updateOptimizationStats();
+
+            if (unitsAvailable === 0) {
+                showCompletionModal();
+            }
+        }
+
+        // Update coverage calculation
+        function updateCoverage() {
+            if (!isOptimizationMode) return;
+
+            coveredCount = 0;
+            filteredAccidents.forEach(accident => {
+                let isCovered = false;
+                coverageUnits.forEach(unit => {
+                    const distance = map.distance([accident.lat, accident.lng], [unit.lat, unit.lng]);
+                    if (distance <= coverageRadius) {
+                        isCovered = true;
+                    }
+                });
+
+                // Update marker color
+                const locationKey = `${accident.lat.toFixed(4)},${accident.lng.toFixed(4)}`;
+                const marker = accidentMarkers.find(m => {
+                    const latlng = m.getLatLng();
+                    return `${latlng.lat.toFixed(4)},${latlng.lng.toFixed(4)}` === locationKey;
+                });
+
+                if (marker) {
+                    if (isCovered) {
+                        coveredCount++;
+                        marker.setStyle({ color: 'green', fillColor: 'green' });
+                    } else {
+                        marker.setStyle({ color: 'red', fillColor: 'red' });
+                    }
+                }
+            });
+        }
+
+        // Show completion modal
+        function showCompletionModal() {
+            const score = coveredCount * 10;
+            const totalPossible = filteredAccidents.length * 10;
+            const percentage = ((coveredCount / filteredAccidents.length) * 100).toFixed(1);
+            
+            const modal = document.createElement('div');
+            modal.className = 'completion-modal';
+            modal.innerHTML = `
+                <div class="completion-content">
+                    <h2>🎉 ¡Optimización Completada!</h2>
+                    <div class="score">
+                        Puntuación: ${score} de ${totalPossible} posibles
+                    </div>
+                    <div class="score">
+                        Cobertura: ${percentage}% de accidentes
+                    </div>
+                    <div class="tip">
+                        💡 <strong>Consejo:</strong> Puedes conseguir una mejor puntuación moviendo las ambulancias para optimizar la cobertura. ¡Arrastra las unidades para cubrir más accidentes!
+                    </div>
+                    <button onclick="this.parentElement.parentElement.remove()">Continuar Optimizando</button>
+                    <button onclick="document.getElementById('reset-optimization').click(); this.parentElement.parentElement.remove();">Reiniciar</button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        // Update optimization stats
+        function updateOptimizationStats() {
+            document.getElementById('units-placed').textContent = coverageUnits.length;
+            document.getElementById('units-available').textContent = unitsAvailable + coverageUnits.length;
+            document.getElementById('covered-count').textContent = coveredCount;
+            document.getElementById('score').textContent = coveredCount * 10;
+        }
+
+        // Initialize after DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Hide interface elements initially
+            document.getElementById('stats').style.display = 'none';
+            document.getElementById('map').style.display = 'none';
+            document.getElementById('filter-controls').style.display = 'none';
+
+            // Year selector and remote load button handlers
+            document.getElementById('year-select').addEventListener('change', function(e) {
+                const loadBtn = document.getElementById('load-remote-btn');
+                loadBtn.disabled = !e.target.value;
+            });
+
+            document.getElementById('load-remote-btn').addEventListener('click', function() {
+                const year = document.getElementById('year-select').value;
+                if (!year) {
+                    alert('Por favor selecciona un año.');
+                    return;
+                }
+                loadRemoteFile(year);
+            });
+
+            // File input handler
+            document.getElementById('csv-file-input').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) {
+                    alert('Por favor selecciona un archivo CSV.');
+                    return;
+                }
+                loadLocalFile(file);
+            });
+
+            // Filter change handlers
+            document.getElementById('month-select').addEventListener('change', applyFilters);
+            document.getElementById('day-select').addEventListener('change', applyFilters);
+            document.getElementById('hour-select').addEventListener('change', applyFilters);
+
+            // Reset page button
+            document.getElementById('reset-page').addEventListener('click', function() {
+                location.reload();
+            });
+
+            // Continue to optimization
+            document.getElementById('continue-to-optimization').addEventListener('click', function() {
+                document.getElementById('optimization-controls').style.display = 'flex';
+                document.getElementById('filter-controls').style.display = 'none';
+                document.getElementById('back-to-filters').style.display = 'inline-block';
+                document.getElementById('filter-info').style.display = 'none';
+                document.getElementById('optimization-info').style.display = 'block';
+                document.getElementById('info-title').textContent = 'Modo Optimización';
+            });
+
+            // Back to filters
+            document.getElementById('back-to-filters').addEventListener('click', function() {
+                document.getElementById('optimization-controls').style.display = 'none';
+                document.getElementById('filter-controls').style.display = 'flex';
+                document.getElementById('back-to-filters').style.display = 'none';
+                document.getElementById('optimization-info').style.display = 'none';
+                document.getElementById('filter-info').style.display = 'block';
+                document.getElementById('info-title').textContent = 'Información';
+                document.getElementById('optimization-stats').style.display = 'none';
+                
+                // Reset optimization
+                isOptimizationMode = false;
+                coverageUnits.forEach(u => map.removeLayer(u.marker));
+                coverageUnits = [];
+                map.off('click');
+                
+                // Reset accident colors
+                updateVisualization();
+            });
+
+            // Start optimization
+            document.getElementById('start-optimization').addEventListener('click', function() {
+                unitsAvailable = parseInt(document.getElementById('units-input').value);
+                coverageRadius = parseFloat(document.getElementById('radius-input').value) * 1000;
+                unitIndex = 0;
+                coveredCount = 0;
+                coverageUnits.forEach(u => map.removeLayer(u.marker));
+                coverageUnits = [];
+                isOptimizationMode = true;
+                updateOptimizationStats();
+                document.getElementById('optimization-stats').style.display = 'block';
+                
+                map.off('click');
+                map.on('click', function(e) {
+                    placeUnit(e.latlng.lat, e.latlng.lng);
+                });
+            });
+
+            // Reset optimization
+            document.getElementById('reset-optimization').addEventListener('click', function() {
+                coverageUnits.forEach(u => map.removeLayer(u.marker));
+                coverageUnits = [];
+                unitsAvailable = parseInt(document.getElementById('units-input').value);
+                unitIndex = 0;
+                coveredCount = 0;
+                updateCoverage();
+                updateOptimizationStats();
+            });
+
+            // Back to filters from optimization
+            document.getElementById('back-to-filters-from-opt').addEventListener('click', function() {
+                document.getElementById('optimization-controls').style.display = 'none';
+                document.getElementById('filter-controls').style.display = 'flex';
+                document.getElementById('optimization-info').style.display = 'none';
+                document.getElementById('filter-info').style.display = 'block';
+                document.getElementById('info-title').textContent = 'Información';
+                document.getElementById('optimization-stats').style.display = 'none';
+                
+                // Reset optimization
+                isOptimizationMode = false;
+                coverageUnits.forEach(u => map.removeLayer(u.marker));
+                coverageUnits = [];
+                map.off('click');
+                
+                // Reset accident colors to original gradient
+                updateVisualization();
+            });
+        });
+    </script>
+</body>
+</html>
