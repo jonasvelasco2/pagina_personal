@@ -57,12 +57,73 @@
             color: white;
             cursor: pointer;
         }
-        #day-select {
-            min-height: 120px;
-            max-height: 150px;
+        .day-dropdown {
+            position: relative;
+            display: inline-block;
         }
-        #day-select option {
-            padding: 5px;
+        .day-dropdown-button {
+            background: #315c2b;
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 200px;
+            justify-content: space-between;
+        }
+        .day-dropdown-button:hover {
+            background: #60712f;
+        }
+        .day-dropdown-arrow {
+            transition: transform 0.2s;
+        }
+        .day-dropdown.open .day-dropdown-arrow {
+            transform: rotate(180deg);
+        }
+        .day-dropdown-content {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #315c2b;
+            border-radius: 5px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            display: none;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+        .day-dropdown.open .day-dropdown-content {
+            display: block;
+        }
+        .day-option {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .day-option:last-child {
+            border-bottom: none;
+        }
+        .day-option:hover {
+            background: #f5f5f5;
+        }
+        .day-option input[type="checkbox"] {
+            margin-right: 8px;
+            cursor: pointer;
+        }
+        .day-option label {
+            cursor: pointer;
+            color: #333;
+            flex: 1;
+            margin: 0;
+            font-weight: normal;
         }
         #controls input[type="file"] {
             background: #9ea93f;
@@ -290,17 +351,43 @@
                 <option value="12">Diciembre</option>
             </select>
 
-            <label for="day-select">Días de la semana:</label>
-            <select id="day-select" multiple>
-                <option value="">Todos los días</option>
-                <option value="1">Domingo</option>
-                <option value="2">Lunes</option>
-                <option value="3">Martes</option>
-                <option value="4">Miércoles</option>
-                <option value="5">Jueves</option>
-                <option value="6">Viernes</option>
-                <option value="7">Sábado</option>
-            </select>
+            <label>Días de la semana:</label>
+            <div class="day-dropdown" id="day-dropdown">
+                <button type="button" class="day-dropdown-button" id="day-dropdown-button">
+                    <span id="day-dropdown-text">Todos los días</span>
+                    <span class="day-dropdown-arrow">▼</span>
+                </button>
+                <div class="day-dropdown-content">
+                    <div class="day-option">
+                        <input type="checkbox" id="day-1" value="1" checked>
+                        <label for="day-1">Domingo</label>
+                    </div>
+                    <div class="day-option">
+                        <input type="checkbox" id="day-2" value="2" checked>
+                        <label for="day-2">Lunes</label>
+                    </div>
+                    <div class="day-option">
+                        <input type="checkbox" id="day-3" value="3" checked>
+                        <label for="day-3">Martes</label>
+                    </div>
+                    <div class="day-option">
+                        <input type="checkbox" id="day-4" value="4" checked>
+                        <label for="day-4">Miércoles</label>
+                    </div>
+                    <div class="day-option">
+                        <input type="checkbox" id="day-5" value="5" checked>
+                        <label for="day-5">Jueves</label>
+                    </div>
+                    <div class="day-option">
+                        <input type="checkbox" id="day-6" value="6" checked>
+                        <label for="day-6">Viernes</label>
+                    </div>
+                    <div class="day-option">
+                        <input type="checkbox" id="day-7" value="7" checked>
+                        <label for="day-7">Sábado</label>
+                    </div>
+                </div>
+            </div>
 
             <label for="hour-select">Hora:</label>
             <select id="hour-select">
@@ -400,28 +487,47 @@
             }).addTo(map);
         }
 
+        // Update dropdown button text
+        function updateDayDropdownText() {
+            const selectedDays = [];
+            const dayNames = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+            
+            for (let i = 1; i <= 7; i++) {
+                const checkbox = document.getElementById(`day-${i}`);
+                if (checkbox && checkbox.checked) {
+                    selectedDays.push(dayNames[i-1]);
+                }
+            }
+            
+            const dropdownText = document.getElementById('day-dropdown-text');
+            if (selectedDays.length === 7) {
+                dropdownText.textContent = 'Todos los días';
+            } else if (selectedDays.length === 0) {
+                dropdownText.textContent = 'Ningún día';
+            } else if (selectedDays.length <= 3) {
+                dropdownText.textContent = selectedDays.join(', ');
+            } else {
+                dropdownText.textContent = `${selectedDays.length} días seleccionados`;
+            }
+        }
+
         // Apply filters
         function applyFilters() {
             const selectedMonth = document.getElementById('month-select').value;
             const selectedHour = document.getElementById('hour-select').value;
             
-            // Get selected days from multi-select
-            const daySelect = document.getElementById('day-select');
+            // Get selected days from checkboxes
             const selectedDays = [];
-            let showAllDays = false;
-            
-            for (let option of daySelect.selectedOptions) {
-                if (option.value === '') {
-                    showAllDays = true;
-                    break;
-                } else {
-                    selectedDays.push(parseInt(option.value));
+            for (let i = 1; i <= 7; i++) {
+                const checkbox = document.getElementById(`day-${i}`);
+                if (checkbox && checkbox.checked) {
+                    selectedDays.push(i);
                 }
             }
 
             filteredAccidents = allAccidents.filter(accident => {
                 const monthMatch = !selectedMonth || accident.mes == parseInt(selectedMonth);
-                const dayMatch = showAllDays || selectedDays.length === 0 || selectedDays.includes(accident.dia);
+                const dayMatch = selectedDays.length === 0 || selectedDays.includes(accident.dia);
                 
                 let hourMatch = true;
                 if (selectedHour) {
@@ -572,7 +678,7 @@
 
                     // Update info panel
                     const sourceText = source === 'local' ? 'archivo local' : `año ${source}`;
-                    document.getElementById('filter-info').innerHTML = `<p>Datos cargados desde ${sourceText} (${allAccidents.length} registros).</p><p>Selecciona filtros para visualizar patrones de accidentes por mes, días de la semana y hora.</p><p>Mantén presionado Ctrl (o Cmd en Mac) para seleccionar múltiples días. Los puntos representan accidentes. El tamaño y color indican la cantidad.</p>`;
+                    document.getElementById('filter-info').innerHTML = `<p>Datos cargados desde ${sourceText} (${allAccidents.length} registros).</p><p>Selecciona filtros para visualizar patrones de accidentes por mes, días de la semana y hora.</p><p>Haz clic en el botón de días para seleccionar/deseleccionar días específicos. Debe haber al menos un día seleccionado. Los puntos representan accidentes. El tamaño y color indican la cantidad.</p>`;
 
                     // Apply default filters (show all data)
                     applyFilters();
@@ -727,8 +833,46 @@
 
             // Filter change handlers
             document.getElementById('month-select').addEventListener('change', applyFilters);
-            document.getElementById('day-select').addEventListener('change', applyFilters);
             document.getElementById('hour-select').addEventListener('change', applyFilters);
+            
+            // Day dropdown functionality
+            const dayDropdown = document.getElementById('day-dropdown');
+            const dayDropdownButton = document.getElementById('day-dropdown-button');
+            
+            // Toggle dropdown
+            dayDropdownButton.addEventListener('click', function(e) {
+                e.stopPropagation();
+                dayDropdown.classList.toggle('open');
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!dayDropdown.contains(e.target)) {
+                    dayDropdown.classList.remove('open');
+                }
+            });
+            
+            // Day checkbox handlers with validation
+            for (let i = 1; i <= 7; i++) {
+                const checkbox = document.getElementById(`day-${i}`);
+                checkbox.addEventListener('change', function() {
+                    // Check if this would leave no days selected
+                    const checkedBoxes = document.querySelectorAll('#day-dropdown input[type="checkbox"]:checked');
+                    
+                    if (checkedBoxes.length === 0) {
+                        // Prevent unchecking if it would leave no days selected
+                        this.checked = true;
+                        alert('Debe seleccionar al menos un día de la semana.');
+                        return;
+                    }
+                    
+                    updateDayDropdownText();
+                    applyFilters();
+                });
+            }
+            
+            // Initialize dropdown text
+            updateDayDropdownText();
 
             // Reset page button
             document.getElementById('reset-page').addEventListener('click', function() {
