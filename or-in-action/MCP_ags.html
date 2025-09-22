@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visualización Interactiva de Accidentes</title>
+    <title>Accidentes en aguascalientes</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         body {
@@ -222,7 +222,9 @@
             <p>Primero carga el archivo CSV de accidentes para comenzar.</p>
         </div>
         <div id="optimization-info" style="display: none;">
-            <p>Haz clic en el mapa para colocar unidades de cobertura (🚑).</p>
+            <p>Elige el número de unidades y el radio de cobertura.</p>
+            <p>Haz clic en el botón de Iniciar optimización.</p>
+            <p>Después haz clic en el mapa para colocar unidades de cobertura (🚑).</p>
             <p>Arrastra las unidades para reposicionarlas y optimizar la cobertura.</p>
             <p>Objetivo: Cubrir la mayor cantidad posible de accidentes con las unidades disponibles.</p>
         </div>
@@ -516,7 +518,7 @@
                     <div class="tip">
                         💡 <strong>Consejo:</strong> Puedes conseguir una mejor puntuación moviendo las ambulancias para optimizar la cobertura. ¡Arrastra las unidades para cubrir más accidentes!
                     </div>
-                    <button onclick="this.parentElement.parentElement.remove()">Continuar Optimizando</button>
+                    <button onclick="this.parentElement.parentElement.remove()">Continuar optimizando</button>
                     <button onclick="document.getElementById('reset-optimization').click(); this.parentElement.parentElement.remove();">Reiniciar</button>
                 </div>
             `;
@@ -580,7 +582,7 @@
                 document.getElementById('back-to-filters').style.display = 'inline-block';
                 document.getElementById('filter-info').style.display = 'none';
                 document.getElementById('optimization-info').style.display = 'block';
-                document.getElementById('info-title').textContent = 'Modo Optimización';
+                document.getElementById('info-title').textContent = 'Modo optimización';
             });
 
             // Back to filters
