@@ -14,7 +14,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Accidentes en aguascalientes</title>
+    <title>Maximal covering location</title>
     <link rel="icon" type="image/x-icon" href="../img/favicon.ico">
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -311,7 +311,7 @@
 
     <div id="controls">
         <div id="data-loading">
-            <h2 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 20px;">Cargar datos de accidentes en Aguascalientes</h2>
+            <h2 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 20px;">Cargar datos de accidentes</h2>
             <div id="remote-loading">
                 <p>Selecciona el año de los datos:</p>
                 <select id="year-select">
@@ -405,14 +405,14 @@
         </div>
 
         <div id="optimization-controls" style="display: none;">
-            <label for="units-input">Unidades disponibles:</label>
+            <label for="units-input">Ambulancias disponibles:</label>
             <input type="number" id="units-input" min="1" max="10" value="5">
 
             <label for="radius-input">Radio de cobertura (km):</label>
             <input type="number" id="radius-input" min="0.5" max="5" step="0.5" value="1">
 
-            <button id="start-optimization">Iniciar optimización</button>
-            <button id="reset-optimization">Reiniciar optimización</button>
+            <button id="start-optimization">Colocar ambulancias</button>
+            <button id="reset-optimization">Reiniciar</button>
             <button id="back-to-filters-from-opt">Regresar a filtros</button>
         </div>
     </div>
@@ -420,7 +420,7 @@
     <div id="stats" style="display: none;">
         <p>Accidentes mostrados: <span id="shown-count">0</span> | Total en datos: <span id="total-count">0</span></p>
         <div id="optimization-stats" style="display: none;">
-            <p>Unidades colocadas: <span id="units-placed">0</span>/<span id="units-available">5</span> | Accidentes cubiertos: <span id="covered-count">0</span> | Puntuación: <span id="score">0</span></p>
+            <p>Ambulancias colocadas: <span id="units-placed">0</span>/<span id="units-available">5</span> | Accidentes cubiertos: <span id="covered-count">0</span> | Puntuación: <span id="score">0</span></p>
         </div>
     </div>
 
@@ -440,11 +440,11 @@
                     <p>Primero carga el archivo CSV de accidentes para comenzar.</p>
                 </div>
                 <div id="optimization-info" style="display: none;">
-                    <p>Elige el número de unidades y el radio de cobertura.</p>
-                    <p>Haz clic en el botón de Iniciar optimización.</p>
+                    <p>Elige el número de ambulancias disponibles y el radio de cobertura.</p>
+                    <p>Haz clic en el botón de Colocar ambulancias.</p>
                     <p>Después haz clic en el mapa para colocar unidades de cobertura (🚑).</p>
                     <p>Arrastra las unidades para reposicionarlas y optimizar la cobertura.</p>
-                    <p>Objetivo: Cubrir la mayor cantidad posible de accidentes con las unidades disponibles.</p>
+                    <p>Objetivo: Cubrir la mayor cantidad posible de accidentes con las ambulancias disponibles.</p>
                 </div>
             </div>
         </div>
