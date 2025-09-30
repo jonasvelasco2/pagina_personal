@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZLLCPFX9W7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-ZLLCPFX9W7');
+</script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Competencia MCP - Maximal Covering Location</title>
+    <link rel="icon" type="image/x-icon" href="../img/favicon.ico">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', 'Arial', sans-serif;
+            background: #f9f4f5ff;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .container-main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .card h2 {
+            color: #315c2b;
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #315c2b;
+            padding-bottom: 10px;
+        }
+        .card h3 {
+            color: #60712f;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+        .btn-primary {
+            background: #315c2b;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #60712f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(49, 92, 43, 0.3);
+        }
+        .btn-secondary {
+            background: #9ea93f;
+            color: #181f1c;
+        }
+        .btn-secondary:hover {
+            background: #60712f;
+            color: white;
+        }
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #315c2b;
+        }
+        .input-group select, .input-group input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        .input-group select:focus, .input-group input[type="file"]:focus {
+            outline: none;
+            border-color: #315c2b;
+        }
+        #map {
+            height: 500px;
+            width: 100%;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .stat-box {
+            background: linear-gradient(135deg, #315c2b, #60712f);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .stat-box .label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+        .stat-box .value {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .instructions {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #315c2b;
+            margin-bottom: 20px;
+        }
+        .instructions ol {
+            margin-left: 20px;
+            line-height: 1.8;
+        }
+        .instructions code {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #d63384;
+        }
+        .hidden {
+            display: none;
+        }
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        .step-indicator::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #e0e0e0;
+            z-index: 0;
+        }
+        .step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            color: #666;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+        .step.active .step-circle {
+            background: #315c2b;
+            color: white;
+            transform: scale(1.2);
+        }
+        .step.completed .step-circle {
+            background: #60712f;
+            color: white;
+        }
+        .step-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #666;
+        }
+        .step.active .step-label {
+            color: #315c2b;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header class="w-full bg-slate-50 border-b border-slate-200 sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-[#315c2b]">🏆 Competencia MCP</h1>
+            <div class="flex gap-4">
+                <a href="../pasarela/buymeacoffee.html" 
+                   target="_blank" 
+                   rel="noopener noreferrer" 
+                   class="inline-flex items-center gap-2 bg-yellow-400 text-gray-900 font-bold py-2 px-4 rounded-lg shadow-sm transition-colors duration-300 hover:bg-yellow-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M1 12.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5M2 4v6h10V4zm11.5 0a.5.5 0 0 0-.5.5v5a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-5a.5.5 0 0 0-.5-.5zM1 3.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5m10.854-1.354a.5.5 0 0 0-.708 0L9 3.293 7.854 2.146a.5.5 0 1 0-.708.708L8.293 4 7.146 5.146a.5.5 0 1 0 .708.708L9 4.707l1.146 1.147a.5.5 0 0 0 .708-.708L9.707 4l1.147-1.146a.5.5 0 0 0 0-.708"/>
+                    </svg>
+                    <span>Invítame un café</span>
+                </a>
+                <a href="../index.html" class="bg-white hover:bg-slate-100 text-slate-600 font-semibold py-2 px-4 border border-slate-200 rounded-lg shadow-sm flex items-center transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                    Inicio
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container-main">
+        <!-- Instructions Card -->
+        <div class="card">
+            <h2>📋 Instrucciones de la competencia</h2>
+            <div class="instructions">
+                <h3 style="color: #315c2b; margin-top: 0;">Problema: Maximal Covering Location (MCP)</h3>
+                <p><strong>Objetivo:</strong> Maximizar el número de accidentes cubiertos colocando un número limitado de ambulancias con un radio de cobertura dado.</p>
+                
+                <h3 style="color: #315c2b;">Pasos para participar:</h3>
+                <ol>
+                    <li><strong>Seleccionar Instancia:</strong> Elige una instancia del problema (año de datos de accidentes).</li>
+                    <li><strong>Descargar datos:</strong> Descarga el archivo CSV con las ubicaciones de los accidentes para trabajar offline.</li>
+                    <li><strong>Resolver el problema:</strong> Usa tu método preferido (optimización, heurísticas, algoritmos genéticos, etc.) para determinar las mejores ubicaciones para las ambulancias.</li>
+                    <li><strong>Preparar solución:</strong> Crea un archivo CSV con tus ubicaciones propuestas.</li>
+                    <li><strong>Subir y evaluar:</strong> Sube tu solución y obtén tu puntuación.</li>
+                </ol>
+
+                <h3 style="color: #315c2b;">Formato del archivo de solución:</h3>
+                <p>Tu archivo CSV debe tener <strong>exactamente</strong> el número de ambulancias especificado, con las siguientes columnas:</p>
+                <code>LATITUD,LONGITUD</code>
+                <p style="margin-top: 10px;"><strong>Ejemplo:</strong></p>
+                <pre style="background: #e9ecef; padding: 10px; border-radius: 4px; overflow-x: auto;">LATITUD,LONGITUD
+21.8853,-102.2916
+21.9123,-102.3145
+21.8765,-102.2789</pre>
+                
+                <div class="alert alert-warning" style="margin-top: 15px;">
+                    <strong>⚠️ Importante:</strong> El archivo debe tener exactamente <span id="required-units-text">N</span> ambulancias (filas de datos). Cada fila debe contener coordenadas válidas (latitud, longitud).
+                </div>
+            </div>
+        </div>
+
+        <!-- Step Indicator -->
+        <div class="step-indicator">
+            <div class="step active" id="step-1">
+                <div class="step-circle">1</div>
+                <div class="step-label">Seleccionar instancia</div>
+            </div>
+            <div class="step" id="step-2">
+                <div class="step-circle">2</div>
+                <div class="step-label">Subir solución</div>
+            </div>
+            <div class="step" id="step-3">
+                <div class="step-circle">3</div>
+                <div class="step-label">Evaluar</div>
+            </div>
+        </div>
+
+        <!-- Step 1: Select Instance -->
+        <div class="card" id="card-step-1">
+            <h2>Paso 1: Seleccionar instancia</h2>
+            
+            <div class="input-group">
+                <label for="year-select">Año de datos de accidentes:</label>
+                <select id="year-select">
+                    <option value="">Selecciona un año...</option>
+                    <option value="2019">2019</option>
+                    <option value="2020">2020</option>
+                    <option value="2021">2021</option>
+                    <option value="2022">2022</option>
+                    <option value="2023">2023</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label for="units-input">Número de ambulancias disponibles:</label>
+                <select id="units-input">
+                    <option value="3">3 ambulancias</option>
+                    <option value="5" selected>5 ambulancias</option>
+                    <option value="7">7 ambulancias</option>
+                    <option value="10">10 ambulancias</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label for="radius-input">Radio de cobertura (km):</label>
+                <select id="radius-input">
+                    <option value="0.5">0.5 km</option>
+                    <option value="1" selected>1.0 km</option>
+                    <option value="1.5">1.5 km</option>
+                    <option value="2">2.0 km</option>
+                    <option value="2.5">2.5 km</option>
+                </select>
+            </div>
+
+            <div id="loading-status" class="alert alert-info hidden">
+                <strong>⏳ Cargando datos...</strong> Por favor espera.
+            </div>
+
+            <button id="load-instance-btn" class="btn btn-primary" disabled>Cargar instancia</button>
+            
+            <div class="alert alert-warning" style="margin-top: 20px;">
+                <strong>⚠️ Nota:</strong> Si estás abriendo este archivo localmente (sin servidor), usa la opción alternativa:
+            </div>
+            
+            <div class="input-group" style="margin-top: 15px;">
+                <label for="local-instance-input">O carga el archivo CSV de la instancia manualmente:</label>
+                <input type="file" id="local-instance-input" accept=".csv">
+                <p style="font-size: 0.9rem; color: #666; margin-top: 5px;">
+                    Archivo esperado: <code>accidentes_Ags_[año].csv</code> desde la carpeta <code>data/</code>
+                </p>
+            </div>
+            
+            <button id="download-instance-btn" class="btn btn-secondary hidden">📥 Descargar datos de la instancia</button>
+        </div>
+
+        <!-- Instance Info -->
+        <div class="card hidden" id="instance-info-card">
+            <h2>📊 Información de la instancia</h2>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="label">Año</div>
+                    <div class="value" id="stat-year">-</div>
+                </div>
+                <div class="stat-box">
+                    <div class="label">Accidentes</div>
+                    <div class="value" id="stat-accidents">-</div>
+                </div>
+                <div class="stat-box">
+                    <div class="label">Ambulancias</div>
+                    <div class="value" id="stat-units">-</div>
+                </div>
+                <div class="stat-box">
+                    <div class="label">Radio (km)</div>
+                    <div class="value" id="stat-radius">-</div>
+                </div>
+            </div>
+            <div id="map"></div>
+        </div>
+
+        <!-- Step 2: Upload Solution -->
+        <div class="card hidden" id="card-step-2">
+            <h2>Paso 2: Subir tu solución</h2>
+            
+            <div class="alert alert-info">
+                <strong>📝 Recuerda:</strong> Tu archivo debe contener exactamente <strong><span id="required-units">5</span> ambulancias</strong> en formato CSV con columnas LATITUD,LONGITUD.
+            </div>
+
+            <div class="input-group">
+                <label for="solution-file-input">Selecciona tu archivo de solución (CSV):</label>
+                <input type="file" id="solution-file-input" accept=".csv">
+            </div>
+
+            <button id="evaluate-btn" class="btn btn-primary" disabled>🔍 Evaluar solución</button>
+            <button id="reset-btn" class="btn btn-secondary">🔄 Reiniciar</button>
+        </div>
+
+        <!-- Step 3: Results -->
+        <div class="card hidden" id="card-step-3">
+            <h2>Paso 3: Resultados</h2>
+            
+            <div id="results-container"></div>
+
+            <div class="stats-grid" id="results-stats" style="display: none;">
+                <div class="stat-box">
+                    <div class="label">Accidentes cubiertos</div>
+                    <div class="value" id="result-covered">-</div>
+                </div>
+                <div class="stat-box">
+                    <div class="label">Total accidentes</div>
+                    <div class="value" id="result-total">-</div>
+                </div>
+                <div class="stat-box">
+                    <div class="label">Cobertura</div>
+                    <div class="value" id="result-percentage">-</div>
+                </div>
+                <div class="stat-box" style="background: linear-gradient(135deg, #9ea93f, #60712f);">
+                    <div class="label">Puntuación</div>
+                    <div class="value" id="result-score">-</div>
+                </div>
+            </div>
+
+            <button id="try-again-btn" class="btn btn-primary" style="margin-top: 20px;">🔄 Intentar de nuevo</button>
+            <button id="new-instance-btn" class="btn btn-secondary" style="margin-top: 20px;">📋 Nueva instancia</button>
+        </div>
+    </div>
+
+    <!-- Footer & Contact -->
+    <footer id="contact" class="w-full bg-[#333333] text-white mt-auto">
+        <div class="w-full px-6 py-10">
+            <div class="text-center">
+                <p class="text-gray-300 mb-2">Si tienes alguna pregunta o te gustaría colaborar, no dudes en escribirme.</p>
+                <a href="../contacto.html" class="text-[#80CBC4] text-lg hover:underline">Contacto</a>
+                <p class="text-gray-500 mt-8 text-sm">&copy; 2025 Jonás Velasco. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+    <script>
+        // Global variables
+        let map;
+        let allAccidents = [];
+        let solutionLocations = [];
+        let accidentMarkers = [];
+        let solutionMarkers = [];
+        let currentYear = '';
+        let unitsRequired = 5;
+        let coverageRadius = 1000; // meters
+
+        // Initialize map
+        function initMap() {
+            if (map) {
+                map.remove();
+            }
+            map = L.map('map').setView([21.885, -102.291], 12);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+        }
+
+        // Update step indicator
+        function updateStepIndicator(currentStep) {
+            for (let i = 1; i <= 3; i++) {
+                const step = document.getElementById(`step-${i}`);
+                step.classList.remove('active', 'completed');
+                
+                if (i < currentStep) {
+                    step.classList.add('completed');
+                } else if (i === currentStep) {
+                    step.classList.add('active');
+                }
+            }
+        }
+
+        // Show/hide cards
+        function showCard(cardId) {
+            document.querySelectorAll('.card').forEach(card => {
+                if (card.id.startsWith('card-step-') || card.id === 'instance-info-card') {
+                    card.classList.add('hidden');
+                }
+            });
+            document.getElementById(cardId).classList.remove('hidden');
+        }
+
+        // Load instance data
+        function loadInstance(year) {
+            const url = `./data/accidentes_Ags_${year}.csv`;
+            
+            document.getElementById('loading-status').classList.remove('hidden');
+            document.getElementById('load-instance-btn').disabled = true;
+            
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Error al cargar datos: ${response.status}`);
+                    }
+                    return response.text();
+                })
+                .then(csv => {
+                    parseInstanceData(csv, year);
+                })
+                .catch(error => {
+                    console.error('Error loading instance:', error);
+                    document.getElementById('loading-status').classList.add('hidden');
+                    document.getElementById('load-instance-btn').disabled = false;
+                    
+                    // More helpful error message
+                    const errorMsg = `
+                        <strong>❌ No se pudo cargar la instancia automáticamente.</strong><br><br>
+                        <strong>Solución:</strong> Usa la opción de carga manual abajo. 
+                        Navega a la carpeta <code>data/</code> y selecciona el archivo 
+                        <code>accidentes_Ags_${year}.csv</code>
+                    `;
+                    showAlert('error', errorMsg);
+                });
+        }
+
+        // Parse instance data
+        function parseInstanceData(csvText, year) {
+            Papa.parse(csvText, {
+                header: true,
+                skipEmptyLines: true,
+                complete: function(results) {
+                    allAccidents = results.data.filter(row => {
+                        const lat = parseFloat(row.LATITUD);
+                        const lng = parseFloat(row.LONGITUD);
+                        return !isNaN(lat) && !isNaN(lng) && lat !== 0 && lng !== 0;
+                    }).map(row => ({
+                        lat: parseFloat(row.LATITUD),
+                        lng: parseFloat(row.LONGITUD)
+                    }));
+
+                    if (allAccidents.length === 0) {
+                        throw new Error('No se encontraron datos válidos de accidentes');
+                    }
+
+                    currentYear = year;
+                    unitsRequired = parseInt(document.getElementById('units-input').value);
+                    coverageRadius = parseFloat(document.getElementById('radius-input').value) * 1000;
+
+                    // Update UI
+                    document.getElementById('loading-status').classList.add('hidden');
+                    document.getElementById('load-instance-btn').disabled = false;
+                    document.getElementById('download-instance-btn').classList.remove('hidden');
+                    
+                    // Show instance info
+                    document.getElementById('instance-info-card').classList.remove('hidden');
+                    document.getElementById('stat-year').textContent = year;
+                    document.getElementById('stat-accidents').textContent = allAccidents.length;
+                    document.getElementById('stat-units').textContent = unitsRequired;
+                    document.getElementById('stat-radius').textContent = (coverageRadius / 1000).toFixed(1);
+                    
+                    // Update required units text
+                    document.getElementById('required-units').textContent = unitsRequired;
+                    document.getElementById('required-units-text').textContent = unitsRequired;
+
+                    // Initialize and display map
+                    initMap();
+                    displayAccidents();
+
+                    // Move to step 2
+                    updateStepIndicator(2);
+                    document.getElementById('card-step-2').classList.remove('hidden');
+                    
+                    showAlert('success', `✅ Instancia cargada exitosamente: ${allAccidents.length} accidentes del año ${year}.`);
+                },
+                error: function(error) {
+                    console.error('Parse error:', error);
+                    document.getElementById('loading-status').classList.add('hidden');
+                    document.getElementById('load-instance-btn').disabled = false;
+                    showAlert('error', 'Error al procesar los datos CSV: ' + error.message);
+                }
+            });
+        }
+
+        // Display accidents on map
+        function displayAccidents() {
+            // Clear existing markers
+            accidentMarkers.forEach(marker => map.removeLayer(marker));
+            accidentMarkers = [];
+
+            // Group by location
+            const locationMap = new Map();
+            allAccidents.forEach(accident => {
+                const key = `${accident.lat.toFixed(4)},${accident.lng.toFixed(4)}`;
+                if (!locationMap.has(key)) {
+                    locationMap.set(key, { lat: accident.lat, lng: accident.lng, count: 0 });
+                }
+                locationMap.get(key).count++;
+            });
+
+            // Create markers
+            locationMap.forEach(location => {
+                const radius = Math.max(5, Math.min(15, 5 + location.count));
+                
+                const marker = L.circleMarker([location.lat, location.lng], {
+                    color: '#FF6B6B',
+                    fillColor: '#FF6B6B',
+                    fillOpacity: 0.6,
+                    radius: radius
+                }).addTo(map);
+
+                marker.bindPopup(`<b>${location.count} accidente(s)</b><br>Ubicación: ${location.lat.toFixed(4)}, ${location.lng.toFixed(4)}`);
+                accidentMarkers.push(marker);
+            });
+        }
+
+        // Download instance data
+        function downloadInstance() {
+            let csvContent = "LATITUD,LONGITUD\n";
+            allAccidents.forEach(accident => {
+                csvContent += `${accident.lat},${accident.lng}\n`;
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `instancia_${currentYear}_${unitsRequired}ambulancias_${coverageRadius/1000}km.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Load solution file
+        function loadSolution(file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const csv = event.target.result;
+                parseSolution(csv);
+            };
+            reader.readAsText(file);
+        }
+
+        // Parse solution
+        function parseSolution(csvText) {
+            Papa.parse(csvText, {
+                header: true,
+                skipEmptyLines: true,
+                complete: function(results) {
+                    // Validate solution
+                    const validation = validateSolution(results.data);
+                    
+                    if (!validation.valid) {
+                        showAlert('error', `❌ Solución inválida: ${validation.message}`);
+                        document.getElementById('evaluate-btn').disabled = true;
+                        return;
+                    }
+
+                    solutionLocations = results.data.map(row => ({
+                        lat: parseFloat(row.LATITUD),
+                        lng: parseFloat(row.LONGITUD)
+                    }));
+
+                    showAlert('success', '✅ Solución cargada correctamente. Haz clic en "Evaluar Solución" para ver tu puntuación.');
+                    document.getElementById('evaluate-btn').disabled = false;
+                },
+                error: function(error) {
+                    showAlert('error', '❌ Error al leer el archivo: ' + error.message);
+                    document.getElementById('evaluate-btn').disabled = true;
+                }
+            });
+        }
+
+        // Validate solution
+        function validateSolution(data) {
+            // Check if data exists
+            if (!data || data.length === 0) {
+                return { valid: false, message: 'El archivo está vacío.' };
+            }
+
+            // Check number of ambulances
+            if (data.length !== unitsRequired) {
+                return { 
+                    valid: false, 
+                    message: `Se requieren exactamente ${unitsRequired} ambulancias, pero tu archivo contiene ${data.length}.` 
+                };
+            }
+
+            // Check each row
+            for (let i = 0; i < data.length; i++) {
+                const row = data[i];
+                
+                // Check if LATITUD and LONGITUD columns exist
+                if (!row.hasOwnProperty('LATITUD') || !row.hasOwnProperty('LONGITUD')) {
+                    return { 
+                        valid: false, 
+                        message: 'El archivo debe tener columnas LATITUD y LONGITUD.' 
+                    };
+                }
+
+                const lat = parseFloat(row.LATITUD);
+                const lng = parseFloat(row.LONGITUD);
+
+                // Check if coordinates are valid numbers
+                if (isNaN(lat) || isNaN(lng)) {
+                    return { 
+                        valid: false, 
+                        message: `Fila ${i + 1}: Coordenadas inválidas (${row.LATITUD}, ${row.LONGITUD}).` 
+                    };
+                }
+
+                // Check if coordinates are in reasonable range
+                if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+                    return { 
+                        valid: false, 
+                        message: `Fila ${i + 1}: Coordenadas fuera de rango válido (lat: ${lat}, lng: ${lng}).` 
+                    };
+                }
+            }
+
+            return { valid: true, message: 'Solución válida.' };
+        }
+
+        // Evaluate solution
+        function evaluateSolution() {
+            // Clear previous solution markers
+            solutionMarkers.forEach(marker => map.removeLayer(marker));
+            solutionMarkers = [];
+
+            // Calculate coverage - determine which accidents are covered
+            let coveredAccidents = new Set();
+            
+            solutionLocations.forEach((location, index) => {
+                // Add ambulance marker
+                const ambulanceIcon = L.divIcon({
+                    className: 'ambulance-icon',
+                    html: `<div style="font-size: 28px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">🚑</div>`,
+                    iconSize: [28, 28],
+                    iconAnchor: [14, 14]
+                });
+
+                const marker = L.marker([location.lat, location.lng], {
+                    icon: ambulanceIcon
+                }).addTo(map);
+
+                marker.bindPopup(`<b>Ambulancia ${index + 1}</b><br>Ubicación: ${location.lat.toFixed(4)}, ${location.lng.toFixed(4)}`);
+                solutionMarkers.push(marker);
+
+                // Add coverage circle
+                const circle = L.circle([location.lat, location.lng], {
+                    color: '#4ECDC4',
+                    fillColor: '#4ECDC4',
+                    fillOpacity: 0.2,
+                    radius: coverageRadius
+                }).addTo(map);
+                solutionMarkers.push(circle);
+
+                // Check which accidents are covered
+                allAccidents.forEach((accident, accidentIndex) => {
+                    const distance = map.distance([accident.lat, accident.lng], [location.lat, location.lng]);
+                    if (distance <= coverageRadius) {
+                        coveredAccidents.add(accidentIndex);
+                    }
+                });
+            });
+
+            // Update accident markers colors based on actual coverage
+            // Each marker represents a location that may have multiple accidents
+            accidentMarkers.forEach(marker => {
+                const markerLatLng = marker.getLatLng();
+                
+                // Check if this marker location is covered by any ambulance
+                let isCovered = false;
+                for (const ambulance of solutionLocations) {
+                    const distance = map.distance(
+                        [markerLatLng.lat, markerLatLng.lng], 
+                        [ambulance.lat, ambulance.lng]
+                    );
+                    if (distance <= coverageRadius) {
+                        isCovered = true;
+                        break;
+                    }
+                }
+                
+                // Update marker color
+                if (isCovered) {
+                    marker.setStyle({ color: '#4ECDC4', fillColor: '#4ECDC4' });
+                } else {
+                    marker.setStyle({ color: '#FF6B6B', fillColor: '#FF6B6B' });
+                }
+            });
+
+            // Calculate results
+            const covered = coveredAccidents.size;
+            const total = allAccidents.length;
+            const percentage = ((covered / total) * 100).toFixed(2);
+            const score = covered;
+
+            // Display results
+            document.getElementById('result-covered').textContent = covered;
+            document.getElementById('result-total').textContent = total;
+            document.getElementById('result-percentage').textContent = percentage + '%';
+            document.getElementById('result-score').textContent = score;
+
+            // Show results card
+            updateStepIndicator(3);
+            document.getElementById('card-step-3').classList.remove('hidden');
+            document.getElementById('results-stats').style.display = 'grid';
+
+            // Show result message
+            let resultMessage = '';
+            if (percentage >= 90) {
+                resultMessage = `<div class="alert alert-success">
+                    <strong>🎉 ¡Excelente trabajo!</strong> Has cubierto el ${percentage}% de los accidentes. ¡Puntuación sobresaliente!
+                </div>`;
+            } else if (percentage >= 70) {
+                resultMessage = `<div class="alert alert-success">
+                    <strong>👏 ¡Muy bien!</strong> Has cubierto el ${percentage}% de los accidentes. ¡Buen trabajo!
+                </div>`;
+            } else if (percentage >= 50) {
+                resultMessage = `<div class="alert alert-warning">
+                    <strong>👍 Buen intento!</strong> Has cubierto el ${percentage}% de los accidentes. Puedes mejorar optimizando las ubicaciones.
+                </div>`;
+            } else {
+                resultMessage = `<div class="alert alert-warning">
+                    <strong>💪 Sigue intentando!</strong> Has cubierto el ${percentage}% de los accidentes. Intenta optimizar las ubicaciones de las ambulancias.
+                </div>`;
+            }
+
+            document.getElementById('results-container').innerHTML = resultMessage;
+
+            // Scroll to results
+            document.getElementById('card-step-3').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Show alert
+        function showAlert(type, message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.innerHTML = message;
+            
+            // Insert at the top of the current card
+            const currentCard = document.querySelector('.card:not(.hidden)');
+            if (currentCard) {
+                currentCard.insertBefore(alertDiv, currentCard.firstChild);
+                
+                // Remove after 5 seconds
+                setTimeout(() => {
+                    alertDiv.remove();
+                }, 5000);
+            }
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Year selector
+            document.getElementById('year-select').addEventListener('change', function(e) {
+                const loadBtn = document.getElementById('load-instance-btn');
+                loadBtn.disabled = !e.target.value;
+            });
+
+            // Load instance button
+            document.getElementById('load-instance-btn').addEventListener('click', function() {
+                const year = document.getElementById('year-select').value;
+                if (!year) {
+                    showAlert('error', '❌ Por favor selecciona un año.');
+                    return;
+                }
+                loadInstance(year);
+            });
+
+            // Local instance file input
+            document.getElementById('local-instance-input').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) {
+                    return;
+                }
+                
+                // Extract year from filename if possible
+                const filename = file.name;
+                const yearMatch = filename.match(/(\d{4})/);
+                const detectedYear = yearMatch ? yearMatch[1] : 'desconocido';
+                
+                document.getElementById('loading-status').classList.remove('hidden');
+                
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const csv = event.target.result;
+                    parseInstanceData(csv, detectedYear);
+                };
+                reader.onerror = function() {
+                    document.getElementById('loading-status').classList.add('hidden');
+                    showAlert('error', '❌ Error al leer el archivo local.');
+                };
+                reader.readAsText(file);
+            });
+
+            // Download instance button
+            document.getElementById('download-instance-btn').addEventListener('click', function() {
+                downloadInstance();
+            });
+
+            // Solution file input
+            document.getElementById('solution-file-input').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) {
+                    return;
+                }
+                loadSolution(file);
+            });
+
+            // Evaluate button
+            document.getElementById('evaluate-btn').addEventListener('click', function() {
+                evaluateSolution();
+            });
+
+            // Reset button
+            document.getElementById('reset-btn').addEventListener('click', function() {
+                document.getElementById('solution-file-input').value = '';
+                document.getElementById('evaluate-btn').disabled = true;
+                solutionLocations = [];
+                
+                // Clear solution markers
+                solutionMarkers.forEach(marker => map.removeLayer(marker));
+                solutionMarkers = [];
+                
+                // Reset accident colors
+                displayAccidents();
+                
+                showAlert('info', 'ℹ️ Solución reiniciada. Puedes subir un nuevo archivo.');
+            });
+
+            // Try again button
+            document.getElementById('try-again-btn').addEventListener('click', function() {
+                // Clear solution
+                document.getElementById('solution-file-input').value = '';
+                document.getElementById('evaluate-btn').disabled = true;
+                solutionLocations = [];
+                
+                // Clear solution markers
+                solutionMarkers.forEach(marker => map.removeLayer(marker));
+                solutionMarkers = [];
+                
+                // Reset accident colors
+                displayAccidents();
+                
+                // Go back to step 2
+                updateStepIndicator(2);
+                document.getElementById('card-step-3').classList.add('hidden');
+                document.getElementById('card-step-2').classList.remove('hidden');
+                
+                // Scroll to step 2
+                document.getElementById('card-step-2').scrollIntoView({ behavior: 'smooth' });
+            });
+
+            // New instance button
+            document.getElementById('new-instance-btn').addEventListener('click', function() {
+                location.reload();
+            });
+        });
+    </script>
+</body>
+</html>

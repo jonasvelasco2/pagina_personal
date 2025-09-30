@@ -1,0 +1,860 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robi Constructor de Puentes - Aventura de Planificación</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .game-font { font-family: 'Press Start 2P', cursive; }
+        .grid-container { display: grid; width: 90vw; max-width: 400px; aspect-ratio: 1 / 1; border: 3px solid #4a5568; border-radius: 0.5rem; background-color: #fff; }
+        .grid-cell { border: 1px solid #d1d5db; position: relative; transition: all 0.3s ease; background-color: #f8fafc; }
+        .grid-cell.land { background-color: #dcfce7; }
+        .grid-cell.water { background-color: #dbeafe; animation: water-flow 3s infinite; }
+        .grid-cell.bridge { background-color: #fed7aa; border: 2px solid #ea580c; }
+        .grid-cell.goal { background-color: #fef3c7; }
+        @keyframes water-flow { 0%, 100% { background-color: #dbeafe; } 50% { background-color: #bfdbfe; } }
+        .robot-marker { position: absolute; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 2rem; transition: all 0.4s ease-in-out; z-index: 10; }
+        .element-marker { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 1.5rem; z-index: 5; }
+        .plan-marker { position: absolute; top: 2px; left: 2px; font-size: 0.8rem; z-index: 3; opacity: 0.7; }
+        .control-btn { transition: all 0.2s ease; }
+        .control-btn:active { transform: scale(0.95); box-shadow: inset 2px 2px 5px rgba(0,0,0,0.2); }
+        .plan-container { background: linear-gradient(135deg, #fef3c7, #fde68a); border: 2px dashed #d97706; border-radius: 8px; padding: 12px; margin: 8px 0; }
+        #message-box { transition: opacity 0.5s, transform 0.5s; }
+        .inventory-panel { background-color: #f0f9ff; border: 2px solid #0ea5e9; border-radius: 8px; padding: 16px; }
+        .resource-item { display: inline-flex; align-items: center; background-color: white; padding: 8px 12px; border-radius: 6px; margin: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .step-indicator { background-color: #eff6ff; border-left: 4px solid #3b82f6; padding: 12px; margin: 8px 0; border-radius: 4px; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-cyan-100 text-gray-800 flex flex-col min-h-screen">
+
+    <main class="w-full max-w-7xl mx-auto bg-white rounded-xl shadow-2xl p-4 md:p-8 my-8 flex-grow">
+        
+        <header class="text-center mb-6">
+            <h1 class="game-font text-2xl sm:text-3xl md:text-4xl text-blue-600">🤖 Robi Constructor de Puentes</h1>
+            <p class="mt-2 text-md md:text-lg text-gray-600">¡Ayuda a Robi a planificar y construir puentes para cruzar ríos y llegar a su destino!</p>
+            <div class="mt-4 bg-blue-50 border-l-4 border-blue-400 p-4 rounded">
+                <p class="text-sm text-blue-800"><strong>Concepto:</strong> Planificación y Secuencias Complejas - Aprende a dividir tareas grandes en pasos pequeños</p>
+            </div>
+            <h2 id="level-display" class="game-font text-xl md:text-2xl text-amber-500 mt-4"></h2>
+            <div class="mt-4">
+                <a href="index.html" class="inline-block bg-green-100 text-green-600 border-2 border-green-200 px-6 py-3 rounded-lg font-semibold hover:bg-green-200 transition-colors duration-300">
+                    🏠 Volver
+                </a>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
+            <!-- Panel de Inventario -->
+            <div class="lg:col-span-1">
+                <div class="inventory-panel mb-4">
+                    <h3 class="text-lg font-bold mb-3 text-blue-700">🎒 Inventario de Robi</h3>
+                    <div id="inventory" class="space-y-2"></div>
+                </div>
+                
+                <div class="step-indicator">
+                    <h4 class="font-bold mb-2 text-blue-700">📋 Pasos para construir:</h4>
+                    <ol id="construction-steps" class="text-sm text-blue-600 space-y-1"></ol>
+                </div>
+            </div>
+            
+            <!-- Campo de Construcción -->
+            <div class="lg:col-span-2 flex flex-col items-center">
+                <h3 class="text-xl font-bold mb-3 text-gray-700">🌊 Terreno de Construcción</h3>
+                <div id="construction-grid" class="grid-container relative"></div>
+                
+                <div class="mt-4 flex items-center gap-4 text-sm">
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 bg-green-200 border mr-2"></div>
+                        <span>Tierra</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 bg-blue-200 border mr-2"></div>
+                        <span>Agua</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 bg-orange-200 border mr-2"></div>
+                        <span>Puente</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 bg-yellow-200 border mr-2"></div>
+                        <span>Meta</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Historia y Plan -->
+            <div class="lg:col-span-1">
+                <div class="bg-cyan-50 p-4 rounded-lg mb-4">
+                    <h3 class="text-lg font-bold mb-3 text-cyan-700">📖 Misión</h3>
+                    <p id="level-story" class="text-sm text-cyan-600 mb-3"></p>
+                    <div class="bg-yellow-100 p-2 rounded text-xs text-yellow-700">
+                        <strong>💡 Estrategia:</strong> <span id="level-hint"></span>
+                    </div>
+                </div>
+                
+                <div class="bg-amber-50 p-4 rounded-lg">
+                    <h4 class="font-bold mb-2 text-amber-700">🎯 Plan de Construcción:</h4>
+                    <div id="construction-plan" class="text-sm text-amber-600"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel de Control -->
+        <div class="bg-gray-50 p-6 rounded-lg shadow-inner">
+            <h3 class="text-lg font-semibold text-center mb-4">🎮 Planifica y Construye</h3>
+            
+            <!-- Comandos de planificación -->
+            <div class="mb-4">
+                <h4 class="font-semibold mb-2">🗺️ Planificación:</h4>
+                <div class="flex justify-center flex-wrap gap-2">
+                    <button id="survey-btn" class="control-btn bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-3 rounded shadow text-sm">🔍 Explorar</button>
+                    <button id="plan-btn" class="control-btn bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-3 rounded shadow text-sm">📋 Planear</button>
+                    <button id="gather-btn" class="control-btn bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-3 rounded shadow text-sm">🌲 Recolectar</button>
+                </div>
+            </div>
+            
+            <!-- Comandos de movimiento -->
+            <div class="mb-4">
+                <h4 class="font-semibold mb-2">🚶 Movimientos:</h4>
+                <div id="controls" class="flex justify-center flex-wrap gap-2">
+                    <button data-command="U" class="control-btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-3 rounded shadow text-sm">⬆️</button>
+                    <button data-command="D" class="control-btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-3 rounded shadow text-sm">⬇️</button>
+                    <button data-command="L" class="control-btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-3 rounded shadow text-sm">⬅️</button>
+                    <button data-command="R" class="control-btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-3 rounded shadow text-sm">➡️</button>
+                </div>
+            </div>
+            
+            <!-- Comandos de construcción -->
+            <div class="mb-4">
+                <h4 class="font-semibold mb-2">🔨 Construcción:</h4>
+                <div class="flex justify-center flex-wrap gap-2">
+                    <button data-command="BUILD" class="control-btn bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-3 rounded shadow text-sm">🌉 Construir</button>
+                </div>
+            </div>
+            
+            <!-- Secuencias complejas -->
+            <div class="mb-4">
+                <h4 class="font-semibold mb-2">⚡ Secuencias Complejas:</h4>
+                <div class="flex justify-center flex-wrap gap-2">
+                    <button id="add-sequence-btn" class="control-btn bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded shadow text-sm">📝 Nueva Secuencia</button>
+                </div>
+                
+                <!-- Modal para crear secuencia -->
+                <div id="sequence-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+                    <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+                        <h3 class="text-lg font-bold mb-4 text-gray-800">📝 Crear Nueva Secuencia</h3>
+                        
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Nombre de la secuencia:</label>
+                            <select id="sequence-name-select" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">Selecciona un nombre...</option>
+                                <option value="Recolectar Materiales">🌲 Recolectar Materiales</option>
+                                <option value="Construir Primer Puente">🌉 Construir Primer Puente</option>
+                                <option value="Construir Segundo Puente">🌉 Construir Segundo Puente</option>
+                                <option value="Navegar a Meta">🎯 Navegar a Meta</option>
+                                <option value="Exploración Completa">🔍 Exploración Completa</option>
+                                <option value="Plan Maestro">📋 Plan Maestro</option>
+                                <option value="Secuencia Personalizada">⚡ Secuencia Personalizada</option>
+                            </select>
+                        </div>
+                        
+                        <div id="custom-name-input" class="mb-4 hidden">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Nombre personalizado:</label>
+                            <input type="text" id="custom-sequence-name" placeholder="Ej: Mi Secuencia Especial" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        
+                        <div class="flex justify-end gap-2">
+                            <button id="cancel-sequence-btn" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md text-sm">❌ Cancelar</button>
+                            <button id="create-sequence-btn" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md text-sm">✅ Crear</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-md shadow min-h-[120px] mb-6">
+                <h4 class="font-semibold mb-2">📝 Tu plan de construcción:</h4>
+                <div id="instructions-list" class="text-gray-700 flex flex-wrap gap-2 max-w-full"></div>
+            </div>
+
+            <div class="flex justify-center flex-wrap gap-4">
+                <button id="run-btn" class="control-btn bg-green-500 hover:bg-green-600 text-white game-font py-3 px-6 rounded-lg shadow-lg">🚀 ¡Construir!</button>
+                <button id="reset-btn" class="control-btn bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg">🔄 Reiniciar</button>
+                <button id="next-level-btn" class="control-btn bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hidden">✨ Siguiente</button>
+            </div>
+        </div>
+    </main>
+
+    <footer class="w-full bg-violet-200 bg-opacity-55 py-3 mt-auto">
+        <div class="max-w-4xl mx-auto flex items-center justify-center gap-x-4 px-4">
+            <img src="https://filedn.com/lWi3DaH98FUFPSY0zy9EK3H/programacion_lili/img/pie.png" alt="Logo Matehuales CIMAT" class="h-12" onerror="this.onerror=null;this.src='https://placehold.co/200x50/e2e8f0/4a5568?text=Logo';">
+            <p class="text-gray-700 text-xs md:text-sm">
+                <strong>Recurso desarrollado por:</strong> Dra. Lili Guadarrama y Dr. Jonás Velasco.
+            </p>
+        </div>
+    </footer>
+
+    <div id="message-box" class="fixed top-5 right-5 bg-white p-4 rounded-lg shadow-xl border-l-4 opacity-0 transform translate-y-10 z-50">
+        <p id="message-text" class="font-semibold"></p>
+    </div>
+
+<script>
+    const constructionGridEl = document.getElementById('construction-grid');
+    const controls = document.getElementById('controls');
+    const instructionsList = document.getElementById('instructions-list');
+    const inventoryEl = document.getElementById('inventory');
+    const constructionStepsEl = document.getElementById('construction-steps');
+    const constructionPlanEl = document.getElementById('construction-plan');
+    const runBtn = document.getElementById('run-btn');
+    const resetBtn = document.getElementById('reset-btn');
+    const nextLevelBtn = document.getElementById('next-level-btn');
+    const surveyBtn = document.getElementById('survey-btn');
+    const planBtn = document.getElementById('plan-btn');
+    const gatherBtn = document.getElementById('gather-btn');
+    const addSequenceBtn = document.getElementById('add-sequence-btn');
+    const sequenceModal = document.getElementById('sequence-modal');
+    const sequenceNameSelect = document.getElementById('sequence-name-select');
+    const customNameInput = document.getElementById('custom-name-input');
+    const customSequenceName = document.getElementById('custom-sequence-name');
+    const cancelSequenceBtn = document.getElementById('cancel-sequence-btn');
+    const createSequenceBtn = document.getElementById('create-sequence-btn');
+    const messageBox = document.getElementById('message-box');
+    const messageText = document.getElementById('message-text');
+    const levelDisplay = document.getElementById('level-display');
+    const levelStory = document.getElementById('level-story');
+    const levelHint = document.getElementById('level-hint');
+
+    const levels = [
+        {
+            level: 1,
+            size: 5,
+            start: {x: 0, y: 2},
+            goal: {x: 4, y: 2},
+            water: [{x: 2, y: 2}],
+            requiredBridges: [{x: 2, y: 2}],
+            resources: {wood: 1, stone: 0},
+            story: "¡Hay un pequeño río que bloquea el camino de Robi! Necesita construir un puente para cruzar.",
+            hint: "Planifica: 1) Explorar, 2) Recolectar madera, 3) Moverse al río, 4) Construir puente, 5) Cruzar",
+            steps: ["1. Explorar el terreno", "2. Recolectar materiales", "3. Ir al río", "4. Construir puente", "5. Cruzar a la meta"]
+        },
+        {
+            level: 2,
+            size: 6,
+            start: {x: 0, y: 1},
+            goal: {x: 5, y: 4},
+            water: [{x: 2, y: 1}, {x: 2, y: 2}, {x: 4, y: 3}, {x: 4, y: 4}],
+            requiredBridges: [{x: 2, y: 1}, {x: 4, y: 4}],
+            resources: {wood: 2, stone: 1},
+            story: "¡Dos ríos cruzan el camino! Robi debe construir múltiples puentes con diferentes materiales.",
+            hint: "Divide en fases: construir primer puente, cruzar, construir segundo puente, llegar a meta",
+            steps: ["1. Planificar ruta", "2. Recolectar todos los materiales", "3. Construir primer puente", "4. Cruzar primer río", "5. Ir al segundo río", "6. Construir segundo puente", "7. Llegar a la meta"]
+        },
+        {
+            level: 3,
+            size: 7,
+            start: {x: 0, y: 0},
+            goal: {x: 6, y: 6},
+            water: [{x: 2, y: 0}, {x: 2, y: 1}, {x: 2, y: 2}, {x: 4, y: 3}, {x: 4, y: 4}, {x: 4, y: 5}, {x: 5, y: 6}, {x: 6, y: 5}],
+            requiredBridges: [{x: 2, y: 1}, {x: 4, y: 4}, {x: 5, y: 6}],
+            resources: {wood: 3, stone: 2},
+            story: "¡El desafío más grande! Múltiples ríos forman un laberinto acuático. ¡Robi necesita un plan maestro!",
+            hint: "Planifica la secuencia completa: qué puentes construir primero, dónde recolectar, y el orden de construcción",
+            steps: ["1. Exploración completa", "2. Plan de construcción", "3. Recolección eficiente", "4. Construcción ordenada", "5. Navegación inteligente", "6. ¡Victoria!"]
+        }
+    ];
+    
+    let currentLevelIndex = 0;
+    let instructions = [];
+    let robotPos = { x: 0, y: 0 };
+    let robotMarker;
+    let inventory = {};
+    let builtBridges = [];
+    let explored = false;
+    let planned = false;
+
+    function createGrid() {
+        const level = levels[currentLevelIndex];
+        constructionGridEl.innerHTML = '';
+        constructionGridEl.style.gridTemplateColumns = `repeat(${level.size}, 1fr)`;
+        constructionGridEl.style.gridTemplateRows = `repeat(${level.size}, 1fr)`;
+        
+        for (let y = 0; y < level.size; y++) {
+            for (let x = 0; x < level.size; x++) {
+                const cell = document.createElement('div');
+                cell.classList.add('grid-cell');
+                cell.id = `cell-${x}-${y}`;
+                
+                if (level.water.some(w => w.x === x && w.y === y)) {
+                    cell.classList.add('water');
+                    const waterEl = document.createElement('div');
+                    waterEl.classList.add('element-marker');
+                    waterEl.innerHTML = '🌊';
+                    cell.appendChild(waterEl);
+                } else {
+                    cell.classList.add('land');
+                }
+                
+                if (x === level.goal.x && y === level.goal.y) {
+                    cell.classList.remove('land');
+                    cell.classList.add('goal');
+                    const goalEl = document.createElement('div');
+                    goalEl.classList.add('element-marker');
+                    goalEl.innerHTML = '🏆';
+                    cell.appendChild(goalEl);
+                }
+                
+                constructionGridEl.appendChild(cell);
+            }
+        }
+        
+        robotMarker = document.createElement('div');
+        robotMarker.classList.add('robot-marker');
+        robotMarker.innerHTML = '🤖';
+        constructionGridEl.appendChild(robotMarker);
+        updateRobotPosition(false);
+    }
+
+    function updateRobotPosition(animate = true) {
+        const level = levels[currentLevelIndex];
+        if (!animate) robotMarker.style.transition = 'none';
+        
+        robotMarker.style.left = `${robotPos.x * (100 / level.size)}%`;
+        robotMarker.style.top = `${robotPos.y * (100 / level.size)}%`;
+        robotMarker.style.width = `${100 / level.size}%`;
+        robotMarker.style.height = `${100 / level.size}%`;
+
+        if (!animate) {
+            robotMarker.offsetHeight;
+            robotMarker.style.transition = 'all 0.4s ease-in-out';
+        }
+        
+        // El botón de construcción siempre estará habilitado para planificación
+        // La validación se hace durante la ejecución
+        const buildBtn = document.querySelector('[data-command="BUILD"]');
+        if (buildBtn) {
+            buildBtn.disabled = false;
+            buildBtn.style.opacity = '1';
+            buildBtn.style.cursor = 'pointer';
+        }
+    }
+
+    function updateInventory() {
+        inventoryEl.innerHTML = '';
+        Object.entries(inventory).forEach(([resource, count]) => {
+            if (count > 0) {
+                const resourceEl = document.createElement('div');
+                resourceEl.className = 'resource-item';
+                const icon = resource === 'wood' ? '🪵' : '🪨';
+                resourceEl.innerHTML = `${icon} ${resource}: ${count}`;
+                inventoryEl.appendChild(resourceEl);
+            }
+        });
+    }
+
+    function setupLevel() {
+        const level = levels[currentLevelIndex];
+        robotPos = { ...level.start };
+        instructions = [];
+        inventory = { wood: 0, stone: 0 };
+        builtBridges = [];
+        explored = false;
+        planned = false;
+        
+        levelDisplay.textContent = `Nivel ${level.level}`;
+        levelStory.textContent = level.story;
+        levelHint.textContent = level.hint;
+        
+        // Mostrar pasos de construcción
+        constructionStepsEl.innerHTML = '';
+        level.steps.forEach(step => {
+            const li = document.createElement('li');
+            li.textContent = step;
+            constructionStepsEl.appendChild(li);
+        });
+        
+        createGrid();
+        updateInventory();
+        updateInstructionsDisplay();
+        setButtonsState(true);
+        nextLevelBtn.classList.add('hidden');
+        
+        // Limpiar plan de construcción
+        constructionPlanEl.innerHTML = '';
+        
+        // Habilitar el botón de construcción al reiniciar
+        const buildBtn = document.querySelector('[data-command="BUILD"]');
+        if (buildBtn) {
+            buildBtn.disabled = false;
+            buildBtn.style.opacity = '1';
+            buildBtn.style.cursor = 'pointer';
+        }
+    }
+
+    function updateInstructionsDisplay() {
+        instructionsList.innerHTML = '';
+        
+        instructions.forEach((instr, index) => {
+            const instrEl = document.createElement('div');
+            
+            if (instr.type === 'sequence') {
+                instrEl.className = 'plan-container w-full';
+                instrEl.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <strong>⚡ Secuencia: ${instr.name}</strong>
+                        <button onclick="removeInstruction(${index})" class="bg-red-500 text-white px-2 py-1 rounded text-xs">❌</button>
+                    </div>
+                    <div class="ml-4 border-l-2 border-yellow-400 pl-3">
+                        <div class="flex flex-wrap gap-1">
+                            ${instr.actions.map(action => 
+                                `<div class="text-sm bg-yellow-100 px-2 py-1 rounded whitespace-nowrap">${getCommandText(action)}</div>`
+                            ).join('')}
+                        </div>
+                        <button onclick="addToSequence(${index})" class="bg-yellow-300 text-yellow-800 px-2 py-1 rounded text-xs mt-2">+ Agregar paso</button>
+                    </div>
+                `;
+            } else {
+                const commandText = getCommandText(instr.command || instr);
+                instrEl.className = 'bg-blue-100 px-3 py-2 rounded flex items-center justify-between whitespace-nowrap';
+                instrEl.innerHTML = `
+                    <span class="text-sm">${commandText}</span>
+                    <button onclick="removeInstruction(${index})" class="bg-red-500 text-white px-2 py-1 rounded text-xs ml-2">❌</button>
+                `;
+            }
+            
+            instructionsList.appendChild(instrEl);
+        });
+    }
+
+    function getCommandText(command) {
+        const texts = {
+            'U': '⬆️ Arriba',
+            'D': '⬇️ Abajo',
+            'L': '⬅️ Izquierda', 
+            'R': '➡️ Derecha',
+            'BUILD': '🔨 Construir',
+            'SURVEY': '🔍 Explorar',
+            'PLAN': '📋 Planear',
+            'GATHER': '🌲 Recolectar'
+        };
+        return texts[command] || command;
+    }
+
+    function removeInstruction(index) {
+        instructions.splice(index, 1);
+        updateInstructionsDisplay();
+    }
+
+    function addToSequence(sequenceIndex) {
+        // Crear modal temporal para agregar comandos a la secuencia
+        const actionModal = document.createElement('div');
+        actionModal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center';
+        actionModal.innerHTML = `
+            <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+                <h3 class="text-lg font-bold mb-4 text-gray-800">➕ Agregar Comando a Secuencia</h3>
+                
+                <div class="grid grid-cols-2 gap-2 mb-4">
+                    <button class="action-btn bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-md text-sm" data-action="U">⬆️ Arriba</button>
+                    <button class="action-btn bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-md text-sm" data-action="D">⬇️ Abajo</button>
+                    <button class="action-btn bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-md text-sm" data-action="L">⬅️ Izquierda</button>
+                    <button class="action-btn bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-md text-sm" data-action="R">➡️ Derecha</button>
+                    <button class="action-btn bg-orange-500 hover:bg-orange-600 text-white p-3 rounded-md text-sm" data-action="BUILD">🔨 Construir</button>
+                    <button class="action-btn bg-indigo-500 hover:bg-indigo-600 text-white p-3 rounded-md text-sm" data-action="SURVEY">🔍 Explorar</button>
+                    <button class="action-btn bg-purple-500 hover:bg-purple-600 text-white p-3 rounded-md text-sm" data-action="PLAN">📋 Planear</button>
+                    <button class="action-btn bg-green-500 hover:bg-green-600 text-white p-3 rounded-md text-sm" data-action="GATHER">🌲 Recolectar</button>
+                </div>
+                
+                <div class="flex justify-end gap-2">
+                    <button class="cancel-action-btn bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md text-sm">❌ Cancelar</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(actionModal);
+        
+        // Event listeners para los botones de acción
+        actionModal.querySelectorAll('.action-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const action = btn.dataset.action;
+                instructions[sequenceIndex].actions.push(action);
+                updateInstructionsDisplay();
+                document.body.removeChild(actionModal);
+                showMessage(`✅ Comando ${getCommandText(action)} agregado a la secuencia`, true);
+            });
+        });
+        
+        // Event listener para cancelar
+        actionModal.querySelector('.cancel-action-btn').addEventListener('click', () => {
+            document.body.removeChild(actionModal);
+        });
+        
+        // Cerrar modal al hacer clic fuera de él
+        actionModal.addEventListener('click', (e) => {
+            if (e.target === actionModal) {
+                document.body.removeChild(actionModal);
+            }
+        });
+    }
+
+    function showMessage(text, isSuccess) {
+        messageText.textContent = text;
+        messageBox.className = 'fixed top-5 right-5 bg-white p-4 rounded-lg shadow-xl border-l-4 opacity-0 transform translate-y-10 z-50';
+        messageBox.classList.add(isSuccess ? 'border-green-500' : 'border-red-500');
+        messageBox.classList.remove('opacity-0', 'translate-y-10');
+        
+        setTimeout(() => {
+            messageBox.classList.add('opacity-0', 'translate-y-10');
+        }, 4000);
+    }
+
+    function setButtonsState(enabled) {
+        const buttons = [runBtn, resetBtn, surveyBtn, planBtn, gatherBtn, addSequenceBtn, ...controls.getElementsByTagName('button')];
+        buttons.forEach(btn => {
+            btn.disabled = !enabled;
+            btn.style.opacity = enabled ? '1' : '0.6';
+            btn.style.cursor = enabled ? 'pointer' : 'not-allowed';
+        });
+        
+        // El botón de construcción siempre debe estar habilitado para planificación
+        const buildBtn = document.querySelector('[data-command="BUILD"]');
+        if (buildBtn) {
+            buildBtn.disabled = false;
+            buildBtn.style.opacity = '1';
+            buildBtn.style.cursor = 'pointer';
+        }
+    }
+
+    async function runProgram() {
+        setButtonsState(false);
+        const level = levels[currentLevelIndex];
+        robotPos = { ...level.start };
+        inventory = { wood: 0, stone: 0 };
+        builtBridges = [];
+        explored = false;
+        planned = false;
+        createGrid();
+        
+        try {
+            await executeInstructionList(instructions);
+            checkResult();
+        } catch (error) {
+            showMessage("Error en el programa de construcción", false);
+            setButtonsState(true);
+        }
+    }
+
+    async function executeInstructionList(instructionList) {
+        for (const instr of instructionList) {
+            if (instr.type === 'sequence') {
+                for (const action of instr.actions) {
+                    await executeCommand(action);
+                }
+            } else {
+                await executeCommand(instr.command || instr);
+            }
+        }
+    }
+
+    function executeCommand(command) {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                const level = levels[currentLevelIndex];
+                
+                switch (command) {
+                    case 'R': 
+                        if (robotPos.x < level.size - 1 && !isWaterBlocking(robotPos.x + 1, robotPos.y)) {
+                            robotPos.x++;
+                            console.log(`Movimiento R: nueva posición (${robotPos.x}, ${robotPos.y})`);
+                        } else {
+                            console.log(`Movimiento R bloqueado en posición (${robotPos.x}, ${robotPos.y})`);
+                        }
+                        break;
+                    case 'L': 
+                        if (robotPos.x > 0 && !isWaterBlocking(robotPos.x - 1, robotPos.y)) {
+                            robotPos.x--;
+                            console.log(`Movimiento L: nueva posición (${robotPos.x}, ${robotPos.y})`);
+                        } else {
+                            console.log(`Movimiento L bloqueado en posición (${robotPos.x}, ${robotPos.y})`);
+                        }
+                        break;
+                    case 'U': 
+                        if (robotPos.y > 0 && !isWaterBlocking(robotPos.x, robotPos.y - 1)) {
+                            robotPos.y--;
+                            console.log(`Movimiento U: nueva posición (${robotPos.x}, ${robotPos.y})`);
+                        } else {
+                            console.log(`Movimiento U bloqueado en posición (${robotPos.x}, ${robotPos.y})`);
+                        }
+                        break;
+                    case 'D': 
+                        if (robotPos.y < level.size - 1 && !isWaterBlocking(robotPos.x, robotPos.y + 1)) {
+                            robotPos.y++;
+                            console.log(`Movimiento D: nueva posición (${robotPos.x}, ${robotPos.y})`);
+                        } else {
+                            console.log(`Movimiento D bloqueado en posición (${robotPos.x}, ${robotPos.y})`);
+                        }
+                        break;
+                    case 'BUILD':
+                        // Verificar si estamos en una celda de agua
+                        const isOnWater = level.water.some(w => w.x === robotPos.x && w.y === robotPos.y);
+                        const bridgeAlreadyBuilt = builtBridges.some(b => b.x === robotPos.x && b.y === robotPos.y);
+                        
+                        // Debug: mostrar información de la posición actual
+                        console.log(`BUILD en posición (${robotPos.x}, ${robotPos.y})`);
+                        console.log(`¿Está en agua? ${isOnWater}`);
+                        console.log(`¿Ya hay puente? ${bridgeAlreadyBuilt}`);
+                        console.log(`Madera disponible: ${inventory.wood}`);
+                        
+                        if (isOnWater && !bridgeAlreadyBuilt) {
+                            if (inventory.wood > 0) {
+                                inventory.wood--;
+                                builtBridges.push({x: robotPos.x, y: robotPos.y});
+                                const cell = document.getElementById(`cell-${robotPos.x}-${robotPos.y}`);
+                                if (cell) {
+                                    cell.classList.remove('water');
+                                    cell.classList.add('bridge');
+                                    // Remover el marcador de agua si existe
+                                    const waterMarker = cell.querySelector('.element-marker');
+                                    if (waterMarker && waterMarker.innerHTML === '🌊') {
+                                        waterMarker.remove();
+                                    }
+                                    const bridgeEl = document.createElement('div');
+                                    bridgeEl.classList.add('element-marker');
+                                    bridgeEl.innerHTML = '🌉';
+                                    cell.appendChild(bridgeEl);
+                                }
+                                updateInventory();
+                                showMessage('🌉 ¡Puente construido exitosamente!', true);
+                            } else {
+                                showMessage('❌ No tienes suficiente madera para construir el puente', false);
+                            }
+                        } else if (!isOnWater) {
+                            showMessage(`❌ Solo puedes construir puentes sobre agua. Posición actual: (${robotPos.x}, ${robotPos.y})`, false);
+                        } else if (bridgeAlreadyBuilt) {
+                            showMessage('❌ Ya hay un puente construido aquí', false);
+                        }
+                        break;
+                    case 'SURVEY':
+                        explored = true;
+                        showPlanMarkers();
+                        showMessage('🔍 Terreno explorado - Puentes necesarios marcados', true);
+                        break;
+                    case 'PLAN':
+                        if (explored) {
+                            planned = true;
+                            updateConstructionPlan();
+                            showMessage('📋 Plan de construcción creado', true);
+                        } else {
+                            showMessage('❌ Primero debes explorar el terreno', false);
+                        }
+                        break;
+                    case 'GATHER':
+                        // Solo recolectar si estamos en tierra (no en agua)
+                        const isOnLand = !level.water.some(w => w.x === robotPos.x && w.y === robotPos.y);
+                        const isOnGoal = (robotPos.x === level.goal.x && robotPos.y === level.goal.y);
+                        
+                        if (isOnLand && !isOnGoal) {
+                            inventory.wood += level.resources.wood;
+                            inventory.stone += level.resources.stone;
+                            updateInventory();
+                            showMessage('🌲 Materiales recolectados exitosamente', true);
+                        } else if (isOnGoal) {
+                            showMessage('❌ No puedes recolectar en la meta', false);
+                        } else {
+                            showMessage('❌ No puedes recolectar en el agua', false);
+                        }
+                        break;
+                }
+                
+                updateRobotPosition();
+                resolve();
+            }, 600);
+        });
+    }
+
+    function isWaterBlocking(x, y) {
+        const level = levels[currentLevelIndex];
+        const isWater = level.water.some(w => w.x === x && w.y === y);
+        const hasBridge = builtBridges.some(b => b.x === x && b.y === y);
+        
+        // Debug: mostrar información de bloqueo
+        console.log(`Verificando bloqueo en (${x}, ${y}): agua=${isWater}, puente=${hasBridge}`);
+        
+        // El robot PUEDE moverse a agua si no hay puente (para construir)
+        // Solo está bloqueado si hay agua Y ya hay un puente construido
+        const isBlocked = isWater && hasBridge;
+        console.log(`¿Está bloqueado? ${isBlocked}`);
+        
+        return isBlocked;
+    }
+
+    function showPlanMarkers() {
+        const level = levels[currentLevelIndex];
+        level.requiredBridges.forEach((bridge, index) => {
+            const cell = document.getElementById(`cell-${bridge.x}-${bridge.y}`);
+            if (cell) {
+                const planMarker = document.createElement('div');
+                planMarker.classList.add('plan-marker');
+                planMarker.innerHTML = `${index + 1}`;
+                planMarker.style.color = '#dc2626';
+                planMarker.style.fontWeight = 'bold';
+                cell.appendChild(planMarker);
+            }
+        });
+    }
+
+    function updateConstructionPlan() {
+        const level = levels[currentLevelIndex];
+        constructionPlanEl.innerHTML = `
+            <div class="text-sm">
+                <p>Puentes necesarios: ${level.requiredBridges.length}</p>
+                <p>Materiales disponibles: 🪵 ${level.resources.wood}, 🪨 ${level.resources.stone}</p>
+                <p>Ruta sugerida marcada en el mapa</p>
+            </div>
+        `;
+    }
+
+    function checkResult() {
+        const level = levels[currentLevelIndex];
+        const reachedGoal = (robotPos.x === level.goal.x && robotPos.y === level.goal.y);
+        const allBridgesBuilt = level.requiredBridges.every(bridge => 
+            builtBridges.some(built => built.x === bridge.x && built.y === bridge.y)
+        );
+        const success = reachedGoal && allBridgesBuilt;
+
+        if (success) {
+            // Deshabilitar el botón de construcción cuando se completa el nivel
+            const buildBtn = document.querySelector('[data-command="BUILD"]');
+            if (buildBtn) {
+                buildBtn.disabled = true;
+                buildBtn.style.opacity = '0.6';
+                buildBtn.style.cursor = 'not-allowed';
+            }
+            
+            if (currentLevelIndex < levels.length - 1) {
+                showMessage('¡Increíble! Robi construyó todos los puentes y llegó a la meta. 🎉', true);
+                nextLevelBtn.classList.remove('hidden');
+                nextLevelBtn.disabled = false;
+                nextLevelBtn.style.opacity = '1';
+                nextLevelBtn.style.cursor = 'pointer';
+            } else {
+                showMessage('¡EXTRAORDINARIO! ¡Robi es ahora un maestro arquitecto! 🏗️', true);
+                levelDisplay.textContent = "¡MAESTRO CONSTRUCTOR!";
+            }
+        } else {
+            const bridgesBuilt = builtBridges.filter(built => 
+                level.requiredBridges.some(required => required.x === built.x && required.y === built.y)
+            ).length;
+            
+            let message = `Robi construyó ${bridgesBuilt}/${level.requiredBridges.length} puentes necesarios. `;
+            
+            if (!reachedGoal) {
+                message += "¡No llegó a la meta! ";
+            }
+            
+            if (!allBridgesBuilt) {
+                message += "¡Faltan puentes por construir! ";
+            }
+            
+            message += "¡Revisa tu plan y vuelve a intentar! 🔨";
+            
+            showMessage(message, false);
+            setButtonsState(true);
+        }
+    }
+
+    // Event Listeners
+    controls.addEventListener('click', (e) => {
+        if (e.target.tagName === 'BUTTON') {
+            const command = e.target.dataset.command;
+            instructions.push({ command: command });
+            updateInstructionsDisplay();
+        }
+    });
+
+    surveyBtn.addEventListener('click', () => {
+        instructions.push({ command: 'SURVEY' });
+        updateInstructionsDisplay();
+    });
+
+    planBtn.addEventListener('click', () => {
+        instructions.push({ command: 'PLAN' });
+        updateInstructionsDisplay();
+    });
+
+    gatherBtn.addEventListener('click', () => {
+        instructions.push({ command: 'GATHER' });
+        updateInstructionsDisplay();
+    });
+
+    // Event listener para el botón Construir
+    const buildBtn = document.querySelector('[data-command="BUILD"]');
+    buildBtn.addEventListener('click', () => {
+        instructions.push({ command: 'BUILD' });
+        updateInstructionsDisplay();
+    });
+
+    // Event listeners para el modal de secuencias
+    addSequenceBtn.addEventListener('click', () => {
+        sequenceModal.classList.remove('hidden');
+        sequenceNameSelect.value = '';
+        customNameInput.classList.add('hidden');
+        customSequenceName.value = '';
+    });
+
+    cancelSequenceBtn.addEventListener('click', () => {
+        sequenceModal.classList.add('hidden');
+    });
+
+    // Cerrar modal al hacer clic fuera de él
+    sequenceModal.addEventListener('click', (e) => {
+        if (e.target === sequenceModal) {
+            sequenceModal.classList.add('hidden');
+        }
+    });
+
+    // Mostrar input personalizado cuando se selecciona "Secuencia Personalizada"
+    sequenceNameSelect.addEventListener('change', () => {
+        if (sequenceNameSelect.value === 'Secuencia Personalizada') {
+            customNameInput.classList.remove('hidden');
+        } else {
+            customNameInput.classList.add('hidden');
+        }
+    });
+
+    createSequenceBtn.addEventListener('click', () => {
+        let sequenceName = sequenceNameSelect.value;
+        
+        if (sequenceName === 'Secuencia Personalizada') {
+            sequenceName = customSequenceName.value.trim();
+        }
+        
+        if (sequenceName) {
+            instructions.push({ 
+                type: 'sequence', 
+                name: sequenceName, 
+                actions: [] 
+            });
+            updateInstructionsDisplay();
+            sequenceModal.classList.add('hidden');
+            showMessage('✅ Secuencia creada exitosamente', true);
+        } else {
+            showMessage('❌ Por favor ingresa un nombre para la secuencia', false);
+        }
+    });
+
+    runBtn.addEventListener('click', runProgram);
+    resetBtn.addEventListener('click', setupLevel);
+    nextLevelBtn.addEventListener('click', () => {
+        if (currentLevelIndex < levels.length - 1) {
+            currentLevelIndex++;
+            setupLevel();
+        }
+    });
+
+    // Inicializar
+    window.onload = setupLevel;
+</script>
+</body>
+</html>

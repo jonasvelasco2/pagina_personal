@@ -1,0 +1,971 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robi Maestro de Acertijos - Gran Final de Programación</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .game-font { font-family: 'Press Start 2P', cursive; }
+        .grid-container { display: grid; width: 90vw; max-width: 400px; aspect-ratio: 1 / 1; border: 3px solid #4a5568; border-radius: 0.5rem; background-color: #fff; position: relative; }
+        .grid-cell { border: 1px solid #d1d5db; position: relative; transition: all 0.3s ease; background-color: #f8fafc; }
+        .grid-cell.wall { background-color: #374151; }
+        .grid-cell.safe { background-color: #dcfce7; }
+        .grid-cell.danger { background-color: #fee2e2; animation: danger-pulse 2s infinite; }
+        .grid-cell.water { background-color: #dbeafe; animation: water-flow 3s infinite; }
+        .grid-cell.bridge { background-color: #fed7aa; border: 2px solid #ea580c; }
+        .grid-cell.goal { background-color: #fef3c7; animation: goal-glow 2s infinite; }
+        .grid-cell.collected { background-color: #f3e8ff; }
+        @keyframes danger-pulse { 0%, 100% { background-color: #fee2e2; } 50% { background-color: #fecaca; } }
+        @keyframes water-flow { 0%, 100% { background-color: #dbeafe; } 50% { background-color: #bfdbfe; } }
+        @keyframes goal-glow { 0%, 100% { background-color: #fef3c7; } 50% { background-color: #fde047; } }
+        .robot-marker { position: absolute; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 2rem; transition: all 0.4s ease-in-out; z-index: 10; }
+        .element-marker { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 1.5rem; z-index: 5; }
+        .control-btn { transition: all 0.2s ease; }
+        .control-btn:active { transform: scale(0.95); box-shadow: inset 2px 2px 5px rgba(0,0,0,0.2); }
+        .concept-container { border-radius: 8px; padding: 12px; margin: 8px 0; border: 2px solid; }
+        .sequence-container { background: linear-gradient(135deg, #fef3c7, #fde68a); border-color: #d97706; }
+        .loop-container { background: linear-gradient(135deg, #dcfce7, #bbf7d0); border-color: #16a34a; }
+        .conditional-container { background: linear-gradient(135deg, #e0f2fe, #b3e5fc); border-color: #0288d1; }
+        .plan-container { background: linear-gradient(135deg, #f3e8ff, #e9d5ff); border-color: #a855f7; }
+        #message-box { transition: opacity 0.5s, transform 0.5s; }
+        .challenge-badge { background: linear-gradient(45deg, #fbbf24, #f59e0b); color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; }
+        .master-progress { width: 100%; height: 8px; background-color: #e5e7eb; border-radius: 4px; overflow: hidden; }
+        .master-fill { height: 100%; background: linear-gradient(90deg, #8b5cf6, #a78bfa, #c4b5fd); transition: width 0.5s ease; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-purple-50 via-blue-50 to-cyan-50 text-gray-800 flex flex-col min-h-screen">
+
+    <main class="w-full max-w-7xl mx-auto bg-white rounded-xl shadow-2xl p-4 md:p-8 my-8 flex-grow">
+        
+        <header class="text-center mb-6">
+            <h1 class="game-font text-2xl sm:text-3xl md:text-4xl text-purple-600">🤖 Robi Maestro de Acertijos</h1>
+            <p class="mt-2 text-md md:text-lg text-gray-600">¡El desafío final! Integra todos los conceptos para resolver los acertijos más complejos</p>
+            <div class="mt-4 bg-gradient-to-r from-purple-50 to-blue-50 border-l-4 border-purple-400 p-4 rounded">
+                <p class="text-sm text-purple-800"><strong>Gran Final:</strong> Secuencias + Bucles + Condicionales + Planificación = ¡Programador Maestro!</p>
+            </div>
+            <h2 id="level-display" class="game-font text-xl md:text-2xl text-amber-500 mt-4"></h2>
+            
+            <!-- Progreso hacia maestría -->
+            <div class="mt-4 max-w-md mx-auto">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-sm font-semibold">🏆 Progreso de Maestría:</span>
+                    <span id="mastery-count" class="challenge-badge">0/3 Acertijos</span>
+                </div>
+                <div class="master-progress">
+                    <div id="mastery-fill" class="master-fill" style="width: 0%"></div>
+                </div>
+            </div>
+            <div class="mt-4">
+                <a href="index.html" class="inline-block bg-blue-100 text-blue-600 border-2 border-blue-200 px-6 py-3 rounded-lg font-semibold hover:bg-blue-200 transition-colors duration-300">
+                    🏠 Volver
+                </a>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-6">
+            <!-- Panel de Conceptos Dominados -->
+            <div class="lg:col-span-1">
+                <div class="bg-gradient-to-b from-purple-50 to-indigo-50 p-4 rounded-lg border-2 border-purple-200 mb-4">
+                    <h3 class="text-lg font-bold mb-3 text-purple-700">🧠 Conceptos Dominados</h3>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex items-center">
+                            <span class="w-6 text-blue-500">📝</span>
+                            <span>Secuencias</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="w-6 text-green-500">🔁</span>
+                            <span>Bucles</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="w-6 text-orange-500">🤔</span>
+                            <span>Condicionales</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="w-6 text-purple-500">🗺️</span>
+                            <span>Planificación</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-amber-50 p-4 rounded-lg border-2 border-amber-200">
+                    <h4 class="font-bold mb-2 text-amber-700">🎯 Desafío Actual:</h4>
+                    <div id="current-challenge" class="text-sm text-amber-600"></div>
+                </div>
+            </div>
+            
+            <!-- Campo de Acertijos -->
+            <div class="lg:col-span-3 flex flex-col items-center">
+                <h3 class="text-xl font-bold mb-3 text-gray-700">🧩 Campo de Acertijos</h3>
+                <div id="puzzle-grid" class="grid-container relative"></div>
+                
+                <div class="mt-4 flex items-center gap-4 text-xs flex-wrap justify-center">
+                    <div class="flex items-center"><div class="w-3 h-3 bg-green-200 border mr-1"></div><span>Seguro</span></div>
+                    <div class="flex items-center"><div class="w-3 h-3 bg-red-200 border mr-1"></div><span>Peligro</span></div>
+                    <div class="flex items-center"><div class="w-3 h-3 bg-blue-200 border mr-1"></div><span>Agua</span></div>
+                    <div class="flex items-center"><div class="w-3 h-3 bg-orange-200 border mr-1"></div><span>Puente</span></div>
+                    <div class="flex items-center"><div class="w-3 h-3 bg-yellow-200 border mr-1"></div><span>Meta</span></div>
+                    <div class="flex items-center"><div class="w-3 h-3 bg-purple-200 border mr-1"></div><span>Recolectado</span></div>
+                </div>
+            </div>
+            
+            <!-- Historia y Objetivos -->
+            <div class="lg:col-span-1">
+                <div class="bg-gradient-to-b from-blue-50 to-cyan-50 p-4 rounded-lg border-2 border-blue-200 mb-4">
+                    <h3 class="text-lg font-bold mb-3 text-blue-700">📖 Misión Épica</h3>
+                    <p id="level-story" class="text-sm text-blue-600 mb-3"></p>
+                </div>
+                
+                <div class="bg-green-50 p-4 rounded-lg border-2 border-green-200">
+                    <h4 class="font-bold mb-2 text-green-700">✅ Objetivos:</h4>
+                    <div id="objectives-list" class="text-sm text-green-600 space-y-1"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel de Control Avanzado -->
+        <div class="bg-gray-50 p-6 rounded-lg shadow-inner">
+            <h3 class="text-lg font-semibold text-center mb-4">🎮 Centro de Comando Maestro</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                <!-- Movimientos -->
+                <div>
+                    <h4 class="font-semibold mb-2 text-blue-700">🚶 Movimientos:</h4>
+                    <div id="controls" class="flex flex-wrap gap-1">
+                        <button data-command="U" class="control-btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded shadow text-xs">⬆️</button>
+                        <button data-command="D" class="control-btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded shadow text-xs">⬇️</button>
+                        <button data-command="L" class="control-btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded shadow text-xs">⬅️</button>
+                        <button data-command="R" class="control-btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded shadow text-xs">➡️</button>
+                    </div>
+                </div>
+                
+                <!-- Acciones -->
+                <div>
+                    <h4 class="font-semibold mb-2 text-green-700">⚡ Acciones:</h4>
+                    <div id="actions" class="flex flex-wrap gap-1">
+                        <button data-command="COLLECT" class="control-btn bg-purple-500 hover:bg-purple-600 text-white font-bold py-1 px-2 rounded shadow text-xs" title="Recoger cristal">💎</button>
+                        <button data-command="BUILD" class="control-btn bg-orange-500 hover:bg-orange-600 text-white font-bold py-1 px-2 rounded shadow text-xs" title="Construir puente">🔨</button>
+                        <button data-command="SCAN" class="control-btn bg-green-500 hover:bg-green-600 text-white font-bold py-1 px-2 rounded shadow text-xs" title="Explorar">🔍</button>
+                    </div>
+                </div>
+                
+                <!-- Bucles -->
+                <div>
+                    <h4 class="font-semibold mb-2 text-emerald-700">🔁 Bucles:</h4>
+                    <button id="add-loop-btn" class="control-btn bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-1 px-3 rounded shadow text-xs">+ Bucle</button>
+                </div>
+                
+                <!-- Condicionales -->
+                <div>
+                    <h4 class="font-semibold mb-2 text-cyan-700">🤔 Decisiones:</h4>
+                    <div class="flex flex-wrap gap-1">
+                        <button id="add-if-btn" class="control-btn bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-1 px-2 rounded shadow text-xs">Si...</button>
+                        <button id="add-plan-btn" class="control-btn bg-purple-500 hover:bg-purple-600 text-white font-bold py-1 px-2 rounded shadow text-xs">Plan</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-md shadow min-h-[150px] mb-6 border-2 border-indigo-200">
+                <h4 class="font-semibold mb-2">📝 Programa Maestro de Robi:</h4>
+                <div id="instructions-list" class="text-gray-700 flex flex-wrap gap-2 max-w-full"></div>
+            </div>
+
+            <div class="flex justify-center flex-wrap gap-4">
+                <button id="run-btn" class="control-btn bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white game-font py-3 px-6 rounded-lg shadow-lg">🚀 ¡Ejecutar Programa!</button>
+                <button id="reset-btn" class="control-btn bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg">🔄 Reiniciar</button>
+                <button id="next-level-btn" class="control-btn bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg hidden">✨ Siguiente Acertijo</button>
+            </div>
+        </div>
+    </main>
+
+    <footer class="w-full bg-gradient-to-r from-violet-200 to-purple-200 bg-opacity-55 py-3 mt-auto">
+        <div class="max-w-4xl mx-auto flex items-center justify-center gap-x-4 px-4">
+            <img src="https://filedn.com/lWi3DaH98FUFPSY0zy9EK3H/programacion_lili/img/pie.png" alt="Logo Matehuales CIMAT" class="h-12" onerror="this.onerror=null;this.src='https://placehold.co/200x50/e2e8f0/4a5568?text=Logo';">
+            <p class="text-gray-700 text-xs md:text-sm">
+                <strong>Recurso desarrollado por:</strong> Dra. Lili Guadarrama y Dr. Jonás Velasco.
+            </p>
+        </div>
+    </footer>
+
+    <div id="message-box" class="fixed top-5 right-5 bg-white p-4 rounded-lg shadow-xl border-l-4 opacity-0 transform translate-y-10 z-50">
+        <p id="message-text" class="font-semibold"></p>
+    </div>
+
+<script>
+    const puzzleGridEl = document.getElementById('puzzle-grid');
+    const controls = document.getElementById('controls');
+    const actions = document.getElementById('actions');
+    const instructionsList = document.getElementById('instructions-list');
+    const runBtn = document.getElementById('run-btn');
+    const resetBtn = document.getElementById('reset-btn');
+    const nextLevelBtn = document.getElementById('next-level-btn');
+    const addLoopBtn = document.getElementById('add-loop-btn');
+    const addIfBtn = document.getElementById('add-if-btn');
+    const addPlanBtn = document.getElementById('add-plan-btn');
+    const messageBox = document.getElementById('message-box');
+    const messageText = document.getElementById('message-text');
+    const levelDisplay = document.getElementById('level-display');
+    const levelStory = document.getElementById('level-story');
+    const currentChallenge = document.getElementById('current-challenge');
+    const objectivesList = document.getElementById('objectives-list');
+    const masteryCount = document.getElementById('mastery-count');
+    const masteryFill = document.getElementById('mastery-fill');
+
+    const puzzles = [
+        {
+            level: 1,
+            title: "El Laberinto de Cristales Energéticos",
+            size: 6,
+            start: {x: 0, y: 0},
+            goal: {x: 5, y: 5},
+            walls: [{x: 2, y: 1}, {x: 2, y: 2}, {x: 2, y: 3}, {x: 3, y: 3}, {x: 4, y: 3}],
+            crystals: [{x: 1, y: 1}, {x: 3, y: 1}, {x: 4, y: 2}, {x: 1, y: 4}, {x: 4, y: 4}],
+            story: "Robi debe navegar por un laberinto, recolectar todos los cristales energéticos y llegar a la meta. ¡Combina movimientos inteligentes con bucles eficientes!",
+            challenge: "Laberinto + Recolección + Bucles",
+            objectives: ["Navegar por el laberinto", "Recolectar todos los cristales", "Llegar a la meta", "Usar bucles para eficiencia"]
+        },
+        {
+            level: 2,
+            title: "El Puente de las Decisiones Peligrosas",
+            size: 7,
+            start: {x: 0, y: 3},
+            goal: {x: 6, y: 3},
+            water: [{x: 2, y: 2}, {x: 2, y: 3}, {x: 2, y: 4}, {x: 5, y: 1}, {x: 5, y: 2}, {x: 5, y: 3}, {x: 5, y: 4}, {x: 5, y: 5}],
+            obstacles: [{x: 3, y: 1}, {x: 4, y: 4}],
+            crystals: [{x: 1, y: 3}, {x: 3, y: 3}, {x: 4, y: 3}],
+            requiredBridges: [{x: 2, y: 3}, {x: 5, y: 3}],
+            story: "¡Dos ríos con obstáculos peligrosos! Robi debe tomar decisiones inteligentes, construir puentes y recolectar cristales sin caer en las trampas.",
+            challenge: "Condicionales + Construcción + Navegación",
+            objectives: ["Explorar con sensores", "Evitar obstáculos", "Construir 2 puentes", "Recolectar cristales", "Llegar seguro a la meta"]
+        },
+        {
+            level: 3,
+            title: "La Gran Prueba del Maestro Programador",
+            size: 8,
+            start: {x: 0, y: 0},
+            goal: {x: 7, y: 7},
+            walls: [{x: 2, y: 0}, {x: 2, y: 1}, {x: 0, y: 2}, {x: 1, y: 2}, {x: 6, y: 5}, {x: 7, y: 5}],
+            water: [{x: 3, y: 2}, {x: 4, y: 2}, {x: 5, y: 2}, {x: 3, y: 5}, {x: 4, y: 5}],
+            obstacles: [{x: 1, y: 4}, {x: 5, y: 1}, {x: 6, y: 3}],
+            crystals: [{x: 2, y: 2}, {x: 5, y: 0}, {x: 0, y: 4}, {x: 3, y: 3}, {x: 6, y: 2}, {x: 4, y: 6}, {x: 7, y: 4}],
+            requiredBridges: [{x: 4, y: 2}, {x: 4, y: 5}],
+            story: "¡El desafío final! Un mundo complejo con laberintos, ríos, obstáculos y cristales. Solo un verdadero maestro de la programación puede resolverlo. ¡Demuestra todo lo que has aprendido!",
+            challenge: "TODO: Secuencias + Bucles + Condicionales + Planificación",
+            objectives: ["Planificar ruta compleja", "Navegar laberinto avanzado", "Construir puentes estratégicos", "Evitar múltiples obstáculos", "Recolectar 7 cristales", "¡Convertirse en Maestro!"]
+        }
+    ];
+    
+    let currentPuzzleIndex = 0;
+    let instructions = [];
+    let robotPos = { x: 0, y: 0 };
+    let robotMarker;
+    let collectedCrystals = [];
+    let builtBridges = [];
+    let inventory = { wood: 3, stone: 2 };
+
+    function createGrid() {
+        const puzzle = puzzles[currentPuzzleIndex];
+        puzzleGridEl.innerHTML = '';
+        puzzleGridEl.style.gridTemplateColumns = `repeat(${puzzle.size}, 1fr)`;
+        puzzleGridEl.style.gridTemplateRows = `repeat(${puzzle.size}, 1fr)`;
+        
+        for (let y = 0; y < puzzle.size; y++) {
+            for (let x = 0; x < puzzle.size; x++) {
+                const cell = document.createElement('div');
+                cell.classList.add('grid-cell');
+                cell.id = `cell-${x}-${y}`;
+                
+                // Determinar tipo de celda
+                if (puzzle.walls?.some(w => w.x === x && w.y === y)) {
+                    cell.classList.add('wall');
+                } else if (puzzle.water?.some(w => w.x === x && w.y === y)) {
+                    cell.classList.add('water');
+                    const waterEl = document.createElement('div');
+                    waterEl.classList.add('element-marker');
+                    waterEl.innerHTML = '🌊';
+                    cell.appendChild(waterEl);
+                } else if (puzzle.obstacles?.some(o => o.x === x && o.y === y)) {
+                    cell.classList.add('danger');
+                    const obstacleEl = document.createElement('div');
+                    obstacleEl.classList.add('element-marker');
+                    obstacleEl.innerHTML = '💥';
+                    cell.appendChild(obstacleEl);
+                } else {
+                    cell.classList.add('safe');
+                }
+                
+                // Agregar cristales
+                if (puzzle.crystals?.some(c => c.x === x && c.y === y) && 
+                    !collectedCrystals.some(cc => cc.x === x && cc.y === y)) {
+                    const crystalEl = document.createElement('div');
+                    crystalEl.classList.add('element-marker');
+                    crystalEl.innerHTML = '💎';
+                    cell.appendChild(crystalEl);
+                }
+                
+                // Meta
+                if (x === puzzle.goal.x && y === puzzle.goal.y) {
+                    cell.classList.add('goal');
+                    const goalEl = document.createElement('div');
+                    goalEl.classList.add('element-marker');
+                    goalEl.innerHTML = '🏆';
+                    cell.appendChild(goalEl);
+                }
+                
+                puzzleGridEl.appendChild(cell);
+            }
+        }
+        
+        // Agregar puentes construidos
+        builtBridges.forEach(bridge => {
+            const cell = document.getElementById(`cell-${bridge.x}-${bridge.y}`);
+            if (cell) {
+                cell.classList.add('bridge');
+                const bridgeEl = document.createElement('div');
+                bridgeEl.classList.add('element-marker');
+                bridgeEl.innerHTML = '🌉';
+                cell.appendChild(bridgeEl);
+            }
+        });
+        
+        // Robot
+        robotMarker = document.createElement('div');
+        robotMarker.classList.add('robot-marker');
+        robotMarker.innerHTML = '🤖';
+        puzzleGridEl.appendChild(robotMarker);
+        updateRobotPosition(false);
+    }
+
+    function updateRobotPosition(animate = true) {
+        const puzzle = puzzles[currentPuzzleIndex];
+        if (!animate) robotMarker.style.transition = 'none';
+        
+        robotMarker.style.left = `${robotPos.x * (100 / puzzle.size)}%`;
+        robotMarker.style.top = `${robotPos.y * (100 / puzzle.size)}%`;
+        robotMarker.style.width = `${100 / puzzle.size}%`;
+        robotMarker.style.height = `${100 / puzzle.size}%`;
+
+        if (!animate) {
+            robotMarker.offsetHeight;
+            robotMarker.style.transition = 'all 0.4s ease-in-out';
+        }
+    }
+
+    function updateProgress() {
+        const completedPuzzles = currentPuzzleIndex;
+        masteryCount.textContent = `${completedPuzzles}/3 Acertijos`;
+        masteryFill.style.width = `${(completedPuzzles / 3) * 100}%`;
+    }
+
+    function setupLevel() {
+        const puzzle = puzzles[currentPuzzleIndex];
+        robotPos = { ...puzzle.start };
+        instructions = [];
+        collectedCrystals = [];
+        builtBridges = [];
+        inventory = { wood: 3, stone: 2 };
+        
+        levelDisplay.textContent = puzzle.title;
+        levelStory.textContent = puzzle.story;
+        currentChallenge.textContent = puzzle.challenge;
+        
+        // Objetivos
+        objectivesList.innerHTML = '';
+        puzzle.objectives.forEach(objective => {
+            const li = document.createElement('div');
+            li.textContent = `• ${objective}`;
+            objectivesList.appendChild(li);
+        });
+        
+        createGrid();
+        updateInstructionsDisplay();
+        updateProgress();
+        setButtonsState(true);
+        nextLevelBtn.classList.add('hidden');
+    }
+
+    function updateInstructionsDisplay() {
+        instructionsList.innerHTML = '';
+        
+        instructions.forEach((instr, index) => {
+            const instrEl = document.createElement('div');
+            
+            if (instr.type === 'loop') {
+                instrEl.className = 'concept-container loop-container w-full';
+                instrEl.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <strong>🔁 Repetir ${instr.count} veces:</strong>
+                        <button onclick="removeInstruction(${index})" class="bg-red-500 text-white px-2 py-1 rounded text-xs">❌</button>
+                    </div>
+                    <div class="ml-4 border-l-2 border-green-400 pl-3">
+                        <div class="flex flex-wrap gap-1">
+                            ${instr.actions.map(action => 
+                                `<div class="text-sm bg-green-100 px-2 py-1 rounded whitespace-nowrap">${getCommandText(action)}</div>`
+                            ).join('')}
+                        </div>
+                        <button onclick="addToLoop(${index})" class="bg-green-300 text-green-800 px-2 py-1 rounded text-xs mt-2">+ Agregar</button>
+                    </div>
+                `;
+            } else if (instr.type === 'if') {
+                instrEl.className = 'concept-container conditional-container w-full';
+                instrEl.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <strong>🤔 Si ${instr.condition}:</strong>
+                        <button onclick="removeInstruction(${index})" class="bg-red-500 text-white px-2 py-1 rounded text-xs">❌</button>
+                    </div>
+                    <div class="ml-4 border-l-2 border-cyan-400 pl-3">
+                        <div class="flex flex-wrap gap-1">
+                            ${instr.actions.map(action => 
+                                `<div class="text-sm bg-cyan-100 px-2 py-1 rounded whitespace-nowrap">${getCommandText(action)}</div>`
+                            ).join('')}
+                        </div>
+                        <button onclick="addToCondition(${index})" class="bg-cyan-300 text-cyan-800 px-2 py-1 rounded text-xs mt-2">+ Agregar</button>
+                    </div>
+                `;
+            } else if (instr.type === 'plan') {
+                instrEl.className = 'concept-container plan-container w-full';
+                instrEl.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <strong>🗺️ Plan: ${instr.name}</strong>
+                        <button onclick="removeInstruction(${index})" class="bg-red-500 text-white px-2 py-1 rounded text-xs">❌</button>
+                    </div>
+                    <div class="ml-4 border-l-2 border-purple-400 pl-3">
+                        <div class="flex flex-wrap gap-1">
+                            ${instr.actions.map(action => 
+                                `<div class="text-sm bg-purple-100 px-2 py-1 rounded whitespace-nowrap">${getCommandText(action)}</div>`
+                            ).join('')}
+                        </div>
+                        <button onclick="addToPlan(${index})" class="bg-purple-300 text-purple-800 px-2 py-1 rounded text-xs mt-2">+ Agregar</button>
+                    </div>
+                `;
+            } else {
+                const commandText = getCommandText(instr.command || instr);
+                instrEl.className = 'concept-container sequence-container bg-blue-100 px-3 py-2 rounded flex items-center justify-between whitespace-nowrap';
+                instrEl.innerHTML = `
+                    <span class="text-sm">📝 ${commandText}</span>
+                    <button onclick="removeInstruction(${index})" class="bg-red-500 text-white px-2 py-1 rounded text-xs ml-2">❌</button>
+                `;
+            }
+            
+            instructionsList.appendChild(instrEl);
+        });
+    }
+
+    function getCommandText(command) {
+        const texts = {
+            'U': '⬆️ Arriba', 'D': '⬇️ Abajo', 'L': '⬅️ Izquierda', 'R': '➡️ Derecha',
+            'COLLECT': '💎 Recoger', 'BUILD': '🔨 Construir', 'SCAN': '🔍 Explorar'
+        };
+        return texts[command] || command;
+    }
+
+    function removeInstruction(index) {
+        instructions.splice(index, 1);
+        updateInstructionsDisplay();
+    }
+
+    function addToLoop(loopIndex) {
+        // Crear modal temporal para agregar comandos al bucle
+        const actionModal = document.createElement('div');
+        actionModal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center';
+        actionModal.innerHTML = `
+            <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+                <h3 class="text-lg font-bold mb-4 text-gray-800">➕ Agregar Acción al Bucle</h3>
+                
+                <div class="grid grid-cols-2 gap-2 mb-4">
+                    <button class="action-btn bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-md text-sm" data-action="U">⬆️ Arriba</button>
+                    <button class="action-btn bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-md text-sm" data-action="D">⬇️ Abajo</button>
+                    <button class="action-btn bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-md text-sm" data-action="L">⬅️ Izquierda</button>
+                    <button class="action-btn bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-md text-sm" data-action="R">➡️ Derecha</button>
+                    <button class="action-btn bg-purple-500 hover:bg-purple-600 text-white p-3 rounded-md text-sm" data-action="COLLECT">💎 Recoger</button>
+                    <button class="action-btn bg-orange-500 hover:bg-orange-600 text-white p-3 rounded-md text-sm" data-action="BUILD">🔨 Construir</button>
+                    <button class="action-btn bg-green-500 hover:bg-green-600 text-white p-3 rounded-md text-sm" data-action="SCAN">🔍 Explorar</button>
+                </div>
+                
+                <div class="flex justify-end gap-2">
+                    <button class="cancel-action-btn bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md text-sm">❌ Cancelar</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(actionModal);
+        
+        // Event listeners para los botones de acción
+        actionModal.querySelectorAll('.action-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const action = btn.dataset.action;
+                instructions[loopIndex].actions.push(action);
+                updateInstructionsDisplay();
+                document.body.removeChild(actionModal);
+                showMessage(`✅ Comando ${getCommandText(action)} agregado al bucle`, true);
+            });
+        });
+        
+        // Event listener para cancelar
+        actionModal.querySelector('.cancel-action-btn').addEventListener('click', () => {
+            document.body.removeChild(actionModal);
+        });
+        
+        // Cerrar modal al hacer clic fuera de él
+        actionModal.addEventListener('click', (e) => {
+            if (e.target === actionModal) {
+                document.body.removeChild(actionModal);
+            }
+        });
+    }
+
+    function addToCondition(conditionIndex) {
+        // Crear modal temporal para agregar comandos a la condición
+        const actionModal = document.createElement('div');
+        actionModal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center';
+        actionModal.innerHTML = `
+            <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+                <h3 class="text-lg font-bold mb-4 text-gray-800">➕ Agregar Acción a la Condición</h3>
+                
+                <div class="grid grid-cols-2 gap-2 mb-4">
+                    <button class="action-btn bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-md text-sm" data-action="U">⬆️ Arriba</button>
+                    <button class="action-btn bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-md text-sm" data-action="D">⬇️ Abajo</button>
+                    <button class="action-btn bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-md text-sm" data-action="L">⬅️ Izquierda</button>
+                    <button class="action-btn bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-md text-sm" data-action="R">➡️ Derecha</button>
+                    <button class="action-btn bg-purple-500 hover:bg-purple-600 text-white p-3 rounded-md text-sm" data-action="COLLECT">💎 Recoger</button>
+                    <button class="action-btn bg-orange-500 hover:bg-orange-600 text-white p-3 rounded-md text-sm" data-action="BUILD">🔨 Construir</button>
+                    <button class="action-btn bg-green-500 hover:bg-green-600 text-white p-3 rounded-md text-sm" data-action="SCAN">🔍 Explorar</button>
+                </div>
+                
+                <div class="flex justify-end gap-2">
+                    <button class="cancel-action-btn bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md text-sm">❌ Cancelar</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(actionModal);
+        
+        // Event listeners para los botones de acción
+        actionModal.querySelectorAll('.action-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const action = btn.dataset.action;
+                instructions[conditionIndex].actions.push(action);
+                updateInstructionsDisplay();
+                document.body.removeChild(actionModal);
+                showMessage(`✅ Comando ${getCommandText(action)} agregado a la condición`, true);
+            });
+        });
+        
+        // Event listener para cancelar
+        actionModal.querySelector('.cancel-action-btn').addEventListener('click', () => {
+            document.body.removeChild(actionModal);
+        });
+        
+        // Cerrar modal al hacer clic fuera de él
+        actionModal.addEventListener('click', (e) => {
+            if (e.target === actionModal) {
+                document.body.removeChild(actionModal);
+            }
+        });
+    }
+
+    function addToPlan(planIndex) {
+        // Crear modal temporal para agregar comandos al plan
+        const actionModal = document.createElement('div');
+        actionModal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center';
+        actionModal.innerHTML = `
+            <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+                <h3 class="text-lg font-bold mb-4 text-gray-800">➕ Agregar Paso al Plan</h3>
+                
+                <div class="grid grid-cols-2 gap-2 mb-4">
+                    <button class="action-btn bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-md text-sm" data-action="U">⬆️ Arriba</button>
+                    <button class="action-btn bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-md text-sm" data-action="D">⬇️ Abajo</button>
+                    <button class="action-btn bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-md text-sm" data-action="L">⬅️ Izquierda</button>
+                    <button class="action-btn bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-md text-sm" data-action="R">➡️ Derecha</button>
+                    <button class="action-btn bg-purple-500 hover:bg-purple-600 text-white p-3 rounded-md text-sm" data-action="COLLECT">💎 Recoger</button>
+                    <button class="action-btn bg-orange-500 hover:bg-orange-600 text-white p-3 rounded-md text-sm" data-action="BUILD">🔨 Construir</button>
+                    <button class="action-btn bg-green-500 hover:bg-green-600 text-white p-3 rounded-md text-sm" data-action="SCAN">🔍 Explorar</button>
+                </div>
+                
+                <div class="flex justify-end gap-2">
+                    <button class="cancel-action-btn bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md text-sm">❌ Cancelar</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(actionModal);
+        
+        // Event listeners para los botones de acción
+        actionModal.querySelectorAll('.action-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const action = btn.dataset.action;
+                instructions[planIndex].actions.push(action);
+                updateInstructionsDisplay();
+                document.body.removeChild(actionModal);
+                showMessage(`✅ Comando ${getCommandText(action)} agregado al plan`, true);
+            });
+        });
+        
+        // Event listener para cancelar
+        actionModal.querySelector('.cancel-action-btn').addEventListener('click', () => {
+            document.body.removeChild(actionModal);
+        });
+        
+        // Cerrar modal al hacer clic fuera de él
+        actionModal.addEventListener('click', (e) => {
+            if (e.target === actionModal) {
+                document.body.removeChild(actionModal);
+            }
+        });
+    }
+
+    function showMessage(text, isSuccess) {
+        messageText.textContent = text;
+        messageBox.className = 'fixed top-5 right-5 bg-white p-4 rounded-lg shadow-xl border-l-4 opacity-0 transform translate-y-10 z-50';
+        messageBox.classList.add(isSuccess ? 'border-green-500' : 'border-red-500');
+        messageBox.classList.remove('opacity-0', 'translate-y-10');
+        
+        setTimeout(() => {
+            messageBox.classList.add('opacity-0', 'translate-y-10');
+        }, 5000);
+    }
+
+    function setButtonsState(enabled) {
+        const buttons = [runBtn, resetBtn, addLoopBtn, addIfBtn, addPlanBtn, ...controls.getElementsByTagName('button'), ...actions.getElementsByTagName('button')];
+        buttons.forEach(btn => {
+            btn.disabled = !enabled;
+            btn.style.opacity = enabled ? '1' : '0.6';
+            btn.style.cursor = enabled ? 'pointer' : 'not-allowed';
+        });
+    }
+
+    async function runProgram() {
+        setButtonsState(false);
+        const puzzle = puzzles[currentPuzzleIndex];
+        robotPos = { ...puzzle.start };
+        collectedCrystals = [];
+        builtBridges = [];
+        createGrid();
+        
+        try {
+            await executeInstructionList(instructions);
+            checkResult();
+        } catch (error) {
+            showMessage("Error en el programa maestro", false);
+            setButtonsState(true);
+        }
+    }
+
+    async function executeInstructionList(instructionList) {
+        for (const instr of instructionList) {
+            if (instr.type === 'loop') {
+                for (let i = 0; i < instr.count; i++) {
+                    await executeInstructionList(instr.actions);
+                }
+            } else if (instr.type === 'if') {
+                // Simplificada: siempre ejecuta las acciones (para demo)
+                await executeInstructionList(instr.actions);
+            } else if (instr.type === 'plan') {
+                await executeInstructionList(instr.actions);
+            } else {
+                await executeCommand(instr.command || instr);
+            }
+        }
+    }
+
+    function executeCommand(command) {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                const puzzle = puzzles[currentPuzzleIndex];
+                
+                switch (command) {
+                    case 'R': 
+                        if (robotPos.x < puzzle.size - 1 && canMoveTo(robotPos.x + 1, robotPos.y)) {
+                            robotPos.x++;
+                        }
+                        break;
+                    case 'L': 
+                        if (robotPos.x > 0 && canMoveTo(robotPos.x - 1, robotPos.y)) {
+                            robotPos.x--;
+                        }
+                        break;
+                    case 'U': 
+                        if (robotPos.y > 0 && canMoveTo(robotPos.x, robotPos.y - 1)) {
+                            robotPos.y--;
+                        }
+                        break;
+                    case 'D': 
+                        if (robotPos.y < puzzle.size - 1 && canMoveTo(robotPos.x, robotPos.y + 1)) {
+                            robotPos.y++;
+                        }
+                        break;
+                    case 'COLLECT':
+                        const crystal = puzzle.crystals?.find(c => c.x === robotPos.x && c.y === robotPos.y);
+                        if (crystal && !collectedCrystals.some(cc => cc.x === crystal.x && cc.y === crystal.y)) {
+                            collectedCrystals.push(crystal);
+                            const cell = document.getElementById(`cell-${robotPos.x}-${robotPos.y}`);
+                            if (cell) {
+                                cell.classList.add('collected');
+                                const crystalEl = cell.querySelector('.element-marker');
+                                if (crystalEl && crystalEl.innerHTML === '💎') crystalEl.style.opacity = '0.3';
+                            }
+                        }
+                        break;
+                    case 'BUILD':
+                        if (puzzle.water?.some(w => w.x === robotPos.x && w.y === robotPos.y) && 
+                            !builtBridges.some(b => b.x === robotPos.x && b.y === robotPos.y) &&
+                            inventory.wood > 0) {
+                            inventory.wood--;
+                            builtBridges.push({x: robotPos.x, y: robotPos.y});
+                            const cell = document.getElementById(`cell-${robotPos.x}-${robotPos.y}`);
+                            if (cell) {
+                                cell.classList.add('bridge');
+                                const bridgeEl = document.createElement('div');
+                                bridgeEl.classList.add('element-marker');
+                                bridgeEl.innerHTML = '🌉';
+                                cell.appendChild(bridgeEl);
+                            }
+                        }
+                        break;
+                    case 'SCAN':
+                        // Visual feedback for scanning
+                        break;
+                }
+                
+                updateRobotPosition();
+                resolve();
+            }, 400);
+        });
+    }
+
+    function canMoveTo(x, y) {
+        const puzzle = puzzles[currentPuzzleIndex];
+        
+        // Verificar paredes
+        if (puzzle.walls?.some(w => w.x === x && w.y === y)) return false;
+        
+        // Verificar obstáculos
+        if (puzzle.obstacles?.some(o => o.x === x && o.y === y)) return false;
+        
+        // Verificar agua sin puente
+        if (puzzle.water?.some(w => w.x === x && w.y === y) && 
+            !builtBridges.some(b => b.x === x && b.y === y)) return false;
+        
+        return true;
+    }
+
+    function checkResult() {
+        const puzzle = puzzles[currentPuzzleIndex];
+        const atGoal = (robotPos.x === puzzle.goal.x && robotPos.y === puzzle.goal.y);
+        const allCrystalsCollected = !puzzle.crystals || 
+            puzzle.crystals.every(c => collectedCrystals.some(cc => cc.x === c.x && cc.y === c.y));
+        const requiredBridgesBuilt = !puzzle.requiredBridges || 
+            puzzle.requiredBridges.every(r => builtBridges.some(b => b.x === r.x && b.y === r.y));
+        
+        const success = atGoal && allCrystalsCollected && requiredBridgesBuilt;
+
+        if (success) {
+            if (currentPuzzleIndex < puzzles.length - 1) {
+                showMessage('🎉 ¡ACERTIJO RESUELTO! Has demostrado dominio completo de este concepto.', true);
+                nextLevelBtn.classList.remove('hidden');
+                nextLevelBtn.disabled = false;
+                nextLevelBtn.style.opacity = '1';
+                nextLevelBtn.style.cursor = 'pointer';
+            } else {
+                showMessage('🏆 ¡FELICIDADES! ¡ERES OFICIALMENTE UN MAESTRO DE LA PROGRAMACIÓN! Has dominado todos los conceptos. 👑', true);
+                levelDisplay.textContent = "🎓 ¡MAESTRO PROGRAMADOR CERTIFICADO! 🎓";
+                masteryCount.textContent = "🏆 MAESTRO COMPLETO";
+                masteryFill.style.width = "100%";
+            }
+        } else {
+            let feedback = "Progreso: ";
+            if (!atGoal) feedback += "❌ No llegaste a la meta ";
+            if (!allCrystalsCollected) feedback += `❌ Cristales: ${collectedCrystals.length}/${puzzle.crystals?.length || 0} `;
+            if (!requiredBridgesBuilt) feedback += "❌ Faltan puentes ";
+            
+            showMessage(feedback + "¡Revisa tu programa maestro! 🧠", false);
+            setButtonsState(true);
+        }
+    }
+
+    // Event Listeners
+    controls.addEventListener('click', (e) => {
+        if (e.target.tagName === 'BUTTON' && e.target.dataset.command) {
+            const command = e.target.dataset.command;
+            instructions.push({ command: command });
+            updateInstructionsDisplay();
+            showMessage(`✅ Comando ${getCommandText(command)} agregado al programa`, true);
+        }
+    });
+
+    // Event listener para botones de acciones
+    actions.addEventListener('click', (e) => {
+        if (e.target.tagName === 'BUTTON' && e.target.dataset.command) {
+            const command = e.target.dataset.command;
+            instructions.push({ command: command });
+            updateInstructionsDisplay();
+            showMessage(`✅ Acción ${getCommandText(command)} agregada al programa`, true);
+        }
+    });
+
+    addLoopBtn.addEventListener('click', () => {
+        // Crear modal temporal para configurar el bucle
+        const loopModal = document.createElement('div');
+        loopModal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center';
+        loopModal.innerHTML = `
+            <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+                <h3 class="text-lg font-bold mb-4 text-gray-800">🔁 Crear Bucle</h3>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Número de repeticiones:</label>
+                    <div class="grid grid-cols-5 gap-2">
+                        ${[1,2,3,4,5,6,7,8,9,10].map(num => 
+                            `<button class="count-btn bg-emerald-500 hover:bg-emerald-600 text-white p-3 rounded-md text-sm font-bold" data-count="${num}">${num}</button>`
+                        ).join('')}
+                    </div>
+                </div>
+                
+                <div class="flex justify-end gap-2">
+                    <button class="cancel-loop-btn bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md text-sm">❌ Cancelar</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(loopModal);
+        
+        // Event listeners para los botones de conteo
+        loopModal.querySelectorAll('.count-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const count = parseInt(btn.dataset.count);
+                instructions.push({ type: 'loop', count: count, actions: [] });
+                updateInstructionsDisplay();
+                document.body.removeChild(loopModal);
+                showMessage(`✅ Bucle creado: repetir ${count} veces`, true);
+            });
+        });
+        
+        // Event listener para cancelar
+        loopModal.querySelector('.cancel-loop-btn').addEventListener('click', () => {
+            document.body.removeChild(loopModal);
+        });
+        
+        // Cerrar modal al hacer clic fuera de él
+        loopModal.addEventListener('click', (e) => {
+            if (e.target === loopModal) {
+                document.body.removeChild(loopModal);
+            }
+        });
+    });
+
+    addIfBtn.addEventListener('click', () => {
+        // Crear modal temporal para configurar la condición
+        const conditionModal = document.createElement('div');
+        conditionModal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center';
+        conditionModal.innerHTML = `
+            <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+                <h3 class="text-lg font-bold mb-4 text-gray-800">🤔 Crear Condición</h3>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Tipo de condición:</label>
+                    <div class="grid grid-cols-1 gap-2">
+                        <button class="condition-btn bg-cyan-500 hover:bg-cyan-600 text-white p-3 rounded-md text-sm" data-condition="es seguro adelante">✅ Es seguro adelante</button>
+                        <button class="condition-btn bg-cyan-500 hover:bg-cyan-600 text-white p-3 rounded-md text-sm" data-condition="hay cristal aquí">💎 Hay cristal aquí</button>
+                        <button class="condition-btn bg-cyan-500 hover:bg-cyan-600 text-white p-3 rounded-md text-sm" data-condition="hay puente construido">🌉 Hay puente construido</button>
+                        <button class="condition-btn bg-cyan-500 hover:bg-cyan-600 text-white p-3 rounded-md text-sm" data-condition="llegué a la meta">🎯 Llegué a la meta</button>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end gap-2">
+                    <button class="cancel-condition-btn bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md text-sm">❌ Cancelar</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(conditionModal);
+        
+        // Event listeners para los botones de condición
+        conditionModal.querySelectorAll('.condition-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const condition = btn.dataset.condition;
+                instructions.push({ type: 'if', condition: condition, actions: [] });
+                updateInstructionsDisplay();
+                document.body.removeChild(conditionModal);
+                showMessage(`✅ Condición creada: Si ${condition}`, true);
+            });
+        });
+        
+        // Event listener para cancelar
+        conditionModal.querySelector('.cancel-condition-btn').addEventListener('click', () => {
+            document.body.removeChild(conditionModal);
+        });
+        
+        // Cerrar modal al hacer clic fuera de él
+        conditionModal.addEventListener('click', (e) => {
+            if (e.target === conditionModal) {
+                document.body.removeChild(conditionModal);
+            }
+        });
+    });
+
+    addPlanBtn.addEventListener('click', () => {
+        // Crear modal temporal para configurar el plan
+        const planModal = document.createElement('div');
+        planModal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center';
+        planModal.innerHTML = `
+            <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+                <h3 class="text-lg font-bold mb-4 text-gray-800">🗺️ Crear Plan</h3>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Nombre del plan:</label>
+                    <div class="grid grid-cols-1 gap-2">
+                        <button class="plan-btn bg-purple-500 hover:bg-purple-600 text-white p-3 rounded-md text-sm" data-plan="Recolectar Cristales del Norte">💎 Recolectar Cristales del Norte</button>
+                        <button class="plan-btn bg-purple-500 hover:bg-purple-600 text-white p-3 rounded-md text-sm" data-plan="Construir Puentes">🌉 Construir Puentes</button>
+                        <button class="plan-btn bg-purple-500 hover:bg-purple-600 text-white p-3 rounded-md text-sm" data-plan="Navegar al Sur">🧭 Navegar al Sur</button>
+                        <button class="plan-btn bg-purple-500 hover:bg-purple-600 text-white p-3 rounded-md text-sm" data-plan="Exploración Completa">🔍 Exploración Completa</button>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end gap-2">
+                    <button class="cancel-plan-btn bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md text-sm">❌ Cancelar</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(planModal);
+        
+        // Event listeners para los botones de plan
+        planModal.querySelectorAll('.plan-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const planName = btn.dataset.plan;
+                instructions.push({ type: 'plan', name: planName, actions: [] });
+                updateInstructionsDisplay();
+                document.body.removeChild(planModal);
+                showMessage(`✅ Plan creado: ${planName}`, true);
+            });
+        });
+        
+        // Event listener para cancelar
+        planModal.querySelector('.cancel-plan-btn').addEventListener('click', () => {
+            document.body.removeChild(planModal);
+        });
+        
+        // Cerrar modal al hacer clic fuera de él
+        planModal.addEventListener('click', (e) => {
+            if (e.target === planModal) {
+                document.body.removeChild(planModal);
+            }
+        });
+    });
+
+    runBtn.addEventListener('click', runProgram);
+    resetBtn.addEventListener('click', setupLevel);
+    nextLevelBtn.addEventListener('click', () => {
+        if (currentPuzzleIndex < puzzles.length - 1) {
+            currentPuzzleIndex++;
+            setupLevel();
+        }
+    });
+
+    // Inicializar
+    window.onload = setupLevel;
+</script>
+</body>
+</html>
