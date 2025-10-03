@@ -275,13 +275,6 @@
                 <h3 style="color: #315c2b; margin-top: 0;">Problema: Maximal Covering Location (MCP)</h3>
                 <p><strong>Objetivo:</strong> Maximizar el número de accidentes cubiertos colocando un número limitado de ambulancias con un radio de cobertura dado.</p>
                 
-                <div class="alert alert-info" style="margin: 15px 0;">
-                    <strong>📐 Métricas de Distancia:</strong><br>
-                    • <strong>Haversine:</strong> Distancia real sobre la superficie de la Tierra (más realista)<br>
-                    • <strong>Euclidiana:</strong> Línea recta en 2D (aproximación simple)<br>
-                    • <strong>Manhattan:</strong> Suma de distancias en latitud y longitud (estilo ciudad en cuadrícula)
-                </div>
-                
                 <h3 style="color: #315c2b;">Pasos para participar:</h3>
                 <ol>
                     <li><strong>Seleccionar instancia:</strong> Elige una instancia del problema (año de datos de accidentes).</li>
@@ -359,18 +352,6 @@
                 </select>
             </div>
 
-            <div class="input-group">
-                <label for="metric-input">Métrica de distancia:</label>
-                <select id="metric-input">
-                    <option value="haversine" selected>Haversine (distancia real sobre la Tierra)</option>
-                    <option value="euclidean">Euclidiana (línea recta 2D)</option>
-                    <option value="manhattan">Manhattan (suma de diferencias)</option>
-                </select>
-                <small style="color: #666; font-size: 0.85rem; display: block; margin-top: 5px;">
-                    La métrica determina cómo se calcula la distancia entre ambulancias y accidentes
-                </small>
-            </div>
-
             <div id="loading-status" class="alert alert-info hidden">
                 <strong>⏳ Cargando datos...</strong> Por favor espera.
             </div>
@@ -411,10 +392,6 @@
                 <div class="stat-box">
                     <div class="label">Radio (km)</div>
                     <div class="value" id="stat-radius">-</div>
-                </div>
-                <div class="stat-box">
-                    <div class="label">Métrica</div>
-                    <div class="value" id="stat-metric" style="font-size: 1.2rem;">-</div>
                 </div>
             </div>
             <div id="map"></div>
@@ -491,60 +468,6 @@
         let currentYear = '';
         let unitsRequired = 5;
         let coverageRadius = 1000; // meters
-        let distanceMetric = 'haversine'; // haversine, euclidean, manhattan
-
-        // Distance calculation functions
-        function calculateDistance(lat1, lng1, lat2, lng2) {
-            switch(distanceMetric) {
-                case 'haversine':
-                    return haversineDistance(lat1, lng1, lat2, lng2);
-                case 'euclidean':
-                    return euclideanDistance(lat1, lng1, lat2, lng2);
-                case 'manhattan':
-                    return manhattanDistance(lat1, lng1, lat2, lng2);
-                default:
-                    return haversineDistance(lat1, lng1, lat2, lng2);
-            }
-        }
-
-        // Haversine distance (great circle distance on Earth)
-        function haversineDistance(lat1, lng1, lat2, lng2) {
-            // Use Leaflet's built-in distance method (uses Haversine)
-            return map.distance([lat1, lng1], [lat2, lng2]);
-        }
-
-        // Euclidean distance (straight line in 2D)
-        function euclideanDistance(lat1, lng1, lat2, lng2) {
-            // Approximate conversion: 1 degree ≈ 111 km at equator
-            // For latitude: always ~111 km per degree
-            // For longitude: varies with latitude
-            const R = 6371000; // Earth radius in meters
-            const lat1Rad = lat1 * Math.PI / 180;
-            const lat2Rad = lat2 * Math.PI / 180;
-            
-            // Meters per degree
-            const metersPerDegreeLat = 111320; // roughly constant
-            const metersPerDegreeLng = 111320 * Math.cos((lat1Rad + lat2Rad) / 2);
-            
-            const dx = (lat2 - lat1) * metersPerDegreeLat;
-            const dy = (lng2 - lng1) * metersPerDegreeLng;
-            
-            return Math.sqrt(dx * dx + dy * dy);
-        }
-
-        // Manhattan distance (sum of absolute differences)
-        function manhattanDistance(lat1, lng1, lat2, lng2) {
-            // Approximate conversion to meters
-            const metersPerDegreeLat = 111320;
-            const lat1Rad = lat1 * Math.PI / 180;
-            const lat2Rad = lat2 * Math.PI / 180;
-            const metersPerDegreeLng = 111320 * Math.cos((lat1Rad + lat2Rad) / 2);
-            
-            const dx = Math.abs(lat2 - lat1) * metersPerDegreeLat;
-            const dy = Math.abs(lng2 - lng1) * metersPerDegreeLng;
-            
-            return dx + dy;
-        }
 
         // Initialize map
         function initMap() {
@@ -636,7 +559,6 @@
                     currentYear = year;
                     unitsRequired = parseInt(document.getElementById('units-input').value);
                     coverageRadius = parseFloat(document.getElementById('radius-input').value) * 1000;
-                    distanceMetric = document.getElementById('metric-input').value;
 
                     // Update UI
                     document.getElementById('loading-status').classList.add('hidden');
@@ -649,14 +571,6 @@
                     document.getElementById('stat-accidents').textContent = allAccidents.length;
                     document.getElementById('stat-units').textContent = unitsRequired;
                     document.getElementById('stat-radius').textContent = (coverageRadius / 1000).toFixed(1);
-                    
-                    // Display metric name
-                    const metricNames = {
-                        'haversine': 'Haversine',
-                        'euclidean': 'Euclidiana',
-                        'manhattan': 'Manhattan'
-                    };
-                    document.getElementById('stat-metric').textContent = metricNames[distanceMetric];
                     
                     // Update required units text
                     document.getElementById('required-units').textContent = unitsRequired;
@@ -857,7 +771,7 @@
 
                 // Check which accidents are covered
                 allAccidents.forEach((accident, accidentIndex) => {
-                    const distance = calculateDistance(accident.lat, accident.lng, location.lat, location.lng);
+                    const distance = map.distance([accident.lat, accident.lng], [location.lat, location.lng]);
                     if (distance <= coverageRadius) {
                         coveredAccidents.add(accidentIndex);
                     }
@@ -872,9 +786,9 @@
                 // Check if this marker location is covered by any ambulance
                 let isCovered = false;
                 for (const ambulance of solutionLocations) {
-                    const distance = calculateDistance(
-                        markerLatLng.lat, markerLatLng.lng,
-                        ambulance.lat, ambulance.lng
+                    const distance = map.distance(
+                        [markerLatLng.lat, markerLatLng.lng], 
+                        [ambulance.lat, ambulance.lng]
                     );
                     if (distance <= coverageRadius) {
                         isCovered = true;
@@ -1058,50 +972,22 @@
                 location.reload();
             });
 
-            // Submit solution button - open Google Form
+            // Submit solution button - redirect to registration form
             document.getElementById('submit-solution-btn').addEventListener('click', function() {
-                // Obtener datos de la evaluación
-                const year = currentYear;
-                const ambulances = unitsRequired;
-                const radius = coverageRadius / 1000;
-                const score = document.getElementById('result-score').textContent;
-                const percentage = document.getElementById('result-percentage').textContent.replace('%', '');
-                const metricNames = {
-                    'haversine': 'Haversine',
-                    'euclidean': 'Euclidiana',
-                    'manhattan': 'Manhattan'
+                // Store results in sessionStorage to pre-fill the form
+                const resultData = {
+                    year: currentYear,
+                    ambulances: unitsRequired,
+                    radius: coverageRadius / 1000,
+                    covered: document.getElementById('result-covered').textContent,
+                    total: document.getElementById('result-total').textContent,
+                    percentage: document.getElementById('result-percentage').textContent,
+                    score: document.getElementById('result-score').textContent
                 };
-                const metricName = metricNames[distanceMetric];
-                const instancia = `${year}-${ambulances}-${radius}-${metricName}`;
+                sessionStorage.setItem('competencia_results', JSON.stringify(resultData));
                 
-                // URL de tu Google Form
-                // IMPORTANTE: Reemplaza esta URL con la URL de tu Google Form
-                const googleFormUrl = 'https://docs.google.com/forms/d/e/TU_FORM_ID/viewform';
-                
-                // Parámetros pre-llenados (opcional - requiere configuración en Google Forms)
-                // Formato: ?entry.XXXXX=valor&entry.YYYYY=valor
-                // Los números entry.XXXXX los obtienes inspeccionando el formulario
-                const params = new URLSearchParams({
-                    // Descomenta y ajusta estos parámetros después de crear tu form
-                    // 'entry.123456789': instancia,  // Campo de instancia
-                    // 'entry.987654321': score,      // Campo de puntuación
-                    // 'entry.111222333': percentage  // Campo de cobertura
-                });
-                
-                // Abrir Google Form en nueva pestaña
-                const fullUrl = `${googleFormUrl}?${params.toString()}`;
-                window.open(googleFormUrl, '_blank');
-                
-                // Mostrar mensaje informativo
-                showAlert('info', `
-                    <strong>📝 Formulario de registro abierto</strong><br>
-                    Completa el formulario de Google para registrar tu solución oficialmente.<br>
-                    <strong>Datos a ingresar:</strong><br>
-                    • Instancia: ${instancia}<br>
-                    • Puntuación: ${score}<br>
-                    • Cobertura: ${percentage}%<br>
-                    • Métrica: ${metricName}
-                `);
+                // Redirect to registration page
+                window.location.href = 'competencia_registro.html';
             });
         });
     </script>

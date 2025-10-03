@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro - Competencia MCP</title>
+    <link rel="icon" type="image/x-icon" href="../img/favicon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f9f4f5ff 0%, #e8f5e9 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .form-container {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+        .form-title {
+            color: #315c2b;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .form-subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #315c2b;
+            margin-bottom: 8px;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #315c2b;
+        }
+        .form-group small {
+            color: #666;
+            font-size: 0.85rem;
+            display: block;
+            margin-top: 5px;
+        }
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: #315c2b;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .submit-btn:hover {
+            background: #60712f;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(49, 92, 43, 0.3);
+        }
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .alert.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+        .alert.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+        .required {
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1 class="form-title">🏆 Registro de Competencia</h1>
+        <p class="form-subtitle">Completa tus datos para participar en la Competencia MCP</p>
+        
+        <div id="alert" class="alert"></div>
+        
+        <!-- Netlify Form -->
+        <form name="competencia-mcp" method="POST" data-netlify="true" netlify-honeypot="bot-field" id="registration-form">
+            <!-- Honeypot para spam -->
+            <input type="hidden" name="form-name" value="competencia-mcp" />
+            <p style="display: none;">
+                <label>Don't fill this out if you're human: <input name="bot-field" /></label>
+            </p>
+            
+            <!-- Información del estudiante -->
+            <div class="form-group">
+                <label for="nombre">Nombre completo <span class="required">*</span></label>
+                <input type="text" id="nombre" name="nombre" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email <span class="required">*</span></label>
+                <input type="email" id="email" name="email" required>
+                <small>Usa tu correo institucional si es posible</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="matricula">Matrícula/ID de estudiante</label>
+                <input type="text" id="matricula" name="matricula">
+            </div>
+            
+            <div class="form-group">
+                <label for="institucion">Institución</label>
+                <input type="text" id="institucion" name="institucion" placeholder="Universidad, empresa, etc.">
+            </div>
+            
+            <!-- Información de la solución -->
+            <div class="form-group">
+                <label for="instancia">Instancia seleccionada <span class="required">*</span></label>
+                <select id="instancia" name="instancia" required>
+                    <option value="">Selecciona...</option>
+                    <option value="2019-3-0.5">2019 - 3 ambulancias - 0.5 km</option>
+                    <option value="2019-5-1.0">2019 - 5 ambulancias - 1.0 km</option>
+                    <option value="2019-7-1.5">2019 - 7 ambulancias - 1.5 km</option>
+                    <option value="2020-3-0.5">2020 - 3 ambulancias - 0.5 km</option>
+                    <option value="2020-5-1.0">2020 - 5 ambulancias - 1.0 km</option>
+                    <option value="2020-7-1.5">2020 - 7 ambulancias - 1.5 km</option>
+                    <option value="2021-3-0.5">2021 - 3 ambulancias - 0.5 km</option>
+                    <option value="2021-5-1.0">2021 - 5 ambulancias - 1.0 km</option>
+                    <option value="2021-7-1.5">2021 - 7 ambulancias - 1.5 km</option>
+                    <option value="2022-3-0.5">2022 - 3 ambulancias - 0.5 km</option>
+                    <option value="2022-5-1.0">2022 - 5 ambulancias - 1.0 km</option>
+                    <option value="2022-7-1.5">2022 - 7 ambulancias - 1.5 km</option>
+                    <option value="2023-3-0.5">2023 - 3 ambulancias - 0.5 km</option>
+                    <option value="2023-5-1.0">2023 - 5 ambulancias - 1.0 km</option>
+                    <option value="2023-7-1.5">2023 - 7 ambulancias - 1.5 km</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="puntuacion">Puntuación obtenida <span class="required">*</span></label>
+                <input type="number" id="puntuacion" name="puntuacion" min="0" required>
+                <small>La puntuación que obtuviste al evaluar tu solución</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="cobertura">Porcentaje de cobertura <span class="required">*</span></label>
+                <input type="number" id="cobertura" name="cobertura" min="0" max="100" step="0.01" required>
+                <small>Ejemplo: 85.50</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="metodo">Método utilizado <span class="required">*</span></label>
+                <select id="metodo" name="metodo" required>
+                    <option value="">Selecciona...</option>
+                    <option value="greedy">Algoritmo Greedy</option>
+                    <option value="local-search">Búsqueda Local</option>
+                    <option value="simulated-annealing">Simulated Annealing</option>
+                    <option value="genetic">Algoritmo Genético</option>
+                    <option value="tabu">Búsqueda Tabú</option>
+                    <option value="ilp">Programación Lineal Entera (ILP)</option>
+                    <option value="grasp">GRASP</option>
+                    <option value="vns">Variable Neighborhood Search</option>
+                    <option value="otro">Otro</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="descripcion">Descripción breve de tu solución</label>
+                <textarea id="descripcion" name="descripcion" rows="4" placeholder="Describe brevemente tu enfoque, herramientas utilizadas, etc."></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="solucion">Archivo de solución (CSV) <span class="required">*</span></label>
+                <input type="file" id="solucion" name="solucion" accept=".csv" required>
+                <small>Sube tu archivo CSV con las ubicaciones de las ambulancias</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="codigo">Código fuente (opcional)</label>
+                <input type="file" id="codigo" name="codigo" accept=".py,.ipynb,.r,.jl,.cpp,.java,.zip">
+                <small>Puedes subir tu código fuente (.py, .ipynb, .r, .zip, etc.)</small>
+            </div>
+            
+            <button type="submit" class="submit-btn" id="submit-btn">
+                📤 Enviar Solución
+            </button>
+        </form>
+        
+        <p style="text-align: center; margin-top: 20px; color: #666; font-size: 0.9rem;">
+            <a href="competencia_mcp.html" style="color: #315c2b; text-decoration: none; font-weight: 600;">
+                ← Volver a la competencia
+            </a>
+        </p>
+    </div>
+    
+    <script>
+        const form = document.getElementById('registration-form');
+        const submitBtn = document.getElementById('submit-btn');
+        const alertDiv = document.getElementById('alert');
+        
+        // Pre-fill form with data from competition page
+        window.addEventListener('DOMContentLoaded', function() {
+            const storedData = sessionStorage.getItem('competencia_results');
+            if (storedData) {
+                try {
+                    const data = JSON.parse(storedData);
+                    
+                    // Pre-fill instance
+                    const instanciaValue = `${data.year}-${data.ambulances}-${data.radius}`;
+                    const instanciaSelect = document.getElementById('instancia');
+                    for (let option of instanciaSelect.options) {
+                        if (option.value.startsWith(instanciaValue)) {
+                            option.selected = true;
+                            break;
+                        }
+                    }
+                    
+                    // Pre-fill scores
+                    document.getElementById('puntuacion').value = data.score;
+                    document.getElementById('cobertura').value = data.percentage.replace('%', '');
+                    
+                    // Clear sessionStorage
+                    sessionStorage.removeItem('competencia_results');
+                    
+                    // Show success message
+                    alertDiv.className = 'alert success';
+                    alertDiv.innerHTML = `
+                        <strong>✅ Datos cargados automáticamente</strong><br>
+                        Verifica que la información sea correcta antes de enviar.
+                    `;
+                    setTimeout(() => {
+                        alertDiv.style.display = 'none';
+                    }, 5000);
+                } catch (e) {
+                    console.error('Error loading stored data:', e);
+                }
+            }
+        });
+        
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Deshabilitar botón
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Enviando...';
+            
+            // Crear FormData
+            const formData = new FormData(form);
+            
+            // Enviar con fetch
+            fetch('/', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Éxito
+                    alertDiv.className = 'alert success';
+                    alertDiv.innerHTML = `
+                        <strong>✅ ¡Solución enviada exitosamente!</strong><br>
+                        Recibirás una confirmación en tu correo electrónico.<br>
+                        Puedes cerrar esta ventana o enviar otra solución.
+                    `;
+                    form.reset();
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '📤 Enviar Solución';
+                    
+                    // Scroll al alert
+                    alertDiv.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    throw new Error('Error en el envío');
+                }
+            })
+            .catch(error => {
+                // Error
+                alertDiv.className = 'alert error';
+                alertDiv.innerHTML = `
+                    <strong>❌ Error al enviar la solución</strong><br>
+                    Por favor intenta de nuevo. Si el problema persiste, contacta al instructor.
+                `;
+                submitBtn.disabled = false;
+                submitBtn.textContent = '📤 Enviar Solución';
+            });
+        });
+    </script>
+</body>
+</html>

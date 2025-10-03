@@ -1,0 +1,43 @@
+# Configuración de Netlify para la Competencia MCP
+
+[build]
+  # No hay proceso de build necesario (HTML estático)
+  publish = "."
+
+# Configuración de formularios
+[build.environment]
+  # Variables de entorno si las necesitas
+
+# Redirecciones y reglas
+[[redirects]]
+  from = "/competencia"
+  to = "/competencia_mcp.html"
+  status = 200
+
+[[redirects]]
+  from = "/registro"
+  to = "/competencia_registro.html"
+  status = 200
+
+# Headers de seguridad
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Headers para archivos CSV
+[[headers]]
+  for = "/*.csv"
+  [headers.values]
+    Content-Type = "text/csv; charset=utf-8"
+    Cache-Control = "public, max-age=3600"
+
+# Headers para archivos de datos
+[[headers]]
+  for = "/data/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Cache-Control = "public, max-age=3600"
