@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZLLCPFX9W7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-ZLLCPFX9W7');
+</script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Representaciones del Problema de la Mochila</title>
+    <link rel="icon" type="image/x-icon" href="../img/favicon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --rich-black: #01161e;
+            --midnight-green: #124559;
+            --air-force-blue: #598392;
+            --ash-gray: #aec3b0;
+            --beige: #eff6e0;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #EEDFCF;
+            color: #1a1a1a;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        #main-content {
+            flex: 1;
+        }
+        .container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 1400px;
+            margin: 2rem auto;
+        }
+        .item-card {
+            background-color: white;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            color: #1a1a1a;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 3px solid var(--air-force-blue);
+        }
+        .item-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            border-color: var(--midnight-green);
+        }
+        .item-card.selected {
+            border-color: var(--ash-gray);
+            box-shadow: 0 0 0 3px rgba(174, 195, 176, 0.4);
+            background-color: var(--ash-gray);
+            color: var(--rich-black);
+        }
+        .item-card.partial {
+            background-color: #7a9fa8;
+            border-color: var(--beige);
+        }
+        .representation-card {
+            background-color: #f8f9fa;
+            border: 2px solid var(--air-force-blue);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        .representation-card.active {
+            border-color: var(--ash-gray);
+            background-color: #1a5670;
+            box-shadow: 0 4px 6px rgba(174, 195, 176, 0.2);
+        }
+        .knapsack-visual {
+            background-color: var(--midnight-green);
+            border: 2px solid var(--air-force-blue);
+            border-radius: 1rem;
+            padding: 2rem;
+            min-height: 250px;
+            position: relative;
+            overflow: hidden;
+        }
+        .capacity-bar {
+            background-color: #e9ecef;
+            border: 2px solid var(--air-force-blue);
+            border-radius: 0.5rem;
+            height: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .capacity-fill {
+            background-color: var(--ash-gray);
+            height: 100%;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--rich-black);
+            font-weight: 600;
+        }
+        .capacity-fill.overload {
+            background-color: #d9534f;
+        }
+        .stat-box {
+            background-color: white;
+            color: #1a1a1a;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            text-align: center;
+            border: 2px solid var(--air-force-blue);
+        }
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-top: 0.5rem;
+        }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        .btn-primary {
+            background-color: var(--ash-gray);
+            color: var(--rich-black);
+            border-color: var(--ash-gray);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(174, 195, 176, 0.3);
+            background-color: var(--beige);
+        }
+        .btn-secondary {
+            background-color: var(--air-force-blue);
+            color: var(--beige);
+            border-color: var(--air-force-blue);
+        }
+        .btn-secondary:hover {
+            background-color: var(--midnight-green);
+        }
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        .badge-success {
+            background-color: var(--ash-gray);
+            color: var(--rich-black);
+        }
+        .badge-warning {
+            background-color: var(--beige);
+            color: var(--midnight-green);
+        }
+        .badge-error {
+            background-color: #d9534f;
+            color: white;
+        }
+        .badge-info {
+            background-color: var(--air-force-blue);
+            color: var(--beige);
+        }
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .btn-coffee {
+            background-color: #facc15;
+            color: #1a1a1a;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+        .btn-coffee:hover {
+            background-color: #eab308;
+        }
+        .btn-home {
+            background-color: white;
+            color: #475569;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+        .btn-home:hover {
+            background-color: #f1f5f9;
+        }
+        .representation-selector {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        .rep-btn {
+            flex: 1;
+            min-width: 150px;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            border: 2px solid var(--air-force-blue);
+            background-color: white;
+            color: #1a1a1a;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        .rep-btn:hover {
+            border-color: var(--midnight-green);
+            transform: translateY(-2px);
+            background-color: #f8f9fa;
+        }
+        .rep-btn.active {
+            background-color: var(--ash-gray);
+            color: var(--rich-black);
+            border-color: var(--ash-gray);
+        }
+        .rep-btn .text-sm {
+            opacity: 0.8;
+        }
+        .code-display {
+            background-color: #2d3748;
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            overflow-x: auto;
+            border: 2px solid var(--air-force-blue);
+        }
+        .advantage-list {
+            list-style: none;
+            padding: 0;
+        }
+        .advantage-list li {
+            padding: 0.5rem 0;
+            display: flex;
+            align-items: start;
+            gap: 0.5rem;
+            color: #1a1a1a;
+        }
+        .advantage-list li::before {
+            content: "✓";
+            color: var(--ash-gray);
+            font-weight: bold;
+            font-size: 1.25rem;
+        }
+        .disadvantage-list li::before {
+            content: "✗";
+            color: #d9534f;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.show {
+            display: flex;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            max-width: 600px;
+            margin: 1rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .modal-close {
+            font-size: 2rem;
+            cursor: pointer;
+            color: #666;
+            background: none;
+            border: none;
+        }
+        .modal-close:hover {
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="main-content">
+        <div class="container mx-auto p-4 md:p-8 relative">
+            <!-- Navigation Buttons -->
+            <div class="absolute top-4 right-4 flex items-center gap-4 z-10">
+                <a href="../pasarela/buymeacoffee.html" 
+                   target="_blank" 
+                   rel="noopener noreferrer" 
+                   class="btn-coffee">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M1 12.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5M2 4v6h10V4zm11.5 0a.5.5 0 0 0-.5.5v5a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-5a.5.5 0 0 0-.5-.5zM1 3.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5m10.854-1.354a.5.5 0 0 0-.708 0L9 3.293 7.854 2.146a.5.5 0 1 0-.708.708L8.293 4 7.146 5.146a.5.5 0 1 0 .708.708L9 4.707l1.146 1.147a.5.5 0 0 0 .708-.708L9.707 4l1.147-1.146a.5.5 0 0 0 0-.708"/>
+                    </svg>
+                    <span>Invítame un café</span>
+                </a>
+
+                <a href="busqueda-local.html" class="btn-home">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                    Inicio
+                </a>
+            </div>
+
+            <!-- Header -->
+            <header class="text-center mb-8 pt-16">
+            <h1 class="text-4xl font-bold text-slate-900">🎒 Representaciones del Problema de la Mochila</h1>
+            <p class="text-lg text-slate-600 mt-2 max-w-3xl mx-auto">
+                Explora cómo diferentes representaciones (binaria, entera, continua y permutaciones) afectan la forma de codificar y evaluar soluciones para el problema de la mochila. 
+                Cada representación tiene sus propias <strong>ventajas</strong> y <strong>desventajas</strong>, y es crucial entender cómo evaluar correctamente una solución según la representación elegida.
+            </p>
+        </header>
+
+        <div class="container">
+
+        <!-- Selector de Representación -->
+        <div class="representation-selector">
+            <button class="rep-btn active" data-rep="binary">
+                <div class="text-2xl mb-2">🔢</div>
+                <div class="font-bold">Binaria</div>
+                <div class="text-sm text-gray-600">0/1</div>
+            </button>
+            <button class="rep-btn" data-rep="integer">
+                <div class="text-2xl mb-2">🔢</div>
+                <div class="font-bold">Entera</div>
+                <div class="text-sm text-gray-600">0, 1, 2, ...</div>
+            </button>
+            <button class="rep-btn" data-rep="continuous">
+                <div class="text-2xl mb-2">📊</div>
+                <div class="font-bold">Continua</div>
+                <div class="text-sm text-gray-600">0.0 - 1.0</div>
+            </button>
+            <button class="rep-btn" data-rep="permutation">
+                <div class="text-2xl mb-2">🔀</div>
+                <div class="font-bold">Permutación</div>
+                <div class="text-sm text-gray-600">Orden</div>
+            </button>
+        </div>
+
+        <!-- Estadísticas -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div class="stat-box">
+                <div class="text-sm opacity-90">Capacidad</div>
+                <div class="stat-value" id="capacity-display">50 kg</div>
+            </div>
+            <div class="stat-box">
+                <div class="text-sm opacity-90">Peso Usado</div>
+                <div class="stat-value" id="weight-display">0 kg</div>
+            </div>
+            <div class="stat-box">
+                <div class="text-sm opacity-90">Valor Total</div>
+                <div class="stat-value" id="value-display">$0</div>
+            </div>
+            <div class="stat-box">
+                <div class="text-sm opacity-90">Estado</div>
+                <div class="stat-value text-lg" id="status-display">
+                    <span class="badge badge-info">Listo</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Barra de Capacidad -->
+        <div class="mb-6">
+            <div class="flex justify-between mb-2">
+                <span class="font-semibold text-gray-700">Capacidad de la Mochila</span>
+                <span class="text-gray-600" id="capacity-percentage">0%</span>
+            </div>
+            <div class="capacity-bar">
+                <div class="capacity-fill" id="capacity-fill" style="width: 0%">
+                    <span id="capacity-text"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Visualización de la Mochila -->
+        <div class="knapsack-visual mb-6">
+            <div class="text-white text-center mb-4">
+                <h3 class="text-xl font-bold">🎒 Mochila</h3>
+                <p class="text-sm opacity-75">Los objetos seleccionados aparecerán aquí</p>
+            </div>
+            <div id="knapsack-items" class="flex flex-wrap gap-2 justify-center">
+                <!-- Items will be added here dynamically -->
+            </div>
+        </div>
+
+        <!-- Objetos Disponibles -->
+        <div class="mb-6">
+            <h3 class="text-xl font-bold mb-4" style="color: #1a1a1a;">📦 Objetos Disponibles (15 items)</h3>
+            <p class="text-sm mb-3" style="color: #666;">Haz clic en un objeto para seleccionarlo/deseleccionarlo</p>
+            <div id="items-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                <!-- Items will be generated here -->
+            </div>
+        </div>
+
+        <!-- Representación Actual -->
+        <div class="representation-card mb-6">
+            <h3 class="text-xl font-bold mb-4" style="color: #1a1a1a;">💻 Representación Actual: <span id="current-rep-name">Binaria</span></h3>
+            <div class="code-display mb-4" id="solution-code">
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            </div>
+            <div class="text-sm mb-4" style="color: var(--ash-gray);" id="rep-description">
+                Cada posición representa si un objeto está incluido (1) o no (0) en la mochila.
+            </div>
+            
+            <!-- Ventajas y Desventajas -->
+            <div class="grid md:grid-cols-2 gap-4 mb-6">
+                <div>
+                    <h4 class="font-bold mb-2" style="color: var(--ash-gray);">✓ Ventajas</h4>
+                    <ul class="advantage-list text-sm" id="advantages-list">
+                        <li>Simple y directa</li>
+                        <li>Fácil de implementar</li>
+                        <li>Espacio de búsqueda claro</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold mb-2" style="color: #d9534f;">✗ Desventajas</h4>
+                    <ul class="advantage-list disadvantage-list text-sm" id="disadvantages-list">
+                        <li>No permite cantidades múltiples</li>
+                        <li>Puede generar soluciones inválidas</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Pseudocódigo de Evaluación -->
+            <div class="mt-6 p-4 rounded" style="background-color: #f8f9fa; border: 2px solid var(--air-force-blue);">
+                <h4 class="font-bold mb-3 flex items-center gap-2" style="color: #1a1a1a;">
+                    <span>📝</span>
+                    <span>Pseudocódigo de Evaluación</span>
+                </h4>
+                <div class="code-display" id="pseudocode-display" style="background-color: #2d3748; color: #e2e8f0; font-size: 0.8rem; line-height: 1.6;">
+<pre style="margin: 0;">función evaluar_solución(solución, items, capacidad):
+    peso_total = 0
+    valor_total = 0
+    
+    para i desde 0 hasta longitud(solución) - 1:
+        si solución[i] == 1:
+            peso_total += items[i].peso
+            valor_total += items[i].valor
+    
+    si peso_total > capacidad:
+        retornar INVÁLIDA  // o penalizar
+    
+    retornar valor_total</pre>
+                </div>
+                <p class="text-xs mt-2" style="color: #666;">
+                    Este pseudocódigo muestra cómo evaluar una solución en la representación actual.
+                </p>
+            </div>
+        </div>
+
+        <!-- Controles -->
+        <div class="flex gap-4 justify-center flex-wrap">
+            <button class="btn btn-primary" id="random-btn">🎲 Solución Aleatoria</button>
+            <button class="btn btn-primary" id="greedy-btn">🎯 Solución Greedy</button>
+            <button class="btn btn-secondary" id="clear-btn">🗑️ Limpiar</button>
+        </div>
+
+        <!-- Información Educativa -->
+        <div class="mt-8 p-6 rounded" style="background-color: #e3f2fd; border-left: 4px solid var(--air-force-blue);">
+            <h4 class="font-bold mb-2" style="color: #1a1a1a;">💡 ¿Cómo funciona?</h4>
+            <p class="text-sm" style="color: #333;" id="educational-text">
+                Haz clic en los objetos para seleccionarlos o usa los botones para generar soluciones automáticas. 
+                Cambia entre diferentes representaciones para ver cómo afectan la codificación y evaluación de soluciones. 
+                Con 15 objetos disponibles, encontrar la combinación óptima es un verdadero desafío.
+            </p>
+        </div>
+        </div>
+        </div>
+    </div>
+
+    <!-- Footer & Contact -->
+    <footer id="contact" class="bg-[#333333] text-white">
+        <div class="container2 mx-auto px-6 py-10">
+            <div class="text-center">
+                <p class="text-gray-300 mb-2">Si tienes alguna pregunta o te gustaría colaborar, no dudes en escribirme.</p>
+                <a href="../contacto.html" class="text-[#80CBC4] text-lg hover:underline">Contacto</a>
+                <p class="text-gray-500 mt-8 text-sm">&copy; 2025 Jonás Velasco. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal de Sobrepeso -->
+    <div id="overweight-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="text-2xl font-bold" style="color: #d9534f;">⚠️ Capacidad Excedida</h2>
+                <button class="modal-close" id="modal-close">&times;</button>
+            </div>
+            <div class="mb-4">
+                <p class="mb-3" style="color: #333;">
+                    <strong>La solución actual excede la capacidad de la mochila.</strong>
+                </p>
+                <p class="mb-3" style="color: #666;">
+                    Peso actual: <span id="modal-current-weight" class="font-bold text-red-600"></span> / 50 kg
+                </p>
+                <p class="mb-4" style="color: #666;">
+                    Esto es una <strong>solución inválida</strong> que debe ser reparada.
+                </p>
+            </div>
+            
+            <div class="mb-4 p-4 rounded" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                <h3 class="font-bold mb-2" style="color: #856404;">🔧 Estrategias de Reparación</h3>
+                <ul class="text-sm space-y-2" style="color: #856404;">
+                    <li><strong>1. Eliminación aleatoria:</strong> Quitar objetos al azar hasta cumplir la capacidad</li>
+                    <li><strong>2. Eliminación por peso:</strong> Quitar primero los objetos más pesados</li>
+                    <li><strong>3. Eliminación por valor:</strong> Quitar primero los objetos de menor valor</li>
+                    <li><strong>4. Eliminación por ratio:</strong> Quitar objetos con peor relación valor/peso</li>
+                    <li><strong>5. Penalización:</strong> Asignar fitness negativo o muy bajo a soluciones inválidas</li>
+                </ul>
+            </div>
+
+            <div class="p-4 rounded" style="background-color: #d1ecf1; border-left: 4px solid #0c5460;">
+                <h3 class="font-bold mb-2" style="color: #0c5460;">💡 Consideraciones</h3>
+                <p class="text-sm" style="color: #0c5460;">
+                    En algoritmos evolutivos, puedes optar por <strong>reparar</strong> las soluciones inválidas 
+                    o simplemente <strong>penalizarlas</strong> en la función de fitness. La elección depende del 
+                    problema y puede afectar significativamente el rendimiento del algoritmo.
+                </p>
+            </div>
+
+            <div class="mt-4 flex justify-end">
+                <button class="btn btn-primary" id="modal-ok">Entendido</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="representaciones_mochila.js"></script>
+</body>
+</html>
