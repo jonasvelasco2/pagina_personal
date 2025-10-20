@@ -1,11 +1,25 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZLLCPFX9W7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-ZLLCPFX9W7');
+</script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Descenso simple con Multiarranque</title>
+    <link rel="icon" type="image/x-icon" href="../../img/favicon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -13,18 +27,24 @@
             color: #1a202c;
             display: flex;
             flex-direction: column;
+            min-height: 100vh;
+        }
+        #main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
             padding: 2rem;
             text-align: center;
         }
         .container {
             background-color: white;
-            padding: 4rem 2rem 2rem 2rem;
+            padding: 2rem;
             border-radius: 1rem;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            max-width: 90%;
+            max-width: 95%;
+            margin: 2rem auto;
             position: relative;
         }
         .grid-container {
@@ -166,39 +186,71 @@
             background-color: #e2f3ff;
             color: #3182ce;
         }
-        .btn-back {
+        .top-nav {
             position: absolute;
             top: 1rem;
-            left: 1rem;
-            background-color: #4299e1;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.1s;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            right: 1rem;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 1rem;
             z-index: 10;
+        }
+        .btn-coffee {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: #fbbf24;
+            color: #1f2937;
+            font-weight: 700;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            transition: background-color 0.3s;
             text-decoration: none;
         }
-        .btn-back:hover {
-            background-color: #3182ce;
-            transform: translateY(-2px);
+        .btn-coffee:hover {
+            background-color: #f59e0b;
+        }
+        .btn-home {
+            background-color: white;
+            color: #475569;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            transition: background-color 0.3s;
+            text-decoration: none;
+        }
+        .btn-home:hover {
+            background-color: #f1f5f9;
         }
     </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+<body>
 
-    <div class="container flex flex-col items-center">
-        <a href="busqueda-local.html" class="btn-back">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M19 12H5M12 19l-7-7 7-7"/>
-            </svg>
-            Regresar
-        </a>
+    <div id="main-content">
+        <div class="container flex flex-col items-center">
+            <div class="top-nav">
+                <a href="../../pasarela/buymeacoffee.html" 
+                   target="_blank" 
+                   rel="noopener noreferrer" 
+                   class="btn-coffee">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M1 12.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5M2 4v6h10V4zm11.5 0a.5.5 0 0 0-.5.5v5a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-5a.5.5 0 0 0-.5-.5zM1 3.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5m10.854-1.354a.5.5 0 0 0-.708 0L9 3.293 7.854 2.146a.5.5 0 1 0-.708.708L8.293 4 7.146 5.146a.5.5 0 1 0 .708.708L9 4.707l1.146 1.147a.5.5 0 0 0 .708-.708L9.707 4l1.147-1.146a.5.5 0 0 0 0-.708"/>
+                    </svg>
+                    <span>Invítame un café</span>
+                </a>
+
+                <a href="../busqueda-local.html" class="btn-home">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                    Inicio
+                </a>
+            </div>
         <h1 class="text-4xl font-extrabold text-gray-800 mb-2">Descenso simple con Multiarranque</h1>
         <p class="text-gray-600 mb-4">
             El multiarranque ejecuta el descenso simple múltiples veces desde diferentes puntos aleatorios de la cuadrícula. Cada ejecución busca el valor mínimo moviéndose a cualquiera de sus 8 vecinos con el valor más bajo. Al finalizar todas las ejecuciones, se identifica el mejor óptimo local encontrado (marcado en morado).
@@ -220,384 +272,23 @@
 
         <div id="stats-box" class="stats-box"></div>
         <div id="message-box" class="message-box"></div>
+        </div>
     </div>
 
-    <script>
-        const gridContainer = document.getElementById('grid-container');
-        const startBtn = document.getElementById('start-btn');
-        const resetBtn = document.getElementById('reset-btn');
-        const generateBtn = document.getElementById('generate-btn');
-        const downloadBtn = document.getElementById('download-btn');
-        const messageBox = document.getElementById('message-box');
-        const statsBox = document.getElementById('stats-box');
-        const numRestartsInput = document.getElementById('num-restarts');
+    <!-- Footer & Contact -->
+    <footer id="contact" class="bg-[#333333] text-white">
+        <div class="container2 mx-auto px-6 py-10">
+            <div class="text-center">
+                <p class="text-gray-300 mb-2">Si tienes alguna pregunta o te gustaría colaborar, no dudes en escribirme.</p>
+                <a href="../../contacto.html" class="text-[#80CBC4] text-lg hover:underline">Contacto</a>
+                <p class="text-gray-500 mt-8 text-sm">&copy; 2025 Jonás Velasco. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
 
-        let gridData = [];
-        let currentRow = -1;
-        let currentCol = -1;
-        let intervalId = null;
-        let multiRestartResults = [];
-        let currentRestart = 0;
-        let totalRestarts = 0;
-        let isMultiRestartMode = false;
-
-        // Genera datos completamente aleatorios y retadores
-        function generateGridData() {
-            const data = [];
-            const rows = 10;
-            const cols = 10;
-
-            // Inicializa toda la cuadrícula con valores completamente aleatorios
-            for (let i = 0; i < rows; i++) {
-                const row = [];
-                for (let j = 0; j < cols; j++) {
-                    row.push(Math.floor(Math.random() * 100) + 1); // Valores entre 1 y 100
-                }
-                data.push(row);
-            }
-
-            // Crear algunos "valles" aleatorios (zonas con valores más bajos) para hacer más retador
-            const numValleys = Math.floor(Math.random() * 3) + 2; // Entre 2 y 4 valles
-            
-            for (let v = 0; v < numValleys; v++) {
-                const centerRow = Math.floor(Math.random() * rows);
-                const centerCol = Math.floor(Math.random() * cols);
-                const valleySize = Math.floor(Math.random() * 2) + 1; // Radio de 1-2 celdas (más pequeño para 10x10)
-                const baseValue = Math.floor(Math.random() * 30) + 1; // Valores bajos entre 1-30
-                
-                // Crear el valle con valores decrecientes hacia el centro
-                for (let i = Math.max(0, centerRow - valleySize); i <= Math.min(rows - 1, centerRow + valleySize); i++) {
-                    for (let j = Math.max(0, centerCol - valleySize); j <= Math.min(cols - 1, centerCol + valleySize); j++) {
-                        const distance = Math.abs(i - centerRow) + Math.abs(j - centerCol);
-                        if (distance <= valleySize) {
-                            const valleyValue = baseValue + distance * Math.floor(Math.random() * 5);
-                            if (valleyValue < data[i][j]) {
-                                data[i][j] = valleyValue;
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Crear algunas "montañas" aleatorias (zonas con valores más altos) para obstáculos
-            const numMountains = Math.floor(Math.random() * 2) + 1; // Entre 1 y 2 montañas
-            
-            for (let m = 0; m < numMountains; m++) {
-                const centerRow = Math.floor(Math.random() * rows);
-                const centerCol = Math.floor(Math.random() * cols);
-                const mountainSize = Math.floor(Math.random() * 2) + 1; // Radio de 1-2 celdas
-                const baseValue = Math.floor(Math.random() * 20) + 80; // Valores altos entre 80-99
-                
-                // Crear la montaña con valores crecientes hacia el centro
-                for (let i = Math.max(0, centerRow - mountainSize); i <= Math.min(rows - 1, centerRow + mountainSize); i++) {
-                    for (let j = Math.max(0, centerCol - mountainSize); j <= Math.min(cols - 1, centerCol + mountainSize); j++) {
-                        const distance = Math.abs(i - centerRow) + Math.abs(j - centerCol);
-                        if (distance <= mountainSize) {
-                            const mountainValue = baseValue + (mountainSize - distance) * Math.floor(Math.random() * 5);
-                            if (mountainValue > data[i][j]) {
-                                data[i][j] = mountainValue;
-                            }
-                        }
-                    }
-                }
-            }
-
-            return data;
-        }
-
-
-        // Create the grid from data
-        function createGrid() {
-            gridContainer.innerHTML = '';
-            for (let i = 0; i < 10; i++) {
-                for (let j = 0; j < 10; j++) {
-                    const cell = document.createElement('div');
-                    cell.className = 'grid-cell';
-                    cell.textContent = gridData[i][j];
-                    cell.dataset.row = i;
-                    cell.dataset.col = j;
-                    gridContainer.appendChild(cell);
-                }
-            }
-        }
-
-        // Handle cell selection (not used in multi-restart mode)
-        function handleCellClick(event) {
-            // This function is disabled in multi-restart mode
-        }
-
-        // Show a message in the message box
-        function showMessage(text, type = 'info') {
-            messageBox.textContent = text;
-            messageBox.className = `message-box show ${type === 'success' ? 'message-success' : 'message-info'}`;
-        }
-
-        // Get the value of a cell
-        function getValue(row, col) {
-            if (row >= 0 && row < 10 && col >= 0 && col < 10) {
-                return gridData[row][col];
-            }
-            return Infinity;
-        }
-
-        // Find the best neighbor (8-connectivity)
-        function findBestNeighbor() {
-            const neighbors = [
-                { r: currentRow - 1, c: currentCol, order: 1 },     // Arriba
-                { r: currentRow + 1, c: currentCol, order: 2 },     // Abajo
-                { r: currentRow, c: currentCol - 1, order: 3 },     // Izquierda
-                { r: currentRow, c: currentCol + 1, order: 4 },     // Derecha
-                { r: currentRow - 1, c: currentCol - 1, order: 5 }, // Diagonal superior-izquierda
-                { r: currentRow - 1, c: currentCol + 1, order: 6 }, // Diagonal superior-derecha
-                { r: currentRow + 1, c: currentCol - 1, order: 7 }, // Diagonal inferior-izquierda
-                { r: currentRow + 1, c: currentCol + 1, order: 8 }  // Diagonal inferior-derecha
-            ];
-
-            let bestNeighbor = null;
-            let minVal = gridData[currentRow][currentCol];
-            
-            // Highlight all potential neighbors first
-            neighbors.forEach(n => {
-                const neighborCell = document.querySelector(`[data-row='${n.r}'][data-col='${n.c}']`);
-                if (neighborCell && !neighborCell.classList.contains('visited')) {
-                    neighborCell.classList.add('neighbor');
-                }
-            });
-
-            // Find the best one after a delay
-            setTimeout(() => {
-                // Remove neighbor highlight
-                document.querySelectorAll('.neighbor').forEach(cell => cell.classList.remove('neighbor'));
-
-                for (const neighbor of neighbors) {
-                    const val = getValue(neighbor.r, neighbor.c);
-                    if (val < minVal) {
-                        minVal = val;
-                        bestNeighbor = neighbor;
-                    }
-                }
-                
-                if (bestNeighbor) {
-                    // Move to the new position
-                    const currentCell = document.querySelector(`[data-row='${currentRow}'][data-col='${currentCol}']`);
-                    currentCell.classList.remove('current');
-                    currentCell.classList.add('visited');
-                    currentRow = bestNeighbor.r;
-                    currentCol = bestNeighbor.c;
-                    const newCurrentCell = document.querySelector(`[data-row='${currentRow}'][data-col='${currentCol}']`);
-                    newCurrentCell.classList.add('current');
-                    showMessage(`Moviéndose a (${currentCol + 1}, ${10 - currentRow}) con valor ${gridData[currentRow][currentCol]}`);
-                } else {
-                    // No better neighbor found, animation stops
-                    clearInterval(intervalId);
-                    intervalId = null;
-                    
-                    if (isMultiRestartMode) {
-                        // Store result
-                        multiRestartResults.push({
-                            row: currentRow,
-                            col: currentCol,
-                            value: gridData[currentRow][currentCol],
-                            restart: currentRestart
-                        });
-                        
-                        currentRestart++;
-                        
-                        if (currentRestart < totalRestarts) {
-                            // Start next restart
-                            showMessage(`Óptimo local ${currentRestart} encontrado: valor ${gridData[currentRow][currentCol]}. Iniciando búsqueda ${currentRestart + 1}/${totalRestarts}...`);
-                            setTimeout(startNextRestart, 1500);
-                        } else {
-                            // All restarts completed
-                            finishMultiRestart();
-                        }
-                    } else {
-                        showMessage(`Óptimo local encontrado en (${currentCol + 1}, ${10 - currentRow}) con valor ${gridData[currentRow][currentCol]}`, 'success');
-                        startBtn.disabled = true;
-                        resetBtn.disabled = false;
-                    }
-                }
-            }, 1000); // 1 second delay
-        }
-
-        // Animation step
-        function animateStep() {
-            findBestNeighbor();
-        }
-        
-        // Start random position for multi-restart
-        function startNextRestart() {
-            // Clear previous visualization
-            document.querySelectorAll('.grid-cell').forEach(cell => {
-                cell.classList.remove('current', 'visited', 'neighbor');
-            });
-            
-            // Select random starting point
-            currentRow = Math.floor(Math.random() * 10);
-            currentCol = Math.floor(Math.random() * 10);
-            
-            const startCell = document.querySelector(`[data-row='${currentRow}'][data-col='${currentCol}']`);
-            startCell.classList.add('current');
-            
-            showMessage(`Búsqueda ${currentRestart + 1}/${totalRestarts} - Iniciando desde (${currentCol + 1}, ${10 - currentRow}) con valor ${gridData[currentRow][currentCol]}`);
-            
-            // Start animation
-            intervalId = setInterval(animateStep, 2000);
-        }
-        
-        // Finish multi-restart and show results
-        function finishMultiRestart() {
-            // Find best result
-            const bestResult = multiRestartResults.reduce((best, current) => 
-                current.value < best.value ? current : best
-            );
-            
-            // Clear all cell styles
-            document.querySelectorAll('.grid-cell').forEach(cell => {
-                cell.classList.remove('current', 'visited', 'neighbor');
-            });
-            
-            // Highlight all found optima
-            multiRestartResults.forEach(result => {
-                const cell = document.querySelector(`[data-row='${result.row}'][data-col='${result.col}']`);
-                cell.classList.add('visited');
-            });
-            
-            // Highlight best result
-            const bestCell = document.querySelector(`[data-row='${bestResult.row}'][data-col='${bestResult.col}']`);
-            bestCell.classList.remove('visited');
-            bestCell.classList.add('best-found');
-            
-            // Show statistics
-            const uniqueOptima = new Set(multiRestartResults.map(r => `${r.row},${r.col}`)).size;
-            const avgValue = (multiRestartResults.reduce((sum, r) => sum + r.value, 0) / multiRestartResults.length).toFixed(2);
-            
-            statsBox.innerHTML = `
-                <h3>📊 Resultados del multiarranque</h3>
-                <p><strong>Total de búsquedas:</strong> ${totalRestarts}</p>
-                <p><strong>Óptimos locales únicos encontrados:</strong> ${uniqueOptima}</p>
-                <p><strong>Mejor óptimo encontrado:</strong> ${bestResult.value} en posición (${bestResult.col + 1}, ${10 - bestResult.row})</p>
-                <p><strong>Valor promedio de óptimos:</strong> ${avgValue}</p>
-            `;
-            statsBox.classList.add('show');
-            
-            showMessage(`✅ Multiarranque completado. Mejor valor encontrado: ${bestResult.value} (marcado en morado)`, 'success');
-            
-            startBtn.disabled = false;
-            resetBtn.disabled = false;
-            generateBtn.disabled = false;
-            isMultiRestartMode = false;
-        }
-        
-        // Start multi-restart animation
-        function startAnimation() {
-            const numRestarts = parseInt(numRestartsInput.value);
-            
-            if (numRestarts < 1 || numRestarts > 50) {
-                showMessage('Por favor, ingrese un número válido de multiarranques (1-50)', 'info');
-                return;
-            }
-            
-            startBtn.disabled = true;
-            generateBtn.disabled = true;
-            numRestartsInput.disabled = true;
-            statsBox.classList.remove('show');
-            
-            // Initialize multi-restart
-            isMultiRestartMode = true;
-            multiRestartResults = [];
-            currentRestart = 0;
-            totalRestarts = numRestarts;
-            
-            showMessage(`Iniciando multiarranque con ${numRestarts} búsquedas...`);
-            
-            // Start first restart
-            setTimeout(startNextRestart, 100);
-        }
-
-        // Reset the animation
-        function resetAnimation() {
-            clearInterval(intervalId);
-            intervalId = null;
-            currentRow = -1;
-            currentCol = -1;
-            isMultiRestartMode = false;
-            multiRestartResults = [];
-            currentRestart = 0;
-            totalRestarts = 0;
-            
-            // Clear all cell styles
-            document.querySelectorAll('.grid-cell').forEach(cell => {
-                cell.classList.remove('current', 'visited', 'neighbor', 'best-found', 'selectable');
-            });
-            
-            createGrid();
-            startBtn.disabled = false;
-            resetBtn.disabled = true;
-            generateBtn.disabled = false;
-            numRestartsInput.disabled = false;
-            statsBox.classList.remove('show');
-            showMessage('Cuadrícula lista. Configure el número de multiarranques y presione "Comenzar multiarranque".', 'info');
-        }
-
-        // Function to download the grid data as a text file
-        function downloadGridData() {
-            const dataString = gridData.map(row => row.join(', ')).join('\n');
-            const blob = new Blob([dataString], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'grid_data.txt';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            showMessage('Cuadrícula descargada como grid_data.txt', 'success');
-        }
-
-        // Event listeners
-        startBtn.addEventListener('click', startAnimation);
-        resetBtn.addEventListener('click', resetAnimation);
-        generateBtn.addEventListener('click', () => {
-            gridData = generateGridData().reverse();
-            resetAnimation();
-        });
-        downloadBtn.addEventListener('click', downloadGridData);
-        
-        // Initial setup
-        gridData = generateGridData().reverse();
-        createGrid();
-        showMessage('Cuadrícula lista. Configure el número de multiarranques y presione "Comenzar multiarranque".', 'info');
-    </script>
-
-    <script>
-        // --- LÓGICA DE PROTECCIÓN ---
-
-
-        // 1. Deshabilitar el clic derecho en toda la página
-        document.addEventListener('contextmenu', function(e) {
-            e.preventDefault();
-            showProtectionToast('El clic derecho está deshabilitado.');
-        });
-
-        // 2. Bloquear atajos de teclado comunes
-        document.addEventListener('keydown', function(e) {
-            // Bloquear F12 para dificultar el acceso a las herramientas de desarrollador
-            if (e.key === 'F12' || e.keyCode === 123) {
-                e.preventDefault();
-                showProtectionToast('Las herramientas de desarrollador están deshabilitadas.');
-            }
-
-            // Bloquear combinaciones con la tecla Ctrl
-            if (e.ctrlKey) {
-                const key = e.key.toLowerCase();
-                if (['c', 'x', 'u', 's', 'p'].includes(key)) {
-                    e.preventDefault();
-                    showProtectionToast(`La función (Ctrl+${key.toUpperCase()}) ha sido deshabilitada.`);
-                }
-            }
-        });
-    </script>
+    <!-- External JavaScript Files -->
+    <script src="BL_cuadricula_multiarranque.js"></script>
+    <script src="protection.js"></script>
 
 
 </body>

@@ -1,10 +1,24 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZLLCPFX9W7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-ZLLCPFX9W7');
+</script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GRASP - Greedy Randomized Adaptive Search Procedure</title>
+    <link rel="icon" type="image/x-icon" href="../../img/favicon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
         body {
@@ -13,18 +27,24 @@
             color: #1a202c;
             display: flex;
             flex-direction: column;
+            min-height: 100vh;
+        }
+        #main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
             padding: 2rem;
             text-align: center;
         }
         .container {
             background-color: white;
-            padding: 4rem 2rem 2rem 2rem;
+            padding: 2rem;
             border-radius: 1rem;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            max-width: 90%;
+            max-width: 95%;
+            margin: 2rem auto;
             position: relative;
         }
         .grid-container {
@@ -124,27 +144,46 @@
             background-color: #e2f3ff;
             color: #3182ce;
         }
-        .btn-back {
+        .top-nav {
             position: absolute;
             top: 1rem;
-            left: 1rem;
-            background-color: #4299e1;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.1s;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            right: 1rem;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 1rem;
             z-index: 10;
+        }
+        .btn-coffee {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: #fbbf24;
+            color: #1f2937;
+            font-weight: 700;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            transition: background-color 0.3s;
             text-decoration: none;
         }
-        .btn-back:hover {
-            background-color: #3182ce;
-            transform: translateY(-2px);
+        .btn-coffee:hover {
+            background-color: #f59e0b;
+        }
+        .btn-home {
+            background-color: white;
+            color: #475569;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            transition: background-color 0.3s;
+            text-decoration: none;
+        }
+        .btn-home:hover {
+            background-color: #f1f5f9;
         }
         .stats-container {
             margin-top: 1.5rem;
@@ -177,15 +216,28 @@
         }
     </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+<body>
 
-    <div class="container flex flex-col items-center">
-        <a href="busqueda-local.html" class="btn-back">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M19 12H5M12 19l-7-7 7-7"/>
-            </svg>
-            Regresar
-        </a>
+    <div id="main-content">
+        <div class="container flex flex-col items-center">
+            <div class="top-nav">
+                <a href="../../pasarela/buymeacoffee.html" 
+                   target="_blank" 
+                   rel="noopener noreferrer" 
+                   class="btn-coffee">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M1 12.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5M2 4v6h10V4zm11.5 0a.5.5 0 0 0-.5.5v5a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-5a.5.5 0 0 0-.5-.5zM1 3.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5m10.854-1.354a.5.5 0 0 0-.708 0L9 3.293 7.854 2.146a.5.5 0 1 0-.708.708L8.293 4 7.146 5.146a.5.5 0 1 0 .708.708L9 4.707l1.146 1.147a.5.5 0 0 0 .708-.708L9.707 4l1.147-1.146a.5.5 0 0 0 0-.708"/>
+                    </svg>
+                    <span>Invítame un café</span>
+                </a>
+
+                <a href="../busqueda-local.html" class="btn-home">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                    Inicio
+                </a>
+            </div>
         <h1 class="text-4xl font-extrabold text-gray-800 mb-2">GRASP</h1>
         <p class="text-gray-600 mb-4">
             GRASP (Greedy Randomized Adaptive Search Procedure) es una metaheurística que combina construcción greedy aleatorizada con búsqueda local. En cada iteración, construye una solución usando una Lista Restringida de Candidatos (RCL) y luego la mejora con búsqueda local. El proceso se repite múltiples veces, manteniendo la mejor solución encontrada.
@@ -252,310 +304,23 @@
         </div>
 
         <div id="message-box" class="message-box"></div>
+        </div>
     </div>
 
-    <script>
-        const gridContainer = document.getElementById('grid-container');
-        const startBtn = document.getElementById('start-btn');
-        const resetBtn = document.getElementById('reset-btn');
-        const generateBtn = document.getElementById('generate-btn');
-        const downloadBtn = document.getElementById('download-btn');
-        const messageBox = document.getElementById('message-box');
-        const iterationValue = document.getElementById('iteration-value');
-        const phaseValue = document.getElementById('phase-value');
-        const currentValueDisplay = document.getElementById('current-value');
-        const bestValueDisplay = document.getElementById('best-value');
-        const iterationsInput = document.getElementById('iterations-input');
-        const iterationsDisplay = document.getElementById('iterations-display');
-        const alphaInput = document.getElementById('alpha-input');
-        const alphaDisplay = document.getElementById('alpha-display');
+    <!-- Footer & Contact -->
+    <footer id="contact" class="bg-[#333333] text-white">
+        <div class="container2 mx-auto px-6 py-10">
+            <div class="text-center">
+                <p class="text-gray-300 mb-2">Si tienes alguna pregunta o te gustaría colaborar, no dudes en escribirme.</p>
+                <a href="../../contacto.html" class="text-[#80CBC4] text-lg hover:underline">Contacto</a>
+                <p class="text-gray-500 mt-8 text-sm">&copy; 2025 Jonás Velasco. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
 
-        let gridData = [];
-        let currentRow = -1;
-        let currentCol = -1;
-        let bestRow = -1;
-        let bestCol = -1;
-        let bestValue = Infinity;
-        let intervalId = null;
-        let iteration = 0;
-        let maxIterations = 10;
-        let alpha = 0.3;
-        let phase = 'idle';
-
-        function generateGridData() {
-            const data = [];
-            for (let i = 0; i < 10; i++) {
-                const row = [];
-                for (let j = 0; j < 10; j++) {
-                    row.push(Math.floor(Math.random() * 100) + 1);
-                }
-                data.push(row);
-            }
-            const numValleys = Math.floor(Math.random() * 3) + 2;
-            for (let v = 0; v < numValleys; v++) {
-                const centerRow = Math.floor(Math.random() * 10);
-                const centerCol = Math.floor(Math.random() * 10);
-                const valleySize = Math.floor(Math.random() * 2) + 1;
-                const baseValue = Math.floor(Math.random() * 30) + 1;
-                for (let i = Math.max(0, centerRow - valleySize); i <= Math.min(9, centerRow + valleySize); i++) {
-                    for (let j = Math.max(0, centerCol - valleySize); j <= Math.min(9, centerCol + valleySize); j++) {
-                        const distance = Math.abs(i - centerRow) + Math.abs(j - centerCol);
-                        if (distance <= valleySize) {
-                            const valleyValue = baseValue + distance * Math.floor(Math.random() * 5);
-                            if (valleyValue < data[i][j]) {
-                                data[i][j] = valleyValue;
-                            }
-                        }
-                    }
-                }
-            }
-            return data;
-        }
-
-        function createGrid() {
-            gridContainer.innerHTML = '';
-            for (let i = 0; i < 10; i++) {
-                for (let j = 0; j < 10; j++) {
-                    const cell = document.createElement('div');
-                    cell.className = 'grid-cell';
-                    cell.textContent = gridData[i][j];
-                    cell.dataset.row = i;
-                    cell.dataset.col = j;
-                    gridContainer.appendChild(cell);
-                }
-            }
-        }
-
-        function showMessage(text, type = 'info') {
-            messageBox.textContent = text;
-            messageBox.className = `message-box show ${type === 'success' ? 'message-success' : 'message-info'}`;
-        }
-
-        function getValue(row, col) {
-            if (row >= 0 && row < 10 && col >= 0 && col < 10) {
-                return gridData[row][col];
-            }
-            return Infinity;
-        }
-
-        function updateStats() {
-            iterationValue.textContent = iteration;
-            phaseValue.textContent = phase === 'construction' ? 'Construcción' : phase === 'local' ? 'Búsqueda Local' : '-';
-            currentValueDisplay.textContent = (currentRow >= 0 && currentCol >= 0) ? gridData[currentRow][currentCol] : '-';
-            bestValueDisplay.textContent = bestValue !== Infinity ? bestValue : '-';
-        }
-
-        function getNeighbors() {
-            const neighbors = [
-                { r: currentRow - 1, c: currentCol },
-                { r: currentRow + 1, c: currentCol },
-                { r: currentRow, c: currentCol - 1 },
-                { r: currentRow, c: currentCol + 1 },
-                { r: currentRow - 1, c: currentCol - 1 },
-                { r: currentRow - 1, c: currentCol + 1 },
-                { r: currentRow + 1, c: currentCol - 1 },
-                { r: currentRow + 1, c: currentCol + 1 }
-            ];
-            return neighbors.filter(n => n.r >= 0 && n.r < 10 && n.c >= 0 && n.c < 10);
-        }
-
-        function buildRCL() {
-            const neighbors = getNeighbors();
-            const values = neighbors.map(n => ({ ...n, value: getValue(n.r, n.c) }));
-            values.sort((a, b) => a.value - b.value);
-            const minValue = values[0].value;
-            const maxValue = values[values.length - 1].value;
-            const threshold = minValue + alpha * (maxValue - minValue);
-            return values.filter(v => v.value <= threshold);
-        }
-
-        async function graspConstruction() {
-            currentRow = Math.floor(Math.random() * 10);
-            currentCol = Math.floor(Math.random() * 10);
-            
-            const cell = document.querySelector(`[data-row='${currentRow}'][data-col='${currentCol}']`);
-            cell.classList.add('construction');
-            
-            await new Promise(resolve => setTimeout(resolve, 500));
-            return { row: currentRow, col: currentCol };
-        }
-
-        async function localSearch() {
-            let improved = true;
-            while (improved) {
-                improved = false;
-                const neighbors = getNeighbors();
-                
-                neighbors.forEach(n => {
-                    const cell = document.querySelector(`[data-row='${n.r}'][data-col='${n.c}']`);
-                    cell.classList.add('rcl');
-                });
-                
-                await new Promise(resolve => setTimeout(resolve, 400));
-                
-                let bestNeighbor = null;
-                let bestNeighborValue = gridData[currentRow][currentCol];
-                
-                for (const neighbor of neighbors) {
-                    const value = getValue(neighbor.r, neighbor.c);
-                    if (value < bestNeighborValue) {
-                        bestNeighbor = neighbor;
-                        bestNeighborValue = value;
-                    }
-                }
-                
-                document.querySelectorAll('.rcl').forEach(cell => cell.classList.remove('rcl'));
-                
-                if (bestNeighbor) {
-                    const currentCell = document.querySelector(`[data-row='${currentRow}'][data-col='${currentCol}']`);
-                    currentCell.classList.remove('construction');
-                    currentCell.classList.add('visited');
-                    
-                    currentRow = bestNeighbor.r;
-                    currentCol = bestNeighbor.c;
-                    
-                    const newCell = document.querySelector(`[data-row='${currentRow}'][data-col='${currentCol}']`);
-                    newCell.classList.add('construction');
-                    
-                    improved = true;
-                    updateStats();
-                    await new Promise(resolve => setTimeout(resolve, 400));
-                }
-            }
-        }
-
-        async function graspIteration() {
-            document.querySelectorAll('.grid-cell').forEach(cell => {
-                cell.classList.remove('construction', 'visited', 'rcl');
-            });
-            
-            phase = 'construction';
-            updateStats();
-            showMessage(`Iteración ${iteration + 1}/${maxIterations}: Fase de construcción`, 'info');
-            await graspConstruction();
-            
-            phase = 'local';
-            updateStats();
-            showMessage(`Iteración ${iteration + 1}/${maxIterations}: Búsqueda local`, 'info');
-            await localSearch();
-            
-            const currentValue = gridData[currentRow][currentCol];
-            if (currentValue < bestValue) {
-                document.querySelectorAll('.best').forEach(cell => cell.classList.remove('best'));
-                bestValue = currentValue;
-                bestRow = currentRow;
-                bestCol = currentCol;
-                const bestCell = document.querySelector(`[data-row='${bestRow}'][data-col='${bestCol}']`);
-                bestCell.classList.add('best');
-                showMessage(`¡Nueva mejor solución! Valor: ${bestValue} en (${bestCol + 1}, ${10 - bestRow})`, 'success');
-            }
-            
-            iteration++;
-            updateStats();
-            
-            if (iteration < maxIterations) {
-                setTimeout(graspIteration, 1000);
-            } else {
-                finishGRASP();
-            }
-        }
-
-        function finishGRASP() {
-            phase = 'idle';
-            updateStats();
-            showMessage(`GRASP completado. Mejor solución: ${bestValue} en (${bestCol + 1}, ${10 - bestRow})`, 'success');
-            startBtn.disabled = false;
-            resetBtn.disabled = false;
-            generateBtn.disabled = false;
-            iterationsInput.disabled = false;
-            alphaInput.disabled = false;
-        }
-
-        function startGRASP() {
-            iteration = 0;
-            bestValue = Infinity;
-            startBtn.disabled = true;
-            resetBtn.disabled = true;
-            generateBtn.disabled = true;
-            iterationsInput.disabled = true;
-            alphaInput.disabled = true;
-            updateStats();
-            graspIteration();
-        }
-
-        function resetAnimation() {
-            iteration = 0;
-            currentRow = -1;
-            currentCol = -1;
-            bestRow = -1;
-            bestCol = -1;
-            bestValue = Infinity;
-            phase = 'idle';
-            updateStats();
-            createGrid();
-            startBtn.disabled = false;
-            resetBtn.disabled = true;
-            generateBtn.disabled = false;
-            iterationsInput.disabled = false;
-            alphaInput.disabled = false;
-            showMessage('Presione "Comenzar GRASP" para iniciar.', 'info');
-        }
-
-        function downloadGridData() {
-            const dataString = gridData.map(row => row.join(', ')).join('\n');
-            const blob = new Blob([dataString], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'grid_data_grasp.txt';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            showMessage('Cuadrícula descargada como grid_data_grasp.txt', 'success');
-        }
-
-        startBtn.addEventListener('click', startGRASP);
-        resetBtn.addEventListener('click', resetAnimation);
-        generateBtn.addEventListener('click', () => {
-            gridData = generateGridData().reverse();
-            resetAnimation();
-        });
-        downloadBtn.addEventListener('click', downloadGridData);
-        
-        iterationsInput.addEventListener('input', (e) => {
-            maxIterations = parseInt(e.target.value);
-            iterationsDisplay.textContent = maxIterations;
-        });
-        
-        alphaInput.addEventListener('input', (e) => {
-            alpha = parseInt(e.target.value) / 100;
-            alphaDisplay.textContent = alpha.toFixed(2);
-        });
-        
-        gridData = generateGridData().reverse();
-        createGrid();
-        updateStats();
-        showMessage('Presione "Comenzar GRASP" para iniciar.', 'info');
-    </script>
-
-    <script>
-        document.addEventListener('contextmenu', function(e) {
-            e.preventDefault();
-        });
-
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'F12' || e.keyCode === 123) {
-                e.preventDefault();
-            }
-            if (e.ctrlKey) {
-                const key = e.key.toLowerCase();
-                if (['c', 'x', 'u', 's', 'p'].includes(key)) {
-                    e.preventDefault();
-                }
-            }
-        });
-    </script>
+    <!-- External JavaScript Files -->
+    <script src="BL_cuadricula_grasp.js"></script>
+    <script src="protection.js"></script>
 
 </body>
 </html>

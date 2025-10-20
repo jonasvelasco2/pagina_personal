@@ -1,11 +1,25 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZLLCPFX9W7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-ZLLCPFX9W7');
+</script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Algoritmo Genético</title>
+    <link rel="icon" type="image/x-icon" href="../../img/favicon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -13,18 +27,24 @@
             color: #1a202c;
             display: flex;
             flex-direction: column;
+            min-height: 100vh;
+        }
+        #main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
             padding: 2rem;
             text-align: center;
         }
         .container {
             background-color: white;
-            padding: 4rem 2rem 2rem 2rem;
+            padding: 2rem;
             border-radius: 1rem;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            max-width: 90%;
+            max-width: 95%;
+            margin: 2rem auto;
             position: relative;
         }
         .grid-container {
@@ -153,27 +173,46 @@
             background-color: #fef5e7;
             color: #d97706;
         }
-        .btn-back {
+        .top-nav {
             position: absolute;
             top: 1rem;
-            left: 1rem;
-            background-color: #4299e1;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.1s;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            right: 1rem;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 1rem;
             z-index: 10;
+        }
+        .btn-coffee {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: #fbbf24;
+            color: #1f2937;
+            font-weight: 700;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            transition: background-color 0.3s;
             text-decoration: none;
         }
-        .btn-back:hover {
-            background-color: #3182ce;
-            transform: translateY(-2px);
+        .btn-coffee:hover {
+            background-color: #f59e0b;
+        }
+        .btn-home {
+            background-color: white;
+            color: #475569;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            transition: background-color 0.3s;
+            text-decoration: none;
+        }
+        .btn-home:hover {
+            background-color: #f1f5f9;
         }
         .stats-container {
             margin-top: 1.5rem;
@@ -233,15 +272,28 @@
         }
     </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+<body>
 
-    <div class="container flex flex-col items-center">
-        <a href="busqueda-local.html" class="btn-back">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M19 12H5M12 19l-7-7 7-7"/>
-            </svg>
-            Regresar
-        </a>
+    <div id="main-content">
+        <div class="container flex flex-col items-center">
+            <div class="top-nav">
+                <a href="../../pasarela/buymeacoffee.html" 
+                   target="_blank" 
+                   rel="noopener noreferrer" 
+                   class="btn-coffee">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M1 12.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5M2 4v6h10V4zm11.5 0a.5.5 0 0 0-.5.5v5a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-5a.5.5 0 0 0-.5-.5zM1 3.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5m10.854-1.354a.5.5 0 0 0-.708 0L9 3.293 7.854 2.146a.5.5 0 1 0-.708.708L8.293 4 7.146 5.146a.5.5 0 1 0 .708.708L9 4.707l1.146 1.147a.5.5 0 0 0 .708-.708L9.707 4l1.147-1.146a.5.5 0 0 0 0-.708"/>
+                    </svg>
+                    <span>Invítame un café</span>
+                </a>
+
+                <a href="../busqueda-local.html" class="btn-home">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                    Inicio
+                </a>
+            </div>
         <h1 class="text-4xl font-extrabold text-gray-800 mb-2">Algoritmo Genético</h1>
         <p class="text-gray-600 mb-4">
             Los Algoritmos Genéticos son metaheurísticas inspiradas en la evolución biológica. Mantienen una población de soluciones que evoluciona mediante selección, cruce (crossover) y mutación. Los individuos más aptos tienen mayor probabilidad de reproducirse, transmitiendo sus características a la siguiente generación.
@@ -332,404 +384,23 @@
         </div>
 
         <div id="message-box" class="message-box"></div>
+        </div>
     </div>
 
-    <script>
-        const gridContainer = document.getElementById('grid-container');
-        const startBtn = document.getElementById('start-btn');
-        const resetBtn = document.getElementById('reset-btn');
-        const generateBtn = document.getElementById('generate-btn');
-        const downloadBtn = document.getElementById('download-btn');
-        const messageBox = document.getElementById('message-box');
-        const generationValue = document.getElementById('generation-value');
-        const phaseValue = document.getElementById('phase-value');
-        const bestFitnessDisplay = document.getElementById('best-fitness');
-        const avgFitnessDisplay = document.getElementById('avg-fitness');
-        const diversityDisplay = document.getElementById('diversity-value');
-        const phaseIndicator = document.getElementById('phase-indicator');
-        const populationList = document.getElementById('population-list');
-        const populationInput = document.getElementById('population-input');
-        const populationDisplayValue = document.getElementById('population-display-value');
-        const mutationInput = document.getElementById('mutation-input');
-        const mutationDisplay = document.getElementById('mutation-display');
-        const generationsInput = document.getElementById('generations-input');
-        const generationsDisplay = document.getElementById('generations-display');
+    <!-- Footer & Contact -->
+    <footer id="contact" class="bg-[#333333] text-white">
+        <div class="container2 mx-auto px-6 py-10">
+            <div class="text-center">
+                <p class="text-gray-300 mb-2">Si tienes alguna pregunta o te gustaría colaborar, no dudes en escribirme.</p>
+                <a href="../../contacto.html" class="text-[#80CBC4] text-lg hover:underline">Contacto</a>
+                <p class="text-gray-500 mt-8 text-sm">&copy; 2025 Jonás Velasco. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
 
-        let gridData = [];
-        let population = [];
-        let generation = 0;
-        let maxGenerations = 10;
-        let populationSize = 10;
-        let mutationRate = 0.1;
-        let bestIndividual = null;
-        let bestFitness = Infinity;
-        let phase = 'idle';
-        let isRunning = false;
-
-        function generateGridData() {
-            const data = [];
-            for (let i = 0; i < 10; i++) {
-                const row = [];
-                for (let j = 0; j < 10; j++) {
-                    row.push(Math.floor(Math.random() * 100) + 1);
-                }
-                data.push(row);
-            }
-            const numValleys = Math.floor(Math.random() * 3) + 2;
-            for (let v = 0; v < numValleys; v++) {
-                const centerRow = Math.floor(Math.random() * 10);
-                const centerCol = Math.floor(Math.random() * 10);
-                const valleySize = Math.floor(Math.random() * 2) + 1;
-                const baseValue = Math.floor(Math.random() * 30) + 1;
-                for (let i = Math.max(0, centerRow - valleySize); i <= Math.min(9, centerRow + valleySize); i++) {
-                    for (let j = Math.max(0, centerCol - valleySize); j <= Math.min(9, centerCol + valleySize); j++) {
-                        const distance = Math.abs(i - centerRow) + Math.abs(j - centerCol);
-                        if (distance <= valleySize) {
-                            const valleyValue = baseValue + distance * Math.floor(Math.random() * 5);
-                            if (valleyValue < data[i][j]) {
-                                data[i][j] = valleyValue;
-                            }
-                        }
-                    }
-                }
-            }
-            return data;
-        }
-
-        function createGrid() {
-            gridContainer.innerHTML = '';
-            for (let i = 0; i < 10; i++) {
-                for (let j = 0; j < 10; j++) {
-                    const cell = document.createElement('div');
-                    cell.className = 'grid-cell';
-                    cell.textContent = gridData[i][j];
-                    cell.dataset.row = i;
-                    cell.dataset.col = j;
-                    gridContainer.appendChild(cell);
-                }
-            }
-        }
-
-        function showMessage(text, type = 'info') {
-            messageBox.textContent = text;
-            const typeClass = type === 'success' ? 'message-success' : type === 'warning' ? 'message-warning' : 'message-info';
-            messageBox.className = `message-box show ${typeClass}`;
-        }
-
-        function fitness(individual) {
-            return gridData[individual.row][individual.col];
-        }
-
-        function initializePopulation() {
-            population = [];
-            for (let i = 0; i < populationSize; i++) {
-                const individual = {
-                    row: Math.floor(Math.random() * 10),
-                    col: Math.floor(Math.random() * 10)
-                };
-                individual.fitness = fitness(individual);
-                population.push(individual);
-            }
-            population.sort((a, b) => a.fitness - b.fitness);
-            bestIndividual = {...population[0]};
-            bestFitness = bestIndividual.fitness;
-        }
-
-        function updateStats() {
-            generationValue.textContent = generation;
-            phaseValue.textContent = phase === 'selection' ? 'Selección' : 
-                                     phase === 'crossover' ? 'Cruce' : 
-                                     phase === 'mutation' ? 'Mutación' : 
-                                     phase === 'evaluation' ? 'Evaluación' : '-';
-            bestFitnessDisplay.textContent = bestFitness !== Infinity ? bestFitness : '-';
-            
-            if (population.length > 0) {
-                const avgFit = population.reduce((sum, ind) => sum + ind.fitness, 0) / population.length;
-                avgFitnessDisplay.textContent = avgFit.toFixed(1);
-                
-                const uniquePositions = new Set(population.map(ind => `${ind.row},${ind.col}`));
-                diversityDisplay.textContent = uniquePositions.size;
-            }
-            
-            let phaseText = 'Fase actual: ';
-            if (phase === 'selection') phaseText += 'Selección por Torneo';
-            else if (phase === 'crossover') phaseText += 'Cruce (Crossover)';
-            else if (phase === 'mutation') phaseText += 'Mutación';
-            else if (phase === 'evaluation') phaseText += 'Evaluación de Fitness';
-            else phaseText += 'Inicialización';
-            phaseIndicator.textContent = phaseText;
-            
-            populationList.innerHTML = population.map((ind, idx) => 
-                `<span class="individual" style="${idx === 0 ? 'border-color: #9f7aea; border-width: 2px;' : ''}">
-                    (${ind.col + 1},${10 - ind.row}): ${ind.fitness}
-                </span>`
-            ).join('');
-        }
-
-        function visualizePopulation() {
-            document.querySelectorAll('.grid-cell').forEach(cell => {
-                cell.classList.remove('population', 'elite', 'parent', 'offspring', 'mutation', 'best');
-            });
-            
-            population.forEach((ind, idx) => {
-                const cell = document.querySelector(`[data-row='${ind.row}'][data-col='${ind.col}']`);
-                if (cell) {
-                    if (idx === 0) {
-                        cell.classList.add('elite');
-                    } else {
-                        cell.classList.add('population');
-                    }
-                }
-            });
-            
-            if (bestIndividual) {
-                const bestCell = document.querySelector(`[data-row='${bestIndividual.row}'][data-col='${bestIndividual.col}']`);
-                if (bestCell) bestCell.classList.add('best');
-            }
-        }
-
-        function tournamentSelection() {
-            const tournamentSize = 3;
-            let best = null;
-            for (let i = 0; i < tournamentSize; i++) {
-                const candidate = population[Math.floor(Math.random() * population.length)];
-                if (!best || candidate.fitness < best.fitness) {
-                    best = candidate;
-                }
-            }
-            return {...best};
-        }
-
-        function crossover(parent1, parent2) {
-            if (Math.random() < 0.7) {
-                const offspring = {
-                    row: Math.random() < 0.5 ? parent1.row : parent2.row,
-                    col: Math.random() < 0.5 ? parent1.col : parent2.col
-                };
-                return offspring;
-            }
-            return Math.random() < 0.5 ? {...parent1} : {...parent2};
-        }
-
-        function mutate(individual) {
-            if (Math.random() < mutationRate) {
-                if (Math.random() < 0.5) {
-                    individual.row = Math.max(0, Math.min(9, individual.row + (Math.random() < 0.5 ? -1 : 1)));
-                } else {
-                    individual.col = Math.max(0, Math.min(9, individual.col + (Math.random() < 0.5 ? -1 : 1)));
-                }
-                return true;
-            }
-            return false;
-        }
-
-        async function evolveGeneration() {
-            if (generation >= maxGenerations) {
-                finishGA();
-                return;
-            }
-            
-            generation++;
-            
-            phase = 'selection';
-            updateStats();
-            showMessage(`Generación ${generation}/${maxGenerations}: Selección por torneo...`, 'info');
-            await new Promise(resolve => setTimeout(resolve, 800));
-            
-            const newPopulation = [];
-            
-            const eliteCount = Math.max(1, Math.floor(populationSize * 0.1));
-            for (let i = 0; i < eliteCount; i++) {
-                newPopulation.push({...population[i]});
-            }
-            
-            phase = 'crossover';
-            updateStats();
-            showMessage(`Generación ${generation}: Cruce de individuos...`, 'info');
-            
-            while (newPopulation.length < populationSize) {
-                const parent1 = tournamentSelection();
-                const parent2 = tournamentSelection();
-                
-                const cell1 = document.querySelector(`[data-row='${parent1.row}'][data-col='${parent1.col}']`);
-                const cell2 = document.querySelector(`[data-row='${parent2.row}'][data-col='${parent2.col}']`);
-                if (cell1) cell1.classList.add('parent');
-                if (cell2) cell2.classList.add('parent');
-                
-                await new Promise(resolve => setTimeout(resolve, 300));
-                
-                const offspring = crossover(parent1, parent2);
-                
-                const offspringCell = document.querySelector(`[data-row='${offspring.row}'][data-col='${offspring.col}']`);
-                if (offspringCell) offspringCell.classList.add('offspring');
-                
-                await new Promise(resolve => setTimeout(resolve, 300));
-                
-                if (cell1) cell1.classList.remove('parent');
-                if (cell2) cell2.classList.remove('parent');
-                if (offspringCell) offspringCell.classList.remove('offspring');
-                
-                newPopulation.push(offspring);
-            }
-            
-            phase = 'mutation';
-            updateStats();
-            showMessage(`Generación ${generation}: Aplicando mutaciones...`, 'warning');
-            
-            for (let i = eliteCount; i < newPopulation.length; i++) {
-                const mutated = mutate(newPopulation[i]);
-                
-                if (mutated) {
-                    const cell = document.querySelector(`[data-row='${newPopulation[i].row}'][data-col='${newPopulation[i].col}']`);
-                    if (cell) {
-                        cell.classList.add('mutation');
-                        await new Promise(resolve => setTimeout(resolve, 200));
-                        cell.classList.remove('mutation');
-                    }
-                }
-            }
-            
-            phase = 'evaluation';
-            updateStats();
-            showMessage(`Generación ${generation}: Evaluando fitness...`, 'info');
-            
-            population = newPopulation;
-            population.forEach(ind => {
-                ind.fitness = fitness(ind);
-            });
-            population.sort((a, b) => a.fitness - b.fitness);
-            
-            if (population[0].fitness < bestFitness) {
-                bestFitness = population[0].fitness;
-                bestIndividual = {...population[0]};
-                showMessage(`¡Nueva mejor solución! Fitness: ${bestFitness} en (${bestIndividual.col + 1}, ${10 - bestIndividual.row})`, 'success');
-            }
-            
-            visualizePopulation();
-            updateStats();
-            
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            
-            setTimeout(evolveGeneration, 500);
-        }
-
-        function finishGA() {
-            isRunning = false;
-            phase = 'idle';
-            updateStats();
-            visualizePopulation();
-            
-            showMessage(`Algoritmo Genético completado. Mejor solución: ${bestFitness} en (${bestIndividual.col + 1}, ${10 - bestIndividual.row})`, 'success');
-            startBtn.disabled = false;
-            resetBtn.disabled = false;
-            generateBtn.disabled = false;
-            populationInput.disabled = false;
-            mutationInput.disabled = false;
-            generationsInput.disabled = false;
-        }
-
-        function startGA() {
-            isRunning = true;
-            startBtn.disabled = true;
-            resetBtn.disabled = true;
-            generateBtn.disabled = true;
-            populationInput.disabled = true;
-            mutationInput.disabled = true;
-            generationsInput.disabled = true;
-            
-            generation = 0;
-            bestFitness = Infinity;
-            
-            phase = 'evaluation';
-            showMessage('Inicializando población...', 'info');
-            initializePopulation();
-            visualizePopulation();
-            updateStats();
-            
-            setTimeout(() => {
-                showMessage('Población inicial creada. Comenzando evolución...', 'success');
-                setTimeout(evolveGeneration, 1000);
-            }, 1000);
-        }
-
-        function resetAnimation() {
-            isRunning = false;
-            generation = 0;
-            population = [];
-            bestIndividual = null;
-            bestFitness = Infinity;
-            phase = 'idle';
-            updateStats();
-            createGrid();
-            startBtn.disabled = false;
-            resetBtn.disabled = true;
-            generateBtn.disabled = false;
-            populationInput.disabled = false;
-            mutationInput.disabled = false;
-            generationsInput.disabled = false;
-            showMessage('Presione "Comenzar AG" para iniciar el algoritmo genético.', 'info');
-        }
-
-        function downloadGridData() {
-            const dataString = gridData.map(row => row.join(', ')).join('\n');
-            const blob = new Blob([dataString], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'grid_data_genetico.txt';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            showMessage('Cuadrícula descargada como grid_data_genetico.txt', 'success');
-        }
-
-        startBtn.addEventListener('click', startGA);
-        resetBtn.addEventListener('click', resetAnimation);
-        generateBtn.addEventListener('click', () => {
-            gridData = generateGridData().reverse();
-            resetAnimation();
-        });
-        downloadBtn.addEventListener('click', downloadGridData);
-        
-        populationInput.addEventListener('input', (e) => {
-            populationSize = parseInt(e.target.value);
-            populationDisplayValue.textContent = populationSize;
-        });
-        
-        mutationInput.addEventListener('input', (e) => {
-            mutationRate = parseInt(e.target.value) / 100;
-            mutationDisplay.textContent = `${e.target.value}%`;
-        });
-        
-        generationsInput.addEventListener('input', (e) => {
-            maxGenerations = parseInt(e.target.value);
-            generationsDisplay.textContent = maxGenerations;
-        });
-        
-        gridData = generateGridData().reverse();
-        createGrid();
-        updateStats();
-        showMessage('Presione "Comenzar AG" para iniciar el algoritmo genético.', 'info');
-    </script>
-
-    <script>
-        document.addEventListener('contextmenu', function(e) {
-            e.preventDefault();
-        });
-
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'F12' || e.keyCode === 123) {
-                e.preventDefault();
-            }
-            if (e.ctrlKey) {
-                const key = e.key.toLowerCase();
-                if (['c', 'x', 'u', 's', 'p'].includes(key)) {
-                    e.preventDefault();
-                }
-            }
-        });
-    </script>
+    <!-- External JavaScript Files -->
+    <script src="BL_cuadricula_genetico.js"></script>
+    <script src="protection.js"></script>
 
 </body>
 </html>
