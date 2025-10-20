@@ -11,6 +11,8 @@ const tabuSizeDisplay = document.getElementById('tabu-size');
 const tabuListDisplay = document.getElementById('tabu-list-display');
 const tabuTenureInput = document.getElementById('tabu-tenure-input');
 const tabuTenureDisplay = document.getElementById('tabu-tenure-display');
+const iterationsInput = document.getElementById('iterations-input');
+const iterationsDisplay = document.getElementById('iterations-display');
 
 let gridData = [];
 let currentRow = -1;
@@ -20,7 +22,7 @@ let bestCol = -1;
 let bestValue = Infinity;
 let intervalId = null;
 let iteration = 0;
-const maxIterations = 50;
+let maxIterations = 50;
 let tabuTenure = 7; // Tamaño de la lista tabú (ahora variable)
 let tabuList = []; // Lista de movimientos tabú: [{row, col, tenure}, ...]
 
@@ -237,7 +239,7 @@ function tabuSearchStep() {
         startBtn.disabled = true;
         resetBtn.disabled = false;
         generateBtn.disabled = false;
-        tabuTenureInput.disabled = false;
+        enableInputs();
         return;
     }
 
@@ -342,7 +344,7 @@ function tabuSearchStep() {
 function startAnimation() {
     startBtn.disabled = true;
     generateBtn.disabled = true;
-    tabuTenureInput.disabled = true;
+    disableInputs();
     document.querySelectorAll('.selectable').forEach(cell => {
         cell.classList.remove('selectable');
         cell.removeEventListener('click', handleCellClick);
@@ -368,7 +370,7 @@ function resetAnimation() {
     startBtn.disabled = true;
     resetBtn.disabled = true;
     generateBtn.disabled = false;
-    tabuTenureInput.disabled = false;
+    enableInputs();
     showMessage('Seleccione un punto de inicio en la cuadrícula.', 'info');
 }
 
@@ -406,6 +408,23 @@ tabuTenureInput.addEventListener('input', (e) => {
         updateStats();
     }
 });
+
+// Iterations input listener
+iterationsInput.addEventListener('input', (e) => {
+    maxIterations = parseInt(e.target.value);
+    iterationsDisplay.textContent = maxIterations;
+});
+
+// Disable inputs during animation
+function disableInputs() {
+    tabuTenureInput.disabled = true;
+    iterationsInput.disabled = true;
+}
+
+function enableInputs() {
+    tabuTenureInput.disabled = false;
+    iterationsInput.disabled = false;
+}
 
 // Initial setup
 gridData = generateGridData().reverse();

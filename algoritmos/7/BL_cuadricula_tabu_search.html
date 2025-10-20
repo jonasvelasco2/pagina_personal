@@ -325,24 +325,44 @@
             </div>
         </div>
 
-        <!-- Tabu Tenure Control -->
-        <div class="mt-6 max-w-md mx-auto">
-            <div class="bg-white p-4 rounded-lg border border-gray-200">
-                <label for="tabu-tenure-input" class="block text-sm font-semibold text-gray-700 mb-2">
-                    Tamaño de la lista tabú (tenure):
-                </label>
-                <div class="flex items-center gap-4">
-                    <input 
-                        type="range" 
-                        id="tabu-tenure-input" 
-                        min="3" 
-                        max="15" 
-                        value="7" 
-                        class="flex-grow h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                    >
-                    <span id="tabu-tenure-display" class="text-lg font-bold text-[#004D40] min-w-[3rem] text-center">7</span>
+        <!-- Tabu Tenure and Iterations Controls -->
+        <div class="mt-6 max-w-4xl mx-auto">
+            <div class="grid md:grid-cols-2 gap-4">
+                <div class="bg-white p-4 rounded-lg border border-gray-200">
+                    <label for="tabu-tenure-input" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Tamaño de la lista tabú (tenure):
+                    </label>
+                    <div class="flex items-center gap-4">
+                        <input 
+                            type="range" 
+                            id="tabu-tenure-input" 
+                            min="3" 
+                            max="15" 
+                            value="7" 
+                            class="flex-grow h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                        >
+                        <span id="tabu-tenure-display" class="text-lg font-bold text-[#004D40] min-w-[3rem] text-center">7</span>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2">Movimientos recientes prohibidos (3-15)</p>
                 </div>
-                <p class="text-xs text-gray-500 mt-2">Ajusta cuántos movimientos recientes permanecen prohibidos (3-15)</p>
+
+                <div class="bg-white p-4 rounded-lg border border-gray-200">
+                    <label for="iterations-input" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Número máximo de iteraciones:
+                    </label>
+                    <div class="flex items-center gap-4">
+                        <input 
+                            type="range" 
+                            id="iterations-input" 
+                            min="20" 
+                            max="200" 
+                            value="50" 
+                            class="flex-grow h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                        >
+                        <span id="iterations-display" class="text-lg font-bold text-[#004D40] min-w-[4rem] text-center">50</span>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2">Define cuántas iteraciones (20-200)</p>
+                </div>
             </div>
         </div>
 
