@@ -8,6 +8,10 @@ const temperatureValue = document.getElementById('temperature-value');
 const iterationValue = document.getElementById('iteration-value');
 const currentValueDisplay = document.getElementById('current-value');
 const bestValueDisplay = document.getElementById('best-value');
+const temperatureInput = document.getElementById('temperature-input');
+const temperatureDisplay = document.getElementById('temperature-display');
+const iterationsInput = document.getElementById('iterations-input');
+const iterationsDisplay = document.getElementById('iterations-display');
 
 let gridData = [];
 let currentRow = -1;
@@ -17,8 +21,9 @@ let bestCol = -1;
 let bestValue = Infinity;
 let intervalId = null;
 let temperature = 100.0;
+let initialTemperature = 100.0;
 let iteration = 0;
-const maxIterations = 100;
+let maxIterations = 100;
 const coolingRate = 0.95;
 const minTemperature = 0.1;
 
@@ -119,7 +124,7 @@ function handleCellClick(event) {
     event.target.classList.add('current');
     
     // Reset stats
-    temperature = 100.0;
+    temperature = initialTemperature;
     iteration = 0;
     updateStats();
     
@@ -199,6 +204,7 @@ function simulatedAnnealingStep() {
         startBtn.disabled = true;
         resetBtn.disabled = false;
         generateBtn.disabled = false;
+        enableInputs();
         return;
     }
 
@@ -273,6 +279,7 @@ function animateStep() {
 function startAnimation() {
     startBtn.disabled = true;
     generateBtn.disabled = true;
+    disableInputs();
     document.querySelectorAll('.selectable').forEach(cell => {
         cell.classList.remove('selectable');
         cell.removeEventListener('click', handleCellClick);
@@ -290,13 +297,14 @@ function resetAnimation() {
     bestRow = -1;
     bestCol = -1;
     bestValue = Infinity;
-    temperature = 100.0;
+    temperature = initialTemperature;
     iteration = 0;
     updateStats();
     createGrid(); // Re-create grid with click listeners
     startBtn.disabled = true;
     resetBtn.disabled = true;
     generateBtn.disabled = false;
+    enableInputs();
     showMessage('Seleccione un punto de inicio en la cuadrícula.', 'info');
 }
 
@@ -323,6 +331,31 @@ generateBtn.addEventListener('click', () => {
     resetAnimation();
 });
 downloadBtn.addEventListener('click', downloadGridData);
+
+// Temperature input listener
+temperatureInput.addEventListener('input', (e) => {
+    initialTemperature = parseFloat(e.target.value);
+    temperatureDisplay.textContent = initialTemperature;
+    temperature = initialTemperature;
+    updateStats();
+});
+
+// Iterations input listener
+iterationsInput.addEventListener('input', (e) => {
+    maxIterations = parseInt(e.target.value);
+    iterationsDisplay.textContent = maxIterations;
+});
+
+// Disable inputs during animation
+function disableInputs() {
+    temperatureInput.disabled = true;
+    iterationsInput.disabled = true;
+}
+
+function enableInputs() {
+    temperatureInput.disabled = false;
+    iterationsInput.disabled = false;
+}
 
 // Initial setup
 gridData = generateGridData().reverse();
