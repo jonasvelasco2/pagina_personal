@@ -14,7 +14,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Docencia - Dr. Jonás Velasco</title>
+    <title>Algoritmos Greedy - Dr. Jonás Velasco</title>
     <link rel="icon" type="image/x-icon" href="../img/favicon.ico">
 
     <!-- Tailwind CSS -->
@@ -82,7 +82,7 @@
                                 </div>
                             </a>
                             <hr class="my-1 border-gray-200">
-                            <a href="docencia.html" class="block px-4 py-2 text-sm text-[#00796B] bg-gray-100 hover:bg-gray-100 hover:text-[#00796B] transition-colors font-semibold">
+                            <a href="docencia.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-[#00796B] transition-colors">
                                 <div class="flex items-center">
                                     <svg class="w-4 h-4 mr-3 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
@@ -152,73 +152,142 @@
                 <li><span class="mx-2">/</span></li>
                 <li><a href="../recursos.html" class="hover:text-[#00796B]">Recursos</a></li>
                 <li><span class="mx-2">/</span></li>
-                <li class="text-[#00796B] font-semibold">Docencia</li>
+                <li class="text-[#00796B] font-semibold">Algoritmos Greedy</li>
             </ol>
         </nav>
 
         <!-- Page Header -->
         <section class="text-center mb-12 fade-in-section">
-            <div class="bg-blue-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg class="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+            <div class="bg-green-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg class="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                 </svg>
             </div>
-            <h1 class="text-4xl font-bold text-[#004D40] mb-4">Docencia</h1>
-            <p class="text-xl text-gray-600 max-w-3xl mx-auto">Materiales de cursos, talleres, notas y recursos educativos para estudiantes</p>
+            <h1 class="text-4xl font-bold text-[#004D40] mb-4">Algoritmos Greedy (Voraces)</h1>
+            <p class="text-xl text-gray-600 max-w-3xl mx-auto">Visualizaciones interactivas de algoritmos que toman decisiones localmente óptimas</p>
         </section>
 
         <!-- Content Section -->
         <section class="my-12 fade-in-section">
-            <div class="bg-white p-8 rounded-lg shadow-md max-w-4xl mx-auto">
-                <h2 class="text-2xl font-bold text-[#004D40] mb-6">Materiales exclusivos para eventos académicos</h2>
-                <p class="text-gray-700 mb-6">Aquí encontrarás materiales educativos, notas de clase y recursos para el aprendizaje.</p>
+            <div class="bg-white p-8 rounded-lg shadow-md max-w-6xl mx-auto">
+                <h2 class="text-2xl font-bold text-[#004D40] mb-6">Recursos interactivos de algoritmos greedy</h2>
+                <p class="text-gray-700 mb-8">Explora y comprende cómo funcionan los algoritmos voraces a través de visualizaciones interactivas. Los algoritmos greedy toman decisiones óptimas localmente con la esperanza de encontrar una solución globalmente óptima.</p>
                 
-                <div class="grid md:grid-cols-2 gap-6">
-                    <!-- Placeholder para contenido futuro -->
-                    <div class="bg-gray-50 p-6 rounded-lg border border-gray-200 flex flex-col">
-                        <h3 class="text-lg font-semibold text-[#004D40] mb-3">Notas sobre algoritmos</h3>
-                        <p class="text-gray-600 mb-4">Material de apoyo para las talleres.</p>
-                        <ul class="space-y-2 text-sm text-gray-600 mb-4 flex-grow">
-                            <li>• Optimización y metaheurísticas</li>
-                        </ul>
-                        <div class="flex justify-end mt-4">
-                            <a href="../algoritmos/algoritmos-greedy.html" class="inline-block bg-[#00796B] text-white px-4 py-2 rounded-lg hover:bg-[#004D40] transition-colors duration-300 text-sm">
-                                Acceder
+                <!-- Subscription Button -->
+                <div class="bg-gradient-to-r from-teal-50 to-cyan-50 p-6 rounded-xl border border-teal-200 mb-8">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="bg-teal-500 w-12 h-12 rounded-lg flex items-center justify-center mr-4">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM4 19h6v-2H4v2zM4 15h8v-2H4v2zM4 11h10V9H4v2zM4 7h12V5H4v2z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-semibold text-[#004D40] mb-1">¡Mantente actualizado!</h4>
+                                <p class="text-gray-600 text-sm">Recibe notificaciones sobre nuevo material educativo</p>
+                            </div>
+                        </div>
+                        <a href="suscripcion.html" class="bg-[#00796B] text-white py-3 px-6 rounded-lg hover:bg-[#004D40] transition-all duration-300 ease-in-out transform hover:scale-105 font-semibold">
+                            Suscribirse
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Interactive Resources -->
+                <div class="mb-12">
+                    <!-- Algoritmos Greedy -->
+                    <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-8 rounded-xl border border-green-200 mb-8">
+                        <div class="flex items-center mb-6">
+                            <div class="bg-green-500 w-16 h-16 rounded-xl flex items-center justify-center mr-6">
+                                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 class="text-2xl font-bold text-[#004D40] mb-2">⚡ Algoritmos Greedy</h4>
+                                <p class="text-gray-600">Visualizaciones interactivas de algoritmos que toman decisiones óptimas localmente</p>
+                            </div>
+                        </div>
+                        
+                        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <a href="greedy_knapsack.html" class="bg-white p-4 rounded-lg border border-gray-200 hover:border-green-300 hover:shadow-md transition-all duration-300 group">
+                                <div class="flex items-center mb-2">
+                                    <span class="text-2xl mr-3">🎒</span>
+                                    <h5 class="font-semibold text-[#004D40] group-hover:text-green-600">Problema de la Mochila</h5>
+                                </div>
+                                <p class="text-sm text-gray-600">Compara tres estrategias greedy: solo peso (más ligeros primero), solo ganancia (más valiosos primero) y ganancia/peso (mejor ratio primero)</p>
                             </a>
                         </div>
                     </div>
 
-                    <div class="bg-gray-50 p-6 rounded-lg border border-gray-200 flex flex-col">
-                        <h3 class="text-lg font-semibold text-[#004D40] mb-3">Notas</h3>
-                        <p class="text-gray-600 mb-4">Material de apoyo para las talleres.</p>
-                        <ul class="space-y-2 text-sm text-gray-600 mb-4 flex-grow">
-                            <li>• Próximamente: Fundamentos de Optimización</li>
-                        </ul>
-                        <div class="flex justify-end mt-4">
-                            <a href="../rprivado.html" class="inline-block bg-[#00796B] text-white px-4 py-2 rounded-lg hover:bg-[#004D40] transition-colors duration-300 text-sm">
-                                Acceder
-                            </a>
+                    <!-- Descripción de conceptos -->
+                    <div class="bg-gradient-to-r from-blue-50 to-cyan-50 p-8 rounded-xl border border-blue-200">
+                        <div class="flex items-center mb-6">
+                            <div class="bg-blue-500 w-16 h-16 rounded-xl flex items-center justify-center mr-6">
+                                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 class="text-2xl font-bold text-[#004D40] mb-2">💡 Conceptos clave</h4>
+                                <p class="text-gray-600">Aprende los fundamentos de los algoritmos greedy</p>
+                            </div>
                         </div>
-                    </div>
-
-                    
-                    <div class="bg-gray-50 p-6 rounded-lg border border-gray-200 flex flex-col">
-                        <h3 class="text-lg font-semibold text-[#004D40] mb-3">Presentaciones</h3>
-                        <p class="text-gray-600 mb-4">Diapositivas utilizadas en cursos y talleres.</p>
-                        <ul class="space-y-2 text-sm text-gray-600 flex-grow">
-                            <li>• Próximamente: Introducción a la Investigación de Operaciones</li>
-                            <li>• Próximamente: Algoritmos de optimización</li>
-                            <li>• Próximamente: Análisis de Datos</li>
-                        </ul>
-                        <div class="flex justify-end mt-4">
-                            <a href="../rprivado.html" class="inline-block bg-[#00796B] text-white px-4 py-2 rounded-lg hover:bg-[#004D40] transition-colors duration-300 text-sm">
-                                Acceder
-                            </a>
+                        
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="bg-white p-6 rounded-lg border border-gray-200">
+                                <h5 class="font-semibold text-[#004D40] mb-3 flex items-center">
+                                    <span class="text-xl mr-2">🎯</span>
+                                    Decisión localmente óptima
+                                </h5>
+                                <p class="text-sm text-gray-600">Los algoritmos greedy toman la mejor decisión en cada paso sin considerar las consecuencias futuras. Esta estrategia es eficiente pero no siempre garantiza la solución óptima global.</p>
+                            </div>
+                            
+                            <div class="bg-white p-6 rounded-lg border border-gray-200">
+                                <h5 class="font-semibold text-[#004D40] mb-3 flex items-center">
+                                    <span class="text-xl mr-2">⚡</span>
+                                    Eficiencia computacional
+                                </h5>
+                                <p class="text-sm text-gray-600">Los algoritmos greedy son generalmente muy rápidos (complejidad polinomial) comparados con algoritmos exactos que pueden requerir tiempo exponencial.</p>
+                            </div>
+                            
+                            <div class="bg-white p-6 rounded-lg border border-gray-200">
+                                <h5 class="font-semibold text-[#004D40] mb-3 flex items-center">
+                                    <span class="text-xl mr-2">🔍</span>
+                                    Propiedad de elección Greedy
+                                </h5>
+                                <p class="text-sm text-gray-600">Para que un algoritmo greedy funcione correctamente, el problema debe tener la propiedad de elección greedy: una solución óptima global puede construirse tomando decisiones localmente óptimas.</p>
+                            </div>
+                            
+                            <div class="bg-white p-6 rounded-lg border border-gray-200">
+                                <h5 class="font-semibold text-[#004D40] mb-3 flex items-center">
+                                    <span class="text-xl mr-2">🧩</span>
+                                    Subestructura óptima
+                                </h5>
+                                <p class="text-sm text-gray-600">Un problema tiene subestructura óptima si una solución óptima al problema contiene soluciones óptimas a sus subproblemas. Esta propiedad es necesaria para que funcione el enfoque greedy.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
+
+        <!-- Botón de Donación -->
+        <div class="text-center mt-12">
+            <h3 class="text-2xl font-semibold mb-4">¿Te gusta lo que hago?</h3>
+            <a 
+                href="https://buymeacoffee.com/jvelascoal" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                class="btn-donate inline-flex items-center gap-3 bg-yellow-400 text-gray-900 font-bold py-4 px-8 rounded-xl shadow-lg transition-all duration-300 ease-in-out"
+            >
+                <i class="ph-fill ph-coffee text-2xl"></i>
+                <span>Invítame un café</span>
+            </a>
+            <p class="text-gray-500 mt-4 text-sm">Tu apoyo es muy apreciado ❤️</p>
+        </div>
+
+ 
     </main>
 
     <!-- Footer & Contact -->
@@ -248,7 +317,6 @@
         // 1. Deshabilitar el clic derecho en toda la página
         document.addEventListener('contextmenu', function(e) {
             e.preventDefault();
-            showProtectionToast('El clic derecho está deshabilitado.');
         });
 
         // 2. Bloquear atajos de teclado comunes
@@ -256,7 +324,6 @@
             // Bloquear F12 para dificultar el acceso a las herramientas de desarrollador
             if (e.key === 'F12' || e.keyCode === 123) {
                 e.preventDefault();
-                showProtectionToast('Las herramientas de desarrollador están deshabilitadas.');
             }
 
             // Bloquear combinaciones con la tecla Ctrl
@@ -264,7 +331,6 @@
                 const key = e.key.toLowerCase();
                 if (['c', 'x', 'u', 's', 'p'].includes(key)) {
                     e.preventDefault();
-                    showProtectionToast(`La función (Ctrl+${key.toUpperCase()}) ha sido deshabilitada.`);
                 }
             }
         });

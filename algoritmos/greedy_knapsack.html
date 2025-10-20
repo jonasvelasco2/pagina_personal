@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algoritmo Greedy - Problema de la Mochila</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+            color: #1a202c;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+            text-align: center;
+        }
+        .container {
+            background-color: white;
+            padding: 4rem 2rem 2rem 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 95%;
+            position: relative;
+        }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .btn-start {
+            background-color: #48bb78;
+            color: white;
+        }
+        .btn-start:hover {
+            background-color: #38a169;
+        }
+        .btn-reset {
+            background-color: #f56565;
+            color: white;
+        }
+        .btn-reset:hover {
+            background-color: #e53e3e;
+        }
+        .btn-upload {
+            background-color: #4299e1;
+            color: white;
+        }
+        .btn-upload:hover {
+            background-color: #3182ce;
+        }
+        .btn-back {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background-color: #4299e1;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            z-index: 10;
+            text-decoration: none;
+        }
+        .btn-back:hover {
+            background-color: #3182ce;
+            transform: translateY(-2px);
+        }
+        .message-box {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            display: none;
+        }
+        .message-box.show {
+            display: block;
+        }
+        .message-success {
+            background-color: #d1f7e0;
+            color: #2f855a;
+        }
+        .message-info {
+            background-color: #e2f3ff;
+            color: #3182ce;
+        }
+        .message-error {
+            background-color: #fed7d7;
+            color: #c53030;
+        }
+        .controls {
+            margin-top: 2rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+        .file-input-wrapper label {
+            display: inline-block;
+            width: auto;
+            min-width: 200px;
+        }
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+        .results-container {
+            margin-top: 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        .result-card {
+            background-color: #f7fafc;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .result-card.active {
+            border-color: #4299e1;
+            transform: scale(1.02);
+        }
+        .result-card.best {
+            border-color: #48bb78;
+            background-color: #f0fff4;
+        }
+        .result-card h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #2d3748;
+        }
+        .result-stat {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .result-stat:last-child {
+            border-bottom: none;
+        }
+        .items-list {
+            margin-top: 1rem;
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: white;
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+        }
+        .item-badge {
+            display: inline-block;
+            background-color: #4299e1;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            margin: 0.25rem;
+            font-size: 0.875rem;
+        }
+        .item-badge.selected {
+            background-color: #48bb78;
+            animation: pulse 0.5s ease-in-out;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .info-panel {
+            background-color: #edf2f7;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-top: 1rem;
+            text-align: left;
+        }
+        .info-panel h4 {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #2d3748;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 1.5rem;
+            background-color: #e2e8f0;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4299e1, #48bb78);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s ease;
+        }
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s ease;
+            margin: 1rem;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #718096;
+            transition: color 0.2s;
+        }
+        .modal-close:hover {
+            color: #2d3748;
+        }
+        .btn-help {
+            background-color: #eff6e0;
+            color: #2d3748;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border: 2px solid #aec3b0;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .btn-help:hover {
+            background-color: #d9e7c7;
+            transform: translateY(-2px);
+        }
+        .btn-download-example {
+            background-color: #10b981;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            width: 100%;
+            justify-content: center;
+        }
+        .btn-download-example:hover {
+            background-color: #059669;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+    <div class="container flex flex-col items-center">
+        <a href="index.html" class="btn-back">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Regresar
+        </a>
+        
+        <h1 class="text-4xl font-extrabold text-gray-800 mb-2">Algoritmo Greedy - Problema de la Mochila</h1>
+        <p class="text-gray-600 mb-4 max-w-3xl">
+            El problema de la mochila (knapsack) consiste en seleccionar elementos con beneficio y peso para maximizar el beneficio total sin exceder la capacidad de la mochila. 
+            Los algoritmos greedy utilizan diferentes estrategias: <strong>solo peso</strong> (más ligeros primero), <strong>solo ganancia</strong> (más valiosos primero), 
+            y <strong>ganancia/peso</strong> (mejor ratio primero).
+        </p>
+
+        <div class="info-panel">
+            <h4>📦 Información de la mochila</h4>
+            <div id="knapsack-info">
+                <p>Sube un archivo para comenzar...</p>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin: 1rem 0;">
+            <button id="help-btn" class="btn-help">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+                ¿Cómo cargar un archivo?
+            </button>
+        </div>
+
+        <div class="controls" style="align-items: center;">
+            <div class="file-input-wrapper">
+                <label for="file-input" class="btn btn-upload">
+                    📁 Cargar archivo
+                </label>
+                <input type="file" id="file-input" accept=".txt,*">
+            </div>
+            <button id="start-btn" class="btn btn-start" disabled>▶️ Ejecutar algoritmos</button>
+            <button id="reset-btn" class="btn btn-reset" disabled>🔄 Reiniciar</button>
+        </div>
+
+        <div id="message-box" class="message-box"></div>
+
+        <div id="results-container" class="results-container" style="display: none;">
+            <div id="result-weight" class="result-card">
+                <h3>🏋️ Estrategia: Solo peso</h3>
+                <div class="result-stat">
+                    <span>Beneficio total:</span>
+                    <span id="weight-benefit" class="font-bold">-</span>
+                </div>
+                <div class="result-stat">
+                    <span>Peso total:</span>
+                    <span id="weight-total" class="font-bold">-</span>
+                </div>
+                <div class="result-stat">
+                    <span>Elementos seleccionados:</span>
+                    <span id="weight-count" class="font-bold">-</span>
+                </div>
+                <div class="progress-bar">
+                    <div id="weight-progress" class="progress-fill" style="width: 0%">0%</div>
+                </div>
+                <div id="weight-items" class="items-list"></div>
+            </div>
+
+            <div id="result-profit" class="result-card">
+                <h3>💰 Estrategia: Solo ganancia</h3>
+                <div class="result-stat">
+                    <span>Beneficio Total:</span>
+                    <span id="profit-benefit" class="font-bold">-</span>
+                </div>
+                <div class="result-stat">
+                    <span>Peso total:</span>
+                    <span id="profit-total" class="font-bold">-</span>
+                </div>
+                <div class="result-stat">
+                    <span>Elementos seleccionados:</span>
+                    <span id="profit-count" class="font-bold">-</span>
+                </div>
+                <div class="progress-bar">
+                    <div id="profit-progress" class="progress-fill" style="width: 0%">0%</div>
+                </div>
+                <div id="profit-items" class="items-list"></div>
+            </div>
+
+            <div id="result-ratio" class="result-card">
+                <h3>⚖️ Estrategia: Ganancia/Peso</h3>
+                <div class="result-stat">
+                    <span>Beneficio total:</span>
+                    <span id="ratio-benefit" class="font-bold">-</span>
+                </div>
+                <div class="result-stat">
+                    <span>Peso Total:</span>
+                    <span id="ratio-total" class="font-bold">-</span>
+                </div>
+                <div class="result-stat">
+                    <span>Elementos seleccionados:</span>
+                    <span id="ratio-count" class="font-bold">-</span>
+                </div>
+                <div class="progress-bar">
+                    <div id="ratio-progress" class="progress-fill" style="width: 0%">0%</div>
+                </div>
+                <div id="ratio-items" class="items-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('file-input');
+        const startBtn = document.getElementById('start-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const messageBox = document.getElementById('message-box');
+        const resultsContainer = document.getElementById('results-container');
+        const knapsackInfo = document.getElementById('knapsack-info');
+
+        let items = [];
+        let capacity = 0;
+        let numItems = 0;
+
+        // Show a message in the message box
+        function showMessage(text, type = 'info') {
+            messageBox.textContent = text;
+            messageBox.className = `message-box show message-${type}`;
+        }
+
+        // Parse the uploaded file
+        function parseFile(content) {
+            const lines = content.trim().split('\n');
+            if (lines.length < 2) {
+                throw new Error('Archivo inválido: debe contener al menos 2 líneas');
+            }
+
+            const firstLine = lines[0].trim().split(/\s+/);
+            numItems = parseInt(firstLine[0]);
+            capacity = parseInt(firstLine[1]);
+
+            if (isNaN(numItems) || isNaN(capacity)) {
+                throw new Error('Formato inválido en la primera línea');
+            }
+
+            items = [];
+            for (let i = 1; i <= numItems; i++) {
+                if (i >= lines.length) {
+                    throw new Error(`Faltan elementos: se esperaban ${numItems} elementos`);
+                }
+                const parts = lines[i].trim().split(/\s+/);
+                if (parts.length < 2) {
+                    throw new Error(`Formato inválido en la línea ${i + 1}`);
+                }
+                const profit = parseInt(parts[0]);
+                const weight = parseInt(parts[1]);
+                
+                if (isNaN(profit) || isNaN(weight)) {
+                    throw new Error(`Valores inválidos en la línea ${i + 1}`);
+                }
+
+                items.push({
+                    id: i,
+                    profit: profit,
+                    weight: weight,
+                    ratio: profit / weight
+                });
+            }
+
+            return true;
+        }
+
+        // Handle file upload
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                try {
+                    parseFile(event.target.result);
+                    knapsackInfo.innerHTML = `
+                        <p><strong>Número de elementos:</strong> ${numItems}</p>
+                        <p><strong>Capacidad de la mochila:</strong> ${capacity.toLocaleString()}</p>
+                    `;
+                    startBtn.disabled = false;
+                    resetBtn.disabled = false;
+                    showMessage(`Archivo cargado exitosamente: ${numItems} elementos, capacidad ${capacity.toLocaleString()}`, 'success');
+                } catch (error) {
+                    showMessage(`Error al cargar el archivo: ${error.message}`, 'error');
+                    startBtn.disabled = true;
+                }
+            };
+            reader.readAsText(file);
+        });
+
+        // Greedy algorithm: by weight (lightest first)
+        function greedyByWeight() {
+            const sortedItems = [...items].sort((a, b) => a.weight - b.weight);
+            let totalWeight = 0;
+            let totalProfit = 0;
+            const selected = [];
+
+            for (const item of sortedItems) {
+                if (totalWeight + item.weight <= capacity) {
+                    selected.push(item);
+                    totalWeight += item.weight;
+                    totalProfit += item.profit;
+                }
+            }
+
+            return { selected, totalWeight, totalProfit };
+        }
+
+        // Greedy algorithm: by profit (most valuable first)
+        function greedyByProfit() {
+            const sortedItems = [...items].sort((a, b) => b.profit - a.profit);
+            let totalWeight = 0;
+            let totalProfit = 0;
+            const selected = [];
+
+            for (const item of sortedItems) {
+                if (totalWeight + item.weight <= capacity) {
+                    selected.push(item);
+                    totalWeight += item.weight;
+                    totalProfit += item.profit;
+                }
+            }
+
+            return { selected, totalWeight, totalProfit };
+        }
+
+        // Greedy algorithm: by ratio (best profit/weight ratio first)
+        function greedyByRatio() {
+            const sortedItems = [...items].sort((a, b) => b.ratio - a.ratio);
+            let totalWeight = 0;
+            let totalProfit = 0;
+            const selected = [];
+
+            for (const item of sortedItems) {
+                if (totalWeight + item.weight <= capacity) {
+                    selected.push(item);
+                    totalWeight += item.weight;
+                    totalProfit += item.profit;
+                }
+            }
+
+            return { selected, totalWeight, totalProfit };
+        }
+
+        // Animate the selection of items
+        async function animateSelection(result, prefix, delay = 100) {
+            const itemsContainer = document.getElementById(`${prefix}-items`);
+            itemsContainer.innerHTML = '';
+
+            for (let i = 0; i < result.selected.length; i++) {
+                await new Promise(resolve => setTimeout(resolve, delay));
+                const item = result.selected[i];
+                const badge = document.createElement('span');
+                badge.className = 'item-badge selected';
+                badge.textContent = `#${item.id} (B:${item.profit.toLocaleString()}, P:${item.weight.toLocaleString()})`;
+                itemsContainer.appendChild(badge);
+
+                // Update stats progressively
+                const currentWeight = result.selected.slice(0, i + 1).reduce((sum, it) => sum + it.weight, 0);
+                const currentProfit = result.selected.slice(0, i + 1).reduce((sum, it) => sum + it.profit, 0);
+                const percentage = (currentWeight / capacity * 100).toFixed(1);
+
+                document.getElementById(`${prefix}-benefit`).textContent = currentProfit.toLocaleString();
+                document.getElementById(`${prefix}-total`).textContent = `${currentWeight.toLocaleString()} / ${capacity.toLocaleString()}`;
+                document.getElementById(`${prefix}-count`).textContent = i + 1;
+                
+                const progressBar = document.getElementById(`${prefix}-progress`);
+                progressBar.style.width = `${percentage}%`;
+                progressBar.textContent = `${percentage}%`;
+            }
+        }
+
+        // Execute all greedy algorithms
+        async function executeAlgorithms() {
+            startBtn.disabled = true;
+            resultsContainer.style.display = 'grid';
+            showMessage('Ejecutando algoritmos greedy...', 'info');
+
+            // Reset all cards
+            document.querySelectorAll('.result-card').forEach(card => {
+                card.classList.remove('active', 'best');
+            });
+
+            // Execute by weight
+            document.getElementById('result-weight').classList.add('active');
+            const resultWeight = greedyByWeight();
+            await animateSelection(resultWeight, 'weight', 150);
+            document.getElementById('result-weight').classList.remove('active');
+
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            // Execute by profit
+            document.getElementById('result-profit').classList.add('active');
+            const resultProfit = greedyByProfit();
+            await animateSelection(resultProfit, 'profit', 150);
+            document.getElementById('result-profit').classList.remove('active');
+
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            // Execute by ratio
+            document.getElementById('result-ratio').classList.add('active');
+            const resultRatio = greedyByRatio();
+            await animateSelection(resultRatio, 'ratio', 150);
+            document.getElementById('result-ratio').classList.remove('active');
+
+            // Determine the best result
+            const results = [
+                { name: 'weight', profit: resultWeight.totalProfit },
+                { name: 'profit', profit: resultProfit.totalProfit },
+                { name: 'ratio', profit: resultRatio.totalProfit }
+            ];
+
+            const best = results.reduce((max, r) => r.profit > max.profit ? r : max);
+            document.getElementById(`result-${best.name}`).classList.add('best');
+
+            showMessage(`✅ Algoritmos completados. La mejor estrategia es: ${
+                best.name === 'weight' ? 'Solo Peso' : 
+                best.name === 'profit' ? 'Solo Ganancia' : 
+                'Ganancia/Peso'
+            } con beneficio ${best.profit.toLocaleString()}`, 'success');
+
+            startBtn.disabled = false;
+        }
+
+        // Reset the visualization
+        function reset() {
+            resultsContainer.style.display = 'none';
+            document.querySelectorAll('.result-card').forEach(card => {
+                card.classList.remove('active', 'best');
+            });
+            ['weight', 'profit', 'ratio'].forEach(prefix => {
+                document.getElementById(`${prefix}-benefit`).textContent = '-';
+                document.getElementById(`${prefix}-total`).textContent = '-';
+                document.getElementById(`${prefix}-count`).textContent = '-';
+                document.getElementById(`${prefix}-items`).innerHTML = '';
+                document.getElementById(`${prefix}-progress`).style.width = '0%';
+                document.getElementById(`${prefix}-progress`).textContent = '0%';
+            });
+            showMessage('Listo para ejecutar los algoritmos nuevamente', 'info');
+        }
+
+        // Event listeners
+        startBtn.addEventListener('click', executeAlgorithms);
+        resetBtn.addEventListener('click', reset);
+
+        // Initial message
+        showMessage('Carga un archivo para comenzar', 'info');
+    </script>
+
+    <script>
+        // Modal functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const helpBtn = document.getElementById('help-btn');
+            const helpModal = document.getElementById('help-modal');
+            const closeModal = document.getElementById('close-modal');
+            const downloadExampleBtn = document.getElementById('download-example');
+
+        helpBtn.addEventListener('click', () => {
+            helpModal.classList.add('show');
+        });
+
+        closeModal.addEventListener('click', () => {
+            helpModal.classList.remove('show');
+        });
+
+        helpModal.addEventListener('click', (e) => {
+            if (e.target === helpModal) {
+                helpModal.classList.remove('show');
+            }
+        });
+
+        downloadExampleBtn.addEventListener('click', () => {
+            const exampleContent = `19 31181
+1945 4990
+321 1142
+2945 7390
+4136 10372
+1107 3114
+1022 2744
+1101 3102
+2890 7280
+962 2624
+1060 3020
+805 2310
+689 2078
+1513 3926
+3878 9656
+13504 32708
+1865 4830
+667 2034
+1833 4766
+16553 40006`;
+            
+            const blob = new Blob([exampleContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'ks_19_0.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showMessage('Archivo de ejemplo descargado: ks_19_0.txt', 'success');
+        });
+        });
+    </script>
+
+    <script>
+        // --- LÓGICA DE PROTECCIÓN ---
+        
+        // 1. Deshabilitar el clic derecho en toda la página
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        // 2. Bloquear atajos de teclado comunes
+        document.addEventListener('keydown', function(e) {
+            // Bloquear F12 para dificultar el acceso a las herramientas de desarrollador
+            if (e.key === 'F12' || e.keyCode === 123) {
+                e.preventDefault();
+            }
+
+            // Bloquear combinaciones con la tecla Ctrl
+            if (e.ctrlKey) {
+                const key = e.key.toLowerCase();
+                if (['c', 'x', 'u', 's', 'p'].includes(key)) {
+                    e.preventDefault();
+                }
+            }
+        });
+    </script>
+
+    <!-- Modal de Ayuda -->
+    <div id="help-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 style="margin: 0; color: #2d3748; font-size: 1.5rem; font-weight: 700;">📋 Formato del archivo</h2>
+                <button id="close-modal" class="modal-close">&times;</button>
+            </div>
+            
+            <div style="text-align: left;">
+                <p style="margin-bottom: 1rem; color: #4a5568;">El archivo debe tener la siguiente estructura:</p>
+                
+                <div style="background-color: #f7fafc; padding: 1rem; border-radius: 0.5rem; border-left: 4px solid #4299e1; margin-bottom: 1rem;">
+                    <p style="margin: 0; font-family: monospace; font-size: 0.875rem;">
+                        <strong>Línea 1:</strong> [número_de_items] [capacidad_mochila]<br>
+                        <strong>Líneas siguientes:</strong> [peso] [ganancia] (un item por línea)
+                    </p>
+                </div>
+
+                <h3 style="font-size: 1.125rem; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.75rem; color: #2d3748;">
+                    💡 Ejemplo (archivo ks_19_0):
+                </h3>
+                
+                <div style="background-color: #1a202c; color: #e2e8f0; padding: 1rem; border-radius: 0.5rem; font-family: monospace; font-size: 0.875rem; overflow-x: auto;">
+                    <pre style="margin: 0;">19 31181
+1945 4990
+321 1142
+2945 7390
+4136 10372
+...</pre>
+                </div>
+
+                <div style="background-color: #edf2f7; padding: 1rem; border-radius: 0.5rem; margin-top: 1rem;">
+                    <p style="margin: 0; font-size: 0.875rem; color: #4a5568;">
+                        <strong>Explicación:</strong><br>
+                        • Primera línea: <strong>19</strong> items con capacidad máxima de <strong>31181</strong><br>
+                        • Cada línea siguiente: peso y ganancia de un item<br>
+                        • Ejemplo: El primer item tiene peso <strong>1945</strong> y ganancia <strong>4990</strong>
+                    </p>
+                </div>
+
+                <button id="download-example" class="btn-download-example">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Descargar archivo de ejemplo (ks_19_0.txt)
+                </button>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
