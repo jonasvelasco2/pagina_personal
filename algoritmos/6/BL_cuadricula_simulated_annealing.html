@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulated Annealing</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+            color: #1a202c;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+            text-align: center;
+        }
+        .container {
+            background-color: white;
+            padding: 4rem 2rem 2rem 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 90%;
+            position: relative;
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(10, minmax(0, 1fr));
+            gap: 2px;
+            margin-top: 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            background-color: #e2e8f0;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .grid-cell {
+            width: 3rem;
+            height: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f7fafc;
+            transition: background-color 0.5s ease-in-out;
+            font-weight: 600;
+        }
+        .grid-cell.selectable {
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .grid-cell.selectable:hover {
+            transform: scale(1.1);
+        }
+        .grid-cell.current {
+            background-color: #2b6cb0; /* blue */
+            color: white;
+            border: 2px solid #3182ce;
+        }
+        .grid-cell.visited {
+            background-color: #38a169; /* green */
+            color: white;
+        }
+        .grid-cell.neighbor {
+            background-color: #f6ad55; /* orange */
+        }
+        .grid-cell.rejected {
+            background-color: #fc8181; /* red - for rejected moves */
+            color: white;
+        }
+        .grid-cell.best {
+            background-color: #9f7aea; /* purple - for best solution found */
+            color: white;
+        }
+        .controls {
+            margin-top: 2rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .btn-start {
+            background-color: #48bb78;
+            color: white;
+        }
+        .btn-start:hover {
+            background-color: #38a169;
+        }
+        .btn-reset, .btn-generate {
+            background-color: #f56565;
+            color: white;
+        }
+        .btn-reset:hover, .btn-generate:hover {
+            background-color: #e53e3e;
+        }
+        .btn-download {
+            background-color: #4a5568;
+            color: white;
+        }
+        .btn-download:hover {
+            background-color: #2d3748;
+        }
+        .message-box {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            display: none;
+        }
+        .message-box.show {
+            display: block;
+        }
+        .message-success {
+            background-color: #d1f7e0;
+            color: #2f855a;
+        }
+        .message-info {
+            background-color: #e2f3ff;
+            color: #3182ce;
+        }
+        .btn-back {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background-color: #4299e1;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            z-index: 10;
+            text-decoration: none;
+        }
+        .btn-back:hover {
+            background-color: #3182ce;
+            transform: translateY(-2px);
+        }
+        .stats-container {
+            margin-top: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            text-align: center;
+        }
+        .stat-box {
+            background-color: #f7fafc;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid #e2e8f0;
+            min-width: 120px;
+        }
+        .stat-label {
+            font-size: 0.875rem;
+            color: #718096;
+            margin-bottom: 0.25rem;
+        }
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2d3748;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+    <div class="container flex flex-col items-center">
+        <a href="busqueda-local.html" class="btn-back">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Regresar
+        </a>
+        <h1 class="text-4xl font-extrabold text-gray-800 mb-2">Simulated Annealing</h1>
+        <p class="text-gray-600 mb-4">
+            El Simulated Annealing es un algoritmo de optimización inspirado en el proceso de recocido en metalurgia. Busca el valor mínimo en una cuadrícula, pero a diferencia del descenso simple, puede aceptar movimientos a vecinos con valores más altos con cierta probabilidad que disminuye con el tiempo (temperatura). Esto le permite escapar de óptimos locales y explorar mejor el espacio de búsqueda para encontrar el óptimo global.
+        </p>
+        <p class="text-gray-600 mb-2">
+            <strong>Vecindario:</strong> El algoritmo utiliza conectividad-8, considerando los 8 vecinos adyacentes (arriba, abajo, izquierda, derecha y las 4 diagonales). En cada iteración, selecciona un vecino aleatorio de estos 8 posibles movimientos.
+        </p>
+        <p class="text-gray-600 mb-4">
+            <strong>Colores:</strong> <span style="color: #2b6cb0;">●</span> Azul = Posición actual | <span style="color: #38a169;">●</span> Verde = Visitado | <span style="color: #f6ad55;">●</span> Naranja = Vecino considerado | <span style="color: #fc8181;">●</span> Rojo = Movimiento rechazado | <span style="color: #9f7aea;">●</span> Morado = Mejor solución
+        </p>
+        
+        <div id="grid-container" class="grid-container"></div>
+
+        <div class="stats-container">
+            <div class="stat-box">
+                <div class="stat-label">Temperatura</div>
+                <div class="stat-value" id="temperature-value">100.0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Iteración</div>
+                <div class="stat-value" id="iteration-value">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Valor Actual</div>
+                <div class="stat-value" id="current-value">-</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Mejor Valor</div>
+                <div class="stat-value" id="best-value">-</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button id="generate-btn" class="btn btn-generate">Nueva cuadrícula</button>
+            <button id="start-btn" class="btn btn-start" disabled>Comenzar búsqueda</button>
+            <button id="reset-btn" class="btn btn-reset" disabled>Reiniciar</button>
+            <button id="download-btn" class="btn btn-download">Descargar</button>
+        </div>
+
+        <div id="message-box" class="message-box"></div>
+    </div>
+
+    <script>
+        const gridContainer = document.getElementById('grid-container');
+        const startBtn = document.getElementById('start-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const generateBtn = document.getElementById('generate-btn');
+        const downloadBtn = document.getElementById('download-btn');
+        const messageBox = document.getElementById('message-box');
+        const temperatureValue = document.getElementById('temperature-value');
+        const iterationValue = document.getElementById('iteration-value');
+        const currentValueDisplay = document.getElementById('current-value');
+        const bestValueDisplay = document.getElementById('best-value');
+
+        let gridData = [];
+        let currentRow = -1;
+        let currentCol = -1;
+        let bestRow = -1;
+        let bestCol = -1;
+        let bestValue = Infinity;
+        let intervalId = null;
+        let temperature = 100.0;
+        let iteration = 0;
+        const maxIterations = 100;
+        const coolingRate = 0.95;
+        const minTemperature = 0.1;
+
+        // Genera datos completamente aleatorios y retadores
+        function generateGridData() {
+            const data = [];
+            const rows = 10;
+            const cols = 10;
+
+            // Inicializa toda la cuadrícula con valores completamente aleatorios
+            for (let i = 0; i < rows; i++) {
+                const row = [];
+                for (let j = 0; j < cols; j++) {
+                    row.push(Math.floor(Math.random() * 100) + 1); // Valores entre 1 y 100
+                }
+                data.push(row);
+            }
+
+            // Crear algunos "valles" aleatorios (zonas con valores más bajos) para hacer más retador
+            const numValleys = Math.floor(Math.random() * 3) + 2; // Entre 2 y 4 valles
+            
+            for (let v = 0; v < numValleys; v++) {
+                const centerRow = Math.floor(Math.random() * rows);
+                const centerCol = Math.floor(Math.random() * cols);
+                const valleySize = Math.floor(Math.random() * 2) + 1; // Radio de 1-2 celdas (más pequeño para 10x10)
+                const baseValue = Math.floor(Math.random() * 30) + 1; // Valores bajos entre 1-30
+                
+                // Crear el valle con valores decrecientes hacia el centro
+                for (let i = Math.max(0, centerRow - valleySize); i <= Math.min(rows - 1, centerRow + valleySize); i++) {
+                    for (let j = Math.max(0, centerCol - valleySize); j <= Math.min(cols - 1, centerCol + valleySize); j++) {
+                        const distance = Math.abs(i - centerRow) + Math.abs(j - centerCol);
+                        if (distance <= valleySize) {
+                            const valleyValue = baseValue + distance * Math.floor(Math.random() * 5);
+                            if (valleyValue < data[i][j]) {
+                                data[i][j] = valleyValue;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Crear algunas "montañas" aleatorias (zonas con valores más altos) para obstáculos
+            const numMountains = Math.floor(Math.random() * 2) + 1; // Entre 1 y 2 montañas
+            
+            for (let m = 0; m < numMountains; m++) {
+                const centerRow = Math.floor(Math.random() * rows);
+                const centerCol = Math.floor(Math.random() * cols);
+                const mountainSize = Math.floor(Math.random() * 2) + 1; // Radio de 1-2 celdas
+                const baseValue = Math.floor(Math.random() * 20) + 80; // Valores altos entre 80-99
+                
+                // Crear la montaña con valores crecientes hacia el centro
+                for (let i = Math.max(0, centerRow - mountainSize); i <= Math.min(rows - 1, centerRow + mountainSize); i++) {
+                    for (let j = Math.max(0, centerCol - mountainSize); j <= Math.min(cols - 1, centerCol + mountainSize); j++) {
+                        const distance = Math.abs(i - centerRow) + Math.abs(j - centerCol);
+                        if (distance <= mountainSize) {
+                            const mountainValue = baseValue + (mountainSize - distance) * Math.floor(Math.random() * 5);
+                            if (mountainValue > data[i][j]) {
+                                data[i][j] = mountainValue;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return data;
+        }
+
+
+        // Create the grid from data
+        function createGrid() {
+            gridContainer.innerHTML = '';
+            for (let i = 0; i < 10; i++) {
+                for (let j = 0; j < 10; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'grid-cell selectable';
+                    cell.textContent = gridData[i][j];
+                    cell.dataset.row = i;
+                    cell.dataset.col = j;
+                    gridContainer.appendChild(cell);
+                    cell.addEventListener('click', handleCellClick);
+                }
+            }
+        }
+
+        // Handle cell selection
+        function handleCellClick(event) {
+            // Remove 'current' and 'visited' class from all cells
+            document.querySelectorAll('.grid-cell').forEach(cell => {
+                cell.classList.remove('current', 'visited', 'best');
+            });
+            
+            // Set the new starting point
+            currentRow = parseInt(event.target.dataset.row);
+            currentCol = parseInt(event.target.dataset.col);
+            bestRow = currentRow;
+            bestCol = currentCol;
+            bestValue = gridData[currentRow][currentCol];
+            event.target.classList.add('current');
+            
+            // Reset stats
+            temperature = 100.0;
+            iteration = 0;
+            updateStats();
+            
+            startBtn.disabled = false;
+            resetBtn.disabled = false;
+            showMessage(`Punto de inicio seleccionado en (${currentCol + 1}, ${10 - currentRow}). Presione "Comenzar" para iniciar.`, 'info');
+        }
+
+        // Show a message in the message box
+        function showMessage(text, type = 'info') {
+            messageBox.textContent = text;
+            messageBox.className = `message-box show ${type === 'success' ? 'message-success' : 'message-info'}`;
+        }
+
+        // Get the value of a cell
+        function getValue(row, col) {
+            if (row >= 0 && row < 10 && col >= 0 && col < 10) {
+                return gridData[row][col];
+            }
+            return Infinity;
+        }
+
+        // Update statistics display
+        function updateStats() {
+            temperatureValue.textContent = temperature.toFixed(2);
+            iterationValue.textContent = iteration;
+            currentValueDisplay.textContent = (currentRow >= 0 && currentCol >= 0) ? gridData[currentRow][currentCol] : '-';
+            bestValueDisplay.textContent = bestValue !== Infinity ? bestValue : '-';
+        }
+
+        // Calculate acceptance probability
+        function acceptanceProbability(currentEnergy, newEnergy, temp) {
+            if (newEnergy < currentEnergy) {
+                return 1.0; // Always accept better solutions
+            }
+            // Accept worse solutions with probability that decreases with temperature
+            return Math.exp((currentEnergy - newEnergy) / temp);
+        }
+
+        // Get a random neighbor (8-connectivity)
+        function getRandomNeighbor() {
+            const neighbors = [
+                { r: currentRow - 1, c: currentCol },     // Arriba
+                { r: currentRow + 1, c: currentCol },     // Abajo
+                { r: currentRow, c: currentCol - 1 },     // Izquierda
+                { r: currentRow, c: currentCol + 1 },     // Derecha
+                { r: currentRow - 1, c: currentCol - 1 }, // Diagonal superior-izquierda
+                { r: currentRow - 1, c: currentCol + 1 }, // Diagonal superior-derecha
+                { r: currentRow + 1, c: currentCol - 1 }, // Diagonal inferior-izquierda
+                { r: currentRow + 1, c: currentCol + 1 }  // Diagonal inferior-derecha
+            ];
+
+            // Filter valid neighbors
+            const validNeighbors = neighbors.filter(n => 
+                n.r >= 0 && n.r < 10 && n.c >= 0 && n.c < 10
+            );
+
+            // Return random valid neighbor
+            return validNeighbors[Math.floor(Math.random() * validNeighbors.length)];
+        }
+
+        // Simulated annealing step
+        function simulatedAnnealingStep() {
+            if (iteration >= maxIterations || temperature < minTemperature) {
+                // Algorithm finished
+                clearInterval(intervalId);
+                intervalId = null;
+                
+                // Highlight the best solution found
+                document.querySelectorAll('.grid-cell').forEach(cell => {
+                    if (parseInt(cell.dataset.row) === bestRow && parseInt(cell.dataset.col) === bestCol) {
+                        cell.classList.add('best');
+                    }
+                });
+                
+                showMessage(`Búsqueda completada. Mejor solución encontrada en (${bestCol + 1}, ${10 - bestRow}) con valor ${bestValue}`, 'success');
+                startBtn.disabled = true;
+                resetBtn.disabled = false;
+                generateBtn.disabled = false;
+                return;
+            }
+
+            const currentEnergy = gridData[currentRow][currentCol];
+            const neighbor = getRandomNeighbor();
+            const newEnergy = gridData[neighbor.r][neighbor.c];
+
+            // Highlight the neighbor being considered
+            const neighborCell = document.querySelector(`[data-row='${neighbor.r}'][data-col='${neighbor.c}']`);
+            if (neighborCell) {
+                neighborCell.classList.add('neighbor');
+            }
+
+            setTimeout(() => {
+                // Remove neighbor highlight
+                if (neighborCell) {
+                    neighborCell.classList.remove('neighbor');
+                }
+
+                const acceptProb = acceptanceProbability(currentEnergy, newEnergy, temperature);
+                const random = Math.random();
+
+                if (random < acceptProb) {
+                    // Accept the move
+                    const currentCell = document.querySelector(`[data-row='${currentRow}'][data-col='${currentCol}']`);
+                    currentCell.classList.remove('current');
+                    currentCell.classList.add('visited');
+                    
+                    currentRow = neighbor.r;
+                    currentCol = neighbor.c;
+                    
+                    const newCurrentCell = document.querySelector(`[data-row='${currentRow}'][data-col='${currentCol}']`);
+                    newCurrentCell.classList.add('current');
+                    newCurrentCell.classList.remove('rejected');
+
+                    // Update best solution if this is better
+                    if (newEnergy < bestValue) {
+                        // Remove best class from previous best
+                        document.querySelectorAll('.best').forEach(cell => cell.classList.remove('best'));
+                        
+                        bestValue = newEnergy;
+                        bestRow = currentRow;
+                        bestCol = currentCol;
+                        showMessage(`¡Nueva mejor solución! Valor: ${bestValue} en (${bestCol + 1}, ${10 - bestRow}). Temp: ${temperature.toFixed(2)}`);
+                    } else {
+                        showMessage(`Movimiento aceptado a (${currentCol + 1}, ${10 - currentRow}) con valor ${newEnergy}. Prob: ${(acceptProb * 100).toFixed(1)}%`);
+                    }
+                } else {
+                    // Reject the move
+                    if (neighborCell) {
+                        neighborCell.classList.add('rejected');
+                        setTimeout(() => {
+                            neighborCell.classList.remove('rejected');
+                        }, 500);
+                    }
+                    showMessage(`Movimiento rechazado. Permaneciendo en (${currentCol + 1}, ${10 - currentRow}). Prob: ${(acceptProb * 100).toFixed(1)}%`);
+                }
+
+                // Cool down the temperature
+                temperature *= coolingRate;
+                iteration++;
+                updateStats();
+            }, 800);
+        }
+
+        // Animation step
+        function animateStep() {
+            simulatedAnnealingStep();
+        }
+        
+        // Start animation
+        function startAnimation() {
+            startBtn.disabled = true;
+            generateBtn.disabled = true;
+            document.querySelectorAll('.selectable').forEach(cell => {
+                cell.classList.remove('selectable');
+                cell.removeEventListener('click', handleCellClick);
+            });
+            showMessage('Comenzando Simulated Annealing...');
+            intervalId = setInterval(animateStep, 1600); // 1.6 seconds delay between steps
+        }
+
+        // Reset the animation
+        function resetAnimation() {
+            clearInterval(intervalId);
+            intervalId = null;
+            currentRow = -1;
+            currentCol = -1;
+            bestRow = -1;
+            bestCol = -1;
+            bestValue = Infinity;
+            temperature = 100.0;
+            iteration = 0;
+            updateStats();
+            createGrid(); // Re-create grid with click listeners
+            startBtn.disabled = true;
+            resetBtn.disabled = true;
+            generateBtn.disabled = false;
+            showMessage('Seleccione un punto de inicio en la cuadrícula.', 'info');
+        }
+
+        // Function to download the grid data as a text file
+        function downloadGridData() {
+            const dataString = gridData.map(row => row.join(', ')).join('\n');
+            const blob = new Blob([dataString], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'grid_data_simulated_annealing.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showMessage('Cuadrícula descargada como grid_data_simulated_annealing.txt', 'success');
+        }
+
+        // Event listeners
+        startBtn.addEventListener('click', startAnimation);
+        resetBtn.addEventListener('click', resetAnimation);
+        generateBtn.addEventListener('click', () => {
+            gridData = generateGridData().reverse();
+            resetAnimation();
+        });
+        downloadBtn.addEventListener('click', downloadGridData);
+        
+        // Initial setup
+        gridData = generateGridData().reverse();
+        createGrid();
+        updateStats();
+        showMessage('Seleccione un punto de inicio en la cuadrícula.', 'info');
+    </script>
+
+    <script>
+        // --- LÓGICA DE PROTECCIÓN ---
+
+
+        // 1. Deshabilitar el clic derecho en toda la página
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        // 2. Bloquear atajos de teclado comunes
+        document.addEventListener('keydown', function(e) {
+            // Bloquear F12 para dificultar el acceso a las herramientas de desarrollador
+            if (e.key === 'F12' || e.keyCode === 123) {
+                e.preventDefault();
+            }
+
+            // Bloquear combinaciones con la tecla Ctrl
+            if (e.ctrlKey) {
+                const key = e.key.toLowerCase();
+                if (['c', 'x', 'u', 's', 'p'].includes(key)) {
+                    e.preventDefault();
+                }
+            }
+        });
+    </script>
+
+
+</body>
+</html>

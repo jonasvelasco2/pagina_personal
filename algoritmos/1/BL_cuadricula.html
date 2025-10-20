@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZLLCPFX9W7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-ZLLCPFX9W7');
+</script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Descenso simple</title>
+    <link rel="icon" type="image/x-icon" href="../../img/favicon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #EEDFCF;
+            color: #1a202c;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        #main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            text-align: center;
+        }
+        .container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 95%;
+            margin: 2rem auto;
+            position: relative;
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(10, minmax(0, 1fr));
+            gap: 2px;
+            margin-top: 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            background-color: #e2e8f0;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .grid-cell {
+            width: 3rem;
+            height: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f7fafc;
+            transition: background-color 0.5s ease-in-out;
+            font-weight: 600;
+        }
+        .grid-cell.selectable {
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .grid-cell.selectable:hover {
+            transform: scale(1.1);
+        }
+        .grid-cell.current {
+            background-color: #2b6cb0; /* blue */
+            color: white;
+            border: 2px solid #3182ce;
+        }
+        .grid-cell.visited {
+            background-color: #38a169; /* green */
+            color: white;
+        }
+        .grid-cell.neighbor {
+            background-color: #f6ad55; /* orange */
+        }
+        .controls {
+            margin-top: 2rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .btn-start {
+            background-color: #48bb78;
+            color: white;
+        }
+        .btn-start:hover {
+            background-color: #38a169;
+        }
+        .btn-reset, .btn-generate {
+            background-color: #f56565;
+            color: white;
+        }
+        .btn-reset:hover, .btn-generate:hover {
+            background-color: #e53e3e;
+        }
+        .btn-download {
+            background-color: #4a5568;
+            color: white;
+        }
+        .btn-download:hover {
+            background-color: #2d3748;
+        }
+        .message-box {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            display: none;
+        }
+        .message-box.show {
+            display: block;
+        }
+        .message-success {
+            background-color: #d1f7e0;
+            color: #2f855a;
+        }
+        .message-info {
+            background-color: #e2f3ff;
+            color: #3182ce;
+        }
+        .top-nav {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            z-index: 10;
+        }
+        .btn-coffee {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: #fbbf24;
+            color: #1f2937;
+            font-weight: 700;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            transition: background-color 0.3s;
+            text-decoration: none;
+        }
+        .btn-coffee:hover {
+            background-color: #f59e0b;
+        }
+        .btn-home {
+            background-color: white;
+            color: #475569;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            transition: background-color 0.3s;
+            text-decoration: none;
+        }
+        .btn-home:hover {
+            background-color: #f1f5f9;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="main-content">
+        <div class="container flex flex-col items-center">
+            <div class="top-nav">
+                <a href="../../pasarela/buymeacoffee.html" 
+                   target="_blank" 
+                   rel="noopener noreferrer" 
+                   class="btn-coffee">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M1 12.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5M2 4v6h10V4zm11.5 0a.5.5 0 0 0-.5.5v5a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-5a.5.5 0 0 0-.5-.5zM1 3.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5m10.854-1.354a.5.5 0 0 0-.708 0L9 3.293 7.854 2.146a.5.5 0 1 0-.708.708L8.293 4 7.146 5.146a.5.5 0 1 0 .708.708L9 4.707l1.146 1.147a.5.5 0 0 0 .708-.708L9.707 4l1.147-1.146a.5.5 0 0 0 0-.708"/>
+                    </svg>
+                    <span>Invítame un café</span>
+                </a>
+
+                <a href="busqueda-local.html" class="btn-home">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                    Inicio
+                </a>
+            </div>
+        <h1 class="text-4xl font-extrabold text-gray-800 mb-2">Descenso simple</h1>
+        <p class="text-gray-600 mb-4">
+            El descenso simple es un algoritmo de optimización local, que para este ejemplo, busca el valor mínimo en una cuadrícula. Inicia en un punto y se mueve repetidamente a la posición adyacente (arriba, abajo, izquierda, derecha) con el valor más bajo. El proceso se detiene cuando no hay un vecino con un valor más bajo, indicando que se ha encontrado un "óptimo local".
+        </p>
+        
+        <div id="grid-container" class="grid-container"></div>
+
+        <div class="controls">
+            <button id="generate-btn" class="btn btn-generate">Nueva cuadrícula</button>
+            <button id="start-btn" class="btn btn-start" disabled>Comenzar búsqueda</button>
+            <button id="reset-btn" class="btn btn-reset" disabled>Reiniciar</button>
+            <button id="download-btn" class="btn btn-download">Descargar</button>
+        </div>
+
+        <div id="message-box" class="message-box"></div>
+        </div>
+    </div>
+
+    <!-- Footer & Contact -->
+    <footer id="contact" class="bg-[#333333] text-white">
+        <div class="container2 mx-auto px-6 py-10">
+            <div class="text-center">
+                <p class="text-gray-300 mb-2">Si tienes alguna pregunta o te gustaría colaborar, no dudes en escribirme.</p>
+                <a href="../../contacto.html" class="text-[#80CBC4] text-lg hover:underline">Contacto</a>
+                <p class="text-gray-500 mt-8 text-sm">&copy; 2025 Jonás Velasco. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- External JavaScript Files -->
+    <script src="BL_cuadricula.js"></script>
+    <script src="protection.js"></script>
+
+
+</body>
+</html>
+

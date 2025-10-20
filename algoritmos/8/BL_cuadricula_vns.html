@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VNS - Variable Neighborhood Search</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+            color: #1a202c;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+            text-align: center;
+        }
+        .container {
+            background-color: white;
+            padding: 4rem 2rem 2rem 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 90%;
+            position: relative;
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(10, minmax(0, 1fr));
+            gap: 2px;
+            margin-top: 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            background-color: #e2e8f0;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .grid-cell {
+            width: 3rem;
+            height: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f7fafc;
+            transition: background-color 0.5s ease-in-out;
+            font-weight: 600;
+            position: relative;
+        }
+        .grid-cell.selectable {
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .grid-cell.selectable:hover {
+            transform: scale(1.1);
+        }
+        .grid-cell.current {
+            background-color: #2b6cb0;
+            color: white;
+            border: 2px solid #3182ce;
+        }
+        .grid-cell.visited {
+            background-color: #38a169;
+            color: white;
+        }
+        .grid-cell.neighbor {
+            background-color: #f6ad55;
+        }
+        .grid-cell.best {
+            background-color: #9f7aea;
+            color: white;
+        }
+        .grid-cell.shake {
+            background-color: #ed8936;
+            color: white;
+        }
+        .controls {
+            margin-top: 2rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .btn-start {
+            background-color: #48bb78;
+            color: white;
+        }
+        .btn-start:hover {
+            background-color: #38a169;
+        }
+        .btn-reset, .btn-generate {
+            background-color: #f56565;
+            color: white;
+        }
+        .btn-reset:hover, .btn-generate:hover {
+            background-color: #e53e3e;
+        }
+        .btn-download {
+            background-color: #4a5568;
+            color: white;
+        }
+        .btn-download:hover {
+            background-color: #2d3748;
+        }
+        .message-box {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            display: none;
+        }
+        .message-box.show {
+            display: block;
+        }
+        .message-success {
+            background-color: #d1f7e0;
+            color: #2f855a;
+        }
+        .message-info {
+            background-color: #e2f3ff;
+            color: #3182ce;
+        }
+        .message-warning {
+            background-color: #fef5e7;
+            color: #d97706;
+        }
+        .btn-back {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background-color: #4299e1;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            z-index: 10;
+            text-decoration: none;
+        }
+        .btn-back:hover {
+            background-color: #3182ce;
+            transform: translateY(-2px);
+        }
+        .stats-container {
+            margin-top: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            text-align: center;
+        }
+        .stat-box {
+            background-color: #f7fafc;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid #e2e8f0;
+            min-width: 120px;
+        }
+        .stat-label {
+            font-size: 0.875rem;
+            color: #718096;
+            margin-bottom: 0.25rem;
+        }
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2d3748;
+        }
+        .neighborhood-indicator {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            background: #124559;
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+    <div class="container flex flex-col items-center">
+        <a href="busqueda-local.html" class="btn-back">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Regresar
+        </a>
+        <h1 class="text-4xl font-extrabold text-gray-800 mb-2">VNS - Variable Neighborhood Search</h1>
+        <p class="text-gray-600 mb-4">
+            VNS (Búsqueda de Vecindario Variable) es una metaheurística que explora sistemáticamente diferentes estructuras de vecindario. Cuando queda atrapado en un óptimo local con un vecindario, cambia a otro vecindario más amplio para escapar. Si encuentra mejora, vuelve al vecindario más pequeño.
+        </p>
+        <p class="text-gray-600 mb-2">
+            <strong>Vecindarios:</strong> N1 = Cruz (4 vecinos) | N2 = Diagonales (4 vecinos) | N3 = Conectividad-8 (8 vecinos) | N4 = Cruz extendida (12 vecinos)
+        </p>
+        <p class="text-gray-600 mb-4">
+            <strong>Colores:</strong> <span style="color: #2b6cb0;">●</span> Azul = Posición actual | <span style="color: #38a169;">●</span> Verde = Visitado | <span style="color: #f6ad55;">●</span> Naranja = Vecinos | <span style="color: #ed8936;">●</span> Naranja oscuro = Shake | <span style="color: #9f7aea;">●</span> Morado = Mejor solución
+        </p>
+        
+        <div id="grid-container" class="grid-container"></div>
+
+        <div class="neighborhood-indicator" id="neighborhood-indicator">
+            Vecindario actual: N1 (Cruz - 4 vecinos)
+        </div>
+
+        <div class="stats-container">
+            <div class="stat-box">
+                <div class="stat-label">Iteración</div>
+                <div class="stat-value" id="iteration-value">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Vecindario</div>
+                <div class="stat-value" id="neighborhood-value">N1</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Valor Actual</div>
+                <div class="stat-value" id="current-value">-</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Mejor Valor</div>
+                <div class="stat-value" id="best-value">-</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button id="generate-btn" class="btn btn-generate">Nueva cuadrícula</button>
+            <button id="start-btn" class="btn btn-start" disabled>Comenzar VNS</button>
+            <button id="reset-btn" class="btn btn-reset" disabled>Reiniciar</button>
+            <button id="download-btn" class="btn btn-download">Descargar</button>
+        </div>
+
+        <div id="message-box" class="message-box"></div>
+    </div>
+
+    <script>
+        const gridContainer = document.getElementById('grid-container');
+        const startBtn = document.getElementById('start-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const generateBtn = document.getElementById('generate-btn');
+        const downloadBtn = document.getElementById('download-btn');
+        const messageBox = document.getElementById('message-box');
+        const iterationValue = document.getElementById('iteration-value');
+        const neighborhoodValue = document.getElementById('neighborhood-value');
+        const currentValueDisplay = document.getElementById('current-value');
+        const bestValueDisplay = document.getElementById('best-value');
+        const neighborhoodIndicator = document.getElementById('neighborhood-indicator');
+
+        let gridData = [];
+        let currentRow = -1;
+        let currentCol = -1;
+        let bestRow = -1;
+        let bestCol = -1;
+        let bestValue = Infinity;
+        let intervalId = null;
+        let iteration = 0;
+        const maxIterations = 100;
+        let currentNeighborhood = 1;
+        const maxNeighborhoods = 4;
+
+        const neighborhoodNames = {
+            1: 'N1 (Cruz - 4 vecinos)',
+            2: 'N2 (Diagonales - 4 vecinos)',
+            3: 'N3 (Conectividad-8 - 8 vecinos)',
+            4: 'N4 (Cruz extendida - 12 vecinos)'
+        };
+
+        function generateGridData() {
+            const data = [];
+            for (let i = 0; i < 10; i++) {
+                const row = [];
+                for (let j = 0; j < 10; j++) {
+                    row.push(Math.floor(Math.random() * 100) + 1);
+                }
+                data.push(row);
+            }
+            const numValleys = Math.floor(Math.random() * 3) + 2;
+            for (let v = 0; v < numValleys; v++) {
+                const centerRow = Math.floor(Math.random() * 10);
+                const centerCol = Math.floor(Math.random() * 10);
+                const valleySize = Math.floor(Math.random() * 2) + 1;
+                const baseValue = Math.floor(Math.random() * 30) + 1;
+                for (let i = Math.max(0, centerRow - valleySize); i <= Math.min(9, centerRow + valleySize); i++) {
+                    for (let j = Math.max(0, centerCol - valleySize); j <= Math.min(9, centerCol + valleySize); j++) {
+                        const distance = Math.abs(i - centerRow) + Math.abs(j - centerCol);
+                        if (distance <= valleySize) {
+                            const valleyValue = baseValue + distance * Math.floor(Math.random() * 5);
+                            if (valleyValue < data[i][j]) {
+                                data[i][j] = valleyValue;
+                            }
+                        }
+                    }
+                }
+            }
+            return data;
+        }
+
+        function createGrid() {
+            gridContainer.innerHTML = '';
+            for (let i = 0; i < 10; i++) {
+                for (let j = 0; j < 10; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'grid-cell selectable';
+                    cell.textContent = gridData[i][j];
+                    cell.dataset.row = i;
+                    cell.dataset.col = j;
+                    gridContainer.appendChild(cell);
+                    cell.addEventListener('click', handleCellClick);
+                }
+            }
+        }
+
+        function handleCellClick(event) {
+            document.querySelectorAll('.grid-cell').forEach(cell => {
+                cell.classList.remove('current', 'visited', 'best');
+            });
+            
+            currentRow = parseInt(event.target.dataset.row);
+            currentCol = parseInt(event.target.dataset.col);
+            bestRow = currentRow;
+            bestCol = currentCol;
+            bestValue = gridData[currentRow][currentCol];
+            event.target.classList.add('current');
+            
+            iteration = 0;
+            currentNeighborhood = 1;
+            updateStats();
+            
+            startBtn.disabled = false;
+            resetBtn.disabled = false;
+            showMessage(`Punto de inicio seleccionado en (${currentCol + 1}, ${10 - currentRow}). Presione "Comenzar VNS" para iniciar.`, 'info');
+        }
+
+        function showMessage(text, type = 'info') {
+            messageBox.textContent = text;
+            const typeClass = type === 'success' ? 'message-success' : type === 'warning' ? 'message-warning' : 'message-info';
+            messageBox.className = `message-box show ${typeClass}`;
+        }
+
+        function getValue(row, col) {
+            if (row >= 0 && row < 10 && col >= 0 && col < 10) {
+                return gridData[row][col];
+            }
+            return Infinity;
+        }
+
+        function updateStats() {
+            iterationValue.textContent = iteration;
+            neighborhoodValue.textContent = `N${currentNeighborhood}`;
+            currentValueDisplay.textContent = (currentRow >= 0 && currentCol >= 0) ? gridData[currentRow][currentCol] : '-';
+            bestValueDisplay.textContent = bestValue !== Infinity ? bestValue : '-';
+            neighborhoodIndicator.textContent = `Vecindario actual: ${neighborhoodNames[currentNeighborhood]}`;
+        }
+
+        function getNeighbors(neighborhoodType) {
+            let neighbors = [];
+            
+            if (neighborhoodType === 1) {
+                // N1: Cruz (4 vecinos)
+                neighbors = [
+                    { r: currentRow - 1, c: currentCol },
+                    { r: currentRow + 1, c: currentCol },
+                    { r: currentRow, c: currentCol - 1 },
+                    { r: currentRow, c: currentCol + 1 }
+                ];
+            } else if (neighborhoodType === 2) {
+                // N2: Diagonales (4 vecinos)
+                neighbors = [
+                    { r: currentRow - 1, c: currentCol - 1 },
+                    { r: currentRow - 1, c: currentCol + 1 },
+                    { r: currentRow + 1, c: currentCol - 1 },
+                    { r: currentRow + 1, c: currentCol + 1 }
+                ];
+            } else if (neighborhoodType === 3) {
+                // N3: Conectividad-8 (8 vecinos)
+                neighbors = [
+                    { r: currentRow - 1, c: currentCol },
+                    { r: currentRow + 1, c: currentCol },
+                    { r: currentRow, c: currentCol - 1 },
+                    { r: currentRow, c: currentCol + 1 },
+                    { r: currentRow - 1, c: currentCol - 1 },
+                    { r: currentRow - 1, c: currentCol + 1 },
+                    { r: currentRow + 1, c: currentCol - 1 },
+                    { r: currentRow + 1, c: currentCol + 1 }
+                ];
+            } else if (neighborhoodType === 4) {
+                // N4: Cruz extendida (12 vecinos)
+                neighbors = [
+                    { r: currentRow - 1, c: currentCol },
+                    { r: currentRow + 1, c: currentCol },
+                    { r: currentRow, c: currentCol - 1 },
+                    { r: currentRow, c: currentCol + 1 },
+                    { r: currentRow - 2, c: currentCol },
+                    { r: currentRow + 2, c: currentCol },
+                    { r: currentRow, c: currentCol - 2 },
+                    { r: currentRow, c: currentCol + 2 },
+                    { r: currentRow - 1, c: currentCol - 1 },
+                    { r: currentRow - 1, c: currentCol + 1 },
+                    { r: currentRow + 1, c: currentCol - 1 },
+                    { r: currentRow + 1, c: currentCol + 1 }
+                ];
+            }
+            
+            return neighbors.filter(n => n.r >= 0 && n.r < 10 && n.c >= 0 && n.c < 10);
+        }
+
+        function vnsStep() {
+            if (iteration >= maxIterations) {
+                clearInterval(intervalId);
+                intervalId = null;
+                
+                const bestCell = document.querySelector(`[data-row='${bestRow}'][data-col='${bestCol}']`);
+                bestCell.classList.add('best');
+                
+                showMessage(`VNS completado. Mejor solución: ${bestValue} en (${bestCol + 1}, ${10 - bestRow})`, 'success');
+                startBtn.disabled = true;
+                resetBtn.disabled = false;
+                generateBtn.disabled = false;
+                return;
+            }
+
+            const neighbors = getNeighbors(currentNeighborhood);
+            
+            neighbors.forEach(n => {
+                const neighborCell = document.querySelector(`[data-row='${n.r}'][data-col='${n.c}']`);
+                if (neighborCell) {
+                    neighborCell.classList.add('neighbor');
+                }
+            });
+
+            setTimeout(() => {
+                document.querySelectorAll('.neighbor').forEach(cell => cell.classList.remove('neighbor'));
+
+                let bestNeighbor = null;
+                let bestNeighborValue = gridData[currentRow][currentCol];
+
+                for (const neighbor of neighbors) {
+                    const value = getValue(neighbor.r, neighbor.c);
+                    if (value < bestNeighborValue) {
+                        bestNeighbor = neighbor;
+                        bestNeighborValue = value;
+                    }
+                }
+
+                if (bestNeighbor) {
+                    // Mejora encontrada
+                    const currentCell = document.querySelector(`[data-row='${currentRow}'][data-col='${currentCol}']`);
+                    currentCell.classList.remove('current');
+                    currentCell.classList.add('visited');
+                    
+                    currentRow = bestNeighbor.r;
+                    currentCol = bestNeighbor.c;
+                    
+                    const newCurrentCell = document.querySelector(`[data-row='${currentRow}'][data-col='${currentCol}']`);
+                    newCurrentCell.classList.add('current');
+
+                    if (bestNeighborValue < bestValue) {
+                        document.querySelectorAll('.best').forEach(cell => cell.classList.remove('best'));
+                        bestValue = bestNeighborValue;
+                        bestRow = currentRow;
+                        bestCol = currentCol;
+                        showMessage(`¡Mejora! Valor: ${bestValue} en (${bestCol + 1}, ${10 - bestRow}) con ${neighborhoodNames[currentNeighborhood]}`, 'success');
+                    }
+                    
+                    // Volver al vecindario más pequeño
+                    currentNeighborhood = 1;
+                    showMessage(`Mejora encontrada. Volviendo a ${neighborhoodNames[1]}`, 'info');
+                } else {
+                    // No hay mejora, cambiar a siguiente vecindario
+                    if (currentNeighborhood < maxNeighborhoods) {
+                        currentNeighborhood++;
+                        showMessage(`Sin mejora en N${currentNeighborhood - 1}. Cambiando a ${neighborhoodNames[currentNeighborhood]}`, 'warning');
+                    } else {
+                        // Shake: movimiento aleatorio
+                        const allNeighbors = getNeighbors(4);
+                        if (allNeighbors.length > 0) {
+                            const randomNeighbor = allNeighbors[Math.floor(Math.random() * allNeighbors.length)];
+                            
+                            const currentCell = document.querySelector(`[data-row='${currentRow}'][data-col='${currentCol}']`);
+                            currentCell.classList.remove('current');
+                            currentCell.classList.add('visited');
+                            
+                            currentRow = randomNeighbor.r;
+                            currentCol = randomNeighbor.c;
+                            
+                            const newCurrentCell = document.querySelector(`[data-row='${currentRow}'][data-col='${currentCol}']`);
+                            newCurrentCell.classList.add('current');
+                            newCurrentCell.classList.add('shake');
+                            setTimeout(() => newCurrentCell.classList.remove('shake'), 1000);
+                            
+                            currentNeighborhood = 1;
+                            showMessage(`Shake aplicado. Movimiento aleatorio a (${currentCol + 1}, ${10 - currentRow})`, 'warning');
+                        }
+                    }
+                }
+
+                iteration++;
+                updateStats();
+            }, 800);
+        }
+
+        function startAnimation() {
+            startBtn.disabled = true;
+            generateBtn.disabled = true;
+            document.querySelectorAll('.selectable').forEach(cell => {
+                cell.classList.remove('selectable');
+                cell.removeEventListener('click', handleCellClick);
+            });
+            showMessage('Comenzando VNS...');
+            intervalId = setInterval(vnsStep, 1600);
+        }
+
+        function resetAnimation() {
+            clearInterval(intervalId);
+            intervalId = null;
+            currentRow = -1;
+            currentCol = -1;
+            bestRow = -1;
+            bestCol = -1;
+            bestValue = Infinity;
+            iteration = 0;
+            currentNeighborhood = 1;
+            updateStats();
+            createGrid();
+            startBtn.disabled = true;
+            resetBtn.disabled = true;
+            generateBtn.disabled = false;
+            showMessage('Seleccione un punto de inicio en la cuadrícula.', 'info');
+        }
+
+        function downloadGridData() {
+            const dataString = gridData.map(row => row.join(', ')).join('\n');
+            const blob = new Blob([dataString], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'grid_data_vns.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showMessage('Cuadrícula descargada como grid_data_vns.txt', 'success');
+        }
+
+        startBtn.addEventListener('click', startAnimation);
+        resetBtn.addEventListener('click', resetAnimation);
+        generateBtn.addEventListener('click', () => {
+            gridData = generateGridData().reverse();
+            resetAnimation();
+        });
+        downloadBtn.addEventListener('click', downloadGridData);
+        
+        gridData = generateGridData().reverse();
+        createGrid();
+        updateStats();
+        showMessage('Seleccione un punto de inicio en la cuadrícula.', 'info');
+    </script>
+
+    <script>
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'F12' || e.keyCode === 123) {
+                e.preventDefault();
+            }
+            if (e.ctrlKey) {
+                const key = e.key.toLowerCase();
+                if (['c', 'x', 'u', 's', 'p'].includes(key)) {
+                    e.preventDefault();
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>

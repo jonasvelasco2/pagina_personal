@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Descenso simple</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+            color: #1a202c;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+            text-align: center;
+        }
+        .container {
+            background-color: white;
+            padding: 4rem 2rem 2rem 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 90%;
+            position: relative;
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(15, minmax(0, 1fr));
+            gap: 2px;
+            margin-top: 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            background-color: #e2e8f0;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .grid-cell {
+            width: 3rem;
+            height: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f7fafc;
+            transition: background-color 0.5s ease-in-out;
+            font-weight: 600;
+        }
+        .grid-cell.selectable {
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .grid-cell.selectable:hover {
+            transform: scale(1.1);
+        }
+        .grid-cell.current {
+            background-color: #2b6cb0; /* blue */
+            color: white;
+            border: 2px solid #3182ce;
+        }
+        .grid-cell.visited {
+            background-color: #38a169; /* green */
+            color: white;
+        }
+        .grid-cell.neighbor {
+            background-color: #f6ad55; /* orange */
+        }
+        .controls {
+            margin-top: 2rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .btn-start {
+            background-color: #48bb78;
+            color: white;
+        }
+        .btn-start:hover {
+            background-color: #38a169;
+        }
+        .btn-reset, .btn-generate {
+            background-color: #f56565;
+            color: white;
+        }
+        .btn-reset:hover, .btn-generate:hover {
+            background-color: #e53e3e;
+        }
+        .btn-download {
+            background-color: #4a5568;
+            color: white;
+        }
+        .btn-download:hover {
+            background-color: #2d3748;
+        }
+        .message-box {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            display: none;
+        }
+        .message-box.show {
+            display: block;
+        }
+        .message-success {
+            background-color: #d1f7e0;
+            color: #2f855a;
+        }
+        .message-info {
+            background-color: #e2f3ff;
+            color: #3182ce;
+        }
+        .btn-back {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background-color: #4299e1;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            z-index: 10;
+            text-decoration: none;
+        }
+        .btn-back:hover {
+            background-color: #3182ce;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+    <div class="container flex flex-col items-center">
+        <a href="busqueda-local.html" class="btn-back">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Regresar
+        </a>
+        <h1 class="text-4xl font-extrabold text-gray-800 mb-2">Descenso simple</h1>
+        <p class="text-gray-600 mb-4">
+            El descenso simple es un algoritmo de optimización local, que para este ejemplo, busca el valor mínimo en una cuadrícula. Inicia en un punto y se mueve repetidamente a la posición adyacente (12 vecinos en total: 4 adyacentes directos (cruz interna), 4 diagonales cercanas, y 4 vecinos lejanos a distancia 2 (cruz externa)) con el valor más bajo. El proceso se detiene cuando no hay un vecino con un valor más bajo, indicando que se ha encontrado un "óptimo local".
+        </p>
+        
+        <div id="grid-container" class="grid-container"></div>
+
+        <div class="controls">
+            <button id="generate-btn" class="btn btn-generate">Nueva cuadrícula</button>
+            <button id="start-btn" class="btn btn-start" disabled>Comenzar búsqueda</button>
+            <button id="reset-btn" class="btn btn-reset" disabled>Reiniciar</button>
+            <button id="download-btn" class="btn btn-download">Descargar</button>
+        </div>
+
+        <div id="message-box" class="message-box"></div>
+    </div>
+
+    <script>
+        const gridContainer = document.getElementById('grid-container');
+        const startBtn = document.getElementById('start-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const generateBtn = document.getElementById('generate-btn');
+        const downloadBtn = document.getElementById('download-btn');
+        const messageBox = document.getElementById('message-box');
+
+        let gridData = [];
+        let currentRow = -1;
+        let currentCol = -1;
+        let intervalId = null;
+
+        // Genera datos completamente aleatorios y retadores
+        function generateGridData() {
+            const data = [];
+            const rows = 15;
+            const cols = 15;
+
+            // Inicializa toda la cuadrícula con valores completamente aleatorios
+            for (let i = 0; i < rows; i++) {
+                const row = [];
+                for (let j = 0; j < cols; j++) {
+                    row.push(Math.floor(Math.random() * 100) + 1); // Valores entre 1 y 100
+                }
+                data.push(row);
+            }
+
+            // Crear algunos "valles" aleatorios (zonas con valores más bajos) para hacer más retador
+            const numValleys = Math.floor(Math.random() * 3) + 2; // Entre 2 y 4 valles
+            
+            for (let v = 0; v < numValleys; v++) {
+                const centerRow = Math.floor(Math.random() * rows);
+                const centerCol = Math.floor(Math.random() * cols);
+                const valleySize = Math.floor(Math.random() * 3) + 2; // Radio de 2-4 celdas
+                const baseValue = Math.floor(Math.random() * 30) + 1; // Valores bajos entre 1-30
+                
+                // Crear el valle con valores decrecientes hacia el centro
+                for (let i = Math.max(0, centerRow - valleySize); i <= Math.min(rows - 1, centerRow + valleySize); i++) {
+                    for (let j = Math.max(0, centerCol - valleySize); j <= Math.min(cols - 1, centerCol + valleySize); j++) {
+                        const distance = Math.abs(i - centerRow) + Math.abs(j - centerCol);
+                        if (distance <= valleySize) {
+                            const valleyValue = baseValue + distance * Math.floor(Math.random() * 5);
+                            if (valleyValue < data[i][j]) {
+                                data[i][j] = valleyValue;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Crear algunas "montañas" aleatorias (zonas con valores más altos) para obstáculos
+            const numMountains = Math.floor(Math.random() * 2) + 1; // Entre 1 y 2 montañas
+            
+            for (let m = 0; m < numMountains; m++) {
+                const centerRow = Math.floor(Math.random() * rows);
+                const centerCol = Math.floor(Math.random() * cols);
+                const mountainSize = Math.floor(Math.random() * 2) + 1; // Radio de 1-2 celdas
+                const baseValue = Math.floor(Math.random() * 20) + 80; // Valores altos entre 80-99
+                
+                // Crear la montaña con valores crecientes hacia el centro
+                for (let i = Math.max(0, centerRow - mountainSize); i <= Math.min(rows - 1, centerRow + mountainSize); i++) {
+                    for (let j = Math.max(0, centerCol - mountainSize); j <= Math.min(cols - 1, centerCol + mountainSize); j++) {
+                        const distance = Math.abs(i - centerRow) + Math.abs(j - centerCol);
+                        if (distance <= mountainSize) {
+                            const mountainValue = baseValue + (mountainSize - distance) * Math.floor(Math.random() * 5);
+                            if (mountainValue > data[i][j]) {
+                                data[i][j] = mountainValue;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return data;
+        }
+
+
+        // Create the grid from data
+        function createGrid() {
+            gridContainer.innerHTML = '';
+            for (let i = 0; i < 15; i++) {
+                for (let j = 0; j < 15; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'grid-cell selectable';
+                    cell.textContent = gridData[i][j];
+                    cell.dataset.row = i;
+                    cell.dataset.col = j;
+                    gridContainer.appendChild(cell);
+                    cell.addEventListener('click', handleCellClick);
+                }
+            }
+        }
+
+        // Handle cell selection
+        function handleCellClick(event) {
+            // Remove 'current' and 'visited' class from all cells
+            document.querySelectorAll('.grid-cell').forEach(cell => {
+                cell.classList.remove('current', 'visited');
+            });
+            
+            // Set the new starting point
+            currentRow = parseInt(event.target.dataset.row);
+            currentCol = parseInt(event.target.dataset.col);
+            event.target.classList.add('current');
+            
+            startBtn.disabled = false;
+            resetBtn.disabled = false;
+            showMessage(`Punto de inicio seleccionado en (${currentCol + 1}, ${15 - currentRow}). Presione "Comenzar" para iniciar.`, 'info');
+        }
+
+        // Show a message in the message box
+        function showMessage(text, type = 'info') {
+            messageBox.textContent = text;
+            messageBox.className = `message-box show ${type === 'success' ? 'message-success' : 'message-info'}`;
+        }
+
+        // Get the value of a cell
+        function getValue(row, col) {
+            if (row >= 0 && row < 15 && col >= 0 && col < 15) {
+                return gridData[row][col];
+            }
+            return Infinity;
+        }
+
+        // Find the best neighbor ("two times cross" - incluye vecinos lejanos)
+        function findBestNeighbor() {
+            const neighbors = [
+                // Cruz interna (adyacentes directos)
+                { r: currentRow - 1, c: currentCol, order: 1 },     // Arriba
+                { r: currentRow, c: currentCol - 1, order: 2 },     // Izquierda
+                { r: currentRow + 1, c: currentCol, order: 3 },     // Abajo
+                { r: currentRow, c: currentCol + 1, order: 4 },     // Derecha
+                // Diagonales cercanas
+                { r: currentRow - 1, c: currentCol - 1, order: 5 }, // Diagonal superior-izquierda
+                { r: currentRow - 1, c: currentCol + 1, order: 6 }, // Diagonal superior-derecha
+                { r: currentRow + 1, c: currentCol - 1, order: 7 }, // Diagonal inferior-izquierda
+                { r: currentRow + 1, c: currentCol + 1, order: 8 }, // Diagonal inferior-derecha
+                // Cruz externa (vecinos lejanos a distancia 2)
+                { r: currentRow - 2, c: currentCol, order: 9 },     // Arriba lejano
+                { r: currentRow, c: currentCol - 2, order: 10 },    // Izquierda lejano
+                { r: currentRow + 2, c: currentCol, order: 11 },    // Abajo lejano
+                { r: currentRow, c: currentCol + 2, order: 12 }     // Derecha lejano
+            ];
+
+            let bestNeighbor = null;
+            let minVal = gridData[currentRow][currentCol];
+            
+            // Highlight all potential neighbors first
+            neighbors.forEach(n => {
+                const neighborCell = document.querySelector(`[data-row='${n.r}'][data-col='${n.c}']`);
+                if (neighborCell && !neighborCell.classList.contains('visited')) {
+                    neighborCell.classList.add('neighbor');
+                }
+            });
+
+            // Find the best one after a delay
+            setTimeout(() => {
+                // Remove neighbor highlight
+                document.querySelectorAll('.neighbor').forEach(cell => cell.classList.remove('neighbor'));
+
+                for (const neighbor of neighbors) {
+                    const val = getValue(neighbor.r, neighbor.c);
+                    if (val < minVal) {
+                        minVal = val;
+                        bestNeighbor = neighbor;
+                    }
+                }
+                
+                if (bestNeighbor) {
+                    // Move to the new position
+                    const currentCell = document.querySelector(`[data-row='${currentRow}'][data-col='${currentCol}']`);
+                    currentCell.classList.remove('current');
+                    currentCell.classList.add('visited');
+                    currentRow = bestNeighbor.r;
+                    currentCol = bestNeighbor.c;
+                    const newCurrentCell = document.querySelector(`[data-row='${currentRow}'][data-col='${currentCol}']`);
+                    newCurrentCell.classList.add('current');
+                    showMessage(`Moviéndose a (${currentCol + 1}, ${15 - currentRow}) con valor ${gridData[currentRow][currentCol]}`);
+                } else {
+                    // No better neighbor found, animation stops
+                    clearInterval(intervalId);
+                    intervalId = null;
+                    showMessage(`Óptimo local encontrado en (${currentCol + 1}, ${15 - currentRow}) con valor ${gridData[currentRow][currentCol]}`, 'success');
+                    startBtn.disabled = true;
+                    resetBtn.disabled = false;
+                }
+            }, 1000); // 1 second delay
+        }
+
+        // Animation step
+        function animateStep() {
+            findBestNeighbor();
+        }
+        
+        // Start animation
+        function startAnimation() {
+            startBtn.disabled = true;
+            generateBtn.disabled = true;
+            document.querySelectorAll('.selectable').forEach(cell => {
+                cell.classList.remove('selectable');
+                cell.removeEventListener('click', handleCellClick);
+            });
+            showMessage('Comenzando la animación...');
+            intervalId = setInterval(animateStep, 2000); // 2 seconds delay between steps
+        }
+
+        // Reset the animation
+        function resetAnimation() {
+            clearInterval(intervalId);
+            intervalId = null;
+            currentRow = -1;
+            currentCol = -1;
+            createGrid(); // Re-create grid with click listeners
+            startBtn.disabled = true;
+            resetBtn.disabled = true;
+            generateBtn.disabled = false;
+            showMessage('Seleccione un punto de inicio en la cuadrícula.', 'info');
+        }
+
+        // Function to download the grid data as a text file
+        function downloadGridData() {
+            const dataString = gridData.map(row => row.join(', ')).join('\n');
+            const blob = new Blob([dataString], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'grid_data.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showMessage('Cuadrícula descargada como grid_data.txt', 'success');
+        }
+
+        // Event listeners
+        startBtn.addEventListener('click', startAnimation);
+        resetBtn.addEventListener('click', resetAnimation);
+        generateBtn.addEventListener('click', () => {
+            gridData = generateGridData().reverse();
+            resetAnimation();
+        });
+        downloadBtn.addEventListener('click', downloadGridData);
+        
+        // Initial setup
+        gridData = generateGridData().reverse();
+        createGrid();
+        showMessage('Seleccione un punto de inicio en la cuadrícula.', 'info');
+    </script>
+
+    <script>
+        // --- LÓGICA DE PROTECCIÓN ---
+
+
+        // 1. Deshabilitar el clic derecho en toda la página
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            showProtectionToast('El clic derecho está deshabilitado.');
+        });
+
+        // 2. Bloquear atajos de teclado comunes
+        document.addEventListener('keydown', function(e) {
+            // Bloquear F12 para dificultar el acceso a las herramientas de desarrollador
+            if (e.key === 'F12' || e.keyCode === 123) {
+                e.preventDefault();
+                showProtectionToast('Las herramientas de desarrollador están deshabilitadas.');
+            }
+
+            // Bloquear combinaciones con la tecla Ctrl
+            if (e.ctrlKey) {
+                const key = e.key.toLowerCase();
+                if (['c', 'x', 'u', 's', 'p'].includes(key)) {
+                    e.preventDefault();
+                    showProtectionToast(`La función (Ctrl+${key.toUpperCase()}) ha sido deshabilitada.`);
+                }
+            }
+        });
+    </script>
+
+
+</body>
+</html>
+
