@@ -13,6 +13,8 @@ const phaseIndicator = document.getElementById('phase-indicator');
 const populationList = document.getElementById('population-list');
 const populationInput = document.getElementById('population-input');
 const populationDisplayValue = document.getElementById('population-display-value');
+const crossoverInput = document.getElementById('crossover-input');
+const crossoverDisplay = document.getElementById('crossover-display');
 const mutationInput = document.getElementById('mutation-input');
 const mutationDisplay = document.getElementById('mutation-display');
 const generationsInput = document.getElementById('generations-input');
@@ -23,6 +25,7 @@ let population = [];
 let generation = 0;
 let maxGenerations = 10;
 let populationSize = 10;
+let crossoverRate = 0.7;
 let mutationRate = 0.1;
 let bestIndividual = null;
 let bestFitness = Infinity;
@@ -164,7 +167,7 @@ function tournamentSelection() {
 }
 
 function crossover(parent1, parent2) {
-    if (Math.random() < 0.7) {
+    if (Math.random() < crossoverRate) {
         const offspring = {
             row: Math.random() < 0.5 ? parent1.row : parent2.row,
             col: Math.random() < 0.5 ? parent1.col : parent2.col
@@ -287,6 +290,7 @@ function finishGA() {
     resetBtn.disabled = false;
     generateBtn.disabled = false;
     populationInput.disabled = false;
+    crossoverInput.disabled = false;
     mutationInput.disabled = false;
     generationsInput.disabled = false;
 }
@@ -297,6 +301,7 @@ function startGA() {
     resetBtn.disabled = true;
     generateBtn.disabled = true;
     populationInput.disabled = true;
+    crossoverInput.disabled = true;
     mutationInput.disabled = true;
     generationsInput.disabled = true;
     
@@ -328,6 +333,7 @@ function resetAnimation() {
     resetBtn.disabled = true;
     generateBtn.disabled = false;
     populationInput.disabled = false;
+    crossoverInput.disabled = false;
     mutationInput.disabled = false;
     generationsInput.disabled = false;
     showMessage('Presione "Comenzar AG" para iniciar el algoritmo genético.', 'info');
@@ -358,6 +364,11 @@ downloadBtn.addEventListener('click', downloadGridData);
 populationInput.addEventListener('input', (e) => {
     populationSize = parseInt(e.target.value);
     populationDisplayValue.textContent = populationSize;
+});
+
+crossoverInput.addEventListener('input', (e) => {
+    crossoverRate = parseInt(e.target.value) / 100;
+    crossoverDisplay.textContent = `${e.target.value}%`;
 });
 
 mutationInput.addEventListener('input', (e) => {

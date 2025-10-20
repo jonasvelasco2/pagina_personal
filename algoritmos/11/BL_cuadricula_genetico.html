@@ -338,7 +338,7 @@
             <strong>Población actual:</strong> <span id="population-list">-</span>
         </div>
 
-        <div class="mt-6 max-w-3xl mx-auto grid md:grid-cols-3 gap-4">
+        <div class="mt-6 max-w-5xl mx-auto grid md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="bg-white p-4 rounded-lg border border-gray-200">
                 <label for="population-input" class="block text-sm font-semibold text-gray-700 mb-2">
                     Tamaño de población:
@@ -348,9 +348,21 @@
                 </div>
                 <input type="range" id="population-input" min="4" max="20" value="10" 
                        class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
-                <p class="text-xs text-gray-500 mt-2">Número de individuos (4-20)</p>
+                <p class="text-xs text-gray-500 mt-2">Individuos (4-20)</p>
             </div>
             
+            <div class="bg-white p-4 rounded-lg border border-gray-200">
+                <label for="crossover-input" class="block text-sm font-semibold text-gray-700 mb-2">
+                    Tasa de cruza:
+                </label>
+                <div class="text-center mb-2">
+                    <span id="crossover-display" class="text-2xl font-bold text-[#004D40]">70%</span>
+                </div>
+                <input type="range" id="crossover-input" min="50" max="100" value="70" 
+                       class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                <p class="text-xs text-gray-500 mt-2">Probabilidad de cruza (50-100%)</p>
+            </div>
+
             <div class="bg-white p-4 rounded-lg border border-gray-200">
                 <label for="mutation-input" class="block text-sm font-semibold text-gray-700 mb-2">
                     Tasa de mutación:
@@ -372,7 +384,7 @@
                 </div>
                 <input type="range" id="generations-input" min="10" max="50" value="10" 
                        class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
-                <p class="text-xs text-gray-500 mt-2">Número de generaciones (10-50)</p>
+                <p class="text-xs text-gray-500 mt-2">Generaciones (10-50)</p>
             </div>
         </div>
 
