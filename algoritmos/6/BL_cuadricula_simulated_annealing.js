@@ -12,6 +12,8 @@ const temperatureInput = document.getElementById('temperature-input');
 const temperatureDisplay = document.getElementById('temperature-display');
 const iterationsInput = document.getElementById('iterations-input');
 const iterationsDisplay = document.getElementById('iterations-display');
+const coolingInput = document.getElementById('cooling-input');
+const coolingDisplay = document.getElementById('cooling-display');
 
 let gridData = [];
 let currentRow = -1;
@@ -24,7 +26,7 @@ let temperature = 100.0;
 let initialTemperature = 100.0;
 let iteration = 0;
 let maxIterations = 100;
-const coolingRate = 0.95;
+let coolingRate = 0.95;
 const minTemperature = 0.1;
 
 // Genera datos completamente aleatorios y retadores
@@ -164,8 +166,8 @@ function acceptanceProbability(currentEnergy, newEnergy, temp) {
     return Math.exp((currentEnergy - newEnergy) / temp);
 }
 
-// Get a random neighbor (8-connectivity)
-function getRandomNeighbor() {
+// Get all valid neighbors (8-connectivity)
+function getNeighbors() {
     const neighbors = [
         { r: currentRow - 1, c: currentCol },     // Arriba
         { r: currentRow + 1, c: currentCol },     // Abajo
@@ -178,12 +180,14 @@ function getRandomNeighbor() {
     ];
 
     // Filter valid neighbors
-    const validNeighbors = neighbors.filter(n => 
+    return neighbors.filter(n => 
         n.r >= 0 && n.r < 10 && n.c >= 0 && n.c < 10
     );
+}
 
-    // Return random valid neighbor
-    return validNeighbors[Math.floor(Math.random() * validNeighbors.length)];
+// Get a random neighbor from valid neighbors
+function getRandomNeighbor(neighbors) {
+    return neighbors[Math.floor(Math.random() * neighbors.length)];
 }
 
 // Simulated annealing step
@@ -209,20 +213,28 @@ function simulatedAnnealingStep() {
     }
 
     const currentEnergy = gridData[currentRow][currentCol];
-    const neighbor = getRandomNeighbor();
-    const newEnergy = gridData[neighbor.r][neighbor.c];
-
-    // Highlight the neighbor being considered
-    const neighborCell = document.querySelector(`[data-row='${neighbor.r}'][data-col='${neighbor.c}']`);
-    if (neighborCell) {
-        neighborCell.classList.add('neighbor');
-    }
-
-    setTimeout(() => {
-        // Remove neighbor highlight
-        if (neighborCell) {
-            neighborCell.classList.remove('neighbor');
+    
+    // Get all valid neighbors
+    const neighbors = getNeighbors();
+    
+    // Highlight all neighbors first
+    neighbors.forEach(n => {
+        const cell = document.querySelector(`[data-row='${n.r}'][data-col='${n.c}']`);
+        if (cell) {
+            cell.classList.add('neighbor');
         }
+    });
+
+    // Wait a moment to show all neighbors
+    setTimeout(() => {
+        // Select a random neighbor
+        const neighbor = getRandomNeighbor(neighbors);
+        const newEnergy = gridData[neighbor.r][neighbor.c];
+        
+        // Remove all neighbor highlights
+        document.querySelectorAll('.neighbor').forEach(cell => {
+            cell.classList.remove('neighbor');
+        });
 
         const acceptProb = acceptanceProbability(currentEnergy, newEnergy, temperature);
         const random = Math.random();
@@ -254,6 +266,7 @@ function simulatedAnnealingStep() {
             }
         } else {
             // Reject the move
+            const neighborCell = document.querySelector(`[data-row='${neighbor.r}'][data-col='${neighbor.c}']`);
             if (neighborCell) {
                 neighborCell.classList.add('rejected');
                 setTimeout(() => {
@@ -346,15 +359,24 @@ iterationsInput.addEventListener('input', (e) => {
     iterationsDisplay.textContent = maxIterations;
 });
 
+// Cooling rate input listener
+coolingInput.addEventListener('input', (e) => {
+    // Convert slider value (80-99) to decimal (0.80-0.99)
+    coolingRate = parseInt(e.target.value) / 100;
+    coolingDisplay.textContent = coolingRate.toFixed(2);
+});
+
 // Disable inputs during animation
 function disableInputs() {
     temperatureInput.disabled = true;
     iterationsInput.disabled = true;
+    coolingInput.disabled = true;
 }
 
 function enableInputs() {
     temperatureInput.disabled = false;
     iterationsInput.disabled = false;
+    coolingInput.disabled = false;
 }
 
 // Initial setup
