@@ -352,7 +352,7 @@
 
             <!-- Header -->
             <header class="text-center mb-8 pt-16">
-            <h1 class="text-4xl font-bold text-slate-900">🎒 Representaciones del Problema de la Mochila</h1>
+            <h1 class="text-4xl font-bold text-slate-900">🎒 Representaciones para el problema de la mochila</h1>
             <p class="text-lg text-slate-600 mt-2 max-w-3xl mx-auto">
                 Explora cómo diferentes representaciones (binaria, entera, continua y permutaciones) afectan la forma de codificar y evaluar soluciones para el problema de la mochila. 
                 Cada representación tiene sus propias <strong>ventajas</strong> y <strong>desventajas</strong>, y es crucial entender cómo evaluar correctamente una solución según la representación elegida.
@@ -392,11 +392,11 @@
                 <div class="stat-value" id="capacity-display">50 kg</div>
             </div>
             <div class="stat-box">
-                <div class="text-sm opacity-90">Peso Usado</div>
+                <div class="text-sm opacity-90">Peso usado</div>
                 <div class="stat-value" id="weight-display">0 kg</div>
             </div>
             <div class="stat-box">
-                <div class="text-sm opacity-90">Valor Total</div>
+                <div class="text-sm opacity-90">Valor total</div>
                 <div class="stat-value" id="value-display">$0</div>
             </div>
             <div class="stat-box">
@@ -410,7 +410,7 @@
         <!-- Barra de Capacidad -->
         <div class="mb-6">
             <div class="flex justify-between mb-2">
-                <span class="font-semibold text-gray-700">Capacidad de la Mochila</span>
+                <span class="font-semibold text-gray-700">Capacidad de la mochila</span>
                 <span class="text-gray-600" id="capacity-percentage">0%</span>
             </div>
             <div class="capacity-bar">
@@ -433,7 +433,7 @@
 
         <!-- Objetos Disponibles -->
         <div class="mb-6">
-            <h3 class="text-xl font-bold mb-4" style="color: #1a1a1a;">📦 Objetos Disponibles (15 items)</h3>
+            <h3 class="text-xl font-bold mb-4" style="color: #1a1a1a;">📦 Objetos disponibles (15 items)</h3>
             <p class="text-sm mb-3" style="color: #666;">Haz clic en un objeto para seleccionarlo/deseleccionarlo</p>
             <div id="items-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
                 <!-- Items will be generated here -->
@@ -442,7 +442,7 @@
 
         <!-- Representación Actual -->
         <div class="representation-card mb-6">
-            <h3 class="text-xl font-bold mb-4" style="color: #1a1a1a;">💻 Representación Actual: <span id="current-rep-name">Binaria</span></h3>
+            <h3 class="text-xl font-bold mb-4" style="color: #1a1a1a;">💻 Representación actual: <span id="current-rep-name">Binaria</span></h3>
             <div class="code-display mb-4" id="solution-code">
                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             </div>
@@ -473,7 +473,7 @@
             <div class="mt-6 p-4 rounded" style="background-color: #f8f9fa; border: 2px solid var(--air-force-blue);">
                 <h4 class="font-bold mb-3 flex items-center gap-2" style="color: #1a1a1a;">
                     <span>📝</span>
-                    <span>Pseudocódigo de Evaluación</span>
+                    <span>Pseudocódigo para evaluar una solución</span>
                 </h4>
                 <div class="code-display" id="pseudocode-display" style="background-color: #2d3748; color: #e2e8f0; font-size: 0.8rem; line-height: 1.6;">
 <pre style="margin: 0;">función evaluar_solución(solución, items, capacidad):
@@ -498,8 +498,8 @@
 
         <!-- Controles -->
         <div class="flex gap-4 justify-center flex-wrap">
-            <button class="btn btn-primary" id="random-btn">🎲 Solución Aleatoria</button>
-            <button class="btn btn-primary" id="greedy-btn">🎯 Solución Greedy</button>
+            <button class="btn btn-primary" id="random-btn">🎲 Solución aleatoria</button>
+            <button class="btn btn-primary" id="greedy-btn">🎯 Solución greedy</button>
             <button class="btn btn-secondary" id="clear-btn">🗑️ Limpiar</button>
         </div>
 
@@ -531,7 +531,7 @@
     <div id="overweight-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="text-2xl font-bold" style="color: #d9534f;">⚠️ Capacidad Excedida</h2>
+                <h2 class="text-2xl font-bold" style="color: #d9534f;">⚠️ Capacidad excedida</h2>
                 <button class="modal-close" id="modal-close">&times;</button>
             </div>
             <div class="mb-4">
