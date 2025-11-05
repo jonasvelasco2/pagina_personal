@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía - OptimizaGame</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="40" height="40" rx="8" fill="url(#gradient1)"/>
+                    <path d="M12 20L18 14L26 22L32 16" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="18" cy="14" r="2" fill="white"/>
+                    <circle cx="26" cy="22" r="2" fill="white"/>
+                    <defs>
+                        <linearGradient id="gradient1" x1="0" y1="0" x2="40" y2="40">
+                            <stop offset="0%" stop-color="#6366f1"/>
+                            <stop offset="100%" stop-color="#8b5cf6"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span class="logo-text">OptimizaGame</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Inicio</a></li>
+                <li><a href="levels.html" class="nav-link">Niveles</a></li>
+                <li><a href="leaderboard.html" class="nav-link">Ranking</a></li>
+                <li><a href="guide.html" class="nav-link active">Guía</a></li>
+                <li><a href="acerca.html" class="nav-link">Acerca de</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="guide-container">
+        <div class="container">
+ <!--           <div class="guide-header">
+                <h1 class="page-title">📚 Guía del Juego</h1>
+                <p class="page-subtitle">Todo lo que necesitas saber para dominar OptimizaGame</p>
+            </div> -->
+
+            <div class="guide-content">
+                <section class="guide-section">
+                    <h2 class="guide-title">🎮 ¿Cómo jugar?</h2>
+                    <div class="guide-card">
+                        <h3>1. Selecciona un Nivel</h3>
+                        <p>Comienza eligiendo un nivel de la página de niveles. Cada nivel tiene un problema de optimización diferente con su propia dificultad.</p>
+                    </div>
+                    <div class="guide-card">
+                        <h3>2. Lee el Objetivo</h3>
+                        <p>Cada nivel tiene un objetivo específico: maximizar ganancias, minimizar costos, optimizar rutas, etc. Lee cuidadosamente las restricciones.</p>
+                    </div>
+                    <div class="guide-card">
+                        <h3>3. Crea tu Solución</h3>
+                        <p>Usa los controles interactivos para crear tu solución. Puedes seleccionar elementos, ajustar cantidades o definir rutas según el tipo de problema.</p>
+                    </div>
+                    <div class="guide-card">
+                        <h3>4. Verifica y Compara</h3>
+                        <p>Cuando estés listo, verifica tu solución. El sistema comparará tu resultado con la solución óptima y te dará feedback inmediato.</p>
+                    </div>
+                </section>
+
+                <section class="guide-section">
+                    <h2 class="guide-title">⭐ Sistema de puntuación</h2>
+                    <div class="scoring-grid">
+                        <div class="score-card gold">
+                            <div class="score-icon">⭐⭐⭐</div>
+                            <h3>3 Estrellas</h3>
+                            <p>Solución óptima o 95-100% de eficiencia</p>
+                            <span class="score-points">1000 puntos</span>
+                        </div>
+                        <div class="score-card silver">
+                            <div class="score-icon">⭐⭐</div>
+                            <h3>2 Estrellas</h3>
+                            <p>Muy buena solución, 80-94% de eficiencia</p>
+                            <span class="score-points">700 puntos</span>
+                        </div>
+                        <div class="score-card bronze">
+                            <div class="score-icon">⭐</div>
+                            <h3>1 Estrella</h3>
+                            <p>Solución válida, 60-79% de eficiencia</p>
+                            <span class="score-points">400 puntos</span>
+                        </div>
+                    </div>
+                    <div class="bonus-info">
+                        <h4>🎁 Bonificaciones</h4>
+                        <ul>
+                            <li><strong>Bonus de Velocidad:</strong> +100 puntos por completar en menos de 5 minutos</li>
+                            <li><strong>Primer Intento:</strong> +200 puntos por resolver en el primer intento</li>
+                            <li><strong>Racha Perfecta:</strong> +500 puntos por obtener 3 estrellas en 5 niveles consecutivos</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section class="guide-section">
+                    <h2 class="guide-title">🎯 Tipos de problemas</h2>
+                    
+                    <div class="problem-type">
+                        <div class="problem-header">
+                            <span class="problem-icon">📦</span>
+                            <h3>Problema de la Mochila</h3>
+                        </div>
+                        <p><strong>Objetivo:</strong> Maximizar el valor de los objetos seleccionados sin exceder la capacidad.</p>
+                        <p><strong>Concepto:</strong> Programación dinámica, optimización combinatoria.</p>
+                        <p><strong>Aplicación real:</strong> Gestión de carteras de inversión, carga de contenedores.</p>
+                    </div>
+
+                    <div class="problem-type">
+                        <div class="problem-header">
+                            <span class="problem-icon">🏭</span>
+                            <h3>Producción Óptima</h3>
+                        </div>
+                        <p><strong>Objetivo:</strong> Maximizar la ganancia produciendo productos con recursos limitados.</p>
+                        <p><strong>Concepto:</strong> Programación lineal, análisis de restricciones.</p>
+                        <p><strong>Aplicación real:</strong> Planificación de producción en fábricas, asignación de recursos.</p>
+                    </div>
+
+                    <div class="problem-type">
+                        <div class="problem-header">
+                            <span class="problem-icon">🍕</span>
+                            <h3>Problema del Viajante (TSP)</h3>
+                        </div>
+                        <p><strong>Objetivo:</strong> Encontrar la ruta más corta que visite todos los puntos.</p>
+                        <p><strong>Concepto:</strong> Grafos, heurísticas, complejidad computacional.</p>
+                        <p><strong>Aplicación real:</strong> Rutas de reparto, planificación de viajes, circuitos impresos.</p>
+                    </div>
+
+                    <div class="problem-type">
+                        <div class="problem-header">
+                            <span class="problem-icon">👥</span>
+                            <h3>Asignación de Tareas</h3>
+                        </div>
+                        <p><strong>Objetivo:</strong> Asignar tareas a trabajadores minimizando costos o tiempo.</p>
+                        <p><strong>Concepto:</strong> Teoría de grafos bipartitos, algoritmo húngaro.</p>
+                        <p><strong>Aplicación real:</strong> Asignación de proyectos, scheduling de tareas.</p>
+                    </div>
+
+                    <div class="problem-type">
+                        <div class="problem-header">
+                            <span class="problem-icon">🚚</span>
+                            <h3>Problema de Transporte</h3>
+                        </div>
+                        <p><strong>Objetivo:</strong> Minimizar costos de envío desde múltiples orígenes a múltiples destinos.</p>
+                        <p><strong>Concepto:</strong> Programación lineal, flujo en redes.</p>
+                        <p><strong>Aplicación real:</strong> Logística de distribución, cadena de suministro.</p>
+                    </div>
+                </section>
+
+                <section class="guide-section">
+                    <h2 class="guide-title">💡 Consejos y estrategias</h2>
+                    <div class="tips-grid">
+                        <div class="tip-card">
+                            <div class="tip-icon">🎯</div>
+                            <h4>Entiende las restricciones</h4>
+                            <p>Antes de comenzar, lee cuidadosamente todas las restricciones. Una solución inválida no te dará puntos.</p>
+                        </div>
+                        <div class="tip-card">
+                            <div class="tip-icon">📊</div>
+                            <h4>Usa la visualización</h4>
+                            <p>Las gráficas en tiempo real te ayudan a ver el impacto de tus decisiones. Obsérvalas mientras construyes tu solución.</p>
+                        </div>
+                        <div class="tip-card">
+                            <div class="tip-icon">🔄</div>
+                            <h4>Itera y mejora</h4>
+                            <p>No tengas miedo de intentar múltiples veces. Cada intento te ayuda a entender mejor el problema.</p>
+                        </div>
+                        <div class="tip-card">
+                            <div class="tip-icon">💭</div>
+                            <h4>Usa las pistas</h4>
+                            <p>Si te quedas atascado, las pistas pueden darte ideas sobre qué enfoque tomar sin revelar la solución completa.</p>
+                        </div>
+                        <div class="tip-card">
+                            <div class="tip-icon">📈</div>
+                            <h4>Piensa en heurísticas</h4>
+                            <p>En problemas complejos, las reglas generales (heurísticas) pueden acercarte rápidamente a buenas soluciones.</p>
+                        </div>
+                        <div class="tip-card">
+                            <div class="tip-icon">🎓</div>
+                            <h4>Aprende de la solución óptima</h4>
+                            <p>Después de verificar, estudia la solución óptima para entender qué estrategia funciona mejor.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="guide-section">
+                    <h2 class="guide-title">❓ Preguntas frecuentes</h2>
+                    <div class="faq-list">
+                        <div class="faq-item">
+                            <h4>¿Qué es la optimización matemática?</h4>
+                            <p>La optimización matemática es el proceso de encontrar la mejor solución posible a un problema, generalmente maximizando o minimizando una función objetivo sujeta a restricciones. Es fundamental en campos como la ingeniería, economía, logística y ciencia de datos.</p>
+                        </div>
+                        <div class="faq-item">
+                            <h4>¿Necesito conocimientos previos de matemáticas?</h4>
+                            <p>No es necesario. Los niveles iniciales introducen los conceptos gradualmente. Sin embargo, conocimientos básicos de álgebra te ayudarán a entender mejor los problemas más avanzados.</p>
+                        </div>
+                        <div class="faq-item">
+                            <h4>¿Cómo se calcula la eficiencia de mi solución?</h4>
+                            <p>La eficiencia se calcula como el porcentaje que tu solución representa respecto a la solución óptima. Por ejemplo, si la solución óptima es 100 y tu solución es 85, tu eficiencia es del 85%.</p>
+                        </div>
+                        <div class="faq-item">
+                            <h4>¿Puedo repetir niveles para mejorar mi puntuación?</h4>
+                            <p>¡Por supuesto! Puedes repetir cualquier nivel las veces que quieras. Solo se guardará tu mejor puntuación.</p>
+                        </div>
+                        <div class="faq-item">
+                            <h4>¿Qué diferencia hay entre una solución factible y una óptima?</h4>
+                            <p>Una solución factible cumple todas las restricciones del problema, pero no necesariamente es la mejor. La solución óptima es aquella solución factible que maximiza (o minimiza) el objetivo mejor que cualquier otra.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="guide-section cta-section-guide">
+                    <div class="cta-box">
+                        <h2>¿Listo para Empezar?</h2>
+                        <p>Ahora que conoces cómo funciona el juego, ¡es hora de poner en práctica tus conocimientos!</p>
+                        <a href="levels.html" class="btn btn-primary btn-large">
+                            <span>Ir a Niveles</span>
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                <path d="M7 4L13 10L7 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </a>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
+                        <rect width="40" height="40" rx="8" fill="url(#footerGradient)"/>
+                        <path d="M12 20L18 14L26 22L32 16" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                        <defs>
+                            <linearGradient id="footerGradient" x1="0" y1="0" x2="40" y2="40">
+                                <stop offset="0%" stop-color="#6366f1"/>
+                                <stop offset="100%" stop-color="#8b5cf6"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <span>OptimizaGame</span>
+                </div>
+                <p class="footer-text">Aprende optimización matemática de forma interactiva y divertida.</p>
+                <p class="footer-credits" style="margin-top: 1rem; font-size: 0.875rem; opacity: 0.8;">
+                    Proyecto educativo desarrollado por 
+                    <a href="https://jonasvelasco.com/" target="_blank" rel="noopener" 
+                       style="color: #76c893; font-weight: 600; text-decoration: underline;">
+                        Dr. Jonás Velasco
+                    </a>
+                    <br>
+                    <span style="font-size: 0.8125rem;">SECIHTI-CIMAT Aguascalientes</span>
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
+

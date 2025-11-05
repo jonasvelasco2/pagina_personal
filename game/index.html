@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OptimizaGame - Aprende Optimización Jugando</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="40" height="40" rx="8" fill="url(#gradient1)"/>
+                    <path d="M12 20L18 14L26 22L32 16" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="18" cy="14" r="2" fill="white"/>
+                    <circle cx="26" cy="22" r="2" fill="white"/>
+                    <defs>
+                        <linearGradient id="gradient1" x1="0" y1="0" x2="40" y2="40">
+                            <stop offset="0%" stop-color="#6366f1"/>
+                            <stop offset="100%" stop-color="#8b5cf6"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span class="logo-text">OptimizaGame</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link active">Inicio</a></li>
+                <li><a href="levels.html" class="nav-link">Niveles</a></li>
+                <li><a href="leaderboard.html" class="nav-link">Ranking</a></li>
+                <li><a href="guide.html" class="nav-link">Guía</a></li>
+                <li><a href="acerca.html" class="nav-link">Acerca de</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-badge">
+                <span class="badge-icon">🎮</span>
+                <span class="player-greeting">Aprende optimización de forma divertida</span>
+            </div>
+            <h1 class="hero-title">
+                Domina la <span class="gradient-text">Optimización Matemática</span> Jugando
+            </h1>
+            <p class="hero-description">
+                Resuelve problemas del mundo real, compite con tus compañeros y aprende los fundamentos de la optimización matemática de manera interactiva.
+            </p>
+            <div class="hero-buttons">
+                <a href="levels.html" class="btn btn-primary">
+                    <span>Comenzar a Jugar</span>
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M7 4L13 10L7 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </a>
+                <a href="guide.html" class="btn btn-secondary">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M10 18C14.4183 18 18 14.4183 18 10C18 5.58172 14.4183 2 10 2C5.58172 2 2 5.58172 2 10C2 14.4183 5.58172 18 10 18Z" stroke="currentColor" stroke-width="2"/>
+                        <path d="M10 14V10M10 6H10.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <span>Cómo Jugar</span>
+                </a>
+            </div>
+        </div>
+        <div class="hero-illustration">
+            <svg viewBox="0 0 500 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Background circles -->
+                <circle cx="250" cy="200" r="150" fill="url(#heroGradient1)" opacity="0.1"/>
+                <circle cx="250" cy="200" r="100" fill="url(#heroGradient2)" opacity="0.15"/>
+                
+                <!-- Graph elements -->
+                <rect x="100" y="280" width="300" height="4" rx="2" fill="#e2e8f0"/>
+                <rect x="100" y="100" width="4" height="184" rx="2" fill="#e2e8f0"/>
+                
+                <!-- Data points and connections -->
+                <path d="M120 260 L180 220 L240 180 L300 140 L360 120" stroke="url(#lineGradient)" stroke-width="4" stroke-linecap="round"/>
+                
+                <!-- Points -->
+                <circle cx="120" cy="260" r="8" fill="#6366f1"/>
+                <circle cx="180" cy="220" r="8" fill="#8b5cf6"/>
+                <circle cx="240" cy="180" r="8" fill="#a855f7"/>
+                <circle cx="300" cy="140" r="8" fill="#c026d3"/>
+                <circle cx="360" cy="120" r="8" fill="#d946ef"/>
+                
+                <!-- Trophy icon -->
+                <g transform="translate(200, 50)">
+                    <path d="M50 0C44.4772 0 40 4.47715 40 10V20C40 28.2843 46.7157 35 55 35H60V45C60 49.4183 56.4183 53 52 53H48C45.7909 53 44 54.7909 44 57C44 59.2091 45.7909 61 48 61H52C60.8366 61 68 53.8366 68 45V35H73C81.2843 35 88 28.2843 88 20V10C88 4.47715 83.5228 0 78 0H50Z" fill="url(#trophyGradient)"/>
+                </g>
+                
+                <defs>
+                    <linearGradient id="heroGradient1" x1="100" y1="50" x2="400" y2="350">
+                        <stop offset="0%" stop-color="#6366f1"/>
+                        <stop offset="100%" stop-color="#8b5cf6"/>
+                    </linearGradient>
+                    <linearGradient id="heroGradient2" x1="150" y1="100" x2="350" y2="300">
+                        <stop offset="0%" stop-color="#8b5cf6"/>
+                        <stop offset="100%" stop-color="#d946ef"/>
+                    </linearGradient>
+                    <linearGradient id="lineGradient" x1="120" y1="260" x2="360" y2="120">
+                        <stop offset="0%" stop-color="#6366f1"/>
+                        <stop offset="100%" stop-color="#d946ef"/>
+                    </linearGradient>
+                    <linearGradient id="trophyGradient" x1="40" y1="0" x2="88" y2="61">
+                        <stop offset="0%" stop-color="#fbbf24"/>
+                        <stop offset="100%" stop-color="#f59e0b"/>
+                    </linearGradient>
+                </defs>
+            </svg>
+        </div>
+    </section>
+
+    <section class="features">
+        <div class="container">
+            <h2 class="section-title">¿Por qué OptimizaGame?</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon blue">
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                            <path d="M16 4L20 12L28 14L22 20L24 28L16 24L8 28L10 20L4 14L12 12L16 4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h3>Aprende jugando</h3>
+                    <p>Domina conceptos complejos de optimización matemática a través de desafíos interactivos y divertidos.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon purple">
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                            <rect x="6" y="6" width="20" height="20" rx="2" stroke="currentColor" stroke-width="2"/>
+                            <path d="M16 12V20M12 16H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <h3>Problemas reales</h3>
+                    <p>Resuelve casos del mundo real: logística, producción, asignación de recursos y más.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon pink">
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                            <path d="M28 16C28 22.6274 22.6274 28 16 28C9.37258 28 4 22.6274 4 16C4 9.37258 9.37258 4 16 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M28 8V16H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h3>Progreso visible</h3>
+                    <p>Sigue tu avance, desbloquea logros y compite en el ranking global.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon orange">
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                            <path d="M16 20C18.2091 20 20 18.2091 20 16C20 13.7909 18.2091 12 16 12C13.7909 12 12 13.7909 12 16C12 18.2091 13.7909 20 16 20Z" stroke="currentColor" stroke-width="2"/>
+                            <path d="M16 4V8M16 24V28M28 16H24M8 16H4M24.2426 24.2426L21.4142 21.4142M10.5858 10.5858L7.75736 7.75736M24.2426 7.75736L21.4142 10.5858M10.5858 21.4142L7.75736 24.2426" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <h3>Feedback instantáneo</h3>
+                    <p>Recibe retroalimentación inmediata y visualiza la solución óptima en cada nivel.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section">
+        <div class="cta-content">
+            <h2 class="cta-title">¿Listo para el desafío?</h2>
+            <p class="cta-description">Únete a miles de estudiantes que ya están mejorando sus habilidades en optimización</p>
+            <a href="levels.html" class="btn btn-primary btn-large">
+                <span>Empezar Ahora</span>
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M7 4L13 10L7 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </a>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
+                        <rect width="40" height="40" rx="8" fill="url(#footerGradient)"/>
+                        <path d="M12 20L18 14L26 22L32 16" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                        <defs>
+                            <linearGradient id="footerGradient" x1="0" y1="0" x2="40" y2="40">
+                                <stop offset="0%" stop-color="#1a759f"/>
+                                <stop offset="100%" stop-color="#52b69a"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <span>OptimizaGame</span>
+                </div>
+                <p class="footer-text">Aprende optimización matemática de forma interactiva y divertida.</p>
+                <p class="footer-credits" style="margin-top: 1rem; font-size: 0.875rem; opacity: 0.8;">
+                    Proyecto educativo desarrollado por 
+                    <a href="https://jonasvelasco.com/" target="_blank" rel="noopener" 
+                       style="color: #76c893; font-weight: 600; text-decoration: underline;">
+                        Dr. Jonás Velasco
+                    </a>
+                    <br>
+                    <span style="font-size: 0.8125rem;">SECIHTI-CIMAT Aguascalientes</span>
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
+

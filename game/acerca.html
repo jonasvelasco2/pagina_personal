@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acerca de - OptimizaGame</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="40" height="40" rx="8" fill="url(#gradient1)"/>
+                    <path d="M12 20L18 14L26 22L32 16" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="18" cy="14" r="2" fill="white"/>
+                    <circle cx="26" cy="22" r="2" fill="white"/>
+                    <defs>
+                        <linearGradient id="gradient1" x1="0" y1="0" x2="40" y2="40">
+                            <stop offset="0%" stop-color="#1a759f"/>
+                            <stop offset="100%" stop-color="#52b69a"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span class="logo-text">OptimizaGame</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Inicio</a></li>
+                <li><a href="levels.html" class="nav-link">Niveles</a></li>
+                <li><a href="leaderboard.html" class="nav-link">Ranking</a></li>
+                <li><a href="guide.html" class="nav-link">Guía</a></li>
+                <li><a href="acerca.html" class="nav-link">Acerca de</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="guide-container">
+        <div class="container">
+<!--            <div class="guide-header">
+                <h1 class="page-title">👨‍🔬 Acerca del Proyecto</h1>
+                <p class="page-subtitle">Gamificación educativa aplicada a la optimización matemática</p>
+            </div> -->
+
+            <div class="guide-content">
+                <section class="guide-section">
+                    <div style="background: linear-gradient(135deg, #1a759f, #52b69a); padding: 3rem; border-radius: 1rem; color: white; margin-bottom: 3rem;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 4rem; margin-bottom: 1rem;">🎓</div>
+                            <h2 style="font-size: 2rem; margin-bottom: 1rem;">Desarrollado por</h2>
+                            <h3 style="font-size: 1.75rem; margin-bottom: 0.5rem; font-weight: 700;">
+                                Dr. Jonás Velasco
+                            </h3>
+                            <p style="font-size: 1.125rem; opacity: 0.95; margin-bottom: 2rem;">
+                                SECIHTI-CIMAT Aguascalientes
+                            </p>
+                            <a href="https://jonasvelasco.com/" target="_blank" rel="noopener" 
+                               style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 1rem 2rem; background: white; color: #1a759f; border-radius: 0.75rem; font-weight: 600; text-decoration: none; transition: all 0.3s;">
+                                <span>Visitar sitio web</span>
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                    <path d="M10 2C14.4183 2 18 5.58172 18 10C18 14.4183 14.4183 18 10 18C5.58172 18 2 14.4183 2 10C2 5.58172 5.58172 2 10 2Z" stroke="currentColor" stroke-width="2"/>
+                                    <path d="M10 6V10L13 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+
+                    <h2 class="guide-title">🎯 Sobre el proyecto</h2>
+                    <div class="guide-card">
+                        <p style="font-size: 1.125rem; line-height: 1.8; color: #475569;">
+                            <strong>OptimizaGame</strong> es una plataforma educativa interactiva diseñada para enseñar 
+                            conceptos de optimización matemática de forma práctica y divertida. El proyecto surge de la 
+                            experiencia en investigación y docencia del Dr. Jonás Velasco en el campo de la optimización 
+                            combinatoria y la investigación de operaciones.
+                        </p>
+                    </div>
+                </section>
+
+  <!--              <section class="guide-section">
+                    <h2 class="guide-title">🔬 Conexión con la Investigación</h2>
+                    
+                    <div class="guide-card">
+                        <h3>Áreas de Especialización</h3>
+                        <p>El Dr. Velasco se especializa en:</p>
+                        <ul style="margin-top: 1rem; padding-left: 1.5rem; line-height: 1.8; color: #475569;">
+                            <li><strong>Optimización Combinatoria:</strong> Problemas de decisión discreta y continua</li>
+                            <li><strong>Análisis de Datos:</strong> Métodos computacionales para grandes volúmenes de información</li>
+                            <li><strong>Investigación de Operaciones:</strong> Modelado matemático de sistemas complejos</li>
+                            <li><strong>Algoritmos Metaheurísticos:</strong> Enfoques híbridos para problemas NP-difíciles</li>
+                            <li><strong>Logística y Transporte:</strong> Optimización de rutas y distribución</li>
+                        </ul>
+                    </div>
+
+                    <div class="guide-card">
+                        <h3>Publicaciones Relacionadas</h3>
+                        <p>Los problemas implementados en OptimizaGame reflejan temas de investigación activa:</p>
+                        <div style="margin-top: 1rem;">
+                            <div style="padding: 1rem; background: #f1f5f9; border-radius: 0.5rem; margin-bottom: 0.75rem; border-left: 4px solid #1a759f;">
+                                <strong style="color: #1a759f;">MaSchedule</strong> - Herramienta multi-agente para problemas de scheduling
+                                <div style="font-size: 0.875rem; color: #64748b; margin-top: 0.25rem;">
+                                    Relacionado con: Nivel 6 (Planificación de Horarios)
+                                </div>
+                            </div>
+                            <div style="padding: 1rem; background: #f1f5f9; border-radius: 0.5rem; margin-bottom: 0.75rem; border-left: 4px solid #52b69a;">
+                                <strong style="color: #52b69a;">Ruteo por Arcos con Capacidad</strong> - Enfoque mejorado de dos etapas
+                                <div style="font-size: 0.875rem; color: #64748b; margin-top: 0.25rem;">
+                                    Relacionado con: Nivel 3 (Reparto de Pizza - TSP)
+                                </div>
+                            </div>
+                            <div style="padding: 1rem; background: #f1f5f9; border-radius: 0.5rem; border-left: 4px solid #76c893;">
+                                <strong style="color: #76c893;">Zonificación Agrícola</strong> - Modelo MINLP para zonas de manejo
+                                <div style="font-size: 0.875rem; color: #64748b; margin-top: 0.25rem;">
+                                    Relacionado con: Nivel 7 (Localización de Instalaciones)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="guide-section">
+                    <h2 class="guide-title">📚 Aplicaciones en Docencia</h2>
+                    
+                    <div class="guide-card">
+                        <h3>Cursos Relacionados</h3>
+                        <p>Esta plataforma complementa cursos de:</p>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                            <div style="padding: 1rem; background: #e0f2fe; border-radius: 0.5rem;">
+                                <strong>Investigación de Operaciones</strong>
+                                <p style="font-size: 0.875rem; color: #475569; margin-top: 0.5rem;">
+                                    Modelos y métodos de optimización
+                                </p>
+                            </div>
+                            <div style="padding: 1rem; background: #dcfce7; border-radius: 0.5rem;">
+                                <strong>Programación Matemática</strong>
+                                <p style="font-size: 0.875rem; color: #475569; margin-top: 0.5rem;">
+                                    LP, MIP, programación entera
+                                </p>
+                            </div>
+                            <div style="padding: 1rem; background: #fef3c7; border-radius: 0.5rem;">
+                                <strong>Algoritmos de Optimización</strong>
+                                <p style="font-size: 0.875rem; color: #475569; margin-top: 0.5rem;">
+                                    Heurísticas y metaheurísticas
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="guide-card">
+                        <h3>Metodología Pedagógica</h3>
+                        <p>La gamificación como herramienta educativa permite:</p>
+                        <ul style="margin-top: 1rem; padding-left: 1.5rem; line-height: 1.8; color: #475569;">
+                            <li><strong>Aprendizaje activo:</strong> Los estudiantes experimentan directamente con problemas de optimización</li>
+                            <li><strong>Visualización de conceptos:</strong> Gráficas interactivas muestran trade-offs y soluciones</li>
+                            <li><strong>Feedback inmediato:</strong> Comparación con soluciones óptimas refuerza el aprendizaje</li>
+                            <li><strong>Progresión adaptativa:</strong> Niveles de dificultad creciente mantienen el desafío</li>
+                            <li><strong>Motivación intrínseca:</strong> Sistema de puntos y estrellas incentiva la mejora continua</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section class="guide-section">
+                    <h2 class="guide-title">🌟 Problemas Implementados</h2>
+                    
+                    <div style="background: white; padding: 2rem; border-radius: 1rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                        <p style="margin-bottom: 1.5rem; color: #64748b;">
+                            Los 9 niveles cubren problemas clásicos y aplicados de optimización:
+                        </p>
+                        
+                        <div style="display: grid; gap: 1rem;">
+                            <div style="display: flex; gap: 1rem; padding: 1rem; background: #f8fafc; border-radius: 0.5rem;">
+                                <span style="font-size: 2rem;">📦</span>
+                                <div>
+                                    <strong>Problema de la Mochila</strong>
+                                    <p style="font-size: 0.875rem; color: #64748b; margin-top: 0.25rem;">
+                                        Programación dinámica - Aplicaciones: gestión de carteras, carga de contenedores
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; gap: 1rem; padding: 1rem; background: #f8fafc; border-radius: 0.5rem;">
+                                <span style="font-size: 2rem;">🏭</span>
+                                <div>
+                                    <strong>Producción Óptima</strong>
+                                    <p style="font-size: 0.875rem; color: #64748b; margin-top: 0.25rem;">
+                                        Programación lineal - Aplicaciones: planificación de producción, asignación de recursos
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; gap: 1rem; padding: 1rem; background: #f8fafc; border-radius: 0.5rem;">
+                                <span style="font-size: 2rem;">🍕</span>
+                                <div>
+                                    <strong>Problema del Viajante (TSP)</strong>
+                                    <p style="font-size: 0.875rem; color: #64748b; margin-top: 0.25rem;">
+                                        NP-difícil - Aplicaciones: logística de última milla, circuitos impresos
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; gap: 1rem; padding: 1rem; background: #f8fafc; border-radius: 0.5rem;">
+                                <span style="font-size: 2rem;">⚡</span>
+                                <div>
+                                    <strong>Flujo en Redes</strong>
+                                    <p style="font-size: 0.875rem; color: #64748b; margin-top: 0.25rem;">
+                                        Optimización de redes - Aplicaciones: distribución eléctrica, redes de transporte
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; gap: 1rem; padding: 1rem; background: #f8fafc; border-radius: 0.5rem;">
+                                <span style="font-size: 2rem;">🎯</span>
+                                <div>
+                                    <strong>Problema Integrado</strong>
+                                    <p style="font-size: 0.875rem; color: #64748b; margin-top: 0.25rem;">
+                                        Programación entera mixta (MIP) - Aplicaciones: cadenas de suministro, producción-distribución
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>-->
+
+                <section class="guide-section">
+                    <h2 class="guide-title">🎓 Recursos adicionales</h2>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                        <div style="background: white; padding: 2rem; border-radius: 1rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                            <div style="font-size: 2.5rem; margin-bottom: 1rem;">🌐</div>
+                            <h4 style="margin-bottom: 0.75rem;">Sitio Web del Autor</h4>
+                            <p style="color: #64748b; margin-bottom: 1.5rem; line-height: 1.6;">
+                                Explora más recursos educativos, publicaciones y proyectos de investigación en optimización.
+                            </p>
+                            <a href="https://jonasvelasco.com/" target="_blank" rel="noopener" 
+                               style="display: inline-flex; align-items: center; gap: 0.5rem; color: #1a759f; font-weight: 600; text-decoration: none;">
+                                <span>jonasvelasco.com</span>
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M6 3H3v10h10v-3M11 2h3v3M8 8l6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                            </a>
+                        </div>
+
+                        <div style="background: white; padding: 2rem; border-radius: 1rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                            <div style="font-size: 2.5rem; margin-bottom: 1rem;">📚</div>
+                            <h4 style="margin-bottom: 0.75rem;">Materiales de Docencia</h4>
+                            <p style="color: #64748b; margin-bottom: 1.5rem; line-height: 1.6;">
+                                Accede a notas de clase, códigos y recursos adicionales para cursos de optimización.
+                            </p>
+                            <a href="https://jonasvelasco.com/recursos/investigacion-operaciones" target="_blank" rel="noopener" 
+                               style="display: inline-flex; align-items: center; gap: 0.5rem; color: #1a759f; font-weight: 600; text-decoration: none;">
+                                <span>Ver recursos</span>
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M6 3H3v10h10v-3M11 2h3v3M8 8l6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                            </a>
+                        </div>
+
+                        <div style="background: white; padding: 2rem; border-radius: 1rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                            <div style="font-size: 2.5rem; margin-bottom: 1rem;">🏛️</div>
+                            <h4 style="margin-bottom: 0.75rem;">CIMAT Aguascalientes</h4>
+                            <p style="color: #64748b; margin-bottom: 1.5rem; line-height: 1.6;">
+                                Centro de Investigación en Matemáticas - Sede Aguascalientes
+                            </p>
+                            <a href="https://www.cimat.mx/" target="_blank" rel="noopener" 
+                               style="display: inline-flex; align-items: center; gap: 0.5rem; color: #1a759f; font-weight: 600; text-decoration: none;">
+                                <span>cimat.mx</span>
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M6 3H3v10h10v-3M11 2h3v3M8 8l6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </section>
+
+  <!--              <section class="guide-section">
+                    <h2 class="guide-title">🛠️ Tecnologías y Metodología</h2>
+                    
+                    <div class="guide-card">
+                        <h3>Stack Técnico</h3>
+                        <ul style="margin-top: 1rem; padding-left: 1.5rem; line-height: 1.8; color: #475569;">
+                            <li><strong>Frontend:</strong> HTML5, CSS3 (Variables CSS), JavaScript ES6+</li>
+                            <li><strong>Visualizaciones:</strong> Canvas API para gráficas interactivas</li>
+                            <li><strong>Persistencia:</strong> LocalStorage para progreso del jugador</li>
+                            <li><strong>Sin dependencias:</strong> Vanilla JS, no requiere frameworks</li>
+                            <li><strong>Tipografía:</strong> Inter (Google Fonts)</li>
+                        </ul>
+                    </div>
+
+                    <div class="guide-card">
+                        <h3>Inspiración</h3>
+                        <p style="color: #475569; line-height: 1.7;">
+                            El diseño de la interfaz está inspirado en el 
+                            <a href="https://www.gurobi.com/burrito-optimization-game-teaching-guide/" 
+                               target="_blank" rel="noopener"
+                               style="color: #1a759f; font-weight: 600; text-decoration: underline;">
+                                Burrito Optimization Game de Gurobi
+                            </a>, 
+                            adaptado y expandido para cubrir múltiples tipos de problemas de optimización con 
+                            una identidad visual propia basada en una paleta verde-azul que evoca naturaleza, 
+                            crecimiento y confianza.
+                        </p>
+                    </div>
+                </section> -->
+
+                <section class="guide-section">
+                    <h2 class="guide-title">🤝 Colaboración y contacto</h2>
+                    
+                    <div class="cta-box" style="background: linear-gradient(135deg, #1a759f, #52b69a); padding: 3rem; border-radius: 1rem; text-align: center; color: white;">
+                        <h3 style="font-size: 1.75rem; margin-bottom: 1rem;">¿Interesado en colaborar?</h3>
+                        <p style="font-size: 1.125rem; opacity: 0.95; margin-bottom: 2rem;">
+                            Para preguntas académicas, colaboraciones en investigación o uso de esta plataforma en tu institución:
+                        </p>
+                        <a href="https://jonasvelasco.com/contacto" target="_blank" rel="noopener"
+                           style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 1rem 2rem; background: white; color: #1a759f; border-radius: 0.75rem; font-weight: 600; text-decoration: none; transition: all 0.3s;">
+                            <span>Contactar al Dr. Velasco</span>
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                <path d="M7 4L13 10L7 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </a>
+                    </div>
+                </section>
+
+                <section class="guide-section">
+                    <div style="background: #f8fafc; padding: 2rem; border-radius: 1rem; text-align: center;">
+                        <p style="color: #64748b; line-height: 1.7;">
+                            <strong>OptimizaGame</strong> es un proyecto de código abierto para uso educativo.<br>
+                            Desarrollado en el contexto de la enseñanza de la optimización matemática.<br>
+                        </p>
+                        <p style="margin-top: 1rem; font-size: 0.875rem; color: #94a3b8;">
+                            © 2025 Dr. Jonás Velasco. Todos los derechos reservados.
+                        </p>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
+                        <rect width="40" height="40" rx="8" fill="url(#footerGradient)"/>
+                        <path d="M12 20L18 14L26 22L32 16" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                        <defs>
+                            <linearGradient id="footerGradient" x1="0" y1="0" x2="40" y2="40">
+                                <stop offset="0%" stop-color="#1a759f"/>
+                                <stop offset="100%" stop-color="#52b69a"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <span>OptimizaGame</span>
+                </div>
+                <p class="footer-text">Aprende optimización matemática de forma interactiva y divertida.</p>
+                <p class="footer-credits" style="margin-top: 1rem; font-size: 0.875rem; opacity: 0.8;">
+                    Proyecto educativo desarrollado por 
+                    <a href="https://jonasvelasco.com/" target="_blank" rel="noopener" 
+                       style="color: #76c893; font-weight: 600; text-decoration: underline;">
+                        Dr. Jonás Velasco
+                    </a>
+                    <br>
+                    <span style="font-size: 0.8125rem;">SECIHTI-CIMAT Aguascalientes</span>
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
+

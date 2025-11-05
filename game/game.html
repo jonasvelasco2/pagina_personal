@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jugando - OptimizaGame</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="40" height="40" rx="8" fill="url(#gradient1)"/>
+                    <path d="M12 20L18 14L26 22L32 16" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="18" cy="14" r="2" fill="white"/>
+                    <circle cx="26" cy="22" r="2" fill="white"/>
+                    <defs>
+                        <linearGradient id="gradient1" x1="0" y1="0" x2="40" y2="40">
+                            <stop offset="0%" stop-color="#6366f1"/>
+                            <stop offset="100%" stop-color="#8b5cf6"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span class="logo-text">OptimizaGame</span>
+            </div>
+            <div class="game-progress">
+                <div class="progress-info">
+                    <span id="levelTitle">Nivel 1: La Mochila</span>
+                    <span class="score-display">Puntuación: <strong id="currentScore">0</strong></span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="game-container">
+        <div class="game-sidebar">
+            <div class="info-panel">
+                <h3 class="panel-title">📖 Objetivo</h3>
+                <p id="objective" class="panel-text"></p>
+            </div>
+
+            <div class="info-panel">
+                <h3 class="panel-title">📊 Restricciones</h3>
+                <div id="constraints" class="constraints-list"></div>
+            </div>
+
+            <div class="info-panel">
+                <h3 class="panel-title">💡 Pista</h3>
+                <p id="hint" class="panel-text">Intenta diferentes combinaciones y observa cómo afectan el resultado.</p>
+                <button class="btn btn-secondary btn-small" onclick="showHint()">Ver Pista Avanzada</button>
+            </div>
+
+            <div class="info-panel stats-panel">
+                <h3 class="panel-title">📈 Tu Progreso</h3>
+                <div class="stat-item">
+                    <span>Intentos:</span>
+                    <strong id="attempts">0</strong>
+                </div>
+                <div class="stat-item">
+                    <span>Mejor Puntuación:</span>
+                    <strong id="bestScore">0</strong>
+                </div>
+                <div class="stat-item">
+                    <span>Tiempo:</span>
+                    <strong id="timer">00:00</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="game-main">
+            <div class="game-header">
+                <button class="btn btn-secondary" onclick="resetGame()">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M2 8C2 4.68629 4.68629 2 8 2C11.3137 2 14 4.68629 14 8C14 11.3137 11.3137 14 8 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M2 11V8H5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Reiniciar
+                </button>
+                <button class="btn btn-primary" onclick="submitSolution()">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M3 8L6 11L13 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Verificar Solución
+                </button>
+            </div>
+
+            <div id="gameCanvas" class="game-canvas">
+                <!-- El contenido del juego se genera dinámicamente aquí -->
+            </div>
+
+            <div class="game-controls" id="gameControls">
+                <!-- Los controles específicos del juego se generan aquí -->
+            </div>
+        </div>
+
+        <div class="game-visualization">
+            <h3 class="viz-title">📊 Visualización</h3>
+            <div id="visualization" class="visualization-area">
+                <canvas id="chartCanvas" width="400" height="300"></canvas>
+            </div>
+            
+            <div class="current-solution">
+                <h4>Solución Actual</h4>
+                <div id="currentSolution" class="solution-display">
+                    <p class="empty-state">Selecciona elementos para comenzar</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Resultados -->
+    <div id="resultModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="resultTitle"></h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="resultContent" class="result-content"></div>
+                <div class="result-comparison">
+                    <div class="comparison-item">
+                        <span class="comparison-label">Tu Solución:</span>
+                        <span class="comparison-value" id="yourSolution">0</span>
+                    </div>
+                    <div class="comparison-item">
+                        <span class="comparison-label">Solución Óptima:</span>
+                        <span class="comparison-value optimal" id="optimalSolution">0</span>
+                    </div>
+                    <div class="comparison-item">
+                        <span class="comparison-label">Eficiencia:</span>
+                        <span class="comparison-value" id="efficiency">0%</span>
+                    </div>
+                </div>
+                <div id="stars" class="stars-display"></div>
+                <div id="feedback" class="feedback-text"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="resetGame()">Intentar de Nuevo</button>
+                <button class="btn btn-primary" onclick="nextLevel()">Siguiente Nivel</button>
+                <button class="btn btn-secondary" onclick="backToLevels()">Ver Niveles</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Pista -->
+    <div id="hintModal" class="modal">
+        <div class="modal-content modal-small">
+            <div class="modal-header">
+                <h2>💡 Pista Avanzada</h2>
+                <button class="modal-close" onclick="closeHintModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="advancedHint" class="hint-text"></p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="closeHintModal()">Entendido</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/levels-data.js"></script>
+    <script src="js/game-engine.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html>
+

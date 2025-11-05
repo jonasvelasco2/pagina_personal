@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Niveles - OptimizaGame</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="40" height="40" rx="8" fill="url(#gradient1)"/>
+                    <path d="M12 20L18 14L26 22L32 16" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="18" cy="14" r="2" fill="white"/>
+                    <circle cx="26" cy="22" r="2" fill="white"/>
+                    <defs>
+                        <linearGradient id="gradient1" x1="0" y1="0" x2="40" y2="40">
+                            <stop offset="0%" stop-color="#6366f1"/>
+                            <stop offset="100%" stop-color="#8b5cf6"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span class="logo-text">OptimizaGame</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Inicio</a></li>
+                <li><a href="levels.html" class="nav-link active">Niveles</a></li>
+                <li><a href="leaderboard.html" class="nav-link">Ranking</a></li>
+                <li><a href="guide.html" class="nav-link">Guía</a></li>
+                <li><a href="acerca.html" class="nav-link">Acerca de</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="levels-container">
+        <div class="container">
+            <div class="levels-header">
+                <h1 class="page-title">Elige tu desafío</h1>
+                <p class="page-subtitle">Progresa a través de diferentes niveles de dificultad y domina la optimización</p>
+            </div>
+
+            <div class="player-stats">
+                <div class="stat-card">
+                    <div class="stat-icon">⭐</div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="totalStars">0</span>
+                        <span class="stat-label">Estrellas</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🏆</div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="totalScore">0</span>
+                        <span class="stat-label">Puntos</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="completedLevels">0/9</span>
+                        <span class="stat-label">Completados</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="difficulty-section">
+                <div class="difficulty-header">
+                    <div class="difficulty-badge beginner">Principiante</div>
+                    <h2 class="difficulty-title">Fundamentos de optimización</h2>
+                </div>
+                <div class="levels-grid">
+                    <div class="level-card" data-level="1">
+                        <div class="level-number">Nivel 1</div>
+                        <div class="level-icon">📦</div>
+                        <h3 class="level-title">La Mochila</h3>
+                        <p class="level-description">Maximiza el valor de los objetos que puedes llevar con peso limitado.</p>
+                        <div class="level-stats">
+                            <span class="level-difficulty">⭐ Fácil</span>
+                            <span class="level-time">⏱️ 5-10 min</span>
+                        </div>
+                        <button class="btn btn-level" onclick="startLevel(1)">Jugar Ahora</button>
+                    </div>
+
+                    <div class="level-card" data-level="2">
+                        <div class="level-number">Nivel 2</div>
+                        <div class="level-icon">🏭</div>
+                        <h3 class="level-title">Producción Óptima</h3>
+                        <p class="level-description">Optimiza la producción de dos productos con recursos limitados.</p>
+                        <div class="level-stats">
+                            <span class="level-difficulty">⭐ Fácil</span>
+                            <span class="level-time">⏱️ 8-12 min</span>
+                        </div>
+                        <button class="btn btn-level" onclick="startLevel(2)">Jugar Ahora</button>
+                    </div>
+
+                    <div class="level-card" data-level="3">
+                        <div class="level-number">Nivel 3</div>
+                        <div class="level-icon">🍕</div>
+                        <h3 class="level-title">Reparto de Pizza</h3>
+                        <p class="level-description">Encuentra la ruta más corta para entregar pizzas a tiempo.</p>
+                        <div class="level-stats">
+                            <span class="level-difficulty">⭐⭐ Media</span>
+                            <span class="level-time">⏱️ 10-15 min</span>
+                        </div>
+                        <button class="btn btn-level" onclick="startLevel(3)">Jugar Ahora</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="difficulty-section">
+                <div class="difficulty-header">
+                    <div class="difficulty-badge intermediate">Intermedio</div>
+                    <h2 class="difficulty-title">Optimización aplicada</h2>
+                </div>
+                <div class="levels-grid">
+                    <div class="level-card" data-level="4">
+                        <div class="level-number">Nivel 4</div>
+                        <div class="level-icon">👥</div>
+                        <h3 class="level-title">Asignación de Tareas</h3>
+                        <p class="level-description">Asigna empleados a proyectos minimizando costos y tiempo.</p>
+                        <div class="level-stats">
+                            <span class="level-difficulty">⭐⭐ Media</span>
+                            <span class="level-time">⏱️ 12-15 min</span>
+                        </div>
+                        <button class="btn btn-level" onclick="startLevel(4)">Jugar Ahora</button>
+                    </div>
+
+                    <div class="level-card" data-level="5">
+                        <div class="level-number">Nivel 5</div>
+                        <div class="level-icon">🚚</div>
+                        <h3 class="level-title">Logística de Transporte</h3>
+                        <p class="level-description">Optimiza el envío de productos desde almacenes a tiendas.</p>
+                        <div class="level-stats">
+                            <span class="level-difficulty">⭐⭐ Media</span>
+                            <span class="level-time">⏱️ 15-20 min</span>
+                        </div>
+                        <button class="btn btn-level" onclick="startLevel(5)">Jugar Ahora</button>
+                    </div>
+
+                    <div class="level-card" data-level="6">
+                        <div class="level-number">Nivel 6</div>
+                        <div class="level-icon">📅</div>
+                        <h3 class="level-title">Planificación de Horarios</h3>
+                        <p class="level-description">Crea horarios óptimos respetando restricciones múltiples.</p>
+                        <div class="level-stats">
+                            <span class="level-difficulty">⭐⭐⭐ Difícil</span>
+                            <span class="level-time">⏱️ 15-20 min</span>
+                        </div>
+                        <button class="btn btn-level" onclick="startLevel(6)">Jugar Ahora</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="difficulty-section">
+                <div class="difficulty-header">
+                    <div class="difficulty-badge advanced">Avanzado</div>
+                    <h2 class="difficulty-title">Desafíos complejos</h2>
+                </div>
+                <div class="levels-grid">
+                    <div class="level-card" data-level="7">
+                        <div class="level-number">Nivel 7</div>
+                        <div class="level-icon">🏪</div>
+                        <h3 class="level-title">Localización de Instalaciones</h3>
+                        <p class="level-description">Decide dónde ubicar centros de distribución para minimizar costos.</p>
+                        <div class="level-stats">
+                            <span class="level-difficulty">⭐⭐⭐ Difícil</span>
+                            <span class="level-time">⏱️ 20-25 min</span>
+                        </div>
+                        <button class="btn btn-level" onclick="startLevel(7)">Jugar Ahora</button>
+                    </div>
+
+                    <div class="level-card" data-level="8">
+                        <div class="level-number">Nivel 8</div>
+                        <div class="level-icon">⚡</div>
+                        <h3 class="level-title">Red Eléctrica</h3>
+                        <p class="level-description">Optimiza el flujo de energía en una red con múltiples restricciones.</p>
+                        <div class="level-stats">
+                            <span class="level-difficulty">⭐⭐⭐ Difícil</span>
+                            <span class="level-time">⏱️ 20-30 min</span>
+                        </div>
+                        <button class="btn btn-level" onclick="startLevel(8)">Jugar Ahora</button>
+                    </div>
+
+                    <div class="level-card" data-level="9">
+                        <div class="level-number">Nivel 9</div>
+                        <div class="level-icon">🎯</div>
+                        <h3 class="level-title">Problema Integrado</h3>
+                        <p class="level-description">Combina todos los conceptos en un mega-desafío de optimización.</p>
+                        <div class="level-stats">
+                            <span class="level-difficulty">⭐⭐⭐⭐ Experto</span>
+                            <span class="level-time">⏱️ 30-40 min</span>
+                        </div>
+                        <button class="btn btn-level" onclick="startLevel(9)">Jugar Ahora</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
+                        <rect width="40" height="40" rx="8" fill="url(#footerGradient)"/>
+                        <path d="M12 20L18 14L26 22L32 16" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                        <defs>
+                            <linearGradient id="footerGradient" x1="0" y1="0" x2="40" y2="40">
+                                <stop offset="0%" stop-color="#6366f1"/>
+                                <stop offset="100%" stop-color="#8b5cf6"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <span>OptimizaGame</span>
+                </div>
+                <p class="footer-text">Aprende optimización matemática de forma interactiva y divertida.</p>
+                <p class="footer-credits" style="margin-top: 1rem; font-size: 0.875rem; opacity: 0.8;">
+                    Proyecto educativo desarrollado por 
+                    <a href="https://jonasvelasco.com/" target="_blank" rel="noopener" 
+                       style="color: #76c893; font-weight: 600; text-decoration: underline;">
+                        Dr. Jonás Velasco
+                    </a>
+                    <br>
+                    <span style="font-size: 0.8125rem;">SECIHTI-CIMAT Aguascalientes</span>
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/levels.js"></script>
+</body>
+</html>
+
