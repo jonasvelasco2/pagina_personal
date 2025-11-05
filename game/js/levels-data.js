@@ -59,9 +59,9 @@ const LEVELS_DATA = {
             { id: 'mesa', name: 'Mesa', emoji: '🪑', time: 8, material: 5, profit: 120 }
         ],
         optimalSolution: {
-            silla: 60,
-            mesa: 24,
-            profit: 5880
+            silla: 0,
+            mesa: 60,
+            profit: 7200
         }
     },
     
