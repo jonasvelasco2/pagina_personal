@@ -642,7 +642,10 @@ class GameEngine {
                     Asigna cursos a franjas horarias
                 </h3>
                 <p style="color: #64748b; font-size: 0.9375rem;">
-                    Arrastra los cursos o usa los menús desplegables
+                    Los cursos pueden darse en paralelo (aulas diferentes) en la misma franja
+                </p>
+                <p style="color: #d97706; font-size: 0.875rem; font-weight: 600; margin-top: 0.5rem;">
+                    ⚠️ Evita poner cursos en conflicto en la misma franja
                 </p>
             </div>
             
@@ -650,28 +653,72 @@ class GameEngine {
                 <!-- Lista de Cursos -->
                 <div>
                     <h4 style="margin-bottom: 1rem; font-weight: 600;">📚 Cursos</h4>
-                    ${this.levelData.courses.map(course => `
+                    ${this.levelData.courses.map(course => {
+                        const prof = this.levelData.professors?.find(p => p.id === course.professor);
+                        const labBadge = course.requiresLab ? '<span style="background:#fbbf24;color:#78350f;font-size:0.6875rem;padding:0.2rem 0.5rem;border-radius:0.25rem;font-weight:600;">🔬 Lab</span>' : '';
+                        return `
                         <div class="course-card" data-course="${course.id}" 
                              style="padding: 1rem; background: #f8fafc; margin-bottom: 0.75rem; border-radius: 0.5rem; border: 2px solid #e2e8f0; cursor: grab;">
-                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; flex-wrap: wrap;">
                                 <span style="font-size: 1.5rem;">${course.emoji}</span>
                                 <strong>${course.name}</strong>
+                                ${labBadge}
                             </div>
                             <div style="font-size: 0.875rem; color: #64748b;">
                                 <div>⏱️ Duración: ${course.duration}h</div>
                                 <div>👥 Estudiantes: ${course.students}</div>
+                                ${prof ? `<div style="font-size: 0.8125rem;">👨‍🏫 ${prof.name}</div>` : ''}
                             </div>
                         </div>
-                    `).join('')}
+                        `;
+                    }).join('')}
                     
-                    <div style="margin-top: 1.5rem; padding: 1rem; background: #fef3c7; border-radius: 0.5rem;">
-                        <strong style="color: #92400e; font-size: 0.875rem;">⚠️ Conflictos:</strong>
+                    <!-- Restricciones de Conflicto -->
+                    <div style="margin-top: 1.5rem; padding: 1rem; background: #fef3c7; border-radius: 0.5rem; border-left: 4px solid #f59e0b;">
+                        <strong style="color: #92400e; font-size: 0.875rem;">⚠️ Restricciones de Conflicto:</strong>
+                        <p style="margin-top: 0.5rem; font-size: 0.8125rem; color: #78350f;">
+                            Los siguientes cursos NO pueden estar en la misma franja:
+                        </p>
                         <ul style="margin-top: 0.5rem; padding-left: 1.25rem; font-size: 0.875rem; color: #78350f;">
                             ${this.levelData.conflicts.map(conflict => {
                                 const course1 = this.levelData.courses.find(c => c.id === conflict[0]);
                                 const course2 = this.levelData.courses.find(c => c.id === conflict[1]);
-                                return `<li>${course1.emoji} y ${course2.emoji} no pueden coincidir</li>`;
+                                const key = `${conflict[0]}-${conflict[1]}`;
+                                const reason = this.levelData.conflictReasons?.[key] || 'tienen conflicto';
+                                return `<li><strong>${course1.emoji} ${course1.name}</strong> y <strong>${course2.emoji} ${course2.name}</strong><br><span style="font-size: 0.8125rem; opacity: 0.9;">→ ${reason}</span></li>`;
                             }).join('')}
+                        </ul>
+                    </div>
+                    
+                    <!-- Restricciones de Profesores -->
+                    ${Array.isArray(this.levelData.professors) && this.levelData.professors.some(p => p.unavailableSlots?.length > 0) ? `
+                    <div style="margin-top: 1rem; padding: 1rem; background: #dbeafe; border-radius: 0.5rem; border-left: 4px solid #3b82f6;">
+                        <strong style="color: #1e40af; font-size: 0.875rem;">👨‍🏫 Disponibilidad de Profesores:</strong>
+                        <ul style="margin-top: 0.5rem; padding-left: 1.25rem; font-size: 0.8125rem; color: #1e3a8a;">
+                            ${this.levelData.professors
+                                .filter(p => p.unavailableSlots?.length > 0)
+                                .map(prof => {
+                                    const course = this.levelData.courses.find(c => c.professor === prof.id);
+                                    const unavailableNames = prof.unavailableSlots
+                                        .map(sid => this.levelData.timeSlots.find(s => s.id === sid)?.time)
+                                        .filter(Boolean)
+                                        .join(', ');
+                                    return `<li><strong>${prof.name}</strong> (${course?.emoji} ${course?.name}) NO disponible: ${unavailableNames}</li>`;
+                                }).join('')}
+                        </ul>
+                    </div>
+                    ` : ''}
+                    
+                    <!-- Resumen de Reglas -->
+                    <div style="margin-top: 1rem; padding: 1rem; background: #f1f5f9; border-radius: 0.5rem;">
+                        <strong style="color: #334155; font-size: 0.875rem;">📋 Reglas a Cumplir:</strong>
+                        <ul style="margin-top: 0.5rem; padding-left: 1.25rem; font-size: 0.8125rem; color: #475569; line-height: 1.5;">
+                            <li>✅ Asignar todos los cursos</li>
+                            <li>🏫 Respetar capacidad de aulas por franja</li>
+                            <li>🔬 Respetar capacidad de laboratorios</li>
+                            <li>👨‍🏫 Respetar disponibilidad de profesores</li>
+                            <li>⚠️ No poner cursos en conflicto juntos</li>
+                            <li>🎯 Minimizar franjas horarias usadas</li>
                         </ul>
                     </div>
                 </div>
@@ -684,10 +731,14 @@ class GameEngine {
                             <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
                                 <span style="font-weight: 600; color: #1a759f;">Franja ${slot.id}:</span>
                                 <span style="color: #64748b;">${slot.time}</span>
+                                <span style="color: #94a3b8; font-size: 0.8125rem; margin-left: auto;">
+                                    Aulas: <strong id="rooms_used_${slot.id}">0</strong>/${slot.rooms}
+                                    ${typeof slot.labs === 'number' ? ` | Labs: <strong id="labs_used_${slot.id}">0</strong>/${slot.labs}` : ''}
+                                </span>
                             </div>
                             <div class="time-slot" data-slot="${slot.id}" 
                                  style="min-height: 80px; padding: 1rem; background: white; border: 2px dashed #cbd5e1; border-radius: 0.5rem; display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center;">
-                                <span style="color: #94a3b8; font-size: 0.875rem;">Arrastra cursos aquí o selecciona abajo</span>
+                                <span style="color: #94a3b8; font-size: 0.875rem;">Arrastra cursos aquí (paralelos)</span>
                             </div>
                             <select id="slot_${slot.id}" onchange="game.assignCourseToSlot(${slot.id}, this.value)" 
                                     style="width: 100%; margin-top: 0.5rem; padding: 0.5rem; border: 2px solid #e2e8f0; border-radius: 0.5rem; font-size: 0.9375rem;">
@@ -798,21 +849,47 @@ class GameEngine {
             .filter(([course, slot]) => slot === slotId)
             .map(([courseId]) => courseId);
         
+        const slot = this.levelData.timeSlots.find(s => s.id === slotId);
+        const labUsed = coursesInSlot.filter(cid => {
+            const c = this.levelData.courses.find(cc => cc.id === cid);
+            return c?.requiresLab;
+        }).length;
+
+        // Actualizar header de capacidad si existe
+        const roomsCounter = document.getElementById(`rooms_used_${slotId}`);
+        const labsCounter = document.getElementById(`labs_used_${slotId}`);
+        if (roomsCounter) roomsCounter.textContent = String(coursesInSlot.length);
+        if (labsCounter) labsCounter.textContent = String(labUsed);
+
         if (coursesInSlot.length === 0) {
-            slotDiv.innerHTML = '<span style="color: #94a3b8; font-size: 0.875rem;">Arrastra cursos aquí o selecciona abajo</span>';
-        } else {
-            slotDiv.innerHTML = coursesInSlot.map(courseId => {
-                const course = this.levelData.courses.find(c => c.id === courseId);
-                return `
-                    <div style="padding: 0.5rem 1rem; background: #e0f2fe; border: 2px solid #1a759f; border-radius: 0.5rem; display: inline-flex; align-items: center; gap: 0.5rem;">
-                        <span>${course.emoji}</span>
-                        <strong>${course.name}</strong>
-                        <button onclick="game.removeCourseFromSchedule('${courseId}')" 
-                                style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 1.25rem; line-height: 1;">&times;</button>
-                    </div>
-                `;
-            }).join('');
+            slotDiv.innerHTML = '<span style="color: #94a3b8; font-size: 0.875rem;">Arrastra cursos aquí (paralelos)</span>';
+            return;
         }
+
+        const courseTags = coursesInSlot.map(courseId => {
+            const course = this.levelData.courses.find(c => c.id === courseId);
+            const labBadge = course?.requiresLab ? '<span style="background:#fde68a;color:#92400e;font-size:0.6875rem;padding:0.1rem 0.4rem;border-radius:0.25rem;">Lab</span>' : '';
+            return `
+                <div style="padding: 0.5rem 0.75rem; background: #e0f2fe; border: 2px solid #1a759f; border-radius: 0.5rem; display: inline-flex; align-items: center; gap: 0.5rem;">
+                    <span>${course.emoji}</span>
+                    <strong style="font-size: 0.9375rem;">${course.name}</strong>
+                    ${labBadge}
+                    <button onclick="game.removeCourseFromSchedule('${courseId}')" 
+                            style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 1.25rem; line-height: 1;">&times;</button>
+                </div>
+            `;
+        }).join('');
+
+        let capacityNote = '';
+        if (typeof slot?.rooms === 'number') {
+            const overRooms = coursesInSlot.length > slot.rooms;
+            const overLabs = typeof slot.labs === 'number' && labUsed > slot.labs;
+            if (overRooms || overLabs) {
+                capacityNote = `<div style="width:100%;color:#b91c1c;background:#fee2e2;border:1px solid #fecaca;padding:0.25rem 0.5rem;border-radius:0.375rem;">Capacidad excedida: ${overRooms ? 'aulas' : ''} ${overRooms && overLabs ? 'y' : ''} ${overLabs ? 'labs' : ''}</div>`;
+            }
+        }
+
+        slotDiv.innerHTML = capacityNote + courseTags;
     }
     
     removeCourseFromSchedule(courseId) {

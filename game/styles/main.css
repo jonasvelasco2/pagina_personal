@@ -1549,3 +1549,72 @@ a {
     }
 }
 
+/* ============================================
+   NOTIFICACIONES (Toast Messages)
+   ============================================ */
+.notification {
+    position: fixed !important;
+    top: 5rem !important;
+    right: 2rem !important;
+    left: auto !important;
+    bottom: auto !important;
+    min-width: 300px;
+    max-width: 420px;
+    padding: 1rem 1.25rem;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.04);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    z-index: 10000 !important;
+    opacity: 0;
+    transform: translateX(450px) scale(0.95);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.notification.show {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+}
+
+.notification-success {
+    background: linear-gradient(135deg, rgba(217, 249, 157, 0.9) 0%, rgba(167, 243, 208, 0.9) 100%);
+    border-left: 3px solid var(--success);
+    color: #065f46;
+}
+
+.notification-warning {
+    background: linear-gradient(135deg, rgba(254, 243, 199, 0.92) 0%, rgba(254, 215, 170, 0.92) 100%);
+    border-left: 3px solid #f59e0b;
+    color: #92400e;
+    font-weight: 500;
+}
+
+.notification-danger {
+    background: linear-gradient(135deg, rgba(254, 202, 202, 0.92) 0%, rgba(252, 165, 165, 0.92) 100%);
+    border-left: 3px solid #dc2626;
+    color: #7f1d1d;
+    font-weight: 500;
+}
+
+.notification-info {
+    background: linear-gradient(135deg, rgba(219, 234, 254, 0.92) 0%, rgba(191, 219, 254, 0.92) 100%);
+    border-left: 3px solid var(--info);
+    color: #1e3a8a;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .notification {
+        top: 4rem;
+        right: 1rem;
+        left: 1rem;
+        min-width: auto;
+        max-width: none;
+    }
+}
+

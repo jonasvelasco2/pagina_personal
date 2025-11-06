@@ -188,43 +188,55 @@ const LEVELS_DATA = {
         title: "Planificación de Horarios",
         icon: "📅",
         type: "scheduling",
-        objective: "Crea un horario de clases óptimo para 5 cursos evitando conflictos y minimizando huecos.",
+        objective: "Crea un horario óptimo para 5 cursos evitando conflictos y respetando la capacidad de aulas y laboratorios por franja. Los cursos pueden impartirse en paralelo (diferentes aulas). Minimiza el número de franjas usadas.",
         constraints: [
-            "No puede haber dos cursos al mismo tiempo",
-            "Respetar preferencias de profesores",
-            "Minimizar tiempo total usado",
-            "Evitar clases en horarios no deseados"
+            "Cada franja horaria puede tener múltiples cursos (en aulas diferentes)",
+            "Cursos en conflicto NO pueden estar en la misma franja horaria",
+            "Cada curso debe asignarse a exactamente una franja",
+            "Objetivo: Minimizar el número total de franjas horarias usadas"
         ],
-        hint: "Empieza asignando los cursos con más restricciones primero.",
-        advancedHint: "Este es un problema de coloración de grafos. Usa el algoritmo 'greedy' con ordenamiento por grado.",
+        hint: "Empieza por cursos con más restricciones (laboratorio/profesor). Usa primero las franjas con más capacidad de aula.",
+        advancedHint: "Coloración de grafos + recursos: conflictos definen colores mínimos; además respeta capacidad de aulas (rooms) y laboratorios (labs).",
         courses: [
-            { id: 'Math', name: 'Matemáticas', emoji: '📐', duration: 2, students: 30 },
-            { id: 'Phys', name: 'Física', emoji: '⚛️', duration: 2, students: 25 },
-            { id: 'Chem', name: 'Química', emoji: '🧪', duration: 2, students: 28 },
-            { id: 'Prog', name: 'Programación', emoji: '💻', duration: 3, students: 35 },
-            { id: 'Eng', name: 'Inglés', emoji: '📚', duration: 2, students: 32 }
+            { id: 'Math', name: 'Matemáticas', emoji: '📐', duration: 2, students: 30, conflicts: ['Phys', 'Prog'], requiresLab: false, professor: 'P_Math' },
+            { id: 'Phys', name: 'Física', emoji: '⚛️', duration: 2, students: 25, conflicts: ['Math', 'Chem'], requiresLab: false, professor: 'P_Phys' },
+            { id: 'Chem', name: 'Química', emoji: '🧪', duration: 2, students: 28, conflicts: ['Phys'], requiresLab: true, professor: 'P_Chem' },
+            { id: 'Prog', name: 'Programación', emoji: '💻', duration: 2, students: 35, conflicts: ['Math'], requiresLab: false, professor: 'P_Prog' },
+            { id: 'Eng', name: 'Inglés', emoji: '📚', duration: 2, students: 32, conflicts: [], requiresLab: false, professor: 'P_Eng' }
         ],
         timeSlots: [
-            { id: 1, time: '08:00-10:00' },
-            { id: 2, time: '10:00-12:00' },
-            { id: 3, time: '12:00-14:00' },
-            { id: 4, time: '14:00-16:00' },
-            { id: 5, time: '16:00-18:00' }
+            { id: 1, time: '08:00-10:00', duration: 2, rooms: 3, labs: 1 },
+            { id: 2, time: '10:00-12:00', duration: 2, rooms: 2, labs: 1 },
+            { id: 3, time: '12:00-14:00', duration: 2, rooms: 2, labs: 0 },
+            { id: 4, time: '14:00-16:00', duration: 2, rooms: 2, labs: 1 },
+            { id: 5, time: '16:00-18:00', duration: 2, rooms: 1, labs: 0 }
+        ],
+        professors: [
+            { id: 'P_Math', name: 'Prof. García', unavailableSlots: [] },
+            { id: 'P_Phys', name: 'Prof. Torres', unavailableSlots: [3] },
+            { id: 'P_Chem', name: 'Dra. López', unavailableSlots: [] },
+            { id: 'P_Prog', name: 'Mtro. Díaz', unavailableSlots: [1] },
+            { id: 'P_Eng', name: 'Ms. Smith', unavailableSlots: [] }
         ],
         conflicts: [
-            ['Math', 'Phys'],
-            ['Chem', 'Phys'],
-            ['Prog', 'Math']
+            ['Math', 'Phys'],   // Comparten muchos estudiantes (no pueden asistir a ambos)
+            ['Chem', 'Phys'],   // Comparten el laboratorio (solo hay uno disponible)
+            ['Prog', 'Math']    // Comparten el mismo profesor
         ],
+        conflictReasons: {
+            'Math-Phys': 'Muchos estudiantes cursan ambas materias',
+            'Chem-Phys': 'Comparten el único laboratorio disponible',
+            'Prog-Math': 'El profesor imparte ambas materias'
+        },
         optimalSolution: {
             schedule: {
                 'Math': 1,
-                'Phys': 2,
                 'Chem': 1,
-                'Prog': 2,
-                'Eng': 3
+                'Eng': 1,
+                'Phys': 2,
+                'Prog': 2
             },
-            slotsUsed: 3
+            slotsUsed: 2
         }
     },
     

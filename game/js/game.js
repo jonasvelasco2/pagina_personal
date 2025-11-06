@@ -45,47 +45,60 @@ function resetGame() {
 function submitSolution() {
     console.log('=== SUBMIT SOLUTION INICIADO ===');
     
-    game.stopTimer();
-    game.incrementAttempts();
+    let result, solution, time, levelData;
     
-    const solution = game.getSolution();
-    const time = game.getTime();
-    const levelData = LEVELS_DATA[currentLevelId];
-    
-    console.log('Solution obtenida:', solution);
-    console.log('LevelData:', levelData);
-    
-    // Validar y calcular resultados
-    const result = validateSolution(solution, levelData);
-    
-    console.log('Resultado de validación:', result);
-    
-    if (!result.valid) {
-        console.log('Solución NO válida:', result.message);
-        showNotification('⚠️ ' + result.message, 'warning');
-        game.startTimer(); // Reiniciar timer si la solución no es válida
-        return;
+    try {
+        game.stopTimer();
+        game.incrementAttempts();
+        
+        solution = game.getSolution();
+        time = game.getTime();
+        levelData = LEVELS_DATA[currentLevelId];
+        
+        console.log('Solution obtenida:', solution);
+        console.log('LevelData:', levelData);
+        console.log('Level type:', levelData.type);
+        
+        // Validar y calcular resultados
+        result = validateSolution(solution, levelData);
+        
+        console.log('Resultado de validación completa:', result);
+        console.log('Valid:', result.valid);
+        console.log('Message:', result.message);
+        
+        if (!result.valid) {
+            console.log('❌ Solución NO válida - mostrando notificación');
+            console.log('Mensaje a mostrar:', result.message);
+            showNotification(result.message, 'warning');
+            game.startTimer(); // Reiniciar timer si la solución no es válida
+            return;
+        }
+        
+        console.log('✅ Solución válida, calculando eficiencia...');
+        
+        // Calcular eficiencia y estrellas
+        const efficiency = calculateEfficiency(result.value, result.optimal);
+        const stars = calculateStars(efficiency);
+        const score = calculateScore(stars, time, game.attempts);
+        
+        console.log('Efficiency:', efficiency, 'Stars:', stars, 'Score:', score);
+        
+        // Guardar progreso
+        const saveResult = PlayerData.updateLevel(currentLevelId, score, stars, time);
+        
+        console.log('Progreso guardado:', saveResult);
+        console.log('Mostrando modal...');
+        
+        // Mostrar resultados
+        showResultModal(result, efficiency, stars, score, saveResult);
+        
+        console.log('=== SUBMIT SOLUTION COMPLETADO ===');
+        
+    } catch (error) {
+        console.error('ERROR en submitSolution:', error);
+        showNotification('Error al validar la solución: ' + error.message, 'danger');
+        if (game) game.startTimer();
     }
-    
-    console.log('✅ Solución válida, calculando eficiencia...');
-    
-    // Calcular eficiencia y estrellas
-    const efficiency = calculateEfficiency(result.value, result.optimal);
-    const stars = calculateStars(efficiency);
-    const score = calculateScore(stars, time, game.attempts);
-    
-    console.log('Efficiency:', efficiency, 'Stars:', stars, 'Score:', score);
-    
-    // Guardar progreso
-    const saveResult = PlayerData.updateLevel(currentLevelId, score, stars, time);
-    
-    console.log('Progreso guardado:', saveResult);
-    console.log('Mostrando modal...');
-    
-    // Mostrar resultados
-    showResultModal(result, efficiency, stars, score, saveResult);
-    
-    console.log('=== SUBMIT SOLUTION COMPLETADO ===');
 }
 
 function validateSolution(solution, levelData) {
@@ -308,25 +321,110 @@ function validateScheduling(solution, levelData) {
     console.log('Schedule recibido:', schedule);
     console.log('SlotsUsed:', solution.slotsUsed);
     
-    // Verificar que todos los cursos estén asignados
+    // 1. Verificar que todos los cursos estén asignados
     if (Object.keys(schedule).length !== levelData.courses.length) {
+        const missing = levelData.courses.length - Object.keys(schedule).length;
+        const unassigned = levelData.courses
+            .filter(c => !schedule[c.id])
+            .map(c => `${c.emoji} ${c.name}`)
+            .join(', ');
         return {
             valid: false,
-            message: `Debes asignar todos los cursos a franjas horarias (tienes ${Object.keys(schedule).length}/${levelData.courses.length})`
+            message: `📋 REGLA VIOLADA: Cursos sin asignar\n\nDebes asignar TODOS los cursos (faltan ${missing}):\n${unassigned}`
         };
     }
     
-    // Verificar conflictos
+    // 2. Verificar duración de cursos vs franjas
+    for (const [courseId, slotId] of Object.entries(schedule)) {
+        const course = levelData.courses.find(c => c.id === courseId);
+        const slot = levelData.timeSlots.find(s => s.id === slotId);
+        
+        if (slot && slot.duration && course.duration > slot.duration) {
+            return {
+                valid: false,
+                message: `⏱️ REGLA VIOLADA: Duración incompatible\n\n${course.emoji} ${course.name} dura ${course.duration}h pero la franja ${slot.time} solo tiene ${slot.duration}h`
+            };
+        }
+    }
+
+    // 3. Verificar disponibilidad de profesores
+    for (const [courseId, slotId] of Object.entries(schedule)) {
+        const course = levelData.courses.find(c => c.id === courseId);
+        
+        if (course.professor && Array.isArray(levelData.professors)) {
+            const prof = levelData.professors.find(p => p.id === course.professor);
+            const slot = levelData.timeSlots.find(s => s.id === slotId);
+            
+            if (prof && Array.isArray(prof.unavailableSlots) && prof.unavailableSlots.includes(slotId)) {
+                return {
+                    valid: false,
+                    message: `👨‍🏫 REGLA VIOLADA: Profesor no disponible\n\n${prof.name} (profesor de ${course.emoji} ${course.name}) NO está disponible en la franja ${slot.time}`
+                };
+            }
+        }
+    }
+    
+    // 4. Verificar conflictos entre cursos
+    console.log('Verificando conflictos...');
+    console.log('Conflicts array:', levelData.conflicts);
+    
     for (const [course1, course2] of levelData.conflicts) {
         const slot1 = schedule[course1];
         const slot2 = schedule[course2];
         
+        console.log(`Verificando conflicto: ${course1} (slot ${slot1}) vs ${course2} (slot ${slot2})`);
+        
         if (slot1 === slot2) {
             const c1 = levelData.courses.find(c => c.id === course1);
             const c2 = levelData.courses.find(c => c.id === course2);
+            const slot = levelData.timeSlots.find(s => s.id === slot1);
+            const reason = levelData.conflictReasons?.[`${course1}-${course2}`] || 
+                          levelData.conflictReasons?.[`${course2}-${course1}`] || 
+                          'tienen conflicto';
+            
+            console.log(`❌ CONFLICTO DETECTADO: ${course1} y ${course2} en franja ${slot1}`);
+            
             return {
                 valid: false,
-                message: `Conflicto: ${c1.name} y ${c2.name} no pueden estar en la misma franja`
+                message: `⚠️ REGLA VIOLADA: Conflicto de horario\n\n${c1.emoji} ${c1.name} y ${c2.emoji} ${c2.name} NO pueden estar en la misma franja ${slot.time}\n\nMotivo: ${reason}`
+            };
+        }
+    }
+    
+    console.log('✅ No se encontraron conflictos');
+    
+    // 5. Verificar capacidad de aulas y laboratorios por franja
+    const bySlot = {};
+    for (const [cId, sId] of Object.entries(schedule)) {
+        bySlot[sId] = bySlot[sId] || { total: 0, labs: 0, courses: [] };
+        bySlot[sId].total += 1;
+        const c = levelData.courses.find(cc => cc.id === cId);
+        bySlot[sId].courses.push(c);
+        if (c?.requiresLab) bySlot[sId].labs += 1;
+    }
+
+    for (const sIdStr of Object.keys(bySlot)) {
+        const sId = parseInt(sIdStr);
+        const slot = levelData.timeSlots.find(s => s.id === sId);
+        if (!slot) continue;
+        const usage = bySlot[sIdStr];
+
+        // Verificar capacidad de aulas
+        if (typeof slot.rooms === 'number' && usage.total > slot.rooms) {
+            const courseList = usage.courses.map(c => `${c.emoji} ${c.name}`).join(', ');
+            return {
+                valid: false,
+                message: `🏫 REGLA VIOLADA: Capacidad de aulas excedida\n\nFranja ${slot.time} tiene ${usage.total} cursos pero solo ${slot.rooms} aulas disponibles\n\nCursos asignados: ${courseList}`
+            };
+        }
+        
+        // Verificar capacidad de laboratorios
+        if (typeof slot.labs === 'number' && usage.labs > slot.labs) {
+            const labCourses = usage.courses.filter(c => c.requiresLab).map(c => `${c.emoji} ${c.name}`).join(', ');
+            const labInfo = slot.labs === 0 ? 'NO tiene laboratorios' : `solo tiene ${slot.labs} laboratorio(s)`;
+            return {
+                valid: false,
+                message: `🔬 REGLA VIOLADA: Capacidad de laboratorios excedida\n\nFranja ${slot.time} ${labInfo} pero tienes ${usage.labs} curso(s) que requieren laboratorio\n\nCursos con lab: ${labCourses}`
             };
         }
     }
@@ -338,7 +436,7 @@ function validateScheduling(solution, levelData) {
         valid: true,
         value: -slotsUsed, // Negativo porque queremos minimizar
         optimal: -levelData.optimalSolution.slotsUsed,
-        message: 'Solución válida'
+        message: '✅ ¡Solución válida! Todas las reglas se cumplen'
     };
 }
 

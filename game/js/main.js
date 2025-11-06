@@ -225,21 +225,68 @@ const PlayerData = {
 
 // Utilidades generales
 function showNotification(message, type = 'info') {
+    console.log('📢 showNotification llamada:', { message, type });
+    
+    // Limpiar notificaciones anteriores
+    const oldNotifications = document.querySelectorAll('.notification');
+    oldNotifications.forEach(n => n.remove());
+    
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
-    notification.textContent = message;
+    
+    // Convertir saltos de línea a <br> y preservar formato
+    const formattedMessage = message.replace(/\n/g, '<br>');
+    notification.innerHTML = formattedMessage;
+    
+    console.log('📢 Notificación creada:', notification);
+    console.log('📢 Classes:', notification.className);
+    console.log('📢 HTML:', notification.innerHTML);
+    
+    // Para errores de validación (warning/danger), agregar botón de cerrar
+    if (type === 'warning' || type === 'danger') {
+        const closeBtn = document.createElement('button');
+        closeBtn.innerHTML = '&times;';
+        closeBtn.style.cssText = 'position: absolute; top: 0.5rem; right: 0.5rem; background: none; border: none; font-size: 1.5rem; cursor: pointer; opacity: 0.7; line-height: 1; color: inherit;';
+        closeBtn.onclick = () => {
+            console.log('❌ Cerrando notificación');
+            notification.classList.remove('show');
+            setTimeout(() => notification.remove(), 300);
+        };
+        // NO sobreescribir position (debe ser fixed del CSS)
+        notification.style.paddingRight = '2.5rem';
+        notification.appendChild(closeBtn);
+    }
     
     document.body.appendChild(notification);
+    console.log('📢 Notificación agregada al body');
+    console.log('📢 Elementos en body:', document.querySelectorAll('.notification'));
+    
+    // Forzar reflow para asegurar que la animación funcione
+    notification.offsetHeight;
     
     setTimeout(() => {
         notification.classList.add('show');
-    }, 100);
+        console.log('📢 Clase "show" agregada');
+        console.log('📢 Computed styles:', window.getComputedStyle(notification));
+    }, 10);
+    
+    // Diferentes duraciones según el tipo de mensaje
+    const duration = (type === 'warning' || type === 'danger') ? 10000 : 3000; // 10s para errores, 3s para otros
     
     setTimeout(() => {
+        console.log('⏱️ Timeout alcanzado, ocultando notificación');
         notification.classList.remove('show');
-        setTimeout(() => notification.remove(), 300);
-    }, 3000);
+        setTimeout(() => {
+            notification.remove();
+            console.log('🗑️ Notificación removida');
+        }, 300);
+    }, duration);
 }
+
+// Función de prueba para verificar notificaciones
+window.testNotification = function() {
+    showNotification('⚠️ REGLA VIOLADA: Profesor no disponible\n\nMtro. Díaz (profesor de 💻 Programación) NO está disponible en la franja 08:00-10:00\n\nMotivo: Prueba de notificación', 'warning');
+};
 
 function formatTime(seconds) {
     const mins = Math.floor(seconds / 60);
