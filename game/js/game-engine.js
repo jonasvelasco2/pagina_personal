@@ -537,7 +537,7 @@ class GameEngine {
                                     <span style="font-size: 0.875rem; color: #64748b;">Demanda: ${store.demand}</span>
                                 </th>
                             `).join('')}
-                            <th style="padding: 1rem; background: #e0e7ff; border: 1px solid #e2e8f0;">Capacidad</th>
+                            <th style="padding: 1rem; background: #e0e7ff; border: 1px solid #e2e8f0;">Enviado / Capacidad</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -557,8 +557,8 @@ class GameEngine {
                                                style="width: 70px; padding: 0.25rem; text-align: center; border: 2px solid #e2e8f0; border-radius: 0.25rem;">
                                     </td>
                                 `).join('')}
-                                <td style="padding: 1rem; background: #e0e7ff; border: 1px solid #e2e8f0; text-align: center; font-weight: 600;">
-                                    ${warehouse.supply}
+                                <td id="sent_${warehouse.id}" style="padding: 1rem; background: #e0e7ff; border: 1px solid #e2e8f0; text-align: center; font-weight: 600;">
+                                    0 / ${warehouse.supply}
                                 </td>
                             </tr>
                         `).join('')}
@@ -603,6 +603,26 @@ class GameEngine {
                     totalCost += quantity * this.levelData.costs[warehouse.id][store.id];
                 }
             });
+        });
+        
+        // Actualizar cantidad enviada desde cada almacén
+        this.levelData.warehouses.forEach(warehouse => {
+            let sent = 0;
+            this.levelData.stores.forEach(store => {
+                const inputId = `ship_${warehouse.id}_${store.id}`;
+                sent += parseInt(document.getElementById(inputId).value) || 0;
+            });
+            
+            const sentCell = document.getElementById(`sent_${warehouse.id}`);
+            sentCell.textContent = `${sent} / ${warehouse.supply}`;
+            
+            if (sent === warehouse.supply) {
+                sentCell.style.color = '#10b981'; // Verde: capacidad completa usada
+            } else if (sent > warehouse.supply) {
+                sentCell.style.color = '#ef4444'; // Rojo: excede capacidad
+            } else {
+                sentCell.style.color = '#f59e0b'; // Naranja: capacidad parcial
+            }
         });
         
         // Actualizar cantidad recibida por tienda

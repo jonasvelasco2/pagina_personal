@@ -130,13 +130,13 @@ const LEVELS_DATA = {
         },
         optimalSolution: {
             assignments: {
-                'Ana': 'Design',
-                'Bruno': 'DB',
-                'Carla': 'Web',
-                'Diego': 'Test',
-                'Elena': 'App'
+                'Ana': 'Design',    // 4h
+                'Bruno': 'DB',      // 4h
+                'Carla': 'Web',     // 5h
+                'Diego': 'Test',    // 4h
+                'Elena': 'App'      // 4h
             },
-            totalTime: 22
+            totalTime: 21  // 4+4+5+4+4 = 21h (corregido de 22)
         }
     },
     
@@ -307,12 +307,12 @@ const LEVELS_DATA = {
         ],
         optimalSolution: {
             flow: {
-                'G1-C2': 100,
-                'G2-C3': 150,
-                'G3-C1': 180,
-                'G3-C2': 20
+                'G1-C2': 100,   // Solar → Residencial: 100 × $30 = $3,000
+                'G2-C3': 150,   // Eólica → Comercial: 150 × $25 = $3,750
+                'G3-C1': 180,   // Hidro → Industrial: 180 × $20 = $3,600
+                'G3-C2': 20     // Hidro → Residencial: 20 × $20 = $400
             },
-            totalCost: 11500
+            totalCost: 10750    // $3,000 + $3,750 + $3,600 + $400 = $10,750 (corregido de $11,500)
         }
     },
     
@@ -404,27 +404,27 @@ const LEVELS_DATA = {
         },
         optimalSolution: {
             production: {
-                'F1-A': 120,
-                'F1-B': 0,
-                'F2-A': 250,
-                'F2-B': 150,
-                'F3-A': 80,
-                'F3-B': 220
+                'F1-A': 120,  // 120 × $15 = $1,800
+                'F1-B': 0,    // 0 × $22 = $0
+                'F2-A': 250,  // 250 × $12 = $3,000 (más barato para A)
+                'F2-B': 150,  // 150 × $18 = $2,700
+                'F3-A': 80,   // 80 × $18 = $1,440
+                'F3-B': 220   // 220 × $16 = $3,520 (más barato para B)
             },
             shipments: {
-                'F1-C1-A': 120,
-                'F2-C2-A': 150,
-                'F2-C4-A': 80,
-                'F2-C4-B': 70,
-                'F2-C2-B': 80,
-                'F3-C3-A': 100,
-                'F3-C3-B': 120,
-                'F3-C1-B': 80,
-                'F3-C2-B': 20
+                'F1-C1-A': 120,  // 120 × $2 = $240
+                'F2-C2-A': 150,  // 150 × $6 = $900
+                'F2-C4-A': 80,   // 80 × $2 = $160
+                'F2-C4-B': 70,   // 70 × $2 = $140
+                'F2-C2-B': 80,   // 80 × $6 = $480
+                'F3-C3-A': 100,  // 100 × $3 = $300
+                'F3-C3-B': 120,  // 120 × $3 = $360
+                'F3-C1-B': 80,   // 80 × $9 = $720
+                'F3-C2-B': 20    // 20 × $5 = $100
             },
-            totalCost: 18940,
-            productionCost: 16240,
-            transportCost: 2700
+            totalCost: 15860,       // $12,460 + $3,400 (corregido de $18,940)
+            productionCost: 12460,  // $1,800 + $3,000 + $2,700 + $1,440 + $3,520 (corregido de $16,240)
+            transportCost: 3400     // $240 + $900 + $160 + $140 + $480 + $300 + $360 + $720 + $100 (corregido de $2,700)
         }
     }
 };

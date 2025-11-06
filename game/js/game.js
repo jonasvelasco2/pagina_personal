@@ -29,6 +29,16 @@ function initGame() {
     game = new GameEngine(levelData);
     game.initialize();
     
+    // Restaurar intentos previos si existen (cuando se reinicia)
+    const savedAttempts = sessionStorage.getItem('currentAttempts');
+    if (savedAttempts) {
+        game.attempts = parseInt(savedAttempts);
+        document.getElementById('attempts').textContent = game.attempts;
+        console.log('✅ Intentos restaurados:', game.attempts);
+        // Limpiar para que solo se use una vez
+        sessionStorage.removeItem('currentAttempts');
+    }
+    
     // Cargar mejor puntuación si existe
     const levelProgress = PlayerData.getLevelData(currentLevelId);
     if (levelProgress) {
@@ -37,7 +47,16 @@ function initGame() {
 }
 
 function resetGame() {
-    if (confirm('¿Estás seguro de que quieres reiniciar? Perderás tu progreso actual.')) {
+    if (confirm('¿Estás seguro de que quieres intentar de nuevo? Perderás tu progreso actual y contará como un nuevo intento.')) {
+        // Incrementar intentos ANTES de reiniciar
+        game.incrementAttempts();
+        
+        console.log('🔄 Intentando de nuevo - Intento #' + game.attempts);
+        
+        // Guardar el número de intentos antes de recargar
+        sessionStorage.setItem('currentAttempts', game.attempts);
+        
+        // Recargar la página
         location.reload();
     }
 }
