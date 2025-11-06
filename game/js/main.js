@@ -67,7 +67,7 @@ function showWelcomeModal() {
                            maxlength="20"
                            autocomplete="off">
                     <button class="btn btn-primary btn-large" onclick="savePlayerName()">
-                        <span>Comenzar a Jugar</span>
+                        <span>Comenzar a jugar</span>
                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                             <path d="M7 4L13 10L7 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                         </svg>
