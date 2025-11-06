@@ -10,7 +10,7 @@ const LEVELS_DATA = {
         type: "knapsack",
         objective: "Maximiza el valor total de los objetos que puedes llevar en tu mochila sin exceder la capacidad de peso.",
         constraints: [
-            "Capacidad máxima: 50 kg",
+            "Capacidad máxima: 8 kg",
             "Cada objeto puede ser tomado solo una vez",
             "Debes respetar el límite de peso"
         ],
