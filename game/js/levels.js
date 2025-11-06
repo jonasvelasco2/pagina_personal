@@ -41,7 +41,7 @@ function loadLevelStates() {
             
             // Cambiar texto del botón
             const button = card.querySelector('.btn-level');
-            button.innerHTML = '🔄 Jugar de Nuevo';
+            button.innerHTML = '🔄 Jugar de nuevo';
         }
     });
 }
