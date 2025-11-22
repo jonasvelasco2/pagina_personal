@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S.A.L.V.A. - Sistema de Asistencia Logística y Vías de Ayuda</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #800000;
+            --text-color: #333333;
+            --light-text: #666666;
+            --bg-color: #ffffff;
+            --section-bg: #f8f9fa;
+            --border-color: #e9ecef;
+
+            /* Mapping old vars to new palette to maintain compatibility */
+            --onyx: var(--text-color);
+            --carbon-black: var(--light-text);
+            --dark-garnet: var(--primary-color);
+            --mahogany-red: var(--accent-color);
+            --mahogany-red-2: var(--accent-color);
+            --strawberry-red: var(--accent-color);
+            --silver: #adb5bd;
+            --dust-grey: var(--border-color);
+            --white-smoke: var(--section-bg);
+            --white: #ffffff;
+            --success: #198754;
+            --warning: #ffc107;
+
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.02);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.03);
+            --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.04);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--white-smoke);
+            color: var(--onyx);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Header Navigation */
+        .header {
+            background: var(--white);
+            border-bottom: 1px solid var(--dust-grey);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .nav-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--strawberry-red);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: url('img/logo_salva.png') no-repeat center center;
+            background-size: contain;
+            border-radius: 6px;
+            display: block;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--carbon-black);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+            font-size: 0.95rem;
+        }
+
+        .nav-links a:hover {
+            color: var(--strawberry-red);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: var(--dark-garnet);
+            color: white;
+            padding: 4rem 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            display: none;
+        }
+
+        .hero-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .project-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .status-badge {
+            background: var(--success);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .hero h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            opacity: 0.95;
+            max-width: 800px;
+            line-height: 1.8;
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        /* Section Styles */
+        .section {
+            margin-bottom: 4rem;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .section-header {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--onyx);
+            margin-bottom: 0.5rem;
+            position: relative;
+            padding-bottom: 1rem;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: var(--strawberry-red);
+            border-radius: 2px;
+        }
+
+        .section-content {
+            font-size: 1.1rem;
+            color: var(--carbon-black);
+            line-height: 1.9;
+        }
+
+        .section-content p {
+            margin-bottom: 1.5rem;
+        }
+
+        .section-content strong {
+            color: var(--onyx);
+            font-weight: 600;
+        }
+
+        /* Methodology List */
+        .methodology-list {
+            list-style: none;
+            counter-reset: methodology-counter;
+        }
+
+        .methodology-item {
+            counter-increment: methodology-counter;
+            background: var(--white);
+            border-left: 4px solid var(--strawberry-red);
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow-md);
+            position: relative;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .methodology-item:hover {
+            transform: translateX(5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .methodology-item::before {
+            content: counter(methodology-counter);
+            position: absolute;
+            left: -20px;
+            top: 2rem;
+            width: 40px;
+            height: 40px;
+            background: var(--strawberry-red);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .methodology-item h4 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.3rem;
+            color: var(--onyx);
+            margin-bottom: 0.75rem;
+            margin-left: 1.5rem;
+        }
+
+        .methodology-item p {
+            margin-left: 1.5rem;
+            color: var(--carbon-black);
+            line-height: 1.8;
+        }
+
+        /* Impact Grid */
+        .impact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .impact-card {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            border-top: 4px solid var(--mahogany-red);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .impact-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .impact-card h4 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.3rem;
+            color: var(--onyx);
+            margin-bottom: 1rem;
+        }
+
+        .impact-card p {
+            color: var(--carbon-black);
+            line-height: 1.8;
+        }
+
+        /* Image Carousel */
+        .image-carousel {
+            position: relative;
+            margin: 2rem 0;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            background: var(--white);
+        }
+
+        .carousel-container {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .carousel-track {
+            display: flex;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .carousel-slide {
+            min-width: 100%;
+            position: relative;
+        }
+
+        .carousel-slide img {
+            width: 100%;
+            height: auto;
+            display: block;
+            max-height: 700px;
+            min-height: 600px;
+            object-fit: cover;
+        }
+
+        .carousel-slide-placeholder {
+            width: 100%;
+            height: 600px;
+            min-height: 600px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .carousel-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 2rem 1.5rem 1.5rem;
+            color: white;
+        }
+
+        .carousel-caption-text {
+            font-size: 0.95rem;
+            font-style: italic;
+            line-height: 1.6;
+        }
+
+        .carousel-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(229, 56, 59, 0.9);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+            z-index: 10;
+            backdrop-filter: blur(10px);
+        }
+
+        .carousel-nav:hover {
+            background: var(--strawberry-red);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .carousel-nav.prev {
+            left: 1rem;
+        }
+
+        .carousel-nav.next {
+            right: 1rem;
+        }
+
+        .carousel-nav:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .carousel-indicators {
+            position: absolute;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 0.5rem;
+            z-index: 10;
+        }
+
+        .carousel-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            border: 2px solid white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .carousel-indicator.active {
+            background: var(--strawberry-red);
+            border-color: var(--strawberry-red);
+            transform: scale(1.2);
+        }
+
+        .carousel-indicator:hover {
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .carousel-counter {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            z-index: 10;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Partners Section */
+        .partners-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .partner-card {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: var(--shadow-md);
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid var(--dust-grey);
+        }
+
+        .partner-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--strawberry-red);
+        }
+
+        .partner-card h4 {
+            font-family: 'Space Grotesk', sans-serif;
+            color: var(--onyx);
+            margin-top: 1rem;
+            font-size: 1.1rem;
+        }
+
+        /* Info Cards */
+        .info-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .info-card {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--mahogany-red);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .info-card-label {
+            font-size: 0.85rem;
+            color: var(--silver);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-card-value {
+            font-size: 1.1rem;
+            color: var(--onyx);
+            font-weight: 600;
+        }
+
+        /* Objectives List */
+        .objectives-list {
+            list-style: none;
+            margin: 2rem 0;
+        }
+
+        .objective-item {
+            background: var(--white);
+            border-left: 4px solid var(--strawberry-red);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow-sm);
+            position: relative;
+            padding-left: 3rem;
+        }
+
+        .objective-number {
+            position: absolute;
+            left: -20px;
+            top: 1.5rem;
+            width: 40px;
+            height: 40px;
+            background: var(--strawberry-red);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .objective-content {
+            color: var(--carbon-black);
+            line-height: 1.8;
+        }
+
+        .objective-content strong {
+            color: var(--onyx);
+            font-weight: 600;
+        }
+
+        /* Lessons Learned */
+        .lessons-list {
+            list-style: none;
+        }
+
+        .lesson-item {
+            background: var(--white);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--strawberry-red);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .lesson-item::before {
+            content: '✓';
+            color: var(--strawberry-red);
+            font-weight: bold;
+            margin-right: 1rem;
+            font-size: 1.2rem;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--onyx);
+            color: white;
+            padding: 3rem 2rem;
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .footer p {
+            opacity: 0.8;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero {
+                padding: 3rem 1.5rem;
+            }
+
+            .main-content {
+                padding: 3rem 1.5rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .methodology-item {
+                padding: 1.5rem;
+            }
+
+            .methodology-item::before {
+                left: -15px;
+                width: 30px;
+                height: 30px;
+                font-size: 0.9rem;
+            }
+
+            .objective-item {
+                padding: 1.5rem;
+                padding-left: 2.5rem;
+            }
+
+            .objective-number {
+                left: -15px;
+                width: 30px;
+                height: 30px;
+                font-size: 0.9rem;
+            }
+
+            .impact-grid,
+            .partners-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .carousel-nav {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+
+            .carousel-nav.prev {
+                left: 0.5rem;
+            }
+
+            .carousel-nav.next {
+                right: 0.5rem;
+            }
+
+            .carousel-slide-placeholder {
+                height: 400px;
+                min-height: 400px;
+                font-size: 1rem;
+            }
+
+            .carousel-caption {
+                padding: 1.5rem 1rem 1rem;
+            }
+
+            .carousel-caption-text {
+                font-size: 0.85rem;
+            }
+
+            .carousel-counter {
+                top: 0.5rem;
+                right: 0.5rem;
+                padding: 0.4rem 0.8rem;
+                font-size: 0.75rem;
+            }
+
+            .carousel-indicators {
+                bottom: 0.5rem;
+            }
+
+            .carousel-indicator {
+                width: 10px;
+                height: 10px;
+            }
+        }
+
+        /* Scroll animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav-container">
+            <a href="#" class="logo">
+                <div class="logo-icon"></div>
+                <span>S.A.L.V.A.</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="#contexto">Contexto</a></li>
+                <li><a href="#enfoque">Marco metodológico</a></li>
+                <li><a href="#resultados">Resultados</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-container">
+            <h1>S.A.L.V.A.</h1>
+            <p class="hero-subtitle">
+                Sistema de Asistencia Logística y Vías de Ayuda, es una plataforma integral de planificación y
+                optimización de rutas de distribución de ayuda humanitaria utilizando datos reales y algoritmos
+                avanzados de enrutamiento para maximizar la eficiencia en situaciones de emergencia.
+            </p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Contexto -->
+        <section id="contexto" class="section fade-in">
+            <div class="section-header">
+                <h2 class="section-title">CONTEXTO</h2>
+            </div>
+            <div class="section-content">
+                <p>
+                    México, como país altamente expuesto a desastres naturales (sismos,
+                    huracanes, inundaciones, entre otros), enfrenta desafíos críticos
+                    en la distribución de ayuda humanitaria durante emergencias. La falta de
+                    sistemas de planificación logística eficiente resulta en tiempos de respuesta
+                    prolongados, rutas ineficientes que cruzan zonas peligrosas, y una distribución
+                    subóptima de recursos limitados.
+                </p>
+                <p>
+                    En situaciones de desastre, cada minuto cuenta. La capacidad de calcular rutas
+                    óptimas que eviten zonas afectadas, optimicen el tiempo de viaje y maximicen
+                    la cobertura de puntos de acopio es fundamental para salvar vidas y minimizar
+                    el impacto en las comunidades afectadas.
+                </p>
+                <div class="image-carousel" id="contextCarousel">
+                    <div class="carousel-container">
+                        <div class="carousel-track" id="contextCarouselTrack">
+                            <div class="carousel-slide">
+                                <img src="img/1.png" alt="Visualización del sistema">
+                                <div class="carousel-caption">
+                                    <div class="carousel-caption-text">Visualización general del sistema de logística
+                                        humanitaria.</div>
+                                </div>
+                            </div>
+                            <div class="carousel-slide">
+                                <img src="img/2.png" alt="Análisis de rutas">
+                                <div class="carousel-caption">
+                                    <div class="carousel-caption-text">Análisis detallado de rutas y tiempos de
+                                        respuesta.</div>
+                                </div>
+                            </div>
+                            <div class="carousel-slide">
+                                <img src="img/3.png" alt="Zonas afectadas">
+                                <div class="carousel-caption">
+                                    <div class="carousel-caption-text">Identificación y delimitación de zonas afectadas.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="carousel-slide">
+                                <img src="img/4.png" alt="Optimización">
+                                <div class="carousel-caption">
+                                    <div class="carousel-caption-text">Optimización de recursos y puntos de
+                                        distribución.</div>
+                                </div>
+                            </div>
+                            <div class="carousel-slide">
+                                <img src="img/5.png" alt="Cobertura">
+                                <div class="carousel-caption">
+                                    <div class="carousel-caption-text">Análisis de cobertura y accesibilidad.</div>
+                                </div>
+                            </div>
+                            <div class="carousel-slide">
+                                <img src="img/6.png" alt="Resultados">
+                                <div class="carousel-caption">
+                                    <div class="carousel-caption-text">
+                                        Cálculo de rutas óptimas utilizando algoritmos heurísticos y modelos de grafos.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="carousel-nav prev" aria-label="Imagen anterior">‹</button>
+                        <button class="carousel-nav next" aria-label="Siguiente imagen">›</button>
+                        <div class="carousel-indicators" id="contextCarouselIndicators"></div>
+                        <div class="carousel-counter">
+                            <span id="contextCarouselCurrent">1</span> / <span id="contextCarouselTotal">4</span>
+                        </div>
+                    </div>
+                </div>
+                <p>
+                    Este proyecto aborda directamente estos desafíos mediante el desarrollo de
+                    una plataforma tecnológica que combina datos geográficos reales,
+                    modelos de optimización ubicación de instalaciones, y motores de enrutamiento
+                    basados en grafos para proporcionar soluciones logísticas robustas en tiempo real.
+                </p>
+            </div>
+        </section>
+
+        <!-- Marco Metodológico -->
+        <section id="enfoque" class="section fade-in">
+            <div class="section-header">
+                <h2 class="section-title">MARCO METODOLÓGICO</h2>
+            </div>
+            <div class="section-content">
+                <p>
+                    La iniciativa implementa un enfoque de investigación de operaciones aplicada a la
+                    logística humanitaria. El sistema integra análisis geoespacial avanzado,
+                    teoría de grafos y modelos de optimización combinatoria para resolver problemas
+                    de distribución de última milla. La metodología incluye:
+                </p>
+
+                <ol class="methodology-list">
+                    <li class="methodology-item">
+                        <h4>Base de datos geoespacial</h4>
+                        <p>
+                            Utilización de cartografía digital colaborativa de alta precisión para modelar
+                            la red de transporte. Se emplean estructuras de datos topológicos para
+                            garantizar la conectividad y navegabilidad del grafo vial.
+                        </p>
+                    </li>
+                    <li class="methodology-item">
+                        <h4>Motor de enrutamiento</h4>
+                        <p>
+                            Implementación de algoritmos de búsqueda de camino más corto
+                            sobre grafos ponderados dinámicos. El sistema procesa la topología de la red vial
+                            nacional para calcular matrices de tiempos y distancias con alta eficiencia computacional.
+                        </p>
+                    </li>
+                    <li class="methodology-item">
+                        <h4>Delineación de zonas afectadas</h4>
+                        <p>
+                            Herramienta interactiva que permite dibujar polígonos sobre áreas afectadas
+                            por desastres (inundaciones, derrumbes, zonas inaccesibles). El sistema
+                            utiliza esta información para evitar automáticamente rutas que crucen
+                            estas zonas peligrosas.
+                        </p>
+                    </li>
+                    <li class="methodology-item">
+                        <h4>Modelos de optimización combinatoria</h4>
+                        <p>
+                            Aplicación de heurísticas para secuenciar
+                            puntos de entrega, y modelos de localización de instalaciones
+                            para determinar la ubicación óptima de centros de distribución y acopio que minimicen
+                            la distancia ponderada a la demanda.
+                        </p>
+                    </li>
+                    <li class="methodology-item">
+                        <h4>Análisis de cobertura espacial</h4>
+                        <p>
+                            El sistema resuelve problemas de localización-asignación para maximizar la cobertura
+                            de servicio bajo restricciones de capacidad y distancia máxima. Se emplean modelos
+                            de optimización robusta para manejar la incertidumbre en la demanda.
+                        </p>
+                    </li>
+                    <li class="methodology-item">
+                        <h4>Enrutamiento resiliente y adaptativo</h4>
+                        <p>
+                            Algoritmos de evasión de obstáculos dinámicos que recalculan trayectorias
+                            ante la presencia de disrupciones en la red (aristas bloqueadas o nodos fallidos),
+                            garantizando la continuidad de la cadena de suministro humanitaria.
+                        </p>
+                    </li>
+                    <li class="methodology-item">
+                        <h4>Interfaz de visualización geoespacial</h4>
+                        <p>
+                            Sistema de información geográfica web para la representación visual
+                            de datos espaciales, permitiendo la interacción con capas vectoriales de
+                            zonas de riesgo, infraestructura crítica y rutas logísticas propuestas.
+                        </p>
+                    </li>
+                    <li class="methodology-item">
+                        <h4>Arquitectura de interoperabilidad</h4>
+                        <p>
+                            Diseño de sistemas distribuidos orientados a servicios que facilita
+                            el intercambio de datos estandarizados y la integración modular con otras
+                            plataformas de gestión de emergencias y toma de decisiones.
+                        </p>
+                    </li>
+                    <li class="methodology-item">
+                        <h4>Procesamiento en tiempo real</h4>
+                        <p>
+                            Cálculo de rutas optimizadas, permitiendo ajustar
+                            estrategias de distribución inmediatamente ante cambios en las condiciones
+                            del terreno o nuevas zonas afectadas identificadas.
+                        </p>
+                    </li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- Resultados e Impacto -->
+        <section id="resultados" class="section fade-in">
+            <div class="section-header">
+                <h2 class="section-title">RESULTADOS E IMPACTO</h2>
+            </div>
+            <div class="section-content">
+                <p>
+                    El proyecto proporciona una solución completa y escalable para la planificación
+                    logística en situaciones de desastre, con impacto directo en la eficiencia de
+                    la respuesta humanitaria:
+                </p>
+
+                <div class="impact-grid">
+                    <div class="impact-card">
+                        <h4>Reducción de tiempos de respuesta</h4>
+                        <p>
+                            El cálculo de rutas en tiempo real permite reducir
+                            significativamente el tiempo de planificación, pasando de horas a minutos,
+                            lo que resulta en una respuesta más rápida a las comunidades afectadas.
+                        </p>
+                    </div>
+                    <div class="impact-card">
+                        <h4>Optimización de recursos</h4>
+                        <p>
+                            Los algoritmos de optimización minimizan el consumo de combustible, tiempo
+                            de personal y costos operativos al calcular las rutas más eficientes,
+                            maximizando el impacto de cada recurso disponible.
+                        </p>
+                    </div>
+                    <div class="impact-card">
+                        <h4>Seguridad del personal</h4>
+                        <p>
+                            El sistema garantiza que las rutas eviten zonas peligrosas, reduciendo
+                            riesgos para el personal de campo y los vehículos de distribución mediante
+                            análisis predictivo de rutas y detección automática de intersecciones
+                            con zonas bloqueadas.
+                        </p>
+                    </div>
+                    <div class="impact-card">
+                        <h4>Cobertura máxima</h4>
+                        <p>
+                            Los algoritmos de optimización aseguran que se cubra el mayor número de
+                            zonas afectadas con los recursos disponibles, priorizando áreas de mayor
+                            necesidad crítica mediante análisis de tamaño de área y densidad poblacional.
+                        </p>
+                    </div>
+                    <div class="impact-card">
+                        <h4>Datos abiertos y reutilizables</h4>
+                        <p>
+                            El sistema se adhiere a los principios de datos abiertos,
+                            contribuyendo a la infraestructura de datos espaciales común y permitiendo
+                            la replicabilidad y auditoría de los modelos empleados.
+                        </p>
+                    </div>
+                    <div class="impact-card">
+                        <h4>Escalabilidad</h4>
+                        <p>
+                            La arquitectura del sistema permite manejar desde operaciones pequeñas
+                            con pocos puntos hasta grandes operaciones con cientos de ubicaciones de
+                            distribución sin pérdida de rendimiento.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="info-cards">
+                    <div class="info-card">
+                        <div class="info-card-label">Cobertura geográfica</div>
+                        <div class="info-card-value">100% de México</div>
+                    </div>
+                    <!-- <div class="info-card">
+                        <div class="info-card-label">Tiempo de cálculo</div>
+                        <div class="info-card-value">&lt; 1 segundo</div>
+                    </div> -->
+                    <div class="info-card">
+                        <div class="info-card-label">Puntos de acopio</div>
+                        <div class="info-card-value">Ilimitados</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-card-label">Zonas afectadas</div>
+                        <div class="info-card-value">Múltiples simultáneas</div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>Sistema de Logística Humanitaria para Desastres</p>
+            <p style="font-size: 0.9rem; margin-top: 0.5rem;">
+                Desarrollado para optimizar la respuesta humanitaria en situaciones de emergencia
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scroll for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Intersection Observer for fade-in animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        // Observe all sections
+        document.querySelectorAll('.fade-in').forEach(section => {
+            observer.observe(section);
+        });
+
+        // Header scroll effect
+        let lastScroll = 0;
+        const header = document.querySelector('.header');
+
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.pageYOffset;
+
+            if (currentScroll > 100) {
+                header.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
+            } else {
+                header.style.boxShadow = '0 1px 2px 0 rgba(0, 0, 0, 0.05)';
+            }
+
+            lastScroll = currentScroll;
+        });
+
+        // Carousel functionality
+        function initCarousel(carouselId) {
+            const carousel = document.getElementById(carouselId);
+            if (!carousel) return;
+
+            const track = carousel.querySelector('.carousel-track');
+            const slides = carousel.querySelectorAll('.carousel-slide');
+            const prevBtn = carousel.querySelector('.carousel-nav.prev');
+            const nextBtn = carousel.querySelector('.carousel-nav.next');
+            const indicatorsContainer = carousel.querySelector('.carousel-indicators');
+            const currentSpan = carousel.querySelector('[id$="Current"]');
+            const totalSpan = carousel.querySelector('[id$="Total"]');
+
+            let currentIndex = 0;
+            const totalSlides = slides.length;
+
+            // Update total
+            if (totalSpan) totalSpan.textContent = totalSlides;
+
+            // Create indicators
+            slides.forEach((_, index) => {
+                const indicator = document.createElement('div');
+                indicator.className = 'carousel-indicator';
+                if (index === 0) indicator.classList.add('active');
+                indicator.addEventListener('click', () => goToSlide(index));
+                indicatorsContainer.appendChild(indicator);
+            });
+
+            // Update carousel
+            function updateCarousel() {
+                track.style.transform = `translateX(-${currentIndex * 100}%)`;
+
+                // Update indicators
+                indicatorsContainer.querySelectorAll('.carousel-indicator').forEach((ind, idx) => {
+                    ind.classList.toggle('active', idx === currentIndex);
+                });
+
+                // Update counter
+                if (currentSpan) currentSpan.textContent = currentIndex + 1;
+
+                // Update buttons
+                if (prevBtn) prevBtn.disabled = currentIndex === 0;
+                if (nextBtn) nextBtn.disabled = currentIndex === totalSlides - 1;
+            }
+
+            // Go to specific slide
+            function goToSlide(index) {
+                currentIndex = Math.max(0, Math.min(index, totalSlides - 1));
+                updateCarousel();
+            }
+
+            // Next slide
+            function nextSlide() {
+                if (currentIndex < totalSlides - 1) {
+                    currentIndex++;
+                    updateCarousel();
+                }
+            }
+
+            // Previous slide
+            function prevSlide() {
+                if (currentIndex > 0) {
+                    currentIndex--;
+                    updateCarousel();
+                }
+            }
+
+            // Event listeners
+            if (prevBtn) prevBtn.addEventListener('click', prevSlide);
+            if (nextBtn) nextBtn.addEventListener('click', nextSlide);
+
+            // Keyboard navigation
+            carousel.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowLeft') prevSlide();
+                if (e.key === 'ArrowRight') nextSlide();
+            });
+
+            // Auto-play (optional - can be disabled)
+            let autoPlayInterval;
+            function startAutoPlay() {
+                autoPlayInterval = setInterval(() => {
+                    if (currentIndex === totalSlides - 1) {
+                        currentIndex = 0;
+                    } else {
+                        currentIndex++;
+                    }
+                    updateCarousel();
+                }, 5000); // Change slide every 5 seconds
+            }
+
+            function stopAutoPlay() {
+                if (autoPlayInterval) {
+                    clearInterval(autoPlayInterval);
+                }
+            }
+
+            // Pause on hover
+            carousel.addEventListener('mouseenter', stopAutoPlay);
+            carousel.addEventListener('mouseleave', startAutoPlay);
+
+            // Make carousel focusable for keyboard navigation
+            carousel.setAttribute('tabindex', '0');
+
+            // Initialize
+            updateCarousel();
+            // Uncomment to enable auto-play:
+            // startAutoPlay();
+        }
+
+        // Initialize carousels
+        document.addEventListener('DOMContentLoaded', () => {
+            initCarousel('contextCarousel');
+        });
+    </script>
+</body>
+
+</html>
