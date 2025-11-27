@@ -392,107 +392,67 @@ document.addEventListener('DOMContentLoaded', () => {
         // Check if there's a reverse connection (bidirectional)
         const isBidirectional = assignments[toId] === fromId;
 
-        if (isBidirectional) {
-            // Use curved path
-            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        // Always use straight line
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line.setAttribute("x1", `${p1.xPct}%`);
+        line.setAttribute("y1", `${p1.yPct}%`);
+        line.setAttribute("x2", `${p2.xPct}%`);
+        line.setAttribute("y2", `${p2.yPct}%`);
+        line.classList.add("connection", "active");
+        if (score === 0) line.classList.add("blocked");
 
-            // Calculate control point for quadratic curve
-            // Offset perpendicular to the line
+        // Click to remove
+        line.addEventListener('click', () => {
+            delete assignments[fromId];
+            renderConnections();
+            updateScore();
+            validateNodes();
+        });
+
+        connectionsLayer.appendChild(line);
+
+        // Calculate label position
+        let labelX, labelY;
+        const midX = (p1.xPct + p2.xPct) / 2;
+        const midY = (p1.yPct + p2.yPct) / 2;
+
+        if (isBidirectional) {
+            // Offset label perpendicular to the line
             const dx = p2.xPct - p1.xPct;
             const dy = p2.yPct - p1.yPct;
-            const mx = (p1.xPct + p2.xPct) / 2;
-            const my = (p1.yPct + p2.yPct) / 2;
+            const length = Math.sqrt(dx * dx + dy * dy);
 
-            // Perpendicular offset (curve to the right of direction)
-            const offset = 8; // Percentage
-            const cx = mx + offset * (-dy / Math.sqrt(dx * dx + dy * dy));
-            const cy = my + offset * (dx / Math.sqrt(dx * dx + dy * dy));
-
-            const pathData = `M ${p1.xPct} ${p1.yPct} Q ${cx} ${cy} ${p2.xPct} ${p2.yPct}`;
-            path.setAttribute("d", pathData);
-            path.classList.add("connection", "active");
-            if (score === 0) path.classList.add("blocked");
-
-            // Click to remove
-            path.addEventListener('click', () => {
-                delete assignments[fromId];
-                renderConnections();
-                updateScore();
-                validateNodes();
-            });
-
-            connectionsLayer.appendChild(path);
-
-            // Draw score label at control point
-            const labelX = cx;
-            const labelY = cy;
-
-            const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
-            const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-            circle.setAttribute("cx", `${labelX}%`);
-            circle.setAttribute("cy", `${labelY}%`);
-            circle.setAttribute("r", "10");
-            circle.setAttribute("fill", "white");
-            circle.setAttribute("stroke", "#ccc");
-
-            const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-            text.setAttribute("x", `${labelX}%`);
-            text.setAttribute("y", `${labelY}%`);
-            text.setAttribute("text-anchor", "middle");
-            text.setAttribute("dy", "0.3em");
-            text.setAttribute("fill", score === 0 ? "red" : "black");
-            text.setAttribute("font-weight", "bold");
-            text.textContent = score;
-
-            g.appendChild(circle);
-            g.appendChild(text);
-            connectionsLayer.appendChild(g);
-
+            // Offset to the right of the direction (perpendicular)
+            const offset = 3; // Small offset in percentage
+            labelX = midX + offset * (-dy / length);
+            labelY = midY + offset * (dx / length);
         } else {
-            // Use straight line
-            const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-            line.setAttribute("x1", `${p1.xPct}%`);
-            line.setAttribute("y1", `${p1.yPct}%`);
-            line.setAttribute("x2", `${p2.xPct}%`);
-            line.setAttribute("y2", `${p2.yPct}%`);
-            line.classList.add("connection", "active");
-            if (score === 0) line.classList.add("blocked");
-
-            // Click to remove
-            line.addEventListener('click', () => {
-                delete assignments[fromId];
-                renderConnections();
-                updateScore();
-                validateNodes();
-            });
-
-            connectionsLayer.appendChild(line);
-
-            // Draw Score Label at midpoint
-            const midX = (p1.xPct + p2.xPct) / 2;
-            const midY = (p1.yPct + p2.yPct) / 2;
-
-            const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
-            const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-            circle.setAttribute("cx", `${midX}%`);
-            circle.setAttribute("cy", `${midY}%`);
-            circle.setAttribute("r", "10");
-            circle.setAttribute("fill", "white");
-            circle.setAttribute("stroke", "#ccc");
-
-            const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-            text.setAttribute("x", `${midX}%`);
-            text.setAttribute("y", `${midY}%`);
-            text.setAttribute("text-anchor", "middle");
-            text.setAttribute("dy", "0.3em");
-            text.setAttribute("fill", score === 0 ? "red" : "black");
-            text.setAttribute("font-weight", "bold");
-            text.textContent = score;
-
-            g.appendChild(circle);
-            g.appendChild(text);
-            connectionsLayer.appendChild(g);
+            // Center label
+            labelX = midX;
+            labelY = midY;
         }
+
+        // Draw Score Label
+        const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        circle.setAttribute("cx", `${labelX}%`);
+        circle.setAttribute("cy", `${labelY}%`);
+        circle.setAttribute("r", "10");
+        circle.setAttribute("fill", "white");
+        circle.setAttribute("stroke", "#ccc");
+
+        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        text.setAttribute("x", `${labelX}%`);
+        text.setAttribute("y", `${labelY}%`);
+        text.setAttribute("text-anchor", "middle");
+        text.setAttribute("dy", "0.3em");
+        text.setAttribute("fill", score === 0 ? "red" : "black");
+        text.setAttribute("font-weight", "bold");
+        text.textContent = score;
+
+        g.appendChild(circle);
+        g.appendChild(text);
+        connectionsLayer.appendChild(g);
     }
 
     // Drag Interaction
