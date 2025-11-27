@@ -90,6 +90,38 @@ document.addEventListener('DOMContentLoaded', () => {
     initGame();
     checkTutorial();
 
+    // Notification System
+    function showNotification(message, type = 'info') {
+        const container = document.getElementById('notification-container');
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+
+        // Icon based on type
+        const icons = {
+            error: '❌',
+            warning: '⚠️',
+            success: '✅',
+            info: 'ℹ️'
+        };
+
+        notification.innerHTML = `
+            <div class="notification-icon">${icons[type] || icons.info}</div>
+            <div class="notification-content">
+                <p>${message}</p>
+            </div>
+        `;
+
+        container.appendChild(notification);
+
+        // Auto remove after 4 seconds
+        setTimeout(() => {
+            notification.classList.add('removing');
+            setTimeout(() => {
+                notification.remove();
+            }, 300);
+        }, 4000);
+    }
+
     // Event Listeners
     newGameBtn.addEventListener('click', startNewGame);
     resetBtn.addEventListener('click', resetBoard);
@@ -613,7 +645,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function checkSolution() {
         // 1. Check Completeness
         if (Object.keys(assignments).length !== numPeople) {
-            alert("Falta asignar regalos a algunas personas.");
+            showNotification("Falta asignar regalos a algunas personas.", "warning");
             return;
         }
 
@@ -621,7 +653,7 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let fromId in assignments) {
             const toId = assignments[fromId];
             if (parseInt(fromId) === toId) {
-                alert(`${people[fromId].name} no puede regalarse a sí mismo/a. Todos deben participar en el intercambio.`);
+                showNotification(`${people[fromId].name} no puede regalarse a sí mismo/a. Todos deben participar en el intercambio.`, "error");
                 return;
             }
         }
@@ -634,14 +666,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Check Blocked
             if (empathyMatrix[fromId][toId] === 0) {
-                alert(`${people[fromId].name} no puede regalar a ${people[toId].name} (Empatía 0).`);
+                showNotification(`${people[fromId].name} no puede regalar a ${people[toId].name} (Empatía 0).`, "error");
                 return;
             }
         }
 
         for (let i = 0; i < numPeople; i++) {
             if (incoming[i] !== 1) {
-                alert("Alguien está recibiendo más de un regalo o ninguno.");
+                showNotification("Alguien está recibiendo más de un regalo o ninguno.", "error");
                 return;
             }
         }
@@ -658,14 +690,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // If we didn't visit everyone, there are multiple disconnected cycles
         if (visited.size !== numPeople) {
-            alert("Debe formarse un único ciclo que incluya a todos. Actualmente hay grupos separados.");
+            showNotification("Debe formarse un único ciclo que incluya a todos. Actualmente hay grupos separados.", "error");
             return;
         }
 
         // 5. Check Score
         const current = parseInt(currentScoreDisplay.textContent);
         if (current < targetScore) {
-            alert(`La felicidad total (${current}) es menor a la meta (${targetScore}). Busca mejores parejas.`);
+            showNotification(`La felicidad total (${current}) es menor a la meta (${targetScore}). Busca mejores parejas.`, "warning");
             return;
         }
 
