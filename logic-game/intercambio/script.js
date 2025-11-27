@@ -646,7 +646,23 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // 4. Check Score
+        // 4. Check Single Cycle (no subcycles)
+        // Follow the chain from person 0 and make sure we visit everyone
+        let visited = new Set();
+        let current = 0;
+
+        while (!visited.has(current)) {
+            visited.add(current);
+            current = assignments[current];
+        }
+
+        // If we didn't visit everyone, there are multiple disconnected cycles
+        if (visited.size !== numPeople) {
+            alert("Debe formarse un único ciclo que incluya a todos. Actualmente hay grupos separados.");
+            return;
+        }
+
+        // 5. Check Score
         const current = parseInt(currentScoreDisplay.textContent);
         if (current < targetScore) {
             alert(`La felicidad total (${current}) es menor a la meta (${targetScore}). Busca mejores parejas.`);
