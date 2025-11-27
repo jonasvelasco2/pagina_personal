@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intercambio Navideño</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <header>
+            <h1>Intercambio <span class="accent">Navideño</span></h1>
+            <p>Organiza el intercambio perfecto</p>
+            <div class="stats">
+                Felicidad: <span id="current-score">0</span> / <span id="target-score">0</span>
+            </div>
+        </header>
+
+        <main>
+            <div class="game-controls">
+                <div class="control-group">
+                    <label for="difficulty-select">Participantes</label>
+                    <select id="difficulty-select">
+                        <option value="4">4 Personas</option>
+                        <option value="6" selected>6 Personas</option>
+                        <option value="8">8 Personas</option>
+                        <option value="10">10 Personas</option>
+                        <option value="15">15 Personas</option>
+                        <option value="20">20 Personas</option>
+                        <option value="30">30 Personas</option>
+                        <option value="40">40 Personas</option>
+                        <option value="50">50 Personas</option>
+                    </select>
+                    <button id="new-game-btn" class="btn secondary">Nuevo Juego</button>
+                </div>
+
+                <div class="control-group">
+                    <button id="reset-btn" class="btn secondary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 12" />
+                        </svg>
+                        Reiniciar
+                    </button>
+                    <button id="check-btn" class="btn primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                            <polyline points="22 4 12 14.01 9 11.01" />
+                        </svg>
+                        Verificar
+                    </button>
+                    <button id="download-btn" class="btn secondary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                            <polyline points="7 10 12 15 17 10" />
+                            <line x1="12" y1="15" x2="12" y2="3" />
+                        </svg>
+                        Descargar
+                    </button>
+                </div>
+            </div>
+
+            <div class="game-board-container">
+                <div id="game-board" class="game-board circular-layout">
+                    <svg id="connections-layer" width="100%" height="100%"></svg>
+                    <!-- Nodes will be generated here -->
+                </div>
+
+                <div id="win-overlay" class="win-overlay hidden">
+                    <div class="win-content">
+                        <h2>¡Intercambio Exitoso!</h2>
+                        <p>Has alcanzado la meta de felicidad.</p>
+                        <button id="next-level-btn" class="btn primary">Siguiente</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="instructions">
+                <p><strong>Reglas:</strong><br>
+                    1. Arrastra de una persona a otra para asignar un regalo.<br>
+                    2. Todos deben dar y recibir exactamente un regalo.<br>
+                    3. Maximiza la "Felicidad" total (evita conexiones rojas/bloqueadas).</p>
+            </div>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>
