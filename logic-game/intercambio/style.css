@@ -431,7 +431,7 @@ line.connection.blocked {
 }
 
 .tutorial-overlay:not(.hidden) {
-    pointer-events: all;
+    pointer-events: auto;
     opacity: 1;
 }
 
