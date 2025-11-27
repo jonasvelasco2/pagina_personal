@@ -253,9 +253,44 @@ line.connection.active {
     opacity: 1;
     marker-end: url(#arrowhead);
     cursor: pointer;
+    transition: stroke-width 0.2s, opacity 0.2s;
+}
+
+line.connection.active:hover {
+    stroke-width: 6;
+    opacity: 0.8;
 }
 
 line.connection.blocked {
+    stroke: #e74c3c;
+    stroke-width: 2;
+    stroke-dasharray: 5, 5;
+    opacity: 0.5;
+}
+
+/* Path (curved) connection styles */
+path.connection {
+    fill: none;
+    stroke: var(--text-muted);
+    stroke-width: 2;
+    opacity: 0.3;
+}
+
+path.connection.active {
+    stroke: var(--primary-color);
+    stroke-width: 4;
+    opacity: 1;
+    marker-end: url(#arrowhead);
+    cursor: pointer;
+    transition: stroke-width 0.2s, opacity 0.2s;
+}
+
+path.connection.active:hover {
+    stroke-width: 6;
+    opacity: 0.8;
+}
+
+path.connection.blocked {
     stroke: #e74c3c;
     stroke-width: 2;
     stroke-dasharray: 5, 5;
@@ -322,6 +357,14 @@ line.connection.blocked {
     font-size: 2.2rem;
     margin-bottom: 1rem;
     font-weight: 800;
+}
+
+.win-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
 }
 
 .instructions {

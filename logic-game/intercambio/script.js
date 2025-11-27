@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const downloadBtn = document.getElementById('download-btn');
     const winOverlay = document.getElementById('win-overlay');
     const nextLevelBtn = document.getElementById('next-level-btn');
+    const replayBtn = document.getElementById('replay-btn');
     const currentScoreDisplay = document.getElementById('current-score');
     const targetScoreDisplay = document.getElementById('target-score');
 
@@ -96,12 +97,15 @@ document.addEventListener('DOMContentLoaded', () => {
     downloadBtn.addEventListener('click', downloadInstance);
     difficultySelect.addEventListener('change', startNewGame);
 
-    // Fix: Add Next Level Listener
+    // Fix: Add Next Level and Replay Listeners
     nextLevelBtn.addEventListener('click', () => {
-        // Increase difficulty if possible, or just new game
-        // Let's just start a new game for now, maybe increase count?
-        // Keeping it simple: New Game with same settings for endless play
         startNewGame();
+    });
+
+    replayBtn.addEventListener('click', () => {
+        // Replay the same level - just reset assignments
+        winOverlay.classList.add('hidden');
+        resetBoard();
     });
 
     // Rules Modal Listeners
@@ -385,54 +389,110 @@ document.addEventListener('DOMContentLoaded', () => {
         const p2 = people[toId];
         const score = empathyMatrix[fromId][toId];
 
-        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-        line.setAttribute("x1", `${p1.xPct}%`);
-        line.setAttribute("y1", `${p1.yPct}%`);
-        line.setAttribute("x2", `${p2.xPct}%`);
-        line.setAttribute("y2", `${p2.yPct}%`);
-        line.classList.add("connection", "active");
-        if (score === 0) line.classList.add("blocked");
+        // Check if there's a reverse connection (bidirectional)
+        const isBidirectional = assignments[toId] === fromId;
 
-        // Click to remove
-        line.addEventListener('click', () => {
-            delete assignments[fromId];
-            renderConnections();
-            updateScore();
-            validateNodes();
-        });
+        if (isBidirectional) {
+            // Use curved path
+            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
 
-        connectionsLayer.appendChild(line);
+            // Calculate control point for quadratic curve
+            // Offset perpendicular to the line
+            const dx = p2.xPct - p1.xPct;
+            const dy = p2.yPct - p1.yPct;
+            const mx = (p1.xPct + p2.xPct) / 2;
+            const my = (p1.yPct + p2.yPct) / 2;
 
-        // Draw Score Label
-        const midX = (p1.xPct + p2.xPct) / 2;
-        const midY = (p1.yPct + p2.yPct) / 2;
+            // Perpendicular offset (curve to the right of direction)
+            const offset = 8; // Percentage
+            const cx = mx + offset * (-dy / Math.sqrt(dx * dx + dy * dy));
+            const cy = my + offset * (dx / Math.sqrt(dx * dx + dy * dy));
 
-        const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            const pathData = `M ${p1.xPct} ${p1.yPct} Q ${cx} ${cy} ${p2.xPct} ${p2.yPct}`;
+            path.setAttribute("d", pathData);
+            path.classList.add("connection", "active");
+            if (score === 0) path.classList.add("blocked");
 
-        // Background rect for text readability
-        // Actually, let's use HTML overlay for labels to handle styling easier?
-        // Or SVG text. SVG text is fine.
+            // Click to remove
+            path.addEventListener('click', () => {
+                delete assignments[fromId];
+                renderConnections();
+                updateScore();
+                validateNodes();
+            });
 
-        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-        text.setAttribute("x", `${midX}%`);
-        text.setAttribute("y", `${midY}%`);
-        text.setAttribute("text-anchor", "middle");
-        text.setAttribute("dy", "0.3em");
-        text.setAttribute("fill", score === 0 ? "red" : "black");
-        text.setAttribute("font-weight", "bold");
-        text.textContent = score;
+            connectionsLayer.appendChild(path);
 
-        // Background circle for text
-        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-        circle.setAttribute("cx", `${midX}%`);
-        circle.setAttribute("cy", `${midY}%`);
-        circle.setAttribute("r", "10");
-        circle.setAttribute("fill", "white");
-        circle.setAttribute("stroke", "#ccc");
+            // Draw score label at control point
+            const labelX = cx;
+            const labelY = cy;
 
-        g.appendChild(circle);
-        g.appendChild(text);
-        connectionsLayer.appendChild(g);
+            const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            circle.setAttribute("cx", `${labelX}%`);
+            circle.setAttribute("cy", `${labelY}%`);
+            circle.setAttribute("r", "10");
+            circle.setAttribute("fill", "white");
+            circle.setAttribute("stroke", "#ccc");
+
+            const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            text.setAttribute("x", `${labelX}%`);
+            text.setAttribute("y", `${labelY}%`);
+            text.setAttribute("text-anchor", "middle");
+            text.setAttribute("dy", "0.3em");
+            text.setAttribute("fill", score === 0 ? "red" : "black");
+            text.setAttribute("font-weight", "bold");
+            text.textContent = score;
+
+            g.appendChild(circle);
+            g.appendChild(text);
+            connectionsLayer.appendChild(g);
+
+        } else {
+            // Use straight line
+            const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            line.setAttribute("x1", `${p1.xPct}%`);
+            line.setAttribute("y1", `${p1.yPct}%`);
+            line.setAttribute("x2", `${p2.xPct}%`);
+            line.setAttribute("y2", `${p2.yPct}%`);
+            line.classList.add("connection", "active");
+            if (score === 0) line.classList.add("blocked");
+
+            // Click to remove
+            line.addEventListener('click', () => {
+                delete assignments[fromId];
+                renderConnections();
+                updateScore();
+                validateNodes();
+            });
+
+            connectionsLayer.appendChild(line);
+
+            // Draw Score Label at midpoint
+            const midX = (p1.xPct + p2.xPct) / 2;
+            const midY = (p1.yPct + p2.yPct) / 2;
+
+            const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            circle.setAttribute("cx", `${midX}%`);
+            circle.setAttribute("cy", `${midY}%`);
+            circle.setAttribute("r", "10");
+            circle.setAttribute("fill", "white");
+            circle.setAttribute("stroke", "#ccc");
+
+            const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            text.setAttribute("x", `${midX}%`);
+            text.setAttribute("y", `${midY}%`);
+            text.setAttribute("text-anchor", "middle");
+            text.setAttribute("dy", "0.3em");
+            text.setAttribute("fill", score === 0 ? "red" : "black");
+            text.setAttribute("font-weight", "bold");
+            text.textContent = score;
+
+            g.appendChild(circle);
+            g.appendChild(text);
+            connectionsLayer.appendChild(g);
+        }
     }
 
     // Drag Interaction
@@ -525,6 +585,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderConnections();
                 updateScore();
                 validateNodes();
+            } else if (targetId === dragSource) {
+                // Prevent self-assignment with feedback
+                console.log('No puedes asignarte a ti mismo');
             }
         }
         dragSource = null;
@@ -546,6 +609,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderConnections();
                 updateScore();
                 validateNodes();
+            } else if (targetId === dragSource) {
+                // Prevent self-assignment with feedback
+                console.log('No puedes asignarte a ti mismo');
             }
         }
         dragSource = null;
@@ -591,7 +657,16 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // 2. Check Validity (1-to-1)
+        // 2. Check Self-Assignment (No one gives to themselves)
+        for (let fromId in assignments) {
+            const toId = assignments[fromId];
+            if (parseInt(fromId) === toId) {
+                alert(`${people[fromId].name} no puede regalarse a sí mismo/a. Todos deben participar en el intercambio.`);
+                return;
+            }
+        }
+
+        // 3. Check Validity (1-to-1) and Blocked
         let incoming = Array(numPeople).fill(0);
         for (let fromId in assignments) {
             const toId = assignments[fromId];
@@ -611,7 +686,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // 3. Check Score
+        // 4. Check Score
         const current = parseInt(currentScoreDisplay.textContent);
         if (current < targetScore) {
             alert(`La felicidad total (${current}) es menor a la meta (${targetScore}). Busca mejores parejas.`);
