@@ -118,8 +118,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Tutorial Listeners
-    // Tutorial Listeners
     function handleTutorialNext(e) {
+        console.log('Tutorial Next clicked!', e.type);
         if (e.type === 'touchend') e.preventDefault(); // Prevent ghost click
         currentTutorialStep++;
         if (currentTutorialStep < tutorialSteps.length) {
@@ -130,6 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleTutorialSkip(e) {
+        console.log('Tutorial Skip clicked!', e.type);
         if (e.type === 'touchend') e.preventDefault();
         endTutorial();
     }

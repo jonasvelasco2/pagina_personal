@@ -457,6 +457,7 @@ line.connection.blocked {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    pointer-events: auto;
 }
 
 .tutorial-card h3 {
@@ -473,6 +474,12 @@ line.connection.blocked {
 .tutorial-actions {
     display: flex;
     justify-content: space-between;
+    pointer-events: auto;
+}
+
+.tutorial-actions .btn {
+    pointer-events: auto;
+    cursor: pointer;
 }
 
 /* Highlight helper class */
