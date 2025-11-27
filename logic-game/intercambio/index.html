@@ -64,6 +64,15 @@
                         </svg>
                         Descargar
                     </button>
+                    <button id="rules-btn" class="btn secondary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                            <line x1="12" y1="17" x2="12.01" y2="17" />
+                        </svg>
+                        Reglas
+                    </button>
                 </div>
             </div>
 
@@ -77,17 +86,67 @@
                     <div class="win-content">
                         <h2>¡Intercambio Exitoso!</h2>
                         <p>Has alcanzado la meta de felicidad.</p>
-                        <button id="next-level-btn" class="btn primary">Siguiente</button>
+                        <button id="next-level-btn" class="btn primary">Siguiente Nivel</button>
                     </div>
                 </div>
             </div>
 
-            <div class="instructions">
-                <p><strong>Reglas:</strong><br>
-                    1. Arrastra de una persona a otra para asignar un regalo.<br>
-                    2. Todos deben dar y recibir exactamente un regalo.<br>
-                    3. Maximiza la "Felicidad" total (evita conexiones rojas/bloqueadas).</p>
+            <!-- Rules Modal -->
+            <div id="rules-modal" class="modal hidden">
+                <div class="modal-content">
+                    <button id="close-rules-btn" class="close-btn">&times;</button>
+                    <h2>Reglas del Juego</h2>
+                    <ul class="rules-list">
+                        <li>
+                            <span class="icon">🎁</span>
+                            <div class="text">
+                                <strong>Asigna Regalos</strong>
+                                <p>Arrastra de una persona a otra para asignar a quién le regala.</p>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="icon">🔄</span>
+                            <div class="text">
+                                <strong>Ciclo Perfecto</strong>
+                                <p>Todos deben dar exactamente un regalo y recibir exactamente uno.</p>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="icon">❤️</span>
+                            <div class="text">
+                                <strong>Maximiza la Felicidad</strong>
+                                <p>Busca parejas con alta afinidad. Evita las conexiones rojas (bloqueadas).</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
             </div>
+
+            <!-- Tutorial Overlay -->
+            <div id="tutorial-overlay" class="tutorial-overlay hidden">
+                <div class="tutorial-card">
+                    <h3 id="tutorial-title">Bienvenido</h3>
+                    <p id="tutorial-text">Vamos a aprender a jugar.</p>
+                    <div class="tutorial-actions">
+                        <button id="skip-tutorial-btn" class="btn secondary">Saltar</button>
+                        <button id="next-tutorial-btn" class="btn primary">Siguiente</button>
+                    </div>
+                </div>
+                <div id="tutorial-spotlight" class="tutorial-spotlight"></div>
+            </div>
+
+            <!-- Footer & Contact -->
+            <footer id="contact" class="site-footer">
+                <div class="footer-content">
+                    <div class="text-center">
+                        <!--   <h2 class="text-2xl font-bold mb-4">Ponte en Contacto</h2> -->
+                        <p>Si tienes alguna pregunta o te gustaría colaborar, no dudes en escribirme.</p>
+                        <!--  <a href="mailto:jvelasco@cimat.mx" class="text-[#80CBC4] text-lg hover:underline">jvelasco@cimat.mx</a> -->
+                        <a href="contacto.html" class="footer-link">Contacto</a>
+                        <p class="footer-copyright">&copy; 2025 Jonás Velasco. Todos los derechos reservados.</p>
+                    </div>
+                </div>
+            </footer>
         </main>
     </div>
     <script src="script.js"></script>

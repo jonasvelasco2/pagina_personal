@@ -230,7 +230,7 @@ select {
 }
 
 .node.error {
-    border-color: var(--target-color);
+    border-color: #e74c3c;
     background-color: #ffe5e5;
 }
 
@@ -250,7 +250,7 @@ line.connection.active {
 }
 
 line.connection.blocked {
-    stroke: var(--target-color);
+    stroke: #e74c3c;
     stroke-width: 2;
     stroke-dasharray: 5, 5;
     opacity: 0.5;
@@ -326,54 +326,186 @@ line.connection.blocked {
     font-weight: 500;
 }
 
-.key {
-    background: var(--wall-color);
-    padding: 2px 6px;
-    border-radius: 4px;
-    border-radius: 10px;
-    font-size: 0.8rem;
-    font-weight: bold;
+/* Modal Styles */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    opacity: 0;
     pointer-events: none;
-    z-index: 3;
-    transform: translate(-50%, -50%);
-    border: 1px solid #ccc;
+    transition: opacity 0.3s;
+    backdrop-filter: blur(2px);
 }
 
-/* Numpad */
-.numpad {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 0.5rem;
-    margin-top: 1rem;
-    padding: 1rem;
-    background: var(--surface-color);
-    border-radius: var(--border-radius);
-    max-width: 300px;
-    margin-left: auto;
-    margin-right: auto;
+.modal:not(.hidden) {
+    opacity: 1;
+    pointer-events: all;
 }
 
-.numpad.hidden {
-    display: none;
-}
-
-.num-btn {
-    padding: 0.8rem;
-    border: none;
+.modal-content {
     background: white;
-    border-radius: 8px;
-    font-family: 'Outfit', sans-serif;
-    font-weight: 700;
+    padding: 2rem;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    transform: translateY(20px);
+    transition: transform 0.3s;
+}
+
+.modal:not(.hidden) .modal-content {
+    transform: translateY(0);
+}
+
+.close-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
     cursor: pointer;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    transition: transform 0.1s;
+    color: var(--text-muted);
 }
 
-.num-btn:active {
-    transform: scale(0.95);
+.rules-list {
+    list-style: none;
+    margin-top: 1.5rem;
 }
 
-.num-btn.action {
-    background-color: var(--target-color);
+.rules-list li {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    align-items: flex-start;
+}
+
+.rules-list .icon {
+    font-size: 2rem;
+    background: var(--surface-color);
+    padding: 0.5rem;
+    border-radius: 12px;
+    line-height: 1;
+}
+
+.rules-list .text strong {
+    display: block;
+    margin-bottom: 0.2rem;
+    font-size: 1.1rem;
+    color: var(--primary-color);
+}
+
+.rules-list .text p {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+/* Tutorial Styles */
+.tutorial-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 200;
+    pointer-events: none;
+    /* Allow clicks through to spotlight if needed, but we handle it via JS */
+}
+
+.tutorial-overlay:not(.hidden) {
+    pointer-events: all;
+}
+
+.tutorial-spotlight {
+    position: absolute;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7);
+    border-radius: 50%;
+    pointer-events: none;
+    transition: all 0.4s ease;
+    z-index: 199;
+}
+
+.tutorial-card {
+    position: absolute;
+    background: white;
+    padding: 1.5rem;
+    border-radius: 16px;
+    width: 300px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    z-index: 201;
+    transition: all 0.4s ease;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.tutorial-card h3 {
+    margin-bottom: 0.5rem;
+    color: var(--primary-color);
+}
+
+.tutorial-card p {
+    margin-bottom: 1.5rem;
+    color: var(--text-color);
+    line-height: 1.5;
+}
+
+.tutorial-actions {
+    display: flex;
+    justify-content: space-between;
+}
+
+/* Highlight helper class */
+.highlight-element {
+    position: relative;
+    z-index: 200;
+    background: white;
+    /* Ensure visibility */
+    border-radius: 8px;
+}
+
+/* Footer Styles */
+.site-footer {
+    background-color: #333333;
     color: white;
+    padding: 2.5rem 1.5rem;
+    border-radius: var(--border-radius);
+    text-align: center;
+    margin-top: auto;
+    /* Push to bottom if flex container grows */
+}
+
+.footer-content p {
+    color: #d1d5db;
+    /* gray-300 */
+    margin-bottom: 0.5rem;
+}
+
+.footer-link {
+    color: #80CBC4;
+    font-size: 1.125rem;
+    /* text-lg */
+    text-decoration: none;
+    transition: text-decoration 0.2s;
+}
+
+.footer-link:hover {
+    text-decoration: underline;
+}
+
+.footer-copyright {
+    color: #6b7280;
+    /* gray-500 */
+    margin-top: 2rem;
+    font-size: 0.875rem;
+    /* text-sm */
 }

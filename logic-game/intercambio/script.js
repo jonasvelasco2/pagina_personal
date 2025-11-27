@@ -7,8 +7,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const checkBtn = document.getElementById('check-btn');
     const downloadBtn = document.getElementById('download-btn');
     const winOverlay = document.getElementById('win-overlay');
+    const nextLevelBtn = document.getElementById('next-level-btn');
     const currentScoreDisplay = document.getElementById('current-score');
     const targetScoreDisplay = document.getElementById('target-score');
+
+    // Rules Modal Elements
+    const rulesBtn = document.getElementById('rules-btn');
+    const rulesModal = document.getElementById('rules-modal');
+    const closeRulesBtn = document.getElementById('close-rules-btn');
+
+    // Tutorial Elements
+    const tutorialOverlay = document.getElementById('tutorial-overlay');
+    const tutorialCard = document.querySelector('.tutorial-card');
+    const tutorialTitle = document.getElementById('tutorial-title');
+    const tutorialText = document.getElementById('tutorial-text');
+    const nextTutorialBtn = document.getElementById('next-tutorial-btn');
+    const skipTutorialBtn = document.getElementById('skip-tutorial-btn');
+    const tutorialSpotlight = document.getElementById('tutorial-spotlight');
 
     let numPeople = 6;
     let people = []; // Array of { id, name, x, y }
@@ -16,6 +31,36 @@ document.addEventListener('DOMContentLoaded', () => {
     let assignments = {}; // Map fromId -> toId
     let maxScore = 0;
     let targetScore = 0;
+
+    // Tutorial State
+    let currentTutorialStep = 0;
+    const tutorialSteps = [
+        {
+            title: "¡Bienvenido!",
+            text: "El objetivo es organizar el intercambio de regalos perfecto. Todos deben dar y recibir un regalo.",
+            target: null
+        },
+        {
+            title: "Las Personas",
+            text: "Estos círculos representan a los participantes. En el juego, arrastrarás desde una persona hacia otra para asignar el regalo.",
+            target: "#game-board"
+        },
+        {
+            title: "Felicidad",
+            text: "Cada conexión muestra un puntaje. ¡Busca los más altos! Las líneas rojas indican que no hay afinidad (0 puntos).",
+            target: "#current-score"
+        },
+        {
+            title: "La Meta",
+            text: "Debes alcanzar este puntaje total para ganar. Si no lo logras, prueba diferentes combinaciones.",
+            target: "#target-score"
+        },
+        {
+            title: "Herramientas",
+            text: "Usa 'Verificar' para comprobar tu solución y 'Reiniciar' si quieres empezar de cero.",
+            target: ".game-controls"
+        }
+    ];
 
     const NAMES = [
         "Ana", "Beto", "Carla", "Dani", "Elena", "Fer",
@@ -41,6 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize
     initGame();
+    checkTutorial();
 
     // Event Listeners
     newGameBtn.addEventListener('click', startNewGame);
@@ -48,6 +94,40 @@ document.addEventListener('DOMContentLoaded', () => {
     checkBtn.addEventListener('click', checkSolution);
     downloadBtn.addEventListener('click', downloadInstance);
     difficultySelect.addEventListener('change', startNewGame);
+
+    // Fix: Add Next Level Listener
+    nextLevelBtn.addEventListener('click', () => {
+        // Increase difficulty if possible, or just new game
+        // Let's just start a new game for now, maybe increase count?
+        // Keeping it simple: New Game with same settings for endless play
+        startNewGame();
+    });
+
+    // Rules Modal Listeners
+    rulesBtn.addEventListener('click', () => {
+        rulesModal.classList.remove('hidden');
+    });
+    closeRulesBtn.addEventListener('click', () => {
+        rulesModal.classList.add('hidden');
+    });
+    rulesModal.addEventListener('click', (e) => {
+        if (e.target === rulesModal) {
+            rulesModal.classList.add('hidden');
+        }
+    });
+
+    // Tutorial Listeners
+    nextTutorialBtn.addEventListener('click', () => {
+        currentTutorialStep++;
+        if (currentTutorialStep < tutorialSteps.length) {
+            showTutorialStep(currentTutorialStep);
+        } else {
+            endTutorial();
+        }
+    });
+
+    skipTutorialBtn.addEventListener('click', endTutorial);
+
 
     function initGame() {
         numPeople = parseInt(difficultySelect.value);
@@ -70,6 +150,90 @@ document.addEventListener('DOMContentLoaded', () => {
             n.classList.remove('satisfied', 'error');
         });
     }
+
+    // --- Tutorial Logic ---
+
+    function checkTutorial() {
+        try {
+            const seen = localStorage.getItem('tutorialSeen');
+            if (!seen) {
+                startTutorial();
+            }
+        } catch (e) {
+            console.warn("LocalStorage not available, skipping tutorial check.");
+        }
+    }
+
+    function startTutorial() {
+        tutorialOverlay.classList.remove('hidden');
+        currentTutorialStep = 0;
+        showTutorialStep(0);
+    }
+
+    function showTutorialStep(index) {
+        const step = tutorialSteps[index];
+        tutorialTitle.textContent = step.title;
+        tutorialText.textContent = step.text;
+
+        // Reset spotlight
+        tutorialSpotlight.style.width = '0';
+        tutorialSpotlight.style.height = '0';
+        tutorialSpotlight.style.top = '50%';
+        tutorialSpotlight.style.left = '50%';
+        tutorialSpotlight.style.opacity = '0';
+
+        // Reset Card Position (Center default)
+        tutorialCard.style.top = '50%';
+        tutorialCard.style.bottom = 'auto';
+        tutorialCard.style.transform = 'translate(-50%, -50%)';
+
+        if (step.target) {
+            const targetEl = document.querySelector(step.target);
+            if (targetEl) {
+                const rect = targetEl.getBoundingClientRect();
+                // Add padding
+                const padding = 20;
+                const size = Math.max(rect.width, rect.height) + padding;
+
+                tutorialSpotlight.style.width = `${size}px`;
+                tutorialSpotlight.style.height = `${size}px`;
+                tutorialSpotlight.style.top = `${rect.top + rect.height / 2}px`;
+                tutorialSpotlight.style.left = `${rect.left + rect.width / 2}px`;
+                tutorialSpotlight.style.opacity = '1';
+
+                // Dynamic Card Positioning
+                // If target is in the top half of the screen, move card to bottom
+                const centerY = rect.top + rect.height / 2;
+                if (centerY < window.innerHeight / 2) {
+                    // Target is top -> Card bottom
+                    tutorialCard.style.top = 'auto';
+                    tutorialCard.style.bottom = '10%';
+                    tutorialCard.style.transform = 'translate(-50%, 0)';
+                } else {
+                    // Target is bottom -> Card top
+                    tutorialCard.style.top = '10%';
+                    tutorialCard.style.bottom = 'auto';
+                    tutorialCard.style.transform = 'translate(-50%, 0)';
+                }
+            }
+        }
+
+        if (index === tutorialSteps.length - 1) {
+            nextTutorialBtn.textContent = "¡Jugar!";
+        } else {
+            nextTutorialBtn.textContent = "Siguiente";
+        }
+    }
+
+    function endTutorial() {
+        tutorialOverlay.classList.add('hidden');
+        try {
+            localStorage.setItem('tutorialSeen', 'true');
+        } catch (e) {
+            // Ignore
+        }
+    }
+
 
     // --- Level Generation ---
 
