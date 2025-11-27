@@ -118,18 +118,29 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Tutorial Listeners
-    tutorialBtn.addEventListener('click', startTutorial);
-
-    nextTutorialBtn.addEventListener('click', () => {
+    // Tutorial Listeners
+    function handleTutorialNext(e) {
+        if (e.type === 'touchend') e.preventDefault(); // Prevent ghost click
         currentTutorialStep++;
         if (currentTutorialStep < tutorialSteps.length) {
             showTutorialStep(currentTutorialStep);
         } else {
             endTutorial();
         }
-    });
+    }
 
-    skipTutorialBtn.addEventListener('click', endTutorial);
+    function handleTutorialSkip(e) {
+        if (e.type === 'touchend') e.preventDefault();
+        endTutorial();
+    }
+
+    tutorialBtn.addEventListener('click', startTutorial);
+
+    nextTutorialBtn.addEventListener('click', handleTutorialNext);
+    nextTutorialBtn.addEventListener('touchend', handleTutorialNext);
+
+    skipTutorialBtn.addEventListener('click', handleTutorialSkip);
+    skipTutorialBtn.addEventListener('touchend', handleTutorialSkip);
 
 
     function initGame() {
