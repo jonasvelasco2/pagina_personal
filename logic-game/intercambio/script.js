@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeRulesBtn = document.getElementById('close-rules-btn');
 
     // Tutorial Elements
+    const tutorialBtn = document.getElementById('tutorial-btn');
     const tutorialOverlay = document.getElementById('tutorial-overlay');
     const tutorialCard = document.querySelector('.tutorial-card');
     const tutorialTitle = document.getElementById('tutorial-title');
@@ -117,6 +118,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Tutorial Listeners
+    tutorialBtn.addEventListener('click', startTutorial);
+
     nextTutorialBtn.addEventListener('click', () => {
         currentTutorialStep++;
         if (currentTutorialStep < tutorialSteps.length) {
