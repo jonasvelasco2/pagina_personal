@@ -649,11 +649,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // 4. Check Single Cycle (no subcycles)
         // Follow the chain from person 0 and make sure we visit everyone
         let visited = new Set();
-        let current = 0;
+        let currentPerson = 0;
 
-        while (!visited.has(current)) {
-            visited.add(current);
-            current = assignments[current];
+        while (!visited.has(currentPerson)) {
+            visited.add(currentPerson);
+            currentPerson = assignments[currentPerson];
         }
 
         // If we didn't visit everyone, there are multiple disconnected cycles
