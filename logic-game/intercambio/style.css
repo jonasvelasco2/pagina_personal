@@ -419,10 +419,13 @@ line.connection.blocked {
     z-index: 200;
     pointer-events: none;
     /* Allow clicks through to spotlight if needed, but we handle it via JS */
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
 .tutorial-overlay:not(.hidden) {
     pointer-events: all;
+    opacity: 1;
 }
 
 .tutorial-spotlight {
