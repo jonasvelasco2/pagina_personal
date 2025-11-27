@@ -193,31 +193,40 @@ document.addEventListener('DOMContentLoaded', () => {
         if (step.target) {
             const targetEl = document.querySelector(step.target);
             if (targetEl) {
-                const rect = targetEl.getBoundingClientRect();
-                // Add padding
-                const padding = 20;
-                const size = Math.max(rect.width, rect.height) + padding;
+                // Scroll to element on mobile so it's visible
+                targetEl.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
 
-                tutorialSpotlight.style.width = `${size}px`;
-                tutorialSpotlight.style.height = `${size}px`;
-                tutorialSpotlight.style.top = `${rect.top + rect.height / 2}px`;
-                tutorialSpotlight.style.left = `${rect.left + rect.width / 2}px`;
-                tutorialSpotlight.style.opacity = '1';
+                // Small timeout to allow scroll to start/finish before placing spotlight
+                // Or just use the rect immediately if smooth scroll is too complex to track
+                // For better UX, let's calculate immediately but maybe update?
+                // Let's rely on the fact that fixed overlay + absolute spotlight relies on viewport position.
+                // If we scroll, the viewport position changes. 
+                // We'll use a simple timeout to update the spotlight position after a short delay
 
-                // Dynamic Card Positioning
-                // If target is in the top half of the screen, move card to bottom
-                const centerY = rect.top + rect.height / 2;
-                if (centerY < window.innerHeight / 2) {
-                    // Target is top -> Card bottom
-                    tutorialCard.style.top = 'auto';
-                    tutorialCard.style.bottom = '10%';
-                    tutorialCard.style.transform = 'translate(-50%, 0)';
-                } else {
-                    // Target is bottom -> Card top
-                    tutorialCard.style.top = '10%';
-                    tutorialCard.style.bottom = 'auto';
-                    tutorialCard.style.transform = 'translate(-50%, 0)';
-                }
+                setTimeout(() => {
+                    const rect = targetEl.getBoundingClientRect();
+                    // Add padding
+                    const padding = 20;
+                    const size = Math.max(rect.width, rect.height) + padding;
+
+                    tutorialSpotlight.style.width = `${size}px`;
+                    tutorialSpotlight.style.height = `${size}px`;
+                    tutorialSpotlight.style.top = `${rect.top + rect.height / 2}px`;
+                    tutorialSpotlight.style.left = `${rect.left + rect.width / 2}px`;
+                    tutorialSpotlight.style.opacity = '1';
+
+                    // Dynamic Card Positioning
+                    const centerY = rect.top + rect.height / 2;
+                    if (centerY < window.innerHeight / 2) {
+                        tutorialCard.style.top = 'auto';
+                        tutorialCard.style.bottom = '10%';
+                        tutorialCard.style.transform = 'translate(-50%, 0)';
+                    } else {
+                        tutorialCard.style.top = '10%';
+                        tutorialCard.style.bottom = 'auto';
+                        tutorialCard.style.transform = 'translate(-50%, 0)';
+                    }
+                }, 500); // 500ms delay for scroll
             }
         }
 
