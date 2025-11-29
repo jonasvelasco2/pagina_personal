@@ -1,0 +1,321 @@
+:root {
+    /* User Palette */
+    --cream: #edeec9;
+    --beige: #dde7c7;
+    --tea-green: #bfd8bd;
+    --celadon: #98c9a3;
+    --muted-teal: #77bfa3;
+
+    /* Theme Mapping */
+    --bg-color: #ffffff;
+    --surface-color: var(--beige);
+    --primary-color: var(--muted-teal);
+    --primary-hover: var(--celadon);
+    --accent-color: var(--muted-teal);
+
+    --text-color: #2c3e50;
+    /* Dark text for contrast */
+    --text-muted: #5d6d7e;
+
+    --wall-color: #2f3e46;
+    --empty-color: var(--tea-green);
+    --player-color: var(--muted-teal);
+    --target-color: #e76f51;
+    /* Keeping a distinct target color (Soft Red) */
+
+    --grid-gap: 4px;
+    --border-radius: 12px;
+    --transition-speed: 0.2s;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Outfit', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.app-container {
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+header {
+    text-align: center;
+}
+
+h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    letter-spacing: -0.05em;
+}
+
+.accent {
+    color: var(--primary-color);
+}
+
+header p {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.stats {
+    background: var(--surface-color);
+    display: inline-block;
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    color: var(--primary-color);
+    border: 1px solid var(--celadon);
+}
+
+.game-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--surface-color);
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.control-group {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+label {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+select {
+    background: var(--bg-color);
+    color: var(--text-color);
+    border: 1px solid var(--celadon);
+    padding: 0.5rem;
+    border-radius: 6px;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 8px;
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn.primary {
+    background: var(--primary-color);
+    color: #ffffff;
+}
+
+.btn.primary:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+}
+
+.btn.secondary {
+    background: transparent;
+    color: var(--text-color);
+    border: 1px solid var(--celadon);
+}
+
+.btn.secondary:hover {
+    border-color: var(--primary-color);
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.game-board-container {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1;
+    background: var(--surface-color);
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.game-board {
+    display: grid;
+    width: 100%;
+    height: 100%;
+    gap: var(--grid-gap);
+}
+
+.cell {
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.cell.empty {
+    background-color: var(--empty-color);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.cell.wall {
+    background-color: var(--wall-color);
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.cell.player {
+    background-color: var(--player-color);
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.5);
+    z-index: 10;
+    transition: transform var(--transition-speed) cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.cell.target {
+    background-color: var(--target-color);
+    box-shadow: 0 0 15px rgba(244, 114, 182, 0.3);
+    position: relative;
+}
+
+.cell.target::after {
+    content: '';
+    position: absolute;
+    top: 25%;
+    left: 25%;
+    width: 50%;
+    height: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(0.8);
+        opacity: 0.5;
+    }
+
+    50% {
+        transform: scale(1.1);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(0.8);
+        opacity: 0.5;
+    }
+}
+
+.win-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(47, 62, 70, 0.85);
+    /* Darker overlay using wall color */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: var(--border-radius);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    backdrop-filter: blur(4px);
+    z-index: 20;
+}
+
+.win-overlay:not(.hidden) {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.win-content {
+    text-align: center;
+    background: #ffffff;
+    padding: 3rem;
+    /* Increased padding */
+    border-radius: 20px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+    border: 2px solid var(--celadon);
+    /* Added border for definition */
+    transform: translateY(20px);
+    transition: transform 0.3s ease;
+    min-width: 300px;
+    /* Ensure minimum width */
+}
+
+.win-overlay:not(.hidden) .win-content {
+    transform: translateY(0);
+}
+
+.win-content h2 {
+    color: var(--text-color);
+    font-size: 2.2rem;
+    margin-bottom: 3rem;
+    /* Significantly increased margin */
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.instructions {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 1.2rem;
+    margin-top: 1rem;
+    font-weight: 500;
+}
+
+.key {
+    background: var(--wall-color);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 0.8rem;
+}
+
+/* Mobile adjustments */
+@media (max-width: 480px) {
+    .game-controls {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .control-group {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    h1 {
+        font-size: 2rem;
+    }
+}

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slider Instance Viewer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .input-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            background: var(--surface-color);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            background: var(--bg-color);
+            border: 1px solid var(--celadon);
+            color: var(--text-color);
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: monospace;
+            resize: vertical;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .file-input-wrapper input[type=file] {
+            font-size: 100px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <header>
+            <h1>Instance <span class="accent">Viewer</span></h1>
+            <p>Visualiza tus niveles exportados</p>
+        </header>
+
+        <main>
+            <div class="input-section">
+                <label for="instance-input">Pega el contenido de tu instancia o sube el archivo:</label>
+                <textarea id="instance-input" placeholder="SIZE 10&#10;1 1 1..."></textarea>
+
+                <div class="control-group" style="justify-content: flex-end;">
+                    <div class="file-input-wrapper">
+                        <button class="btn secondary">Subir Archivo</button>
+                        <input type="file" id="file-input" accept=".txt">
+                    </div>
+                    <button id="visualize-btn" class="btn primary">Visualizar</button>
+                </div>
+            </div>
+
+            <div class="game-board-container">
+                <div id="game-board" class="game-board">
+                    <!-- Grid will be rendered here -->
+                </div>
+            </div>
+
+            <div class="instructions">
+                <p><a href="index.html" style="color: var(--primary-color); text-decoration: none;">&larr; Volver al
+                        Juego</a></p>
+            </div>
+        </main>
+    </div>
+    <script src="viewer.js"></script>
+</body>
+
+</html>
