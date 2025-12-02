@@ -1,0 +1,442 @@
+:root {
+    /* User Palette */
+    --cream: #edeec9;
+    --beige: #dde7c7;
+    --tea-green: #bfd8bd;
+    --celadon: #98c9a3;
+    --muted-teal: #77bfa3;
+
+    /* Extended Palette for Rectangles */
+    --rect-1: rgba(152, 201, 163, 0.4);
+    --rect-2: rgba(119, 191, 163, 0.4);
+    --rect-3: rgba(221, 231, 199, 0.6);
+    --rect-4: rgba(191, 216, 189, 0.5);
+    --rect-selected: rgba(119, 191, 163, 0.6);
+    --rect-error: rgba(231, 111, 81, 0.4);
+
+    /* Theme Mapping */
+    --bg-color: #ffffff;
+    --surface-color: var(--beige);
+    --primary-color: var(--muted-teal);
+    --primary-hover: var(--celadon);
+    --accent-color: var(--muted-teal);
+
+    --text-color: #2c3e50;
+    --text-muted: #5d6d7e;
+
+    --grid-line: #bdc3c7;
+    --grid-border: #2c3e50;
+
+    --border-radius: 12px;
+    --transition-speed: 0.2s;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+    /* Prevent text selection while dragging */
+}
+
+body {
+    font-family: 'Outfit', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.app-container {
+    width: 100%;
+    max-width: 900px;
+    /* Increased for larger grids */
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+#connections-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+}
+
+line {
+    stroke: #bdc3c7;
+    stroke-width: 4px;
+    stroke-linecap: round;
+    transition: all 0.2s;
+}
+
+header {
+    text-align: center;
+}
+
+h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    letter-spacing: -0.05em;
+}
+
+.accent {
+    color: var(--primary-color);
+}
+
+header p {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.stats {
+    background: var(--surface-color);
+    display: inline-block;
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    color: var(--primary-color);
+    border: 1px solid var(--celadon);
+}
+
+.game-controls {
+    display: flex;
+    justify-content: center;
+    /* Center everything */
+    align-items: center;
+    background: var(--surface-color);
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    /* Increased gap between groups */
+}
+
+.control-group {
+    display: flex;
+    gap: 0.8rem;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+label {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+select {
+    background: var(--bg-color);
+    color: var(--text-color);
+    border: 1px solid var(--celadon);
+    padding: 0.5rem;
+    border-radius: 6px;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 8px;
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn.primary {
+    background: var(--primary-color);
+    color: #ffffff;
+}
+
+.btn.primary:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+}
+
+.btn.secondary {
+    background: transparent;
+    color: var(--text-color);
+    border: 1px solid var(--celadon);
+}
+
+.btn.secondary:hover {
+    border-color: var(--primary-color);
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.game-board-container {
+    position: relative;
+    width: 100%;
+    background: var(--surface-color);
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: center;
+}
+
+.game-board {
+    display: grid;
+    background-color: #fff;
+    border: 2px solid var(--grid-border);
+    position: relative;
+    cursor: crosshair;
+    touch-action: none;
+    /* Prevent scrolling on touch devices while playing */
+    aspect-ratio: 1 / 1;
+    /* Force square aspect ratio */
+    width: 100%;
+    height: 100%;
+}
+
+.cell {
+    border-right: 1px solid var(--grid-line);
+    border-bottom: 1px solid var(--grid-line);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 700;
+    font-size: 1em;
+    /* Inherit from game-board */
+    color: var(--text-color);
+    position: relative;
+    z-index: 1;
+}
+
+/* Remove outer borders of cells to avoid double borders with container */
+.game-board .cell:nth-child(10n) {
+    /* This needs to be dynamic based on grid size, handled in JS or CSS Grid */
+    /* border-right: none; */
+}
+
+.cell.number {
+    z-index: 2;
+}
+
+/* Rectangles */
+.rectangle {
+    position: absolute;
+    background-color: var(--rect-1);
+    border: 2px solid var(--primary-color);
+    pointer-events: auto;
+    /* Allow clicking to delete */
+    z-index: 5;
+    box-sizing: border-box;
+    transition: background-color 0.2s;
+    cursor: pointer;
+    /* Indicate interactivity */
+}
+
+.rectangle.valid {
+    background-color: var(--rect-3);
+    border-color: var(--muted-teal);
+}
+
+.rectangle.error {
+    background-color: var(--rect-error);
+    border-color: #e76f51;
+}
+
+/* Selection Overlay */
+.selection-box {
+    position: absolute;
+    background-color: var(--rect-selected);
+    border: 2px dashed var(--primary-color);
+    pointer-events: none;
+    z-index: 10;
+    display: none;
+}
+
+.win-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(47, 62, 70, 0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: var(--border-radius);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    backdrop-filter: blur(4px);
+    z-index: 20;
+}
+
+.win-overlay:not(.hidden) {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.win-content {
+    text-align: center;
+    background: #ffffff;
+    padding: 3rem;
+    border-radius: 20px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+    border: 2px solid var(--celadon);
+    transform: translateY(20px);
+    transition: transform 0.3s ease;
+    min-width: 300px;
+}
+
+.win-overlay:not(.hidden) .win-content {
+    transform: translateY(0);
+}
+
+.win-content h2 {
+    color: var(--text-color);
+    font-size: 2.2rem;
+    margin-bottom: 1rem;
+    font-weight: 800;
+}
+
+.instructions {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 1.2rem;
+    margin-top: 1rem;
+    font-weight: 500;
+}
+
+.key {
+    background: var(--wall-color);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 0.8rem;
+}
+
+/* Monodot Specific Styles */
+
+.game-area {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    width: 100%;
+}
+
+@media (min-width: 768px) {
+    .game-area {
+        flex-direction: row;
+        align-items: flex-start;
+    }
+
+    .game-board-container {
+        flex: 2;
+    }
+
+    .node-pool-container {
+        flex: 1;
+        min-width: 200px;
+    }
+}
+
+.node-pool-container {
+    background: var(--surface-color);
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.node-pool-container h3 {
+    margin-bottom: 1rem;
+    color: var(--text-muted);
+    font-size: 1rem;
+    text-align: center;
+}
+
+.node-pool {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    min-height: 100px;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 8px;
+    border: 2px dashed var(--celadon);
+}
+
+.node {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 700;
+    font-size: 1.2rem;
+    cursor: grab;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
+    z-index: 10;
+    position: relative;
+    /* For placement in pool */
+}
+
+.node:active {
+    cursor: grabbing;
+    transform: scale(1.1);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+}
+
+.node.placed {
+    position: absolute;
+    /* When on board */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    box-shadow: none;
+}
+
+.node.satisfied {
+    background-color: var(--celadon);
+    /* Greenish */
+    border: 3px solid #fff;
+}
+
+.node.unsatisfied {
+    background-color: #e76f51;
+    /* Reddish */
+}
+
+.node.dragging {
+    opacity: 0.8;
+    position: fixed;
+    /* Fixed to follow mouse */
+    pointer-events: none;
+    /* Let events pass through to drop targets */
+    z-index: 1000;
+    width: 50px;
+    height: 50px;
+    transform: translate(-50%, -50%);
+}
+
+/* Cell highlighting for drop target */
+.cell.drag-over {
+    background-color: var(--rect-2);
+}
+
+/* Connection Lines (SVG overlay maybe? Or just CSS lines?) */
+/* For now, let's just use color feedback on nodes. Lines are complex to draw in DOM without SVG overlay. */

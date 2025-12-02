@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monodot - Desafío Círculo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <header>
+            <h1>Mono<span class="accent">dot</span></h1>
+            <p>Coloca los nodos para cumplir sus conexiones</p>
+            <div class="stats">Nivel: <span id="level-display">1</span></div>
+        </header>
+
+        <main>
+            <div class="game-controls">
+                <div class="control-group">
+                    <label for="difficulty-select">Dificultad</label>
+                    <select id="difficulty-select">
+                        <option value="easy">Fácil (4x4, 4 nodos)</option>
+                        <option value="medium" selected>Medio (5x5, 6 nodos)</option>
+                        <option value="hard">Difícil (6x6, 8 nodos)</option>
+                        <option value="expert">Experto (8x8, 12 nodos)</option>
+                        <option value="master">Maestro (12x12, 20 nodos)</option>
+                        <option value="insane">Locura (15x15, 30 nodos)</option>
+                        <option value="god">Dios (20x20, 50 nodos)</option>
+                    </select>
+                    <button id="new-game-btn" class="btn secondary">Nuevo Juego</button>
+                </div>
+
+                <div class="control-group">
+                    <button id="reset-btn" class="btn secondary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 12" />
+                        </svg>
+                        Reiniciar
+                    </button>
+                    <button id="check-btn" class="btn primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                            <polyline points="22 4 12 14.01 9 11.01" />
+                        </svg>
+                        Verificar
+                    </button>
+                    <button id="download-btn" class="btn secondary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                            <polyline points="7 10 12 15 17 10" />
+                            <line x1="12" y1="15" x2="12" y2="3" />
+                        </svg>
+                        Descargar
+                    </button>
+                </div>
+            </div>
+
+            <div class="game-area">
+                <div class="game-board-container">
+                    <div id="game-board" class="game-board">
+                        <!-- Grid will be generated here -->
+                    </div>
+                    <div id="win-overlay" class="win-overlay hidden">
+                        <div class="win-content">
+                            <h2>¡Nivel Completado!</h2>
+                            <p>Has conectado todos los nodos correctamente.</p>
+                            <button id="next-level-btn" class="btn primary">Siguiente Nivel</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="node-pool-container">
+                    <h3>Nodos disponibles</h3>
+                    <div id="node-pool" class="node-pool">
+                        <!-- Nodes to place will appear here -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="instructions">
+                <p>Arrastra los nodos a la cuadrícula. El número indica cuántos vecinos (horizontal, vertical o
+                    diagonal) debe tener.</p>
+            </div>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>
