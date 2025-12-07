@@ -619,8 +619,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function checkWinCondition() {
         const allPlaced = nodes.every(n => n.placed);
         const allSatisfied = nodes.every(n => n.currentDegree === n.requiredDegree);
+        const isConnected = checkConnectivity();
 
-        if (allPlaced && allSatisfied) {
+        if (allPlaced && allSatisfied && isConnected) {
             setTimeout(() => {
                 winOverlay.classList.remove('hidden');
             }, 300);
@@ -634,11 +635,55 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const unsatisfied = nodes.filter(n => n.currentDegree !== n.requiredDegree);
-        if (unsatisfied.length === 0) {
-            winOverlay.classList.remove('hidden');
-        } else {
+        if (unsatisfied.length > 0) {
             alert(`Hay ${unsatisfied.length} nodos con conexiones incorrectas.`);
+            return;
         }
+
+        if (!checkConnectivity()) {
+            alert("El grafo no es conexo. Todos los nodos deben estar conectados entre sí.");
+            return;
+        }
+
+        winOverlay.classList.remove('hidden');
+    }
+
+    function checkConnectivity() {
+        const placedNodes = nodes.filter(n => n.placed);
+        if (placedNodes.length === 0) return true; // Empty graph is technically connected or irrelevant
+        if (placedNodes.length === 1) return true;
+
+        // BFS to check connectivity
+        const startNode = placedNodes[0];
+        const visited = new Set();
+        const queue = [startNode];
+        visited.add(startNode.id);
+
+        while (queue.length > 0) {
+            const current = queue.shift();
+
+            // Find neighbors
+            for (let dr = -1; dr <= 1; dr++) {
+                for (let dc = -1; dc <= 1; dc++) {
+                    if (dr === 0 && dc === 0) continue;
+                    const nr = current.r + dr;
+                    const nc = current.c + dc;
+
+                    if (nr >= 0 && nr < gridSize && nc >= 0 && nc < gridSize) {
+                        const neighborId = grid[nr][nc];
+                        if (neighborId !== null && !visited.has(neighborId)) {
+                            visited.add(neighborId);
+                            const neighbor = nodes.find(n => n.id === neighborId);
+                            if (neighbor) {
+                                queue.push(neighbor);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return visited.size === placedNodes.length;
     }
 
     function downloadInstance() {
