@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Constructor de curva ROC | ML Interactivo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&family=Source+Serif+Pro:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-main: #fafafa;
+            --bg-card: #ffffff;
+            --bg-code: #f5f5f5;
+            
+            --text-primary: #232f3e;
+            --text-secondary: #545b64;
+            --text-muted: #879596;
+            
+            --accent-orange: #ff9900;
+            --accent-blue: #0073bb;
+            --accent-teal: #1e8e8e;
+            --accent-red: #d13212;
+            --accent-green: #1d8102;
+            
+            --positive-color: #0073bb;
+            --negative-color: #ff9900;
+            --threshold-color: #d13212;
+            
+            --border-color: #e8e8e8;
+            --shadow: 0 2px 8px rgba(0,0,0,0.08);
+            
+            --font-sans: 'Source Sans Pro', -apple-system, sans-serif;
+            --font-serif: 'Source Serif Pro', Georgia, serif;
+            
+            --radius: 8px;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.6;
+            font-size: 16px;
+        }
+        
+        .header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            padding: 2rem 1.5rem;
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header h1 {
+            font-family: var(--font-serif);
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            line-height: 1.7;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+        
+        /* Controls */
+        .controls-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            align-items: flex-end;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .control-group label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 180px;
+            height: 6px;
+            background: #ddd;
+            border-radius: 3px;
+            outline: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        #thresholdSlider::-webkit-slider-thumb {
+            background: var(--threshold-color);
+        }
+        
+        .slider-value {
+            min-width: 3rem;
+            padding: 0.25rem 0.5rem;
+            background: var(--bg-code);
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            font-family: inherit;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        
+        .btn-primary {
+            background: var(--accent-blue);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #005a94;
+        }
+        
+        .btn-secondary {
+            background: var(--bg-code);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+        
+        .btn-secondary:hover {
+            background: #eee;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        /* Main grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        @media (max-width: 900px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 320px;
+        }
+        
+        /* Metrics row */
+        .metrics-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        @media (max-width: 700px) {
+            .metrics-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        .metric-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1rem;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+        
+        .metric-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+        
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .metric-value.tpr { color: var(--accent-green); }
+        .metric-value.fpr { color: var(--accent-red); }
+        .metric-value.auc { color: var(--accent-blue); }
+        .metric-value.threshold { color: var(--threshold-color); }
+        
+        /* Confusion summary */
+        .confusion-summary {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .confusion-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.85rem;
+        }
+        
+        .confusion-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .confusion-dot.tp { background: var(--accent-green); }
+        .confusion-dot.fn { background: var(--accent-orange); }
+        .confusion-dot.fp { background: var(--accent-red); }
+        .confusion-dot.tn { background: var(--accent-blue); }
+        
+        /* Distribution controls */
+        .distribution-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+        
+        .dist-group {
+            padding: 1rem;
+            background: var(--bg-code);
+            border-radius: var(--radius);
+        }
+        
+        .dist-group h4 {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .dist-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        
+        .dist-dot.positive { background: var(--positive-color); }
+        .dist-dot.negative { background: var(--negative-color); }
+        
+        .dist-control {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .dist-control label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            min-width: 50px;
+        }
+        
+        .dist-control input[type="range"] {
+            width: 100px;
+        }
+        
+        .dist-control .slider-value {
+            min-width: 2.5rem;
+            font-size: 0.8rem;
+        }
+        
+        /* Info box */
+        .info-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--accent-blue);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .info-box h3 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--accent-blue);
+            margin-bottom: 0.5rem;
+        }
+        
+        .info-box p {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            border-top: 1px solid var(--border-color);
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1>Constructor de curva ROC</h1>
+            <p>
+                Visualiza cómo se construye la curva ROC. Ajusta el umbral de clasificación
+                y observa cómo cambian TPR y FPR. Anima la construcción completa de la curva.
+            </p>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Controls -->
+        <div class="controls-section">
+            <div class="controls">
+                <div class="control-group">
+                    <label>Umbral de clasificación</label>
+                    <div class="slider-container">
+                        <input type="range" id="thresholdSlider" min="0" max="100" value="50">
+                        <span class="slider-value" id="thresholdValue">0.50</span>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label>Muestras por clase</label>
+                    <div class="slider-container">
+                        <input type="range" id="samplesSlider" min="50" max="200" value="100">
+                        <span class="slider-value" id="samplesValue">100</span>
+                    </div>
+                </div>
+                
+                <div class="btn-group">
+                    <button class="btn btn-primary" id="animateBtn">▶ Animar curva</button>
+                    <button class="btn btn-secondary" id="resetBtn">↻ Reiniciar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metrics -->
+        <div class="metrics-row">
+            <div class="metric-card">
+                <div class="metric-label">Umbral</div>
+                <div class="metric-value threshold" id="metricThreshold">0.50</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">TPR (Sensitivity)</div>
+                <div class="metric-value tpr" id="metricTPR">0.50</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">FPR (1 - Specificity)</div>
+                <div class="metric-value fpr" id="metricFPR">0.50</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">AUC</div>
+                <div class="metric-value auc" id="metricAUC">0.50</div>
+            </div>
+        </div>
+
+        <!-- Main grid -->
+        <div class="main-grid">
+            <!-- Score distributions -->
+            <div class="card">
+                <h2 class="section-title">Distribución de scores</h2>
+                <div class="chart-container">
+                    <canvas id="histogramChart"></canvas>
+                </div>
+                
+                <div class="confusion-summary">
+                    <div class="confusion-item">
+                        <span class="confusion-dot tp"></span>
+                        <span>TP: <strong id="confTP">0</strong></span>
+                    </div>
+                    <div class="confusion-item">
+                        <span class="confusion-dot fn"></span>
+                        <span>FN: <strong id="confFN">0</strong></span>
+                    </div>
+                    <div class="confusion-item">
+                        <span class="confusion-dot fp"></span>
+                        <span>FP: <strong id="confFP">0</strong></span>
+                    </div>
+                    <div class="confusion-item">
+                        <span class="confusion-dot tn"></span>
+                        <span>TN: <strong id="confTN">0</strong></span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ROC Curve -->
+            <div class="card">
+                <h2 class="section-title">Curva ROC</h2>
+                <div class="chart-container">
+                    <canvas id="rocChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Distribution parameters -->
+        <div class="card" style="margin-bottom: 1.5rem;">
+            <h2 class="section-title">Parámetros de distribución</h2>
+            <div class="distribution-controls">
+                <div class="dist-group">
+                    <h4><span class="dist-dot positive"></span> Clase positiva</h4>
+                    <div class="dist-control">
+                        <label>Media:</label>
+                        <input type="range" id="posMean" min="40" max="80" value="65">
+                        <span class="slider-value" id="posMeanValue">0.65</span>
+                    </div>
+                    <div class="dist-control">
+                        <label>Desv:</label>
+                        <input type="range" id="posStd" min="5" max="25" value="15">
+                        <span class="slider-value" id="posStdValue">0.15</span>
+                    </div>
+                </div>
+                
+                <div class="dist-group">
+                    <h4><span class="dist-dot negative"></span> Clase negativa</h4>
+                    <div class="dist-control">
+                        <label>Media:</label>
+                        <input type="range" id="negMean" min="20" max="60" value="35">
+                        <span class="slider-value" id="negMeanValue">0.35</span>
+                    </div>
+                    <div class="dist-control">
+                        <label>Desv:</label>
+                        <input type="range" id="negStd" min="5" max="25" value="15">
+                        <span class="slider-value" id="negStdValue">0.15</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info box -->
+        <div class="info-box">
+            <h3>¿Cómo se construye la curva ROC?</h3>
+            <p id="infoText">
+                La curva ROC muestra la relación entre la tasa de verdaderos positivos (TPR) y 
+                la tasa de falsos positivos (FPR) para diferentes umbrales de clasificación. 
+                Cada punto de la curva corresponde a un umbral diferente. El área bajo la curva (AUC) 
+                resume el rendimiento del clasificador: AUC = 0.5 es aleatorio, AUC = 1.0 es perfecto.
+            </p>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>Curso: Introducción al Machine Learning · Dr. Jonás Velasco Álvarez</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

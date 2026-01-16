@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-Means Clustering | ML Interactivo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&family=Source+Serif+Pro:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-main: #fafafa;
+            --bg-card: #ffffff;
+            --bg-code: #f5f5f5;
+            
+            --text-primary: #232f3e;
+            --text-secondary: #545b64;
+            --text-muted: #879596;
+            
+            --accent-orange: #ff9900;
+            --accent-blue: #0073bb;
+            --accent-teal: #1e8e8e;
+            --accent-red: #d13212;
+            --accent-green: #1d8102;
+            
+            --border-color: #e8e8e8;
+            --shadow: 0 2px 8px rgba(0,0,0,0.08);
+            
+            --font-sans: 'Source Sans Pro', -apple-system, sans-serif;
+            --font-serif: 'Source Serif Pro', Georgia, serif;
+            
+            --radius: 8px;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.6;
+            font-size: 16px;
+        }
+        
+        .header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            padding: 2rem 1.5rem;
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header h1 {
+            font-family: var(--font-serif);
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            line-height: 1.7;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+        
+        /* Controls */
+        .controls-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            align-items: flex-end;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .control-group label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 120px;
+            height: 6px;
+            background: #ddd;
+            border-radius: 3px;
+            outline: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .slider-value {
+            min-width: 2rem;
+            padding: 0.25rem 0.5rem;
+            background: var(--bg-code);
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: 700;
+            text-align: center;
+            color: var(--accent-blue);
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            font-family: inherit;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        
+        .btn-primary {
+            background: var(--accent-blue);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #005a94;
+        }
+        
+        .btn-secondary {
+            background: var(--bg-code);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+        
+        .btn-secondary:hover {
+            background: #eee;
+        }
+        
+        .btn-success {
+            background: var(--accent-green);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #167001;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        /* Dataset buttons */
+        .dataset-btns {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .dataset-btn {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            font-family: inherit;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            background: var(--bg-code);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        
+        .dataset-btn:hover {
+            background: #eee;
+        }
+        
+        .dataset-btn.active {
+            background: var(--accent-blue);
+            color: white;
+            border-color: var(--accent-blue);
+        }
+        
+        /* Status bar */
+        .status-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            padding: 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .status-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        
+        .status-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+        }
+        
+        .status-value.converged {
+            color: var(--accent-green);
+        }
+        
+        /* Main grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        @media (max-width: 900px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        /* Canvas */
+        .canvas-container {
+            position: relative;
+            background: var(--bg-code);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+        
+        #clusterCanvas {
+            display: block;
+            cursor: crosshair;
+        }
+        
+        .canvas-hint {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            pointer-events: none;
+        }
+        
+        /* Inertia chart */
+        .chart-container {
+            height: 200px;
+            margin-top: 1rem;
+        }
+        
+        /* Cluster info */
+        .cluster-info {
+            margin-top: 1rem;
+        }
+        
+        .cluster-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.6rem;
+            background: var(--bg-code);
+            border-radius: var(--radius);
+            margin-bottom: 0.5rem;
+        }
+        
+        .cluster-dot {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: white;
+        }
+        
+        .cluster-details {
+            flex: 1;
+        }
+        
+        .cluster-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .cluster-stats {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        
+        /* Algorithm steps */
+        .steps-section {
+            margin-top: 1.5rem;
+        }
+        
+        .step-indicator {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .step-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ddd;
+        }
+        
+        .step-dot.active {
+            background: var(--accent-blue);
+        }
+        
+        .step-dot.completed {
+            background: var(--accent-green);
+        }
+        
+        .step-description {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            padding: 0.75rem;
+            background: var(--bg-code);
+            border-radius: var(--radius);
+            border-left: 3px solid var(--accent-blue);
+        }
+        
+        /* Info box */
+        .info-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--accent-blue);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .info-box h3 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--accent-blue);
+            margin-bottom: 0.5rem;
+        }
+        
+        .info-box p {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            border-top: 1px solid var(--border-color);
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1>K-Means Clustering</h1>
+            <p>
+                Visualiza el algoritmo K-Means paso a paso. Observa cómo los centroides
+                se mueven y los puntos se reasignan hasta alcanzar la convergencia.
+            </p>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Controls -->
+        <div class="controls-section">
+            <div class="controls">
+                <div class="control-group">
+                    <label>Número de clusters (K)</label>
+                    <div class="slider-container">
+                        <input type="range" id="kSlider" min="2" max="8" value="3">
+                        <span class="slider-value" id="kValue">3</span>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label>Dataset</label>
+                    <div class="dataset-btns">
+                        <button class="dataset-btn active" data-dataset="blobs">Blobs</button>
+                        <button class="dataset-btn" data-dataset="circles">Círculos</button>
+                        <button class="dataset-btn" data-dataset="moons">Lunas</button>
+                        <button class="dataset-btn" data-dataset="random">Aleatorio</button>
+                    </div>
+                </div>
+                
+                <div class="btn-group">
+                    <button class="btn btn-secondary" id="stepBtn">→ Siguiente paso</button>
+                    <button class="btn btn-primary" id="animateBtn">▶ Animar</button>
+                    <button class="btn btn-secondary" id="resetBtn">↻ Reiniciar centroides</button>
+                    <button class="btn btn-secondary" id="newDataBtn">🔄 Nuevo dataset</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status bar -->
+        <div class="status-bar">
+            <div class="status-item">
+                <span class="status-label">Iteración:</span>
+                <span class="status-value" id="iterationCount">0</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Inercia:</span>
+                <span class="status-value" id="inertiaValue">—</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Estado:</span>
+                <span class="status-value" id="statusText">Listo</span>
+            </div>
+        </div>
+
+        <!-- Main grid -->
+        <div class="main-grid">
+            <!-- Canvas -->
+            <div class="card">
+                <h2 class="section-title">Espacio de datos</h2>
+                <div class="canvas-container">
+                    <canvas id="clusterCanvas" width="600" height="450"></canvas>
+                    <div class="canvas-hint" id="canvasHint">Clic para añadir puntos</div>
+                </div>
+            </div>
+            
+            <!-- Info panel -->
+            <div class="card">
+                <h2 class="section-title">Información de clusters</h2>
+                
+                <div class="cluster-info" id="clusterInfo">
+                    <!-- Cluster info will be added here -->
+                </div>
+                
+                <div class="steps-section">
+                    <h3 class="section-title" style="margin-top: 1rem;">Paso actual</h3>
+                    <div class="step-description" id="stepDescription">
+                        Haz clic en "Siguiente paso" o "Animar" para comenzar el algoritmo.
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="inertiaChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info box -->
+        <div class="info-box">
+            <h3 id="infoTitle">¿Cómo funciona K-Means?</h3>
+            <p id="infoText">
+                K-Means es un algoritmo de clustering no supervisado que agrupa datos en K clusters.
+                El algoritmo alterna entre: (1) asignar cada punto al centroide más cercano, y 
+                (2) recalcular los centroides como el promedio de los puntos asignados.
+                Esto se repite hasta que los centroides no cambien (convergencia).
+            </p>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>Curso: Introducción al Machine Learning · Dr. Jonás Velasco Álvarez</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

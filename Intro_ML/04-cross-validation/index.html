@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Validación cruzada K-fold | ML Interactivo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&family=Source+Serif+Pro:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-main: #fafafa;
+            --bg-card: #ffffff;
+            --bg-code: #f5f5f5;
+            
+            --text-primary: #232f3e;
+            --text-secondary: #545b64;
+            --text-muted: #879596;
+            
+            --accent-orange: #ff9900;
+            --accent-blue: #0073bb;
+            --accent-teal: #1e8e8e;
+            
+            --train-color: #0073bb;
+            --val-color: #ff9900;
+            
+            --border-color: #e8e8e8;
+            --shadow: 0 2px 8px rgba(0,0,0,0.08);
+            
+            --font-sans: 'Source Sans Pro', -apple-system, sans-serif;
+            --font-serif: 'Source Serif Pro', Georgia, serif;
+            
+            --radius: 8px;
+            
+            /* Colores para folds */
+            --fold-1: #0073bb;
+            --fold-2: #ff9900;
+            --fold-3: #1e8e8e;
+            --fold-4: #7b68ee;
+            --fold-5: #e74c3c;
+            --fold-6: #2ecc71;
+            --fold-7: #9b59b6;
+            --fold-8: #f39c12;
+            --fold-9: #1abc9c;
+            --fold-10: #e91e63;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.6;
+            font-size: 16px;
+        }
+        
+        .header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            padding: 2rem 1.5rem;
+        }
+        
+        .header-content {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        
+        .header h1 {
+            font-family: var(--font-serif);
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            line-height: 1.7;
+        }
+        
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+        
+        /* Controls */
+        .controls-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            align-items: flex-end;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .control-group label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 150px;
+            height: 4px;
+            background: #ddd;
+            border-radius: 2px;
+            outline: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        .slider-value {
+            min-width: 2.5rem;
+            padding: 0.25rem 0.5rem;
+            background: var(--bg-code);
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            font-family: inherit;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        
+        .btn-primary {
+            background: var(--accent-blue);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #005a94;
+        }
+        
+        .btn-secondary {
+            background: var(--bg-code);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+        
+        .btn-secondary:hover {
+            background: #eee;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        /* Folds visualization */
+        .folds-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .folds-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .fold-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .fold-label {
+            width: 70px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        
+        .fold-bar {
+            flex: 1;
+            display: flex;
+            height: 32px;
+            border-radius: 4px;
+            overflow: hidden;
+            background: var(--bg-code);
+        }
+        
+        .fold-segment {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .fold-segment.train {
+            opacity: 0.4;
+        }
+        
+        .fold-segment.validation {
+            opacity: 1;
+            box-shadow: inset 0 0 0 2px rgba(0,0,0,0.2);
+        }
+        
+        .fold-mse {
+            width: 80px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-align: right;
+            font-family: monospace;
+        }
+        
+        /* Current fold indicator */
+        .current-fold-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--bg-code);
+            border-radius: var(--radius);
+            margin-bottom: 1.5rem;
+        }
+        
+        .fold-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+        }
+        
+        .fold-description {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+        
+        /* Main grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        @media (max-width: 900px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .chart-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        
+        /* Results table */
+        .results-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        
+        .results-table th,
+        .results-table td {
+            padding: 0.5rem;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .results-table th {
+            font-weight: 600;
+            color: var(--text-secondary);
+            background: var(--bg-code);
+        }
+        
+        .results-table tr.active {
+            background: rgba(0, 115, 187, 0.1);
+        }
+        
+        .results-table tr.completed td:first-child {
+            color: var(--accent-teal);
+        }
+        
+        /* Summary */
+        .summary-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .summary-item {
+            text-align: center;
+            padding: 1rem;
+            background: var(--bg-code);
+            border-radius: var(--radius);
+        }
+        
+        .summary-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+        
+        .summary-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+        }
+        
+        /* Info box */
+        .info-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--accent-blue);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .info-box h3 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--accent-blue);
+            margin-bottom: 0.5rem;
+        }
+        
+        .info-box p {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            border-top: 1px solid var(--border-color);
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1>Validación cruzada K-fold</h1>
+            <p>
+                Visualiza cómo funciona la validación cruzada. Observa cómo cada fold 
+                se usa como conjunto de validación mientras los demás se usan para entrenar.
+            </p>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Controls -->
+        <div class="controls-section">
+            <div class="controls">
+                <div class="control-group">
+                    <label>Número de folds (K)</label>
+                    <div class="slider-container">
+                        <input type="range" id="kSlider" min="2" max="10" value="5">
+                        <span class="slider-value" id="kValue">5</span>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label>Tamaño del dataset</label>
+                    <div class="slider-container">
+                        <input type="range" id="sizeSlider" min="20" max="100" value="50">
+                        <span class="slider-value" id="sizeValue">50</span>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label>Ruido</label>
+                    <div class="slider-container">
+                        <input type="range" id="noiseSlider" min="0" max="100" value="30">
+                        <span class="slider-value" id="noiseValue">0.30</span>
+                    </div>
+                </div>
+                
+                <div class="btn-group">
+                    <button class="btn btn-secondary" id="nextFoldBtn">→ Siguiente fold</button>
+                    <button class="btn btn-primary" id="animateBtn">▶ Animar todo</button>
+                    <button class="btn btn-secondary" id="resetBtn">↻ Reiniciar</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Current fold indicator -->
+        <div class="current-fold-indicator">
+            <span class="fold-number" id="currentFoldNum">—</span>
+            <span class="fold-description" id="currentFoldDesc">Haz clic en "Siguiente fold" o "Animar todo" para comenzar</span>
+        </div>
+
+        <!-- Folds visualization -->
+        <div class="folds-section">
+            <h2 class="section-title">Particiones del dataset</h2>
+            <div class="folds-container" id="foldsContainer">
+                <!-- Folds will be added here -->
+            </div>
+        </div>
+
+        <!-- Main grid -->
+        <div class="main-grid">
+            <!-- Chart -->
+            <div class="chart-card">
+                <h2 class="section-title">Datos y modelo del fold actual</h2>
+                <div class="chart-container">
+                    <canvas id="dataChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Results table -->
+            <div class="results-card">
+                <h2 class="section-title">Resultados por fold</h2>
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>Fold</th>
+                            <th>MSE val</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsBody">
+                        <!-- Rows will be added here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="summary-section">
+            <h2 class="section-title">Resumen de validación cruzada</h2>
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <div class="summary-label">MSE promedio</div>
+                    <div class="summary-value" id="avgMSE">—</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Desviación estándar</div>
+                    <div class="summary-value" id="stdMSE">—</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Folds completados</div>
+                    <div class="summary-value" id="completedFolds">0 / 5</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info box -->
+        <div class="info-box">
+            <h3>¿Por qué usar validación cruzada?</h3>
+            <p id="explanationText">
+                La validación cruzada permite utilizar todos los datos tanto para entrenar como para evaluar, 
+                obteniendo una estimación más robusta del error de generalización. Con K-fold, dividimos 
+                los datos en K partes iguales, y en cada iteración usamos K-1 partes para entrenar y 
+                1 parte para validar.
+            </p>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>Curso: Introducción al Machine Learning · Dr. Jonás Velasco Álvarez</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>División train-test | ML Interactivo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&family=Source+Serif+Pro:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-main: #fafafa;
+            --bg-card: #ffffff;
+            --bg-code: #f5f5f5;
+            
+            --text-primary: #232f3e;
+            --text-secondary: #545b64;
+            --text-muted: #879596;
+            
+            --accent-orange: #ff9900;
+            --accent-blue: #0073bb;
+            --accent-teal: #1e8e8e;
+            
+            --train-color: #0073bb;
+            --test-color: #ff9900;
+            
+            --border-color: #e8e8e8;
+            --shadow: 0 2px 8px rgba(0,0,0,0.08);
+            
+            --font-sans: 'Source Sans Pro', -apple-system, sans-serif;
+            --font-serif: 'Source Serif Pro', Georgia, serif;
+            
+            --radius: 8px;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.6;
+            font-size: 16px;
+        }
+        
+        .header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            padding: 2rem 1.5rem;
+        }
+        
+        .header-content {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        
+        .header h1 {
+            font-family: var(--font-serif);
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            line-height: 1.7;
+        }
+        
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+        
+        /* Controls */
+        .controls-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            align-items: flex-end;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .control-group label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 180px;
+            height: 4px;
+            background: #ddd;
+            border-radius: 2px;
+            outline: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        .slider-value {
+            min-width: 3rem;
+            padding: 0.25rem 0.5rem;
+            background: var(--bg-code);
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            font-family: inherit;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        
+        .btn-primary {
+            background: var(--accent-blue);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #005a94;
+        }
+        
+        .btn-secondary {
+            background: var(--bg-code);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+        
+        .btn-secondary:hover {
+            background: #eee;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        /* Split visualization */
+        .split-visual {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .split-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .split-bar-container {
+            margin-bottom: 1rem;
+        }
+        
+        .split-bar {
+            display: flex;
+            height: 40px;
+            border-radius: 4px;
+            overflow: hidden;
+            background: var(--bg-code);
+        }
+        
+        .split-train {
+            background: var(--train-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: width 0.3s ease;
+        }
+        
+        .split-test {
+            background: var(--test-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: width 0.3s ease;
+        }
+        
+        .split-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        
+        /* Data points visualization */
+        .points-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding: 1rem;
+            background: var(--bg-code);
+            border-radius: 4px;
+            min-height: 100px;
+            align-content: flex-start;
+        }
+        
+        .data-point {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        
+        .data-point.train {
+            background: var(--train-color);
+        }
+        
+        .data-point.test {
+            background: var(--test-color);
+        }
+        
+        .data-point.shuffling {
+            animation: shuffle 0.5s ease;
+        }
+        
+        @keyframes shuffle {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        /* Charts grid */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        @media (max-width: 800px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .chart-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .chart-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 280px;
+        }
+        
+        /* Metrics */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        @media (max-width: 600px) {
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        .metric-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1rem;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+        
+        .metric-card.train {
+            border-left: 4px solid var(--train-color);
+        }
+        
+        .metric-card.test {
+            border-left: 4px solid var(--test-color);
+        }
+        
+        .metric-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+        
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .metric-value.train-color { color: var(--train-color); }
+        .metric-value.test-color { color: var(--test-color); }
+        
+        /* Info box */
+        .info-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--accent-blue);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .info-box h3 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--accent-blue);
+            margin-bottom: 0.5rem;
+        }
+        
+        .info-box p {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            border-top: 1px solid var(--border-color);
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1>División train-test</h1>
+            <p>
+                Visualiza cómo dividir los datos en conjuntos de entrenamiento y prueba. 
+                Observa el impacto de diferentes proporciones en las métricas del modelo.
+            </p>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Controles -->
+        <div class="controls-section">
+            <div class="controls">
+                <div class="control-group">
+                    <label>Tamaño del dataset</label>
+                    <div class="slider-container">
+                        <input type="range" id="sizeSlider" min="20" max="100" value="50">
+                        <span class="slider-value" id="sizeValue">50</span>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label>Proporción de entrenamiento</label>
+                    <div class="slider-container">
+                        <input type="range" id="splitSlider" min="50" max="90" value="70">
+                        <span class="slider-value" id="splitValue">70%</span>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label>Ruido en datos</label>
+                    <div class="slider-container">
+                        <input type="range" id="noiseSlider" min="0" max="100" value="30">
+                        <span class="slider-value" id="noiseValue">0.30</span>
+                    </div>
+                </div>
+                
+                <div class="btn-group">
+                    <button class="btn btn-primary" id="shuffleBtn">↻ Barajar datos</button>
+                    <button class="btn btn-secondary" id="newDataBtn">+ Nuevo dataset</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Split visualization -->
+        <div class="split-visual">
+            <h2 class="split-title">Visualización de la partición</h2>
+            <div class="split-bar-container">
+                <div class="split-bar">
+                    <div class="split-train" id="splitTrainBar" style="width: 70%">
+                        Entrenamiento (70%)
+                    </div>
+                    <div class="split-test" id="splitTestBar" style="width: 30%">
+                        Prueba (30%)
+                    </div>
+                </div>
+                <div class="split-labels">
+                    <span>0%</span>
+                    <span>50%</span>
+                    <span>100%</span>
+                </div>
+            </div>
+            <div class="points-container" id="pointsContainer">
+                <!-- Points will be added here -->
+            </div>
+        </div>
+
+        <!-- Metrics -->
+        <div class="metrics-grid">
+            <div class="metric-card train">
+                <div class="metric-label">Puntos de entrenamiento</div>
+                <div class="metric-value train-color" id="trainCount">35</div>
+            </div>
+            <div class="metric-card test">
+                <div class="metric-label">Puntos de prueba</div>
+                <div class="metric-value test-color" id="testCount">15</div>
+            </div>
+            <div class="metric-card train">
+                <div class="metric-label">MSE entrenamiento</div>
+                <div class="metric-value" id="trainMSE">—</div>
+            </div>
+            <div class="metric-card test">
+                <div class="metric-label">MSE prueba</div>
+                <div class="metric-value" id="testMSE">—</div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h2 class="chart-title">Datos y modelo ajustado</h2>
+                <div class="chart-container">
+                    <canvas id="dataChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h2 class="chart-title">Efecto del tamaño de entrenamiento</h2>
+                <div class="chart-container">
+                    <canvas id="learningCurve"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info box -->
+        <div class="info-box">
+            <h3>¿Por qué dividir los datos?</h3>
+            <p id="explanationText">
+                Dividir los datos en entrenamiento y prueba es fundamental para evaluar cómo 
+                generalizará el modelo a datos nuevos. Si evaluamos en los mismos datos de 
+                entrenamiento, obtendremos una estimación <strong>optimista</strong> del rendimiento real.
+                La proporción típica es 70-80% para entrenamiento y 20-30% para prueba.
+            </p>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>Curso: Introducción al Machine Learning · Dr. Jonás Velasco Álvarez</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

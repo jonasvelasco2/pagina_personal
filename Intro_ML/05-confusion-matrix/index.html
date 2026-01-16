@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matriz de confusión interactiva | ML Interactivo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&family=Source+Serif+Pro:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #fafafa;
+            --bg-card: #ffffff;
+            --bg-code: #f5f5f5;
+            
+            --text-primary: #232f3e;
+            --text-secondary: #545b64;
+            --text-muted: #879596;
+            
+            --accent-orange: #ff9900;
+            --accent-blue: #0073bb;
+            --accent-teal: #1e8e8e;
+            --accent-red: #d13212;
+            --accent-green: #1d8102;
+            
+            --tp-color: #1d8102;
+            --tn-color: #0073bb;
+            --fp-color: #d13212;
+            --fn-color: #ff9900;
+            
+            --border-color: #e8e8e8;
+            --shadow: 0 2px 8px rgba(0,0,0,0.08);
+            
+            --font-sans: 'Source Sans Pro', -apple-system, sans-serif;
+            --font-serif: 'Source Serif Pro', Georgia, serif;
+            
+            --radius: 8px;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.6;
+            font-size: 16px;
+        }
+        
+        .header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            padding: 2rem 1.5rem;
+        }
+        
+        .header-content {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        
+        .header h1 {
+            font-family: var(--font-serif);
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            line-height: 1.7;
+        }
+        
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+        
+        /* Scenarios */
+        .scenarios-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .scenarios-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .scenario-btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            font-family: inherit;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            background: var(--bg-code);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        
+        .scenario-btn:hover {
+            background: #eee;
+        }
+        
+        .scenario-btn.active {
+            background: var(--accent-blue);
+            color: white;
+            border-color: var(--accent-blue);
+        }
+        
+        /* Main grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        @media (max-width: 800px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            box-shadow: var(--shadow);
+        }
+        
+        /* Matrix */
+        .matrix-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .matrix-labels-top {
+            display: flex;
+            margin-left: 80px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .matrix-label-top {
+            width: 100px;
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        
+        .matrix-row {
+            display: flex;
+            align-items: center;
+        }
+        
+        .matrix-label-left {
+            width: 80px;
+            text-align: right;
+            padding-right: 1rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        
+        .matrix-cell {
+            width: 100px;
+            height: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--border-color);
+            margin: 2px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        
+        .matrix-cell.highlight {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .matrix-cell.tp { background: rgba(29, 129, 2, 0.15); border-color: var(--tp-color); }
+        .matrix-cell.tn { background: rgba(0, 115, 187, 0.15); border-color: var(--tn-color); }
+        .matrix-cell.fp { background: rgba(209, 50, 18, 0.15); border-color: var(--fp-color); }
+        .matrix-cell.fn { background: rgba(255, 153, 0, 0.15); border-color: var(--fn-color); }
+        
+        .cell-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 0.25rem;
+        }
+        
+        .cell-label.tp { color: var(--tp-color); }
+        .cell-label.tn { color: var(--tn-color); }
+        .cell-label.fp { color: var(--fp-color); }
+        .cell-label.fn { color: var(--fn-color); }
+        
+        .cell-input {
+            width: 60px;
+            padding: 0.4rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            font-family: inherit;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background: white;
+        }
+        
+        .cell-input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 2px rgba(0, 115, 187, 0.2);
+        }
+        
+        /* Totals */
+        .matrix-totals {
+            display: flex;
+            margin-top: 1rem;
+            gap: 1.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .total-item {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .total-label {
+            color: var(--text-muted);
+        }
+        
+        .total-value {
+            font-weight: 700;
+        }
+        
+        /* Cell explanations */
+        .cell-explanation {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: var(--bg-code);
+            border-radius: var(--radius);
+            font-size: 0.9rem;
+        }
+        
+        .cell-explanation h4 {
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .cell-explanation p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        
+        /* Metrics */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+        
+        .metric-card {
+            padding: 0.75rem;
+            background: var(--bg-code);
+            border-radius: var(--radius);
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        
+        .metric-card:hover {
+            border-color: var(--accent-blue);
+        }
+        
+        .metric-card.active {
+            border-color: var(--accent-blue);
+            background: rgba(0, 115, 187, 0.1);
+        }
+        
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.25rem;
+        }
+        
+        .metric-name {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        
+        .metric-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+        }
+        
+        .metric-formula {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-family: monospace;
+            display: none;
+        }
+        
+        .metric-card.show-formula .metric-formula {
+            display: block;
+        }
+        
+        /* Formula toggle */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            width: 40px;
+            height: 20px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.3s;
+            border-radius: 20px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: var(--accent-blue);
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+        
+        .toggle-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        /* Info box */
+        .info-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--accent-blue);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .info-box h3 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--accent-blue);
+            margin-bottom: 0.5rem;
+        }
+        
+        .info-box p {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+        
+        .cells-used {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+            flex-wrap: wrap;
+        }
+        
+        .cell-tag {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 4px;
+            color: white;
+        }
+        
+        .cell-tag.tp { background: var(--tp-color); }
+        .cell-tag.tn { background: var(--tn-color); }
+        .cell-tag.fp { background: var(--fp-color); }
+        .cell-tag.fn { background: var(--fn-color); }
+        
+        .footer {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            border-top: 1px solid var(--border-color);
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1>Matriz de confusión interactiva</h1>
+            <p>
+                Modifica los valores de la matriz y observa cómo cambian todas las 
+                métricas de clasificación. Haz clic en una métrica para ver qué celdas utiliza.
+            </p>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Scenarios -->
+        <div class="scenarios-section">
+            <h2 class="section-title">Escenarios predefinidos</h2>
+            <div class="scenarios-grid">
+                <button class="scenario-btn active" data-scenario="balanced">Balanceado</button>
+                <button class="scenario-btn" data-scenario="medical">Diagnóstico médico</button>
+                <button class="scenario-btn" data-scenario="spam">Detección de spam</button>
+                <button class="scenario-btn" data-scenario="fraud">Detección de fraude</button>
+                <button class="scenario-btn" data-scenario="high-precision">Alta precisión</button>
+                <button class="scenario-btn" data-scenario="high-recall">Alto recall</button>
+            </div>
+        </div>
+
+        <!-- Main grid -->
+        <div class="main-grid">
+            <!-- Matrix -->
+            <div class="card">
+                <h2 class="section-title">Matriz de confusión</h2>
+                <div class="matrix-container">
+                    <div class="matrix-labels-top">
+                        <div class="matrix-label-top">Predicho: Positivo</div>
+                        <div class="matrix-label-top">Predicho: Negativo</div>
+                    </div>
+                    
+                    <div class="matrix-row">
+                        <div class="matrix-label-left">Real: Positivo</div>
+                        <div class="matrix-cell tp" id="cell-tp">
+                            <span class="cell-label tp">TP</span>
+                            <input type="number" class="cell-input" id="input-tp" value="50" min="0">
+                        </div>
+                        <div class="matrix-cell fn" id="cell-fn">
+                            <span class="cell-label fn">FN</span>
+                            <input type="number" class="cell-input" id="input-fn" value="10" min="0">
+                        </div>
+                    </div>
+                    
+                    <div class="matrix-row">
+                        <div class="matrix-label-left">Real: Negativo</div>
+                        <div class="matrix-cell fp" id="cell-fp">
+                            <span class="cell-label fp">FP</span>
+                            <input type="number" class="cell-input" id="input-fp" value="5" min="0">
+                        </div>
+                        <div class="matrix-cell tn" id="cell-tn">
+                            <span class="cell-label tn">TN</span>
+                            <input type="number" class="cell-input" id="input-tn" value="35" min="0">
+                        </div>
+                    </div>
+                    
+                    <div class="matrix-totals">
+                        <div class="total-item">
+                            <span class="total-label">Total:</span>
+                            <span class="total-value" id="total-samples">100</span>
+                        </div>
+                        <div class="total-item">
+                            <span class="total-label">Positivos reales:</span>
+                            <span class="total-value" id="total-positives">60</span>
+                        </div>
+                        <div class="total-item">
+                            <span class="total-label">Negativos reales:</span>
+                            <span class="total-value" id="total-negatives">40</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="cell-explanation" id="cell-explanation">
+                    <h4>¿Qué significa cada celda?</h4>
+                    <p>
+                        <strong style="color: var(--tp-color)">TP (Verdaderos Positivos):</strong> Casos positivos correctamente identificados.<br>
+                        <strong style="color: var(--fn-color)">FN (Falsos Negativos):</strong> Casos positivos clasificados como negativos.<br>
+                        <strong style="color: var(--fp-color)">FP (Falsos Positivos):</strong> Casos negativos clasificados como positivos.<br>
+                        <strong style="color: var(--tn-color)">TN (Verdaderos Negativos):</strong> Casos negativos correctamente identificados.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Metrics -->
+            <div class="card">
+                <h2 class="section-title">Métricas de clasificación</h2>
+                
+                <div class="toggle-container">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="show-formulas">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span class="toggle-label">Mostrar fórmulas</span>
+                </div>
+                
+                <div class="metrics-grid">
+                    <div class="metric-card" data-metric="accuracy" data-cells="tp,tn,fp,fn">
+                        <div class="metric-header">
+                            <span class="metric-name">Accuracy</span>
+                            <span class="metric-value" id="metric-accuracy">0.85</span>
+                        </div>
+                        <span class="metric-formula">(TP + TN) / Total</span>
+                    </div>
+                    
+                    <div class="metric-card" data-metric="precision" data-cells="tp,fp">
+                        <div class="metric-header">
+                            <span class="metric-name">Precision</span>
+                            <span class="metric-value" id="metric-precision">0.91</span>
+                        </div>
+                        <span class="metric-formula">TP / (TP + FP)</span>
+                    </div>
+                    
+                    <div class="metric-card" data-metric="recall" data-cells="tp,fn">
+                        <div class="metric-header">
+                            <span class="metric-name">Recall (Sensitivity)</span>
+                            <span class="metric-value" id="metric-recall">0.83</span>
+                        </div>
+                        <span class="metric-formula">TP / (TP + FN)</span>
+                    </div>
+                    
+                    <div class="metric-card" data-metric="specificity" data-cells="tn,fp">
+                        <div class="metric-header">
+                            <span class="metric-name">Specificity</span>
+                            <span class="metric-value" id="metric-specificity">0.88</span>
+                        </div>
+                        <span class="metric-formula">TN / (TN + FP)</span>
+                    </div>
+                    
+                    <div class="metric-card" data-metric="f1" data-cells="tp,fp,fn">
+                        <div class="metric-header">
+                            <span class="metric-name">F1-Score</span>
+                            <span class="metric-value" id="metric-f1">0.87</span>
+                        </div>
+                        <span class="metric-formula">2 × (P × R) / (P + R)</span>
+                    </div>
+                    
+                    <div class="metric-card" data-metric="balanced" data-cells="tp,fn,tn,fp">
+                        <div class="metric-header">
+                            <span class="metric-name">Balanced accuracy</span>
+                            <span class="metric-value" id="metric-balanced">0.86</span>
+                        </div>
+                        <span class="metric-formula">(Sens + Spec) / 2</span>
+                    </div>
+                    
+                    <div class="metric-card" data-metric="ppv" data-cells="tp,fp">
+                        <div class="metric-header">
+                            <span class="metric-name">PPV</span>
+                            <span class="metric-value" id="metric-ppv">0.91</span>
+                        </div>
+                        <span class="metric-formula">TP / (TP + FP)</span>
+                    </div>
+                    
+                    <div class="metric-card" data-metric="npv" data-cells="tn,fn">
+                        <div class="metric-header">
+                            <span class="metric-name">NPV</span>
+                            <span class="metric-value" id="metric-npv">0.78</span>
+                        </div>
+                        <span class="metric-formula">TN / (TN + FN)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info box -->
+        <div class="info-box" id="info-box">
+            <h3 id="info-title">Selecciona una métrica</h3>
+            <p id="info-description">
+                Haz clic en cualquier métrica para ver una explicación detallada y 
+                las celdas de la matriz que utiliza para su cálculo.
+            </p>
+            <div class="cells-used" id="cells-used"></div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>Curso: Introducción al Machine Learning · Dr. Jonás Velasco Álvarez</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

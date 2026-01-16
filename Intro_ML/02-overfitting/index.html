@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Playground de overfitting | ML Interactivo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&family=Source+Serif+Pro:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #fafafa;
+            --bg-card: #ffffff;
+            --bg-code: #f5f5f5;
+            
+            --text-primary: #232f3e;
+            --text-secondary: #545b64;
+            --text-muted: #879596;
+            
+            --accent-orange: #ff9900;
+            --accent-blue: #0073bb;
+            --accent-teal: #1e8e8e;
+            
+            --class-a: #0073bb;
+            --class-b: #ff9900;
+            
+            --border-color: #e8e8e8;
+            --shadow: 0 2px 8px rgba(0,0,0,0.08);
+            
+            --font-sans: 'Source Sans Pro', -apple-system, sans-serif;
+            --font-serif: 'Source Serif Pro', Georgia, serif;
+            
+            --radius: 8px;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.6;
+            font-size: 16px;
+        }
+        
+        /* Header */
+        .header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            padding: 2rem 1.5rem;
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header h1 {
+            font-family: var(--font-serif);
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            line-height: 1.7;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+        
+        /* Controls */
+        .controls-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            align-items: flex-end;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .control-group label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 140px;
+            height: 4px;
+            background: #ddd;
+            border-radius: 2px;
+            outline: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        .slider-value {
+            min-width: 2.5rem;
+            padding: 0.25rem 0.5rem;
+            background: var(--bg-code);
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        select {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-family: inherit;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            background: var(--bg-card);
+            cursor: pointer;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            font-family: inherit;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        
+        .btn-primary {
+            background: var(--accent-blue);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #005a94;
+        }
+        
+        .btn-secondary {
+            background: var(--bg-code);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+        
+        .btn-secondary:hover {
+            background: #eee;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        /* Class selector */
+        .class-selector {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .class-btn {
+            padding: 0.5rem 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius);
+            background: var(--bg-card);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: all 0.15s;
+        }
+        
+        .class-btn.class-a {
+            color: var(--class-a);
+        }
+        
+        .class-btn.class-b {
+            color: var(--class-b);
+        }
+        
+        .class-btn.active {
+            border-color: currentColor;
+            background: currentColor;
+            color: white;
+        }
+        
+        .class-btn.class-a.active {
+            background: var(--class-a);
+            border-color: var(--class-a);
+        }
+        
+        .class-btn.class-b.active {
+            background: var(--class-b);
+            border-color: var(--class-b);
+        }
+        
+        /* Main grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 1.5rem;
+        }
+        
+        @media (max-width: 900px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Canvas card */
+        .canvas-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .canvas-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .canvas-title {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        
+        .canvas-hint {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        
+        .canvas-container {
+            position: relative;
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        #mainCanvas {
+            display: block;
+            width: 100%;
+            cursor: crosshair;
+        }
+        
+        .legend {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .info-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .info-card h3 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--bg-code);
+        }
+        
+        .metric-row:last-child {
+            border-bottom: none;
+        }
+        
+        .metric-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .metric-value {
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .metric-value.good { color: #2e7d32; }
+        .metric-value.bad { color: #c62828; }
+        
+        /* Status */
+        .status-card {
+            background: var(--bg-code);
+            border-radius: var(--radius);
+            padding: 1rem;
+        }
+        
+        .status-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+        
+        .status-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .status-underfit { color: var(--accent-blue); }
+        .status-optimal { color: #2e7d32; }
+        .status-overfit { color: #c62828; }
+        
+        /* Info box */
+        .info-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--accent-blue);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            margin-top: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .info-box h3 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--accent-blue);
+            margin-bottom: 0.5rem;
+        }
+        
+        .info-box p {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            border-top: 1px solid var(--border-color);
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1>Playground de overfitting</h1>
+            <p>
+                Dibuja puntos de dos clases y observa cómo modelos de diferente complejidad 
+                crean fronteras de decisión. Experimenta con el sobreajuste y subajuste.
+            </p>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Controles -->
+        <div class="controls-section">
+            <div class="controls">
+                <div class="control-group">
+                    <label>Clase a dibujar</label>
+                    <div class="class-selector">
+                        <button class="class-btn class-a active" id="classABtn">● Clase A</button>
+                        <button class="class-btn class-b" id="classBBtn">● Clase B</button>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label>Complejidad del modelo</label>
+                    <div class="slider-container">
+                        <input type="range" id="complexitySlider" min="1" max="10" value="1">
+                        <span class="slider-value" id="complexityValue">1</span>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label>Proporción train/test</label>
+                    <div class="slider-container">
+                        <input type="range" id="splitSlider" min="50" max="90" value="70">
+                        <span class="slider-value" id="splitValue">70%</span>
+                    </div>
+                </div>
+                
+                <div class="btn-group">
+                    <button class="btn btn-primary" id="trainBtn">▶ Entrenar modelo</button>
+                    <button class="btn btn-danger" id="clearBtn">✕ Limpiar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main content -->
+        <div class="main-grid">
+            <!-- Canvas -->
+            <div class="canvas-card">
+                <div class="canvas-header">
+                    <span class="canvas-title">Área de dibujo</span>
+                    <span class="canvas-hint">Clic para agregar puntos</span>
+                </div>
+                <div class="canvas-container">
+                    <canvas id="mainCanvas" width="600" height="450"></canvas>
+                </div>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: var(--class-a)"></div>
+                        <span>Clase A (entrenamiento)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: var(--class-a); opacity: 0.4"></div>
+                        <span>Clase A (prueba)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: var(--class-b)"></div>
+                        <span>Clase B (entrenamiento)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: var(--class-b); opacity: 0.4"></div>
+                        <span>Clase B (prueba)</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="info-card">
+                    <h3>Datos</h3>
+                    <div class="metric-row">
+                        <span class="metric-label">Puntos clase A</span>
+                        <span class="metric-value" id="countA">0</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Puntos clase B</span>
+                        <span class="metric-value" id="countB">0</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Entrenamiento</span>
+                        <span class="metric-value" id="countTrain">0</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Prueba</span>
+                        <span class="metric-value" id="countTest">0</span>
+                    </div>
+                </div>
+                
+                <div class="info-card">
+                    <h3>Rendimiento</h3>
+                    <div class="metric-row">
+                        <span class="metric-label">Accuracy train</span>
+                        <span class="metric-value" id="accTrain">—</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Accuracy test</span>
+                        <span class="metric-value" id="accTest">—</span>
+                    </div>
+                </div>
+                
+                <div class="status-card">
+                    <div class="status-label">Estado del modelo</div>
+                    <div class="status-value" id="modelStatus">Sin entrenar</div>
+                </div>
+                
+                <div class="info-card">
+                    <h3>Instrucciones</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;">
+                        1. Selecciona una clase (A o B)<br>
+                        2. Dibuja puntos en el canvas<br>
+                        3. Ajusta la complejidad<br>
+                        4. Haz clic en "Entrenar modelo"<br>
+                        5. Observa la frontera de decisión
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info box -->
+        <div class="info-box">
+            <h3>¿Qué estamos observando?</h3>
+            <p id="explanationText">
+                Dibuja puntos de dos clases diferentes y entrena un modelo para ver cómo separa las clases. 
+                Con complejidad baja, el modelo será muy simple (subajuste). Con complejidad alta, 
+                el modelo intentará memorizar cada punto (sobreajuste).
+            </p>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>Curso: Introducción al Machine Learning · Dr. Jonás Velasco Álvarez</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Métricas de regresión | ML Interactivo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&family=Source+Serif+Pro:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #fafafa;
+            --bg-card: #ffffff;
+            --bg-code: #f5f5f5;
+            
+            --text-primary: #232f3e;
+            --text-secondary: #545b64;
+            --text-muted: #879596;
+            
+            --accent-orange: #ff9900;
+            --accent-blue: #0073bb;
+            --accent-teal: #1e8e8e;
+            --accent-red: #d13212;
+            --accent-green: #1d8102;
+            
+            --point-color: #0073bb;
+            --line-color: #1e8e8e;
+            --residual-color: #d13212;
+            --outlier-color: #ff9900;
+            
+            --border-color: #e8e8e8;
+            --shadow: 0 2px 8px rgba(0,0,0,0.08);
+            
+            --font-sans: 'Source Sans Pro', -apple-system, sans-serif;
+            --font-serif: 'Source Serif Pro', Georgia, serif;
+            
+            --radius: 8px;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.6;
+            font-size: 16px;
+        }
+        
+        .header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            padding: 2rem 1.5rem;
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header h1 {
+            font-family: var(--font-serif);
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            line-height: 1.7;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+        
+        /* Controls */
+        .controls-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            align-items: flex-end;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .control-group label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            font-family: inherit;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        
+        .btn-primary {
+            background: var(--accent-blue);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #005a94;
+        }
+        
+        .btn-secondary {
+            background: var(--bg-code);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+        
+        .btn-secondary:hover {
+            background: #eee;
+        }
+        
+        .btn-warning {
+            background: var(--accent-orange);
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background: #e68a00;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        /* Toggle */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 22px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.3s;
+            border-radius: 22px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: var(--accent-blue);
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(22px);
+        }
+        
+        .toggle-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        /* Main grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 360px;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        @media (max-width: 900px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        /* Canvas */
+        .canvas-container {
+            position: relative;
+            background: var(--bg-code);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+        
+        #regressionCanvas {
+            display: block;
+            cursor: crosshair;
+        }
+        
+        .canvas-hint {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            pointer-events: none;
+        }
+        
+        /* Metrics grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+        
+        .metric-card {
+            padding: 0.75rem;
+            background: var(--bg-code);
+            border-radius: var(--radius);
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        
+        .metric-card:hover {
+            border-color: var(--accent-blue);
+        }
+        
+        .metric-card.active {
+            border-color: var(--accent-blue);
+            background: rgba(0, 115, 187, 0.1);
+        }
+        
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.25rem;
+        }
+        
+        .metric-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        
+        .metric-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+        }
+        
+        .metric-formula {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-family: monospace;
+        }
+        
+        /* Line controls */
+        .line-controls {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .line-control {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .line-control label {
+            min-width: 80px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        
+        .line-control input[type="range"] {
+            flex: 1;
+            -webkit-appearance: none;
+            height: 6px;
+            background: #ddd;
+            border-radius: 3px;
+        }
+        
+        .line-control input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: var(--line-color);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        .line-value {
+            min-width: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-align: right;
+            font-family: monospace;
+        }
+        
+        /* Equation display */
+        .equation-display {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background: var(--bg-code);
+            border-radius: var(--radius);
+            text-align: center;
+            font-family: monospace;
+            font-size: 1rem;
+        }
+        
+        .equation-display .fitted {
+            color: var(--line-color);
+            font-weight: 600;
+        }
+        
+        /* Stats summary */
+        .stats-summary {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background: var(--bg-code);
+            border-radius: var(--radius);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+        }
+        
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .stat-label {
+            color: var(--text-muted);
+        }
+        
+        .stat-value {
+            font-weight: 600;
+        }
+        
+        /* Info box */
+        .info-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--accent-blue);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .info-box h3 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--accent-blue);
+            margin-bottom: 0.5rem;
+        }
+        
+        .info-box p {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+        
+        .info-box code {
+            background: var(--bg-code);
+            padding: 0.1rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            border-top: 1px solid var(--border-color);
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1>Métricas de regresión</h1>
+            <p>
+                Visualiza y compara diferentes métricas de regresión. Arrastra puntos,
+                añade outliers y observa cómo cada métrica responde a los cambios.
+            </p>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Controls -->
+        <div class="controls-section">
+            <div class="controls">
+                <div class="control-group">
+                    <div class="toggle-container">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="showResiduals" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="toggle-label">Mostrar residuos</span>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <div class="toggle-container">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="autoFit" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="toggle-label">Auto-ajustar línea</span>
+                    </div>
+                </div>
+                
+                <div class="btn-group">
+                    <button class="btn btn-warning" id="addOutlierBtn">⚠️ Añadir outlier</button>
+                    <button class="btn btn-secondary" id="resetBtn">↻ Reiniciar</button>
+                    <button class="btn btn-secondary" id="sampleBtn">📊 Datos de ejemplo</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main grid -->
+        <div class="main-grid">
+            <!-- Canvas -->
+            <div class="card">
+                <h2 class="section-title">Scatter plot</h2>
+                <div class="canvas-container">
+                    <canvas id="regressionCanvas" width="600" height="450"></canvas>
+                    <div class="canvas-hint" id="canvasHint">Clic para añadir · Arrastrar para mover · Doble clic para eliminar</div>
+                </div>
+            </div>
+            
+            <!-- Metrics panel -->
+            <div class="card">
+                <h2 class="section-title">Métricas de error</h2>
+                
+                <div class="metrics-grid">
+                    <div class="metric-card" data-metric="mae">
+                        <div class="metric-header">
+                            <span class="metric-name">MAE</span>
+                            <span class="metric-value" id="metricMAE">—</span>
+                        </div>
+                        <span class="metric-formula">Σ|yᵢ - ŷᵢ| / n</span>
+                    </div>
+                    
+                    <div class="metric-card" data-metric="mse">
+                        <div class="metric-header">
+                            <span class="metric-name">MSE</span>
+                            <span class="metric-value" id="metricMSE">—</span>
+                        </div>
+                        <span class="metric-formula">Σ(yᵢ - ŷᵢ)² / n</span>
+                    </div>
+                    
+                    <div class="metric-card" data-metric="rmse">
+                        <div class="metric-header">
+                            <span class="metric-name">RMSE</span>
+                            <span class="metric-value" id="metricRMSE">—</span>
+                        </div>
+                        <span class="metric-formula">√(MSE)</span>
+                    </div>
+                    
+                    <div class="metric-card" data-metric="mape">
+                        <div class="metric-header">
+                            <span class="metric-name">MAPE</span>
+                            <span class="metric-value" id="metricMAPE">—</span>
+                        </div>
+                        <span class="metric-formula">Σ|yᵢ - ŷᵢ|/|yᵢ| / n</span>
+                    </div>
+                    
+                    <div class="metric-card" data-metric="r2">
+                        <div class="metric-header">
+                            <span class="metric-name">R²</span>
+                            <span class="metric-value" id="metricR2">—</span>
+                        </div>
+                        <span class="metric-formula">1 - SS_res/SS_tot</span>
+                    </div>
+                    
+                    <div class="metric-card" data-metric="r2adj">
+                        <div class="metric-header">
+                            <span class="metric-name">R² ajustado</span>
+                            <span class="metric-value" id="metricR2Adj">—</span>
+                        </div>
+                        <span class="metric-formula">1-(1-R²)(n-1)/(n-p-1)</span>
+                    </div>
+                </div>
+                
+                <div class="line-controls">
+                    <h3 style="font-size: 0.9rem; margin-bottom: 0.75rem;">Ajuste manual de línea</h3>
+                    
+                    <div class="line-control">
+                        <label>Pendiente (m):</label>
+                        <input type="range" id="slopeSlider" min="-200" max="200" value="100">
+                        <span class="line-value" id="slopeValue">1.00</span>
+                    </div>
+                    
+                    <div class="line-control">
+                        <label>Intercepto (b):</label>
+                        <input type="range" id="interceptSlider" min="-200" max="200" value="0">
+                        <span class="line-value" id="interceptValue">0.00</span>
+                    </div>
+                </div>
+                
+                <div class="equation-display">
+                    <span>ŷ = </span>
+                    <span class="fitted" id="equationSlope">1.00</span>
+                    <span>x + </span>
+                    <span class="fitted" id="equationIntercept">0.00</span>
+                </div>
+                
+                <div class="stats-summary">
+                    <div class="stat-item">
+                        <span class="stat-label">Puntos:</span>
+                        <span class="stat-value" id="statPoints">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Outliers:</span>
+                        <span class="stat-value" id="statOutliers">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Media Y:</span>
+                        <span class="stat-value" id="statMeanY">—</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Desv. Y:</span>
+                        <span class="stat-value" id="statStdY">—</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info box -->
+        <div class="info-box">
+            <h3 id="infoTitle">Comparación de métricas</h3>
+            <p id="infoText">
+                <strong>MAE</strong> es robusto a outliers, <strong>MSE/RMSE</strong> penalizan más los errores grandes.
+                <strong>MAPE</strong> da errores en porcentaje (problemas con y ≈ 0).
+                <strong>R²</strong> indica varianza explicada (1 = perfecto, 0 = igual que la media).
+                Añade outliers para ver cómo afectan a cada métrica.
+            </p>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>Curso: Introducción al Machine Learning · Dr. Jonás Velasco Álvarez</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

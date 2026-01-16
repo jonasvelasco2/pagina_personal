@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recursos interactivos | Machine Learning</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&family=Source+Serif+Pro:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #fafafa;
+            --bg-card: #ffffff;
+            --bg-code: #f5f5f5;
+            
+            --text-primary: #232f3e;
+            --text-secondary: #545b64;
+            --text-muted: #879596;
+            
+            --accent-orange: #ff9900;
+            --accent-blue: #0073bb;
+            --accent-teal: #1e8e8e;
+            --accent-purple: #7b68ee;
+            
+            --border-color: #e8e8e8;
+            --shadow: 0 2px 8px rgba(0,0,0,0.08);
+            
+            --font-sans: 'Source Sans Pro', -apple-system, sans-serif;
+            --font-serif: 'Source Serif Pro', Georgia, serif;
+            
+            --radius: 8px;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.6;
+            font-size: 16px;
+        }
+        
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        /* Hero */
+        .hero {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            padding: 3rem 1.5rem;
+            text-align: center;
+        }
+        
+        .hero h1 {
+            font-family: var(--font-serif);
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+        
+        .hero p {
+            font-size: 1.15rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.7;
+        }
+        
+        /* Section */
+        .section-title {
+            text-align: center;
+            padding: 2.5rem 1rem 1.5rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+        
+        /* Grid */
+        .resource-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+            padding: 0 1.5rem 3rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        /* Card */
+        .resource-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .resource-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+        }
+        
+        .resource-card.available:hover {
+            border-color: var(--accent-blue);
+        }
+        
+        .resource-card.coming-soon {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        
+        .resource-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .resource-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .resource-category {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--accent-blue);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+        }
+        
+        .resource-title {
+            font-family: var(--font-serif);
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .resource-body {
+            padding: 1.5rem;
+            flex: 1;
+        }
+        
+        .resource-description {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+        
+        .resource-features {
+            list-style: none;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        
+        .resource-features li {
+            padding: 0.3rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .resource-features li::before {
+            content: '✓';
+            color: var(--accent-teal);
+            font-weight: 600;
+        }
+        
+        .resource-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-code);
+        }
+        
+        .status-available {
+            color: var(--accent-teal);
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .status-coming {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+        
+        .btn-explore {
+            padding: 0.4rem 1rem;
+            background: var(--accent-blue);
+            color: white;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: background 0.15s;
+        }
+        
+        .btn-explore:hover {
+            background: #005a94;
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .footer p + p {
+            margin-top: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <h1>Recursos interactivos de ML</h1>
+        <p>
+            Visualizaciones interactivas para entender los conceptos fundamentales 
+            del machine learning. Aprende experimentando.
+        </p>
+    </div>
+
+    <h2 class="section-title">Recursos disponibles</h2>
+
+    <div class="resource-grid">
+        <!-- Bias-Variance (Disponible) -->
+        <a href="01-bias-variance/index.html" class="resource-card available">
+            <div class="resource-header">
+                <div class="resource-icon">📈</div>
+                <div class="resource-category">Fundamentos</div>
+                <div class="resource-title">Tradeoff sesgo-varianza</div>
+            </div>
+            <div class="resource-body">
+                <p class="resource-description">
+                    Explora cómo la complejidad del modelo afecta el balance entre 
+                    sesgo y varianza. Ajusta el grado del polinomio y observa los efectos.
+                </p>
+                <ul class="resource-features">
+                    <li>Slider de complejidad del modelo</li>
+                    <li>Visualización de overfitting/underfitting</li>
+                    <li>Gráfico de error train vs test</li>
+                    <li>Animación automática</li>
+                </ul>
+            </div>
+            <div class="resource-footer">
+                <span class="status-available">✓ Disponible</span>
+                <span class="btn-explore">Explorar →</span>
+            </div>
+        </a>
+
+        <!-- Overfitting (Disponible) -->
+        <a href="02-overfitting/index.html" class="resource-card available">
+            <div class="resource-header">
+                <div class="resource-icon">🎯</div>
+                <div class="resource-category">Fundamentos</div>
+                <div class="resource-title">Playground de overfitting</div>
+            </div>
+            <div class="resource-body">
+                <p class="resource-description">
+                    Dibuja puntos de dos clases y observa cómo diferentes modelos 
+                    crean fronteras de decisión con distintos niveles de complejidad.
+                </p>
+                <ul class="resource-features">
+                    <li>Canvas interactivo para dibujar</li>
+                    <li>Clasificador K-NN ajustable</li>
+                    <li>Frontera de decisión en tiempo real</li>
+                    <li>Métricas train vs test</li>
+                </ul>
+            </div>
+            <div class="resource-footer">
+                <span class="status-available">✓ Disponible</span>
+                <span class="btn-explore">Explorar →</span>
+            </div>
+        </a>
+
+        <!-- Train-Test Split (Disponible) -->
+        <a href="03-train-test-split/index.html" class="resource-card available">
+            <div class="resource-header">
+                <div class="resource-icon">✂️</div>
+                <div class="resource-category">Validación</div>
+                <div class="resource-title">División train-test</div>
+            </div>
+            <div class="resource-body">
+                <p class="resource-description">
+                    Visualiza la importancia de separar datos de entrenamiento y prueba. 
+                    Ajusta las proporciones y observa el impacto.
+                </p>
+                <ul class="resource-features">
+                    <li>Slider de proporción train/test</li>
+                    <li>Animación de partición</li>
+                    <li>Curva de aprendizaje</li>
+                    <li>Comparación de métricas</li>
+                </ul>
+            </div>
+            <div class="resource-footer">
+                <span class="status-available">✓ Disponible</span>
+                <span class="btn-explore">Explorar →</span>
+            </div>
+        </a>
+
+        <!-- Cross-Validation (Disponible) -->
+        <a href="04-cross-validation/index.html" class="resource-card available">
+            <div class="resource-header">
+                <div class="resource-icon">🔄</div>
+                <div class="resource-category">Validación</div>
+                <div class="resource-title">Validación cruzada K-fold</div>
+            </div>
+            <div class="resource-body">
+                <p class="resource-description">
+                    Animación paso a paso de la validación cruzada. Observa cómo 
+                    cada fold se usa como conjunto de validación.
+                </p>
+                <ul class="resource-features">
+                    <li>Slider para K (2-10)</li>
+                    <li>Animación de cada fold</li>
+                    <li>Tabla con MSE por fold</li>
+                    <li>Promedio y desviación estándar</li>
+                </ul>
+            </div>
+            <div class="resource-footer">
+                <span class="status-available">✓ Disponible</span>
+                <span class="btn-explore">Explorar →</span>
+            </div>
+        </a>
+
+        <!-- Confusion Matrix (Disponible) -->
+        <a href="05-confusion-matrix/index.html" class="resource-card available">
+            <div class="resource-header">
+                <div class="resource-icon">🔢</div>
+                <div class="resource-category">Evaluación</div>
+                <div class="resource-title">Matriz de confusión</div>
+            </div>
+            <div class="resource-body">
+                <p class="resource-description">
+                    Matriz de confusión interactiva. Modifica los valores y observa 
+                    cómo cambian todas las métricas de clasificación.
+                </p>
+                <ul class="resource-features">
+                    <li>Entrada interactiva de valores</li>
+                    <li>8 métricas calculadas automáticamente</li>
+                    <li>6 escenarios predefinidos</li>
+                    <li>Resaltado de celdas por métrica</li>
+                </ul>
+            </div>
+            <div class="resource-footer">
+                <span class="status-available">✓ Disponible</span>
+                <span class="btn-explore">Explorar →</span>
+            </div>
+        </a>
+
+        <!-- ROC Curve (Disponible) -->
+        <a href="06-roc-curve/index.html" class="resource-card available">
+            <div class="resource-header">
+                <div class="resource-icon">📉</div>
+                <div class="resource-category">Evaluación</div>
+                <div class="resource-title">Constructor de curva ROC</div>
+            </div>
+            <div class="resource-body">
+                <p class="resource-description">
+                    Construye la curva ROC punto a punto. Ajusta el umbral de 
+                    clasificación y observa cómo cambia TPR y FPR.
+                </p>
+                <ul class="resource-features">
+                    <li>Slider de umbral interactivo</li>
+                    <li>Histograma de distribuciones</li>
+                    <li>Animación de construcción</li>
+                    <li>Parámetros de distribución ajustables</li>
+                </ul>
+            </div>
+            <div class="resource-footer">
+                <span class="status-available">✓ Disponible</span>
+                <span class="btn-explore">Explorar →</span>
+            </div>
+        </a>
+
+        <!-- K-NN (Disponible) -->
+        <a href="07-knn-classifier/index.html" class="resource-card available">
+            <div class="resource-header">
+                <div class="resource-icon">🎪</div>
+                <div class="resource-category">Algoritmos</div>
+                <div class="resource-title">Clasificador K-NN</div>
+            </div>
+            <div class="resource-body">
+                <p class="resource-description">
+                    Visualiza el algoritmo K-Nearest Neighbors. Haz clic para clasificar 
+                    puntos y observa los K vecinos más cercanos.
+                </p>
+                <ul class="resource-features">
+                    <li>Dibujar puntos de 3 clases</li>
+                    <li>Animación de búsqueda de vecinos</li>
+                    <li>Visualización de votos</li>
+                    <li>Toggle frontera de decisión</li>
+                </ul>
+            </div>
+            <div class="resource-footer">
+                <span class="status-available">✓ Disponible</span>
+                <span class="btn-explore">Explorar →</span>
+            </div>
+        </a>
+
+        <!-- K-Means (Disponible) -->
+        <a href="08-kmeans-clustering/index.html" class="resource-card available">
+            <div class="resource-header">
+                <div class="resource-icon">🎨</div>
+                <div class="resource-category">Algoritmos</div>
+                <div class="resource-title">Clustering K-Means</div>
+            </div>
+            <div class="resource-body">
+                <p class="resource-description">
+                    Animación paso a paso del algoritmo K-Means. Observa cómo los 
+                    centroides se mueven y los puntos se reasignan.
+                </p>
+                <ul class="resource-features">
+                    <li>4 datasets: blobs, círculos, lunas, aleatorio</li>
+                    <li>Animación paso a paso</li>
+                    <li>Gráfico de inercia</li>
+                    <li>Inicialización K-means++</li>
+                </ul>
+            </div>
+            <div class="resource-footer">
+                <span class="status-available">✓ Disponible</span>
+                <span class="btn-explore">Explorar →</span>
+            </div>
+        </a>
+
+        <!-- Regression Metrics (Disponible) -->
+        <a href="09-regression-metrics/index.html" class="resource-card available">
+            <div class="resource-header">
+                <div class="resource-icon">📏</div>
+                <div class="resource-category">Evaluación</div>
+                <div class="resource-title">Métricas de regresión</div>
+            </div>
+            <div class="resource-body">
+                <p class="resource-description">
+                    Compara MAE, MSE, RMSE, MAPE y R². Arrastra puntos, añade 
+                    outliers y observa cómo afectan a cada métrica.
+                </p>
+                <ul class="resource-features">
+                    <li>Drag & drop de puntos</li>
+                    <li>Visualización de residuos</li>
+                    <li>Añadir outliers</li>
+                    <li>Ajuste manual o automático</li>
+                </ul>
+            </div>
+            <div class="resource-footer">
+                <span class="status-available">✓ Disponible</span>
+                <span class="btn-explore">Explorar →</span>
+            </div>
+        </a>
+    </div>
+
+    <footer class="footer">
+        <p>Curso: Introducción al Machine Learning</p>
+        <p>Dr. Jonás Velasco Álvarez · 2026</p>
+    </footer>
+</body>
+</html>

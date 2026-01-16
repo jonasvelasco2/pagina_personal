@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clasificador K-NN visual | ML Interactivo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&family=Source+Serif+Pro:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #fafafa;
+            --bg-card: #ffffff;
+            --bg-code: #f5f5f5;
+            
+            --text-primary: #232f3e;
+            --text-secondary: #545b64;
+            --text-muted: #879596;
+            
+            --accent-orange: #ff9900;
+            --accent-blue: #0073bb;
+            --accent-teal: #1e8e8e;
+            --accent-red: #d13212;
+            --accent-green: #1d8102;
+            --accent-purple: #7b68ee;
+            
+            --class-a: #0073bb;
+            --class-b: #ff9900;
+            --class-c: #1d8102;
+            --query-point: #d13212;
+            
+            --border-color: #e8e8e8;
+            --shadow: 0 2px 8px rgba(0,0,0,0.08);
+            
+            --font-sans: 'Source Sans Pro', -apple-system, sans-serif;
+            --font-serif: 'Source Serif Pro', Georgia, serif;
+            
+            --radius: 8px;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.6;
+            font-size: 16px;
+        }
+        
+        .header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            padding: 2rem 1.5rem;
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header h1 {
+            font-family: var(--font-serif);
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            line-height: 1.7;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+        
+        /* Controls */
+        .controls-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            align-items: flex-end;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .control-group label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 150px;
+            height: 6px;
+            background: #ddd;
+            border-radius: 3px;
+            outline: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .slider-value {
+            min-width: 2.5rem;
+            padding: 0.25rem 0.5rem;
+            background: var(--bg-code);
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: 700;
+            text-align: center;
+            color: var(--accent-blue);
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            font-family: inherit;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        
+        .btn-primary {
+            background: var(--accent-blue);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #005a94;
+        }
+        
+        .btn-secondary {
+            background: var(--bg-code);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+        
+        .btn-secondary:hover {
+            background: #eee;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        /* Class selector */
+        .class-selector {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .class-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: white;
+        }
+        
+        .class-btn.class-a { background: var(--class-a); }
+        .class-btn.class-b { background: var(--class-b); }
+        .class-btn.class-c { background: var(--class-c); }
+        
+        .class-btn.active {
+            border-color: var(--text-primary);
+            transform: scale(1.1);
+        }
+        
+        /* Toggle */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 22px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.3s;
+            border-radius: 22px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: var(--accent-blue);
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(22px);
+        }
+        
+        .toggle-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        /* Main grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        @media (max-width: 900px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        /* Canvas */
+        .canvas-container {
+            position: relative;
+            background: var(--bg-code);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+        
+        #knnCanvas {
+            display: block;
+            cursor: crosshair;
+        }
+        
+        .canvas-hint {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            pointer-events: none;
+        }
+        
+        /* Prediction panel */
+        .prediction-panel {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--bg-code);
+            border-radius: var(--radius);
+            text-align: center;
+        }
+        
+        .prediction-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+        
+        .prediction-result {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .prediction-result.class-a { color: var(--class-a); }
+        .prediction-result.class-b { color: var(--class-b); }
+        .prediction-result.class-c { color: var(--class-c); }
+        .prediction-result.none { color: var(--text-muted); }
+        
+        /* Voting */
+        .voting-section {
+            margin-top: 1rem;
+        }
+        
+        .voting-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--text-secondary);
+        }
+        
+        .voting-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .voting-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .voting-class {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: white;
+        }
+        
+        .voting-class.class-a { background: var(--class-a); }
+        .voting-class.class-b { background: var(--class-b); }
+        .voting-class.class-c { background: var(--class-c); }
+        
+        .voting-track {
+            flex: 1;
+            height: 20px;
+            background: #eee;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .voting-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+        
+        .voting-fill.class-a { background: var(--class-a); }
+        .voting-fill.class-b { background: var(--class-b); }
+        .voting-fill.class-c { background: var(--class-c); }
+        
+        .voting-count {
+            min-width: 2rem;
+            text-align: right;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        /* Neighbors list */
+        .neighbors-section {
+            margin-top: 1rem;
+        }
+        
+        .neighbors-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+        }
+        
+        .neighbors-list {
+            max-height: 150px;
+            overflow-y: auto;
+            font-size: 0.8rem;
+        }
+        
+        .neighbor-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.3rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .neighbor-rank {
+            width: 20px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+        
+        .neighbor-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .neighbor-dot.class-a { background: var(--class-a); }
+        .neighbor-dot.class-b { background: var(--class-b); }
+        .neighbor-dot.class-c { background: var(--class-c); }
+        
+        .neighbor-dist {
+            color: var(--text-secondary);
+            font-family: monospace;
+        }
+        
+        /* Info box */
+        .info-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--accent-blue);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .info-box h3 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--accent-blue);
+            margin-bottom: 0.5rem;
+        }
+        
+        .info-box p {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            border-top: 1px solid var(--border-color);
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1>Clasificador K-NN visual</h1>
+            <p>
+                Entiende cómo funciona K-Nearest Neighbors. Dibuja puntos de entrenamiento,
+                haz clic para clasificar nuevos puntos y observa cómo votan los K vecinos más cercanos.
+            </p>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Controls -->
+        <div class="controls-section">
+            <div class="controls">
+                <div class="control-group">
+                    <label>Valor de K</label>
+                    <div class="slider-container">
+                        <input type="range" id="kSlider" min="1" max="15" value="3">
+                        <span class="slider-value" id="kValue">3</span>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label>Clase a dibujar</label>
+                    <div class="class-selector">
+                        <button class="class-btn class-a active" data-class="A">A</button>
+                        <button class="class-btn class-b" data-class="B">B</button>
+                        <button class="class-btn class-c" data-class="C">C</button>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label>Modo</label>
+                    <div class="class-selector">
+                        <button class="btn btn-secondary" id="modeDrawBtn">✏️ Dibujar</button>
+                        <button class="btn btn-primary" id="modeClassifyBtn">🎯 Clasificar</button>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <div class="toggle-container">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="showBoundary">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="toggle-label">Frontera de decisión</span>
+                    </div>
+                </div>
+                
+                <div class="btn-group">
+                    <button class="btn btn-secondary" id="animateBtn">▶ Animar búsqueda</button>
+                    <button class="btn btn-secondary" id="clearBtn">🗑️ Limpiar</button>
+                    <button class="btn btn-secondary" id="sampleBtn">📊 Datos de ejemplo</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main grid -->
+        <div class="main-grid">
+            <!-- Canvas -->
+            <div class="card">
+                <h2 class="section-title">Espacio de características</h2>
+                <div class="canvas-container">
+                    <canvas id="knnCanvas" width="600" height="450"></canvas>
+                    <div class="canvas-hint" id="canvasHint">Clic izquierdo para añadir puntos</div>
+                </div>
+            </div>
+            
+            <!-- Results panel -->
+            <div class="card">
+                <h2 class="section-title">Clasificación</h2>
+                
+                <div class="prediction-panel">
+                    <div class="prediction-label">Predicción</div>
+                    <div class="prediction-result none" id="predictionResult">—</div>
+                </div>
+                
+                <div class="voting-section">
+                    <div class="voting-title">Votación de los K vecinos</div>
+                    <div class="voting-bars">
+                        <div class="voting-bar">
+                            <div class="voting-class class-a">A</div>
+                            <div class="voting-track">
+                                <div class="voting-fill class-a" id="voteBarA" style="width: 0%"></div>
+                            </div>
+                            <span class="voting-count" id="voteCountA">0</span>
+                        </div>
+                        <div class="voting-bar">
+                            <div class="voting-class class-b">B</div>
+                            <div class="voting-track">
+                                <div class="voting-fill class-b" id="voteBarB" style="width: 0%"></div>
+                            </div>
+                            <span class="voting-count" id="voteCountB">0</span>
+                        </div>
+                        <div class="voting-bar">
+                            <div class="voting-class class-c">C</div>
+                            <div class="voting-track">
+                                <div class="voting-fill class-c" id="voteBarC" style="width: 0%"></div>
+                            </div>
+                            <span class="voting-count" id="voteCountC">0</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="neighbors-section">
+                    <div class="neighbors-title">Vecinos más cercanos</div>
+                    <div class="neighbors-list" id="neighborsList">
+                        <p style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 1rem;">
+                            Haz clic en el canvas para clasificar un punto
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info box -->
+        <div class="info-box">
+            <h3 id="infoTitle">¿Cómo funciona K-NN?</h3>
+            <p id="infoText">
+                K-Nearest Neighbors es un algoritmo de clasificación que asigna la clase 
+                de un punto basándose en los K puntos de entrenamiento más cercanos. 
+                La clase con más "votos" entre los vecinos es la predicción final. 
+                Un K pequeño puede causar overfitting, mientras que un K grande puede 
+                perder detalles locales.
+            </p>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>Curso: Introducción al Machine Learning · Dr. Jonás Velasco Álvarez</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
