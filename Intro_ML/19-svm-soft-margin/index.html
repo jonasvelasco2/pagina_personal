@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVM: Margen suave | ML Interactivo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&family=Source+Serif+Pro:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #fafafa;
+            --bg-card: #ffffff;
+            --bg-code: #f5f5f5;
+            
+            --text-primary: #232f3e;
+            --text-secondary: #545b64;
+            --text-muted: #879596;
+            
+            --accent-orange: #ff9900;
+            --accent-blue: #0073bb;
+            --accent-teal: #1e8e8e;
+            --accent-red: #d13212;
+            --accent-green: #1d8102;
+            --accent-purple: #7b68ee;
+            
+            --class-neg: #0073bb;
+            --class-pos: #ff9900;
+            
+            --border-color: #e8e8e8;
+            --shadow: 0 2px 8px rgba(0,0,0,0.08);
+            
+            --font-sans: 'Source Sans Pro', -apple-system, sans-serif;
+            --font-serif: 'Source Serif Pro', Georgia, serif;
+            
+            --radius: 8px;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.6;
+            font-size: 16px;
+        }
+        
+        .header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.5rem;
+        }
+        
+        .header-content {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+        
+        .header h1 {
+            font-family: var(--font-serif);
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+        }
+        
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+        
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 1.5rem;
+        }
+        
+        @media (max-width: 1000px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+        
+        .card-header {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-code);
+        }
+        
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        
+        .card-body {
+            padding: 1rem;
+        }
+        
+        /* Canvas */
+        .canvas-container {
+            background: var(--bg-code);
+            border-radius: var(--radius);
+            overflow: hidden;
+            position: relative;
+            border: 1px solid var(--border-color);
+        }
+        
+        #mainCanvas {
+            display: block;
+        }
+        
+        .canvas-hint {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(255,255,255,0.95);
+            padding: 0.4rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        
+        /* Controls */
+        .section-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.75rem;
+        }
+        
+        .control-group {
+            margin-bottom: 1rem;
+        }
+        
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .control-value {
+            font-family: 'Courier New', monospace;
+            background: var(--bg-code);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+        
+        /* Custom slider for C */
+        .c-slider-container {
+            position: relative;
+            padding: 0.5rem 0;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            -webkit-appearance: none;
+            border-radius: 4px;
+            outline: none;
+        }
+        
+        #cSlider {
+            background: linear-gradient(to right, 
+                var(--accent-green) 0%, 
+                var(--accent-orange) 50%, 
+                var(--accent-red) 100%);
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 22px;
+            height: 22px;
+            background: white;
+            border: 3px solid var(--accent-blue);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+        
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+        
+        /* Buttons */
+        .btn {
+            width: 100%;
+            padding: 0.6rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            font-family: inherit;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+        }
+        
+        .btn-secondary {
+            background: var(--bg-code);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+        
+        .btn-secondary:hover {
+            background: #eee;
+        }
+        
+        /* Metrics */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        
+        .metric-card {
+            background: var(--bg-code);
+            border-radius: var(--radius);
+            padding: 0.6rem;
+            text-align: center;
+        }
+        
+        .metric-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .metric-value.accuracy { color: var(--accent-green); }
+        .metric-value.margin { color: var(--accent-blue); }
+        .metric-value.violations { color: var(--accent-red); }
+        .metric-value.sv { color: var(--accent-purple); }
+        
+        .metric-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 0.1rem;
+        }
+        
+        /* C explanation box */
+        .c-explanation {
+            background: linear-gradient(135deg, rgba(0,115,187,0.08) 0%, rgba(30,142,142,0.08) 100%);
+            border: 1px solid rgba(0,115,187,0.2);
+            border-radius: var(--radius);
+            padding: 0.75rem;
+            margin-top: 1rem;
+            font-size: 0.8rem;
+            line-height: 1.5;
+        }
+        
+        .c-explanation .highlight {
+            font-weight: 600;
+        }
+        
+        .c-explanation .c-small { color: var(--accent-green); }
+        .c-explanation .c-large { color: var(--accent-red); }
+        
+        /* Status legend */
+        .status-legend {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.75rem;
+        }
+        
+        .status-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 2px solid;
+        }
+        
+        .status-dot.correct {
+            background: var(--accent-green);
+            border-color: var(--accent-green);
+        }
+        
+        .status-dot.in-margin {
+            background: var(--accent-orange);
+            border-color: var(--accent-orange);
+        }
+        
+        .status-dot.error {
+            background: var(--accent-red);
+            border-color: var(--accent-red);
+        }
+        
+        .status-dot.support {
+            background: var(--accent-purple);
+            border-color: #333;
+        }
+        
+        /* Legend */
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 0.75rem;
+            font-size: 0.8rem;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .legend-line {
+            width: 20px;
+            height: 3px;
+            border-radius: 2px;
+        }
+        
+        /* Preset buttons */
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .preset-btn {
+            padding: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            font-family: inherit;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        
+        .preset-btn:hover {
+            border-color: var(--accent-blue);
+            background: rgba(0, 115, 187, 0.05);
+        }
+        
+        /* Slack variables display */
+        .slack-info {
+            background: var(--bg-code);
+            border-radius: var(--radius);
+            padding: 0.75rem;
+            margin-top: 1rem;
+            font-size: 0.8rem;
+        }
+        
+        .slack-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .slack-formula {
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-top: 0.5rem;
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 1.5rem 1rem;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            border-top: 1px solid var(--border-color);
+            margin-top: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1>SVM: Margen suave y parámetro C</h1>
+            <p>
+                Explora cómo el parámetro C controla el balance entre maximizar el margen 
+                y permitir violaciones cuando los datos no son perfectamente separables.
+            </p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="main-grid">
+            <!-- Main visualization -->
+            <div>
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Clasificador SVM con margen suave</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="canvas-container">
+                            <canvas id="mainCanvas" width="700" height="500"></canvas>
+                            <div class="canvas-hint">
+                                Las líneas punteadas muestran ξᵢ (variables de holgura)
+                            </div>
+                        </div>
+                        
+                        <div class="legend">
+                            <div class="legend-item">
+                                <span class="legend-dot" style="background: var(--class-neg);"></span>
+                                <span>Clase -1</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-dot" style="background: var(--class-pos);"></span>
+                                <span>Clase +1</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-line" style="background: #333;"></span>
+                                <span>Hiperplano</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-line" style="background: #999; border: 1px dashed #666;"></span>
+                                <span>Márgenes (±1)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Controls panel -->
+            <div>
+                <!-- C parameter -->
+                <div class="card" style="margin-bottom: 1rem;">
+                    <div class="card-body">
+                        <div class="section-label">Parámetro de regularización</div>
+                        <div class="control-group">
+                            <div class="control-label">
+                                <span>C (penalización)</span>
+                                <span class="control-value" id="cValue">1.00</span>
+                            </div>
+                            <div class="c-slider-container">
+                                <input type="range" id="cSlider" min="-2" max="3" step="0.1" value="0">
+                                <div class="slider-labels">
+                                    <span>C pequeño<br>(margen grande)</span>
+                                    <span>C grande<br>(pocos errores)</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="c-explanation" id="cExplanation">
+                            <span class="highlight c-small">C = 1.00:</span> Balance entre margen y errores.
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Metrics -->
+                <div class="card" style="margin-bottom: 1rem;">
+                    <div class="card-body">
+                        <div class="section-label">Métricas del modelo</div>
+                        <div class="metrics-grid">
+                            <div class="metric-card">
+                                <div class="metric-value accuracy" id="metricAccuracy">100%</div>
+                                <div class="metric-label">Accuracy</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value margin" id="metricMargin">0.00</div>
+                                <div class="metric-label">Margen (M)</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value violations" id="metricViolations">0</div>
+                                <div class="metric-label">Violaciones</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value sv" id="metricSV">0</div>
+                                <div class="metric-label">Vectores soporte</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Point status legend -->
+                        <div class="section-label" style="margin-top: 0.5rem;">Estado de los puntos</div>
+                        <div class="status-legend">
+                            <div class="status-item">
+                                <span class="status-dot correct"></span>
+                                <span>Correcto (fuera margen)</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-dot in-margin"></span>
+                                <span>En el margen (0 < ξ < 1)</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-dot error"></span>
+                                <span>Error (ξ ≥ 1)</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-dot support"></span>
+                                <span>Vector de soporte (anillo morado)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Slack variables info -->
+                <div class="card" style="margin-bottom: 1rem;">
+                    <div class="card-body">
+                        <div class="slack-info">
+                            <div class="slack-title">
+                                📊 Variables de holgura (ξᵢ)
+                            </div>
+                            <div>
+                                <strong>Σξᵢ = <span id="sumSlack">0.00</span></strong>
+                                (suma de violaciones)
+                            </div>
+                            <div class="slack-formula">
+                                min ½||β||² + C·Σξᵢ
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Data presets -->
+                <div class="card">
+                    <div class="card-body">
+                        <div class="section-label">Datos de ejemplo</div>
+                        <div class="preset-grid">
+                            <button class="preset-btn" data-preset="overlap">Solapados</button>
+                            <button class="preset-btn" data-preset="outlier">Con outlier</button>
+                            <button class="preset-btn" data-preset="noisy">Ruidosos</button>
+                            <button class="preset-btn" data-preset="separable">Separables</button>
+                        </div>
+                        
+                        <button class="btn btn-secondary" id="resetBtn" style="margin-top: 1rem;">
+                            🔄 Reiniciar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>Curso: Introducción al Machine Learning · Dr. Jonás Velasco Álvarez</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

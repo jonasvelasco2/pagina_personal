@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entropía cruzada | ML Interactivo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&family=Source+Serif+Pro:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #fafafa;
+            --bg-card: #ffffff;
+            --bg-code: #f5f5f5;
+            
+            --text-primary: #232f3e;
+            --text-secondary: #545b64;
+            --text-muted: #879596;
+            
+            --accent-orange: #ff9900;
+            --accent-blue: #0073bb;
+            --accent-teal: #1e8e8e;
+            --accent-red: #d13212;
+            --accent-green: #1d8102;
+            --accent-purple: #7b68ee;
+            
+            --border-color: #e8e8e8;
+            --shadow: 0 2px 8px rgba(0,0,0,0.08);
+            
+            --font-sans: 'Source Sans Pro', -apple-system, sans-serif;
+            --font-serif: 'Source Serif Pro', Georgia, serif;
+            
+            --radius: 8px;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.6;
+            font-size: 16px;
+        }
+        
+        .header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.5rem;
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header h1 {
+            font-family: var(--font-serif);
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+        
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+        
+        @media (max-width: 900px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+        
+        .card-header {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-code);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        
+        .card-body {
+            padding: 1rem;
+        }
+        
+        .canvas-container {
+            background: var(--bg-code);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+        
+        canvas {
+            display: block;
+        }
+        
+        /* Toggle buttons */
+        .toggle-group {
+            display: flex;
+            border-radius: var(--radius);
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+        
+        .toggle-btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            font-family: inherit;
+            border: none;
+            background: var(--bg-card);
+            cursor: pointer;
+            transition: all 0.15s;
+            flex: 1;
+        }
+        
+        .toggle-btn:not(:last-child) {
+            border-right: 1px solid var(--border-color);
+        }
+        
+        .toggle-btn.active {
+            background: var(--accent-blue);
+            color: white;
+        }
+        
+        .toggle-btn:hover:not(.active) {
+            background: rgba(0,115,187,0.1);
+        }
+        
+        /* Controls Panel */
+        .controls-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            margin-top: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .controls-row {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .control-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .control-value {
+            font-family: 'Courier New', monospace;
+            background: var(--bg-code);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            -webkit-appearance: none;
+            background: linear-gradient(to right, var(--accent-red), var(--accent-orange), var(--accent-green));
+            border-radius: 3px;
+            outline: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border: 3px solid var(--accent-blue);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        /* Loss Display */
+        .loss-display {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .loss-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1rem;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+        
+        .loss-card.highlight {
+            border-color: var(--accent-blue);
+            background: linear-gradient(135deg, rgba(0,115,187,0.05) 0%, rgba(30,142,142,0.05) 100%);
+        }
+        
+        .loss-value {
+            font-size: 2rem;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .loss-value.ce { color: var(--accent-blue); }
+        .loss-value.mse { color: var(--accent-purple); }
+        
+        .loss-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+        
+        .loss-formula {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+            font-family: 'Courier New', monospace;
+        }
+        
+        /* Equation Display */
+        .equation-box {
+            background: linear-gradient(135deg, rgba(0,115,187,0.05) 0%, rgba(30,142,142,0.05) 100%);
+            border: 1px solid rgba(0,115,187,0.2);
+            border-radius: var(--radius);
+            padding: 1rem;
+            margin-top: 1.5rem;
+            text-align: center;
+        }
+        
+        .equation-title {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+        
+        .equation {
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            line-height: 1.8;
+        }
+        
+        .equation .ce { color: var(--accent-blue); font-weight: 600; }
+        .equation .mse { color: var(--accent-purple); font-weight: 600; }
+        
+        /* Legend */
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 0.75rem;
+            font-size: 0.85rem;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .legend-line {
+            width: 20px;
+            height: 3px;
+            border-radius: 2px;
+        }
+        
+        /* Animate button */
+        .btn {
+            padding: 0.6rem 1.25rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            font-family: inherit;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: var(--accent-blue);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #005a94;
+        }
+        
+        .btn-primary:disabled {
+            background: var(--text-muted);
+            cursor: not-allowed;
+        }
+        
+        /* Info box */
+        .info-box {
+            background: var(--bg-code);
+            border-radius: var(--radius);
+            padding: 1rem;
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+        
+        .info-box strong {
+            color: var(--accent-blue);
+        }
+        
+        .info-box .highlight-ce {
+            color: var(--accent-blue);
+            font-weight: 600;
+        }
+        
+        .info-box .highlight-mse {
+            color: var(--accent-purple);
+            font-weight: 600;
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 1.5rem 1rem;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            border-top: 1px solid var(--border-color);
+            margin-top: 1.5rem;
+        }
+        
+        /* Animation indicator */
+        .animation-status {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-left: auto;
+        }
+        
+        .animation-status.running {
+            color: var(--accent-green);
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1>Función de pérdida: entropía cruzada</h1>
+            <p>
+                Visualiza cómo la entropía cruzada penaliza las predicciones incorrectas 
+                en clasificación binaria, comparándola con la pérdida cuadrática (MSE).
+            </p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="main-grid">
+            <!-- Panel izquierdo: Cuando y=1 -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Cuando y = 1 (clase positiva)</h2>
+                    <div class="toggle-group" style="width: 120px;">
+                        <button class="toggle-btn active" id="showY1" data-y="1">y = 1</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="canvas-container">
+                        <canvas id="canvasY1" width="450" height="300"></canvas>
+                    </div>
+                    <div class="legend">
+                        <div class="legend-item">
+                            <span class="legend-line" style="background: #0073bb;"></span>
+                            <span>Entropía cruzada: -log(ŷ)</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-line" style="background: #7b68ee;"></span>
+                            <span>MSE: (1 - ŷ)²</span>
+                        </div>
+                    </div>
+                    <div class="info-box">
+                        <p>
+                            <strong>Interpretación:</strong> Queremos que ŷ → 1.<br>
+                            • Si ŷ ≈ 1: pérdida ≈ 0 ✓<br>
+                            • Si ŷ ≈ 0: <span class="highlight-ce">CE explota a ∞</span>, 
+                              <span class="highlight-mse">MSE solo llega a 1</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Panel derecho: Cuando y=0 -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Cuando y = 0 (clase negativa)</h2>
+                    <div class="toggle-group" style="width: 120px;">
+                        <button class="toggle-btn active" id="showY0" data-y="0">y = 0</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="canvas-container">
+                        <canvas id="canvasY0" width="450" height="300"></canvas>
+                    </div>
+                    <div class="legend">
+                        <div class="legend-item">
+                            <span class="legend-line" style="background: #0073bb;"></span>
+                            <span>Entropía cruzada: -log(1-ŷ)</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-line" style="background: #7b68ee;"></span>
+                            <span>MSE: (0 - ŷ)² = ŷ²</span>
+                        </div>
+                    </div>
+                    <div class="info-box">
+                        <p>
+                            <strong>Interpretación:</strong> Queremos que ŷ → 0.<br>
+                            • Si ŷ ≈ 0: pérdida ≈ 0 ✓<br>
+                            • Si ŷ ≈ 1: <span class="highlight-ce">CE explota a ∞</span>, 
+                              <span class="highlight-mse">MSE solo llega a 1</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Controls -->
+        <div class="controls-panel">
+            <div class="controls-row">
+                <div class="control-group" style="flex: 2;">
+                    <div class="control-label">
+                        <span>Predicción del modelo (ŷ)</span>
+                        <span class="control-value" id="yhatValue">0.50</span>
+                    </div>
+                    <input type="range" id="yhatSlider" min="0.01" max="0.99" step="0.01" value="0.5">
+                </div>
+                
+                <div class="control-group" style="flex: 1; display: flex; align-items: flex-end;">
+                    <button class="btn btn-primary" id="animateBtn">
+                        ▶ Animar convergencia
+                    </button>
+                    <span class="animation-status" id="animStatus"></span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Loss values display -->
+        <div class="loss-display">
+            <div class="loss-card highlight">
+                <div class="loss-value ce" id="ceLossY1">0.693</div>
+                <div class="loss-label">Entropía cruzada (y=1)</div>
+                <div class="loss-formula">L = -log(ŷ)</div>
+            </div>
+            <div class="loss-card">
+                <div class="loss-value mse" id="mseLossY1">0.250</div>
+                <div class="loss-label">MSE (y=1)</div>
+                <div class="loss-formula">L = (1 - ŷ)²</div>
+            </div>
+            <div class="loss-card highlight">
+                <div class="loss-value ce" id="ceLossY0">0.693</div>
+                <div class="loss-label">Entropía cruzada (y=0)</div>
+                <div class="loss-formula">L = -log(1 - ŷ)</div>
+            </div>
+            <div class="loss-card">
+                <div class="loss-value mse" id="mseLossY0">0.250</div>
+                <div class="loss-label">MSE (y=0)</div>
+                <div class="loss-formula">L = ŷ²</div>
+            </div>
+        </div>
+        
+        <!-- Full equation -->
+        <div class="equation-box">
+            <div class="equation-title">Fórmula general de entropía cruzada binaria</div>
+            <div class="equation">
+                <span class="ce">L(y, ŷ) = -y·log(ŷ) - (1-y)·log(1-ŷ)</span>
+            </div>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.75rem;">
+                Derivada de la máxima verosimilitud de una distribución Bernoulli
+            </p>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>Curso: Introducción al Machine Learning · Dr. Jonás Velasco Álvarez</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

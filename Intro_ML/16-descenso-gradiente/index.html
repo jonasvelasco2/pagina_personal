@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Descenso de gradiente | ML Interactivo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&family=Source+Serif+Pro:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        :root {
+            --bg-main: #fafafa;
+            --bg-card: #ffffff;
+            --bg-code: #f5f5f5;
+            
+            --text-primary: #232f3e;
+            --text-secondary: #545b64;
+            --text-muted: #879596;
+            
+            --accent-orange: #ff9900;
+            --accent-blue: #0073bb;
+            --accent-teal: #1e8e8e;
+            --accent-red: #d13212;
+            --accent-green: #1d8102;
+            
+            --border-color: #e8e8e8;
+            --shadow: 0 2px 8px rgba(0,0,0,0.08);
+            
+            --font-sans: 'Source Sans Pro', -apple-system, sans-serif;
+            --font-serif: 'Source Serif Pro', Georgia, serif;
+            
+            --radius: 8px;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.6;
+            font-size: 16px;
+        }
+        
+        .header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.5rem;
+        }
+        
+        .header-content {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+        
+        .header h1 {
+            font-family: var(--font-serif);
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+        }
+        
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+        
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 1.5rem;
+        }
+        
+        @media (max-width: 1000px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+        
+        .card-header {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-code);
+        }
+        
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        
+        .card-body {
+            padding: 1rem;
+        }
+        
+        /* 3D Canvas */
+        .canvas-container {
+            background: #f5f5f5;
+            border-radius: var(--radius);
+            overflow: hidden;
+            position: relative;
+            border: 1px solid var(--border-color);
+        }
+        
+        #canvas3d {
+            display: block;
+            cursor: grab;
+        }
+        
+        #canvas3d:active {
+            cursor: grabbing;
+        }
+        
+        .canvas-hint {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(255,255,255,0.9);
+            padding: 0.4rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        
+        /* Loss chart */
+        .chart-container {
+            background: var(--bg-code);
+            border-radius: var(--radius);
+            padding: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        /* Controls */
+        .control-section {
+            margin-bottom: 1.25rem;
+        }
+        
+        .control-section:last-child {
+            margin-bottom: 0;
+        }
+        
+        .section-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.75rem;
+        }
+        
+        .control-group {
+            margin-bottom: 1rem;
+        }
+        
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .control-value {
+            font-family: 'Courier New', monospace;
+            background: var(--bg-code);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            -webkit-appearance: none;
+            background: var(--border-color);
+            border-radius: 3px;
+            outline: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 0.6rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            font-family: inherit;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+        }
+        
+        .btn-primary {
+            background: var(--accent-blue);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #005a94;
+        }
+        
+        .btn-secondary {
+            background: var(--bg-code);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+        
+        .btn-secondary:hover {
+            background: #eee;
+        }
+        
+        .btn-success {
+            background: var(--accent-green);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #156801;
+        }
+        
+        .btn-danger {
+            background: var(--accent-red);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #a82810;
+        }
+        
+        /* Surface selector */
+        .surface-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+        
+        .surface-btn {
+            padding: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            font-family: inherit;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.15s;
+            text-align: center;
+        }
+        
+        .surface-btn:hover {
+            border-color: var(--accent-blue);
+            background: rgba(0,115,187,0.05);
+        }
+        
+        .surface-btn.active {
+            border-color: var(--accent-blue);
+            background: var(--accent-blue);
+            color: white;
+        }
+        
+        /* Metrics */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+        
+        .metric-card {
+            background: var(--bg-code);
+            border-radius: var(--radius);
+            padding: 0.75rem;
+            text-align: center;
+        }
+        
+        .metric-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .metric-value.loss { color: var(--accent-red); }
+        .metric-value.iter { color: var(--accent-blue); }
+        .metric-value.w1 { color: var(--accent-teal); }
+        .metric-value.w2 { color: var(--accent-orange); }
+        
+        .metric-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 0.2rem;
+        }
+        
+        /* Gradient display */
+        .gradient-display {
+            background: linear-gradient(135deg, rgba(0,115,187,0.05) 0%, rgba(30,142,142,0.05) 100%);
+            border: 1px solid rgba(0,115,187,0.2);
+            border-radius: var(--radius);
+            padding: 0.75rem;
+            margin-top: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            text-align: center;
+        }
+        
+        .gradient-display .label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-family: var(--font-sans);
+            margin-bottom: 0.25rem;
+        }
+        
+        /* Function info */
+        .function-info {
+            background: linear-gradient(135deg, rgba(29,129,2,0.08) 0%, rgba(30,142,142,0.08) 100%);
+            border: 1px solid rgba(29,129,2,0.25);
+            border-radius: var(--radius);
+            padding: 0.75rem;
+            margin-top: 1rem;
+            text-align: center;
+        }
+        
+        .function-info .equation {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.3rem;
+        }
+        
+        .function-info .domain {
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.2rem;
+        }
+        
+        .function-info .min-text {
+            font-size: 0.75rem;
+            color: var(--accent-green);
+            font-weight: 600;
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 1.5rem 1rem;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            border-top: 1px solid var(--border-color);
+            margin-top: 1.5rem;
+        }
+        
+        /* Legend */
+        .legend-3d {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255,255,255,0.95);
+            padding: 0.5rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-bottom: 0.2rem;
+        }
+        
+        .legend-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1>Descenso de gradiente</h1>
+            <p>
+                Visualiza cómo el algoritmo de descenso de gradiente encuentra el mínimo 
+                de una función de pérdida siguiendo la dirección del gradiente negativo.
+            </p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="main-grid">
+            <!-- 3D Visualization -->
+            <div>
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Superficie de pérdida L(w₁, w₂)</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="canvas-container">
+                            <canvas id="canvas3d" width="700" height="450"></canvas>
+                            <div class="legend-3d">
+                                <div class="legend-item">
+                                    <span class="legend-dot" style="background: #d13212;"></span>
+                                    <span>Punto actual</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-dot" style="background: #ff9900;"></span>
+                                    <span>Trayectoria</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-dot" style="background: #1d8102;"></span>
+                                    <span>Mínimo global</span>
+                                </div>
+                            </div>
+                            <div class="canvas-hint">
+                                🖱️ Arrastra para rotar · Scroll para zoom
+                            </div>
+                        </div>
+                        
+                        <!-- Loss chart -->
+                        <div class="chart-container">
+                            <canvas id="lossChart" width="680" height="120"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Controls -->
+            <div>
+                <!-- Action buttons -->
+                <div class="card" style="margin-bottom: 1rem;">
+                    <div class="card-body">
+                        <div class="section-label">Controles</div>
+                        <div class="btn-group" style="margin-bottom: 0.75rem;">
+                            <button class="btn btn-primary" id="stepBtn">
+                                ⏭ Paso
+                            </button>
+                            <button class="btn btn-success" id="animateBtn">
+                                ▶ Animar
+                            </button>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn btn-secondary" id="resetBtn">
+                                🔄 Reiniciar
+                            </button>
+                            <button class="btn btn-secondary" id="newPointBtn" title="Nuevo punto inicial aleatorio">
+                                🎲 Nuevo punto
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Learning rate -->
+                <div class="card" style="margin-bottom: 1rem;">
+                    <div class="card-body">
+                        <div class="section-label">Parámetros</div>
+                        <div class="control-group">
+                            <div class="control-label">
+                                <span>Tasa de aprendizaje (η)</span>
+                                <span class="control-value" id="lrValue">0.10</span>
+                            </div>
+                            <input type="range" id="lrSlider" min="0.01" max="0.5" step="0.01" value="0.1">
+                        </div>
+                        <p style="font-size: 0.75rem; color: var(--text-muted);">
+                            η muy pequeña → convergencia lenta<br>
+                            η muy grande → puede divergir
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Surface selector -->
+                <div class="card" style="margin-bottom: 1rem;">
+                    <div class="card-body">
+                        <div class="section-label">Superficie</div>
+                        <div class="surface-grid">
+                            <button class="surface-btn active" data-surface="quadratic">
+                                🎯 Convexa<br><span style="font-size: 0.65rem; color: var(--text-muted);">Caso ideal</span>
+                            </button>
+                            <button class="surface-btn" data-surface="elongated">
+                                📏 Elongada<br><span style="font-size: 0.65rem; color: var(--text-muted);">Zigzagueo</span>
+                            </button>
+                            <button class="surface-btn" data-surface="saddle">
+                                🌹 Rosenbrock<br><span style="font-size: 0.65rem; color: var(--text-muted);">Valle curvo</span>
+                            </button>
+                            <button class="surface-btn" data-surface="multimodal">
+                                🏔️ Rastrigin<br><span style="font-size: 0.65rem; color: var(--text-muted);">Mín. locales</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Function info -->
+                        <div id="functionInfo" class="function-info">
+                            <div class="equation">L(w₁, w₂) = w₁² + w₂²</div>
+                            <div class="domain">w₁, w₂ ∈ [-3, 3]</div>
+                            <div class="min-text">Mínimo global: (0, 0)</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Metrics -->
+                <div class="card">
+                    <div class="card-body">
+                        <div class="section-label">Estado actual</div>
+                        <div class="metrics-grid">
+                            <div class="metric-card">
+                                <div class="metric-value iter" id="metricIter">0</div>
+                                <div class="metric-label">Iteración</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value loss" id="metricLoss">0.000</div>
+                                <div class="metric-label">Pérdida L</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value w1" id="metricW1">0.00</div>
+                                <div class="metric-label">w₁</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value w2" id="metricW2">0.00</div>
+                                <div class="metric-label">w₂</div>
+                            </div>
+                        </div>
+                        
+                        <div class="gradient-display">
+                            <div class="label">Vector gradiente ∇L</div>
+                            <span id="gradientDisplay">[0.00, 0.00]</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>Curso: Introducción al Machine Learning · Dr. Jonás Velasco Álvarez</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

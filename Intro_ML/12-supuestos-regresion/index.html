@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supuestos de regresión lineal | ML Interactivo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&family=Source+Serif+Pro:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #fafafa;
+            --bg-card: #ffffff;
+            --bg-code: #f5f5f5;
+            
+            --text-primary: #232f3e;
+            --text-secondary: #545b64;
+            --text-muted: #879596;
+            
+            --accent-orange: #ff9900;
+            --accent-blue: #0073bb;
+            --accent-teal: #1e8e8e;
+            --accent-red: #d13212;
+            --accent-green: #1d8102;
+            
+            --pass-color: #1d8102;
+            --fail-color: #d13212;
+            --warn-color: #ff9900;
+            
+            --border-color: #e8e8e8;
+            --shadow: 0 2px 8px rgba(0,0,0,0.08);
+            
+            --font-sans: 'Source Sans Pro', -apple-system, sans-serif;
+            --font-serif: 'Source Serif Pro', Georgia, serif;
+            
+            --radius: 8px;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.6;
+            font-size: 16px;
+        }
+        
+        .header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.5rem;
+        }
+        
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header h1 {
+            font-family: var(--font-serif);
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            max-width: 800px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+        
+        /* Scenario selector */
+        .scenario-bar {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+        
+        .scenario-btn {
+            padding: 0.6rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            font-family: inherit;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius);
+            background: var(--bg-card);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        
+        .scenario-btn:hover {
+            border-color: var(--accent-blue);
+            background: rgba(0,115,187,0.05);
+        }
+        
+        .scenario-btn.active {
+            border-color: var(--accent-blue);
+            background: var(--accent-blue);
+            color: white;
+        }
+        
+        /* Violation slider */
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: var(--bg-card);
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
+        }
+        
+        .slider-label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+        
+        .slider-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        input[type="range"] {
+            flex: 1;
+            height: 6px;
+            -webkit-appearance: none;
+            background: linear-gradient(to right, var(--accent-green), var(--warn-color), var(--fail-color));
+            border-radius: 3px;
+            outline: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border: 3px solid var(--accent-blue);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .slider-value {
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            min-width: 40px;
+            text-align: center;
+        }
+        
+        /* Grid de paneles */
+        .panels-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+        
+        @media (max-width: 900px) {
+            .panels-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+        
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-code);
+        }
+        
+        .panel-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        
+        .panel-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+        }
+        
+        .panel-status.pass {
+            background: rgba(29, 129, 2, 0.15);
+            color: var(--pass-color);
+        }
+        
+        .panel-status.fail {
+            background: rgba(209, 50, 18, 0.15);
+            color: var(--fail-color);
+        }
+        
+        .panel-status.warn {
+            background: rgba(255, 153, 0, 0.15);
+            color: var(--warn-color);
+        }
+        
+        .panel-body {
+            padding: 1rem;
+        }
+        
+        .canvas-container {
+            background: var(--bg-code);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+        
+        canvas {
+            display: block;
+        }
+        
+        .panel-footer {
+            padding: 0.75rem 1rem;
+            border-top: 1px solid var(--border-color);
+            background: var(--bg-code);
+            font-size: 0.8rem;
+        }
+        
+        .test-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .test-name {
+            color: var(--text-secondary);
+        }
+        
+        .test-pvalue {
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+        }
+        
+        .test-pvalue.significant {
+            color: var(--fail-color);
+        }
+        
+        .test-pvalue.not-significant {
+            color: var(--pass-color);
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 1.5rem 1rem;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            border-top: 1px solid var(--border-color);
+            margin-top: 1.5rem;
+        }
+        
+        /* Explanation */
+        .explanation {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1rem 1.25rem;
+            margin-top: 1.5rem;
+        }
+        
+        .explanation h3 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--accent-blue);
+            margin-bottom: 0.5rem;
+        }
+        
+        .explanation p {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        
+        .explanation code {
+            background: var(--bg-code);
+            padding: 0.1rem 0.3rem;
+            border-radius: 3px;
+            font-size: 0.85em;
+        }
+        
+        /* Hypothesis box */
+        .hypothesis-box {
+            background: linear-gradient(135deg, rgba(0,115,187,0.05) 0%, rgba(30,142,142,0.05) 100%);
+            border: 1px solid rgba(0,115,187,0.2);
+            border-radius: var(--radius);
+            padding: 0.6rem 0.75rem;
+            margin-bottom: 0.75rem;
+            font-size: 0.75rem;
+            line-height: 1.5;
+            color: var(--text-secondary);
+        }
+        
+        .hypothesis-box strong {
+            color: var(--accent-blue);
+            font-size: 0.8rem;
+        }
+        
+        .hypothesis-box .criterion {
+            display: block;
+            margin-top: 0.4rem;
+            padding-top: 0.4rem;
+            border-top: 1px dashed rgba(0,115,187,0.2);
+            color: var(--accent-red);
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1>Supuestos de regresión lineal</h1>
+            <p>
+                Explora los cuatro supuestos fundamentales del modelo de regresión lineal.
+                Observa cómo lucen cuando se cumplen y cuando se violan.
+            </p>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Scenario selector -->
+        <div class="scenario-bar">
+            <button class="scenario-btn active" data-scenario="ideal">✅ Supuestos cumplidos</button>
+            <button class="scenario-btn" data-scenario="non-normal">📊 Violación normalidad</button>
+            <button class="scenario-btn" data-scenario="heteroscedastic">📈 Heterocedasticidad</button>
+            <button class="scenario-btn" data-scenario="autocorrelated">🔗 Autocorrelación</button>
+            <button class="scenario-btn" data-scenario="nonlinear">〰️ Relación no lineal</button>
+        </div>
+        
+        <!-- Violation slider -->
+        <div class="slider-container">
+            <span class="slider-label">Nivel de violación:</span>
+            <div class="slider-wrapper">
+                <span style="font-size: 0.8rem; color: var(--pass-color);">Leve</span>
+                <input type="range" id="violationSlider" min="0" max="100" value="50">
+                <span style="font-size: 0.8rem; color: var(--fail-color);">Severa</span>
+            </div>
+            <span class="slider-value" id="violationValue">50%</span>
+        </div>
+        
+        <!-- Main regression model panel -->
+        <div class="panel" style="margin-bottom: 1.5rem;">
+            <div class="panel-header">
+                <span class="panel-title">📈 Modelo de regresión lineal: y = β₀ + β₁x + ε</span>
+                <span class="panel-status pass" id="statusModel">
+                    <span id="modelR2">R² = 0.85</span>
+                </span>
+            </div>
+            <div class="panel-body" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <div class="canvas-container" style="flex: 1; min-width: 300px;">
+                    <canvas id="canvasModel" width="500" height="250"></canvas>
+                </div>
+                <div style="flex: 0 0 280px; display: flex; flex-direction: column; justify-content: center;">
+                    <div style="background: var(--bg-code); padding: 1rem; border-radius: var(--radius); font-size: 0.85rem;">
+                        <p style="margin-bottom: 0.5rem;"><strong>Modelo ajustado:</strong></p>
+                        <p style="font-family: 'Courier New', monospace; font-size: 1rem; margin-bottom: 1rem;">
+                            ŷ = <span id="modelBeta0">2.00</span> + <span id="modelBeta1">0.50</span>x
+                        </p>
+                        <p style="margin-bottom: 0.5rem;"><strong>Residuales:</strong></p>
+                        <p style="color: var(--text-secondary);">
+                            eᵢ = yᵢ - ŷᵢ
+                        </p>
+                        <p style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.5rem;">
+                            Los gráficos debajo analizan si los residuales cumplen los supuestos del modelo.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panels grid -->
+        <div class="panels-grid">
+            <!-- Panel 1: Linealidad -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title">1. Linealidad de la relación</span>
+                    <span class="panel-status pass" id="status1">
+                        <span>✓</span>
+                        <span>Cumple</span>
+                    </span>
+                </div>
+                <div class="panel-body">
+                    <div class="hypothesis-box">
+                        <strong>Prueba RESET de Ramsey (simplificada):</strong><br>
+                        H₀: La relación entre X e Y es lineal<br>
+                        H₁: La relación es no lineal (se requieren términos adicionales)<br>
+                        <span class="criterion">Rechazar H₀ si p-valor &lt; α = 0.05</span>
+                    </div>
+                    <div class="canvas-container">
+                        <canvas id="canvas1" width="400" height="180"></canvas>
+                    </div>
+                </div>
+                <div class="panel-footer">
+                    <div class="test-info">
+                        <span class="test-name">Prueba de linealidad</span>
+                        <span class="test-pvalue not-significant" id="pvalue1">p = 0.450</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Panel 2: Normalidad -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title">2. Normalidad de residuales</span>
+                    <span class="panel-status pass" id="status2">
+                        <span>✓</span>
+                        <span>Cumple</span>
+                    </span>
+                </div>
+                <div class="panel-body">
+                    <div class="hypothesis-box">
+                        <strong>Prueba de Shapiro-Wilk:</strong><br>
+                        H₀: Los residuales siguen una distribución normal<br>
+                        H₁: Los residuales NO siguen una distribución normal<br>
+                        <span class="criterion">Rechazar H₀ si p-valor &lt; α = 0.05</span>
+                    </div>
+                    <div class="canvas-container">
+                        <canvas id="canvas2" width="400" height="180"></canvas>
+                    </div>
+                </div>
+                <div class="panel-footer">
+                    <div class="test-info">
+                        <span class="test-name">Shapiro-Wilk test</span>
+                        <span class="test-pvalue not-significant" id="pvalue2">p = 0.450</span>
+                    </div>
+                </div>
+                <div style="padding: 0.5rem 1rem; font-size: 0.75rem; color: var(--text-muted); border-top: 1px dashed var(--border-color);">
+                    💡 El histograma muestra la distribución de los residuales. En normalidad, debe tener forma de campana.
+                </div>
+            </div>
+            
+            <!-- Panel 3: Homocedasticidad -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title">3. Varianza constante (homocedasticidad)</span>
+                    <span class="panel-status pass" id="status3">
+                        <span>✓</span>
+                        <span>Cumple</span>
+                    </span>
+                </div>
+                <div class="panel-body">
+                    <div class="hypothesis-box">
+                        <strong>Prueba de Breusch-Pagan:</strong><br>
+                        H₀: σ² es constante (homocedasticidad)<br>
+                        H₁: σ² varía con las variables explicativas (heterocedasticidad)<br>
+                        <span class="criterion">Rechazar H₀ si p-valor &lt; α = 0.05</span>
+                    </div>
+                    <div class="canvas-container">
+                        <canvas id="canvas3" width="400" height="180"></canvas>
+                    </div>
+                </div>
+                <div class="panel-footer">
+                    <div class="test-info">
+                        <span class="test-name">Breusch-Pagan test</span>
+                        <span class="test-pvalue not-significant" id="pvalue3">p = 0.320</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Panel 4: Independencia -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title">4. Independencia de residuales</span>
+                    <span class="panel-status pass" id="status4">
+                        <span>✓</span>
+                        <span>Cumple</span>
+                    </span>
+                </div>
+                <div class="panel-body">
+                    <div class="hypothesis-box">
+                        <strong>Prueba de Durbin-Watson:</strong><br>
+                        H₀: ρ = 0 (no hay autocorrelación)<br>
+                        H₁: ρ ≠ 0 (existe autocorrelación entre residuales)<br>
+                        <span class="criterion">Rechazar H₀ si DW &lt; 1.5 o DW &gt; 2.5</span>
+                    </div>
+                    <div class="canvas-container">
+                        <canvas id="canvas4" width="400" height="180"></canvas>
+                    </div>
+                </div>
+                <div class="panel-footer">
+                    <div class="test-info">
+                        <span class="test-name">Durbin-Watson test</span>
+                        <span class="test-pvalue not-significant" id="pvalue4">DW = 2.01</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Explanation -->
+        <div class="explanation" id="explanation">
+            <h3>💡 Escenario actual: Supuestos cumplidos</h3>
+            <p id="explanationText">
+                Cuando todos los supuestos se cumplen, los residuales se distribuyen aleatoriamente alrededor de cero,
+                siguen una distribución normal, tienen varianza constante y son independientes entre sí.
+                En este caso, las inferencias estadísticas (p-values, intervalos de confianza) son válidas.
+            </p>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>Curso: Introducción al Machine Learning · Dr. Jonás Velasco Álvarez</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

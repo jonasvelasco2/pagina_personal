@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regresión lineal múltiple 3D | ML Interactivo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&family=Source+Serif+Pro:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        :root {
+            --bg-main: #fafafa;
+            --bg-card: #ffffff;
+            --bg-code: #f5f5f5;
+            
+            --text-primary: #232f3e;
+            --text-secondary: #545b64;
+            --text-muted: #879596;
+            
+            --accent-orange: #ff9900;
+            --accent-blue: #0073bb;
+            --accent-teal: #1e8e8e;
+            --accent-red: #d13212;
+            --accent-green: #1d8102;
+            
+            --border-color: #e8e8e8;
+            --shadow: 0 2px 8px rgba(0,0,0,0.08);
+            
+            --font-sans: 'Source Sans Pro', -apple-system, sans-serif;
+            --font-serif: 'Source Serif Pro', Georgia, serif;
+            
+            --radius: 8px;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.6;
+            font-size: 16px;
+        }
+        
+        .header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.5rem;
+        }
+        
+        .header-content {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+        
+        .header h1 {
+            font-family: var(--font-serif);
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+        }
+        
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+        
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 1.5rem;
+        }
+        
+        @media (max-width: 900px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        /* 3D Canvas */
+        .canvas-container {
+            position: relative;
+            background: #f5f5f5;
+            border-radius: var(--radius);
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+        
+        #canvas3d {
+            display: block;
+            cursor: grab;
+        }
+        
+        #canvas3d:active {
+            cursor: grabbing;
+        }
+        
+        .canvas-hint {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(255,255,255,0.9);
+            padding: 0.4rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        
+        .legend-3d {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255,255,255,0.95);
+            padding: 0.5rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .legend-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .legend-plane {
+            width: 20px;
+            height: 12px;
+            border-radius: 2px;
+            opacity: 0.7;
+        }
+        
+        /* Controls */
+        .control-group {
+            margin-bottom: 1.25rem;
+        }
+        
+        .control-group:last-child {
+            margin-bottom: 0;
+        }
+        
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .control-value {
+            font-family: 'Courier New', monospace;
+            background: var(--bg-code);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            -webkit-appearance: none;
+            background: var(--border-color);
+            border-radius: 3px;
+            outline: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }
+        
+        input[type="range"]:disabled {
+            opacity: 0.5;
+        }
+        
+        input[type="range"]:disabled::-webkit-slider-thumb {
+            background: var(--text-muted);
+            cursor: not-allowed;
+        }
+        
+        /* Toggle */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: var(--bg-code);
+            border-radius: var(--radius);
+            margin-bottom: 1rem;
+        }
+        
+        .toggle {
+            position: relative;
+            width: 48px;
+            height: 26px;
+            background: var(--border-color);
+            border-radius: 13px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .toggle.active {
+            background: var(--accent-green);
+        }
+        
+        .toggle::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .toggle.active::after {
+            transform: translateX(22px);
+        }
+        
+        .toggle-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        
+        /* Equation */
+        .equation-box {
+            background: var(--bg-code);
+            border-radius: var(--radius);
+            padding: 1rem;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--accent-orange);
+        }
+        
+        .equation-box .beta {
+            font-weight: bold;
+        }
+        
+        .equation-box .beta0 { color: var(--accent-teal); }
+        .equation-box .beta1 { color: var(--accent-blue); }
+        .equation-box .beta2 { color: var(--accent-orange); }
+        
+        /* Metrics */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        
+        .metric-card {
+            background: var(--bg-code);
+            border-radius: var(--radius);
+            padding: 0.75rem;
+            text-align: center;
+        }
+        
+        .metric-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .metric-value.rss { color: var(--accent-red); }
+        .metric-value.r2 { color: var(--accent-blue); }
+        
+        .metric-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+        
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            font-family: inherit;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.15s;
+            width: 100%;
+        }
+        
+        .btn-primary {
+            background: var(--accent-blue);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #005a94;
+        }
+        
+        .btn-secondary {
+            background: var(--bg-code);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+        
+        .btn-secondary:hover {
+            background: #eee;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .btn-group .btn {
+            flex: 1;
+        }
+        
+        /* Dataset buttons */
+        .dataset-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+        
+        .dataset-btn {
+            padding: 0.5rem;
+            font-size: 0.75rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        
+        .dataset-btn:hover {
+            border-color: var(--accent-blue);
+            background: rgba(0,115,187,0.05);
+        }
+        
+        /* Checkbox */
+        .checkbox-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+        }
+        
+        .checkbox-item input {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 1.5rem 1rem;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            border-top: 1px solid var(--border-color);
+            margin-top: 1.5rem;
+        }
+        
+        /* Axes labels */
+        .axis-labels {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 2rem;
+            background: rgba(255,255,255,0.9);
+            padding: 0.3rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+        }
+        
+        .axis-label {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        .axis-color {
+            width: 12px;
+            height: 3px;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1>Regresión lineal múltiple 3D</h1>
+            <p>
+                Visualiza cómo un plano se ajusta a datos con dos predictores.
+                Rota el gráfico para explorar desde diferentes ángulos.
+            </p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="main-grid">
+            <!-- 3D Canvas -->
+            <div class="card">
+                <h2 class="section-title">Visualización 3D</h2>
+                <div class="canvas-container">
+                    <canvas id="canvas3d" width="750" height="550"></canvas>
+                    <div class="legend-3d">
+                        <div class="legend-item">
+                            <span class="legend-dot" style="background: #0073bb;"></span>
+                            <span>Datos</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-plane" style="background: #ff9900;"></span>
+                            <span>Plano de regresión</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-dot" style="background: #d13212; width: 8px; height: 8px;"></span>
+                            <span>Residuales</span>
+                        </div>
+                    </div>
+                    <div class="axis-labels">
+                        <div class="axis-label">
+                            <span class="axis-color" style="background: #e74c3c;"></span>
+                            <span>X₁</span>
+                        </div>
+                        <div class="axis-label">
+                            <span class="axis-color" style="background: #2ecc71;"></span>
+                            <span>X₂</span>
+                        </div>
+                        <div class="axis-label">
+                            <span class="axis-color" style="background: #3498db;"></span>
+                            <span>Y</span>
+                        </div>
+                    </div>
+                    <div class="canvas-hint">
+                        🖱️ Arrastra para rotar · Scroll para zoom
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Controls -->
+            <div>
+                <!-- Equation -->
+                <div class="card" style="margin-bottom: 1rem;">
+                    <div class="equation-box">
+                        ŷ = <span class="beta beta0" id="eqBeta0">1.00</span> + 
+                        <span class="beta beta1" id="eqBeta1">0.50</span>x₁ + 
+                        <span class="beta beta2" id="eqBeta2">0.50</span>x₂
+                    </div>
+                    
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-value rss" id="metricRSS">0.00</div>
+                            <div class="metric-label">RSS</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value r2" id="metricR2">0.000</div>
+                            <div class="metric-label">R²</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mode toggle -->
+                <div class="card" style="margin-bottom: 1rem;">
+                    <div class="toggle-container">
+                        <div class="toggle" id="modeToggle"></div>
+                        <span class="toggle-label" id="modeLabel">Modo manual</span>
+                    </div>
+                    
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>β₀ (intercepto)</span>
+                            <span class="control-value" id="beta0Value">1.00</span>
+                        </div>
+                        <input type="range" id="beta0Slider" min="-5" max="5" step="0.1" value="1">
+                    </div>
+                    
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>β₁ (coef. x₁)</span>
+                            <span class="control-value" id="beta1Value">0.50</span>
+                        </div>
+                        <input type="range" id="beta1Slider" min="-2" max="2" step="0.05" value="0.5">
+                    </div>
+                    
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>β₂ (coef. x₂)</span>
+                            <span class="control-value" id="beta2Value">0.50</span>
+                        </div>
+                        <input type="range" id="beta2Slider" min="-2" max="2" step="0.05" value="0.5">
+                    </div>
+                </div>
+                
+                <!-- Options -->
+                <div class="card" style="margin-bottom: 1rem;">
+                    <h3 class="section-title">Opciones</h3>
+                    
+                    <div class="checkbox-group">
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="showResiduals" checked>
+                            <span>Mostrar residuales</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="showPlane" checked>
+                            <span>Mostrar plano</span>
+                        </label>
+                    </div>
+                    
+                    <button class="btn btn-secondary" id="resetViewBtn">🔄 Reiniciar vista</button>
+                </div>
+                
+                <!-- Datasets -->
+                <div class="card">
+                    <h3 class="section-title">Datasets</h3>
+                    <div class="dataset-grid">
+                        <button class="dataset-btn" data-dataset="linear">📊 Lineal</button>
+                        <button class="dataset-btn" data-dataset="noisy">🌫️ Con ruido</button>
+                        <button class="dataset-btn" data-dataset="interaction">🔀 Interacción</button>
+                        <button class="dataset-btn" data-dataset="clusters">🔘 Grupos</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>Curso: Introducción al Machine Learning · Dr. Jonás Velasco Álvarez</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Función sigmoide y frontera de decisión | ML Interactivo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&family=Source+Serif+Pro:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #fafafa;
+            --bg-card: #ffffff;
+            --bg-code: #f5f5f5;
+            
+            --text-primary: #232f3e;
+            --text-secondary: #545b64;
+            --text-muted: #879596;
+            
+            --accent-orange: #ff9900;
+            --accent-blue: #0073bb;
+            --accent-teal: #1e8e8e;
+            --accent-red: #d13212;
+            --accent-green: #1d8102;
+            
+            --class-0: #3498db;
+            --class-1: #e74c3c;
+            
+            --border-color: #e8e8e8;
+            --shadow: 0 2px 8px rgba(0,0,0,0.08);
+            
+            --font-sans: 'Source Sans Pro', -apple-system, sans-serif;
+            --font-serif: 'Source Serif Pro', Georgia, serif;
+            
+            --radius: 8px;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.6;
+            font-size: 16px;
+        }
+        
+        .header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.5rem;
+        }
+        
+        .header-content {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+        
+        .header h1 {
+            font-family: var(--font-serif);
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            max-width: 800px;
+        }
+        
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+        
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+        
+        @media (max-width: 900px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+        
+        .card-header {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-code);
+        }
+        
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        
+        .card-body {
+            padding: 1rem;
+        }
+        
+        .canvas-container {
+            background: var(--bg-code);
+            border-radius: var(--radius);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        canvas {
+            display: block;
+        }
+        
+        /* Controls Panel */
+        .controls-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            margin-top: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+        
+        @media (max-width: 700px) {
+            .controls-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .control-value {
+            font-family: 'Courier New', monospace;
+            background: var(--bg-code);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            -webkit-appearance: none;
+            background: var(--border-color);
+            border-radius: 3px;
+            outline: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }
+        
+        /* Equation Box */
+        .equation-box {
+            background: linear-gradient(135deg, rgba(0,115,187,0.05) 0%, rgba(30,142,142,0.05) 100%);
+            border: 1px solid rgba(0,115,187,0.2);
+            border-radius: var(--radius);
+            padding: 1rem;
+            margin-top: 1.5rem;
+            text-align: center;
+        }
+        
+        .equation-title {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+        
+        .equation {
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .equation .w1 { color: var(--accent-blue); }
+        .equation .w2 { color: var(--accent-orange); }
+        .equation .bias { color: var(--accent-teal); }
+        
+        /* Info Panel */
+        .info-panel {
+            background: var(--bg-code);
+            border-radius: var(--radius);
+            padding: 1rem;
+            margin-top: 1rem;
+            font-size: 0.85rem;
+        }
+        
+        .info-panel strong {
+            color: var(--accent-blue);
+        }
+        
+        /* Probability Display */
+        .prob-display {
+            position: absolute;
+            background: rgba(255,255,255,0.95);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 0.5rem 0.75rem;
+            font-size: 0.8rem;
+            pointer-events: none;
+            display: none;
+            box-shadow: var(--shadow);
+            z-index: 10;
+        }
+        
+        /* Legend */
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 0.75rem;
+            font-size: 0.85rem;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        /* Dataset buttons */
+        .dataset-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .dataset-btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            font-family: inherit;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        
+        .dataset-btn:hover {
+            border-color: var(--accent-blue);
+            background: rgba(0,115,187,0.05);
+        }
+        
+        .dataset-btn.active {
+            border-color: var(--accent-blue);
+            background: var(--accent-blue);
+            color: white;
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 1.5rem 1rem;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            border-top: 1px solid var(--border-color);
+            margin-top: 1.5rem;
+        }
+        
+        /* Z marker on sigmoid */
+        .z-marker {
+            position: absolute;
+            bottom: 35px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255,255,255,0.9);
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1>Función sigmoide y frontera de decisión</h1>
+            <p>
+                Explora cómo la función sigmoide transforma valores lineales en probabilidades 
+                y cómo los pesos definen la frontera de decisión en regresión logística.
+            </p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="main-grid">
+            <!-- Panel Izquierdo: Función Sigmoide -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Función sigmoide: σ(z) = 1 / (1 + e⁻ᶻ)</h2>
+                </div>
+                <div class="card-body">
+                    <div class="canvas-container">
+                        <canvas id="sigmoidCanvas" width="500" height="350"></canvas>
+                        <div class="z-marker" id="zMarker">z = 0.00 → σ(z) = 0.500</div>
+                    </div>
+                    <div class="info-panel">
+                        <p><strong>Interpretación:</strong> La función sigmoide comprime cualquier valor real z ∈ (-∞, +∞) 
+                        al intervalo (0, 1), permitiendo interpretar la salida como una <strong>probabilidad</strong>.</p>
+                        <p style="margin-top: 0.5rem;">
+                            • Si z → -∞, entonces σ(z) → 0<br>
+                            • Si z = 0, entonces σ(z) = 0.5<br>
+                            • Si z → +∞, entonces σ(z) → 1
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Panel Derecho: Frontera de Decisión -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Frontera de decisión en 2D</h2>
+                </div>
+                <div class="card-body">
+                    <div class="canvas-container" style="position: relative;">
+                        <canvas id="decisionCanvas" width="500" height="350"></canvas>
+                        <div class="prob-display" id="probDisplay"></div>
+                    </div>
+                    <div class="legend">
+                        <div class="legend-item">
+                            <span class="legend-dot" style="background: #3498db;"></span>
+                            <span>Clase 0</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-dot" style="background: #e74c3c;"></span>
+                            <span>Clase 1</span>
+                        </div>
+                        <div class="legend-item">
+                            <span style="width: 20px; height: 3px; background: #232f3e; display: inline-block;"></span>
+                            <span>Frontera (P=0.5)</span>
+                        </div>
+                    </div>
+                    <div class="dataset-buttons">
+                        <button class="dataset-btn active" data-dataset="separable">Separable</button>
+                        <button class="dataset-btn" data-dataset="overlap">Con solapamiento</button>
+                        <button class="dataset-btn" data-dataset="diagonal">Diagonal</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Controls -->
+        <div class="controls-panel">
+            <div class="controls-grid">
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>w₁ (peso de x₁)</span>
+                        <span class="control-value" id="w1Value">1.00</span>
+                    </div>
+                    <input type="range" id="w1Slider" min="-3" max="3" step="0.1" value="1">
+                </div>
+                
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>w₂ (peso de x₂)</span>
+                        <span class="control-value" id="w2Value">1.00</span>
+                    </div>
+                    <input type="range" id="w2Slider" min="-3" max="3" step="0.1" value="1">
+                </div>
+                
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>b (sesgo/bias)</span>
+                        <span class="control-value" id="biasValue">0.00</span>
+                    </div>
+                    <input type="range" id="biasSlider" min="-5" max="5" step="0.1" value="0">
+                </div>
+            </div>
+        </div>
+        
+        <!-- Equation Display -->
+        <div class="equation-box">
+            <div class="equation-title">Modelo de regresión logística</div>
+            <div class="equation">
+                z = <span class="w1" id="eqW1">1.00</span>·x₁ + <span class="w2" id="eqW2">1.00</span>·x₂ + <span class="bias" id="eqBias">0.00</span>
+                &nbsp;&nbsp;→&nbsp;&nbsp;
+                P(y=1|x) = σ(z)
+            </div>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">
+                La frontera de decisión es donde z = 0, es decir: 
+                <span class="w1" id="eqW1b">1.00</span>·x₁ + <span class="w2" id="eqW2b">1.00</span>·x₂ + <span class="bias" id="eqBiasb">0.00</span> = 0
+            </p>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>Curso: Introducción al Machine Learning · Dr. Jonás Velasco Álvarez</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clasificador logístico | ML Interactivo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&family=Source+Serif+Pro:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #fafafa;
+            --bg-card: #ffffff;
+            --bg-code: #f5f5f5;
+            
+            --text-primary: #232f3e;
+            --text-secondary: #545b64;
+            --text-muted: #879596;
+            
+            --accent-orange: #ff9900;
+            --accent-blue: #0073bb;
+            --accent-teal: #1e8e8e;
+            --accent-red: #d13212;
+            --accent-green: #1d8102;
+            
+            --class-0: #0073bb;
+            --class-1: #ff9900;
+            
+            --border-color: #e8e8e8;
+            --shadow: 0 2px 8px rgba(0,0,0,0.08);
+            
+            --font-sans: 'Source Sans Pro', -apple-system, sans-serif;
+            --font-serif: 'Source Serif Pro', Georgia, serif;
+            
+            --radius: 8px;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.6;
+            font-size: 16px;
+        }
+        
+        .header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.5rem;
+        }
+        
+        .header-content {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+        
+        .header h1 {
+            font-family: var(--font-serif);
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+        }
+        
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+        
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 1.5rem;
+        }
+        
+        @media (max-width: 1000px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+        
+        .card-header {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-code);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        
+        .card-body {
+            padding: 1rem;
+        }
+        
+        /* Canvas */
+        .canvas-container {
+            background: var(--bg-code);
+            border-radius: var(--radius);
+            overflow: hidden;
+            position: relative;
+            border: 1px solid var(--border-color);
+        }
+        
+        #mainCanvas {
+            display: block;
+            cursor: crosshair;
+        }
+        
+        .canvas-hint {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(255,255,255,0.95);
+            padding: 0.4rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        
+        /* Class selector */
+        .class-selector {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .class-btn {
+            flex: 1;
+            padding: 0.6rem 1rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            font-family: inherit;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .class-btn .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .class-btn[data-class="0"] .dot { background: var(--class-0); }
+        .class-btn[data-class="1"] .dot { background: var(--class-1); }
+        
+        .class-btn[data-class="0"].active {
+            border-color: var(--class-0);
+            background: rgba(0, 115, 187, 0.1);
+        }
+        
+        .class-btn[data-class="1"].active {
+            border-color: var(--class-1);
+            background: rgba(255, 153, 0, 0.1);
+        }
+        
+        /* Controls */
+        .section-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.75rem;
+        }
+        
+        .control-group {
+            margin-bottom: 1rem;
+        }
+        
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .control-value {
+            font-family: 'Courier New', monospace;
+            background: var(--bg-code);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            -webkit-appearance: none;
+            background: var(--border-color);
+            border-radius: 3px;
+            outline: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 0.6rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            font-family: inherit;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+        }
+        
+        .btn-primary {
+            background: var(--accent-blue);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #005a94;
+        }
+        
+        .btn-success {
+            background: var(--accent-green);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #156801;
+        }
+        
+        .btn-danger {
+            background: var(--accent-red);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #a82810;
+        }
+        
+        .btn-secondary {
+            background: var(--bg-code);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+        
+        .btn-secondary:hover {
+            background: #eee;
+        }
+        
+        /* Metrics */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        
+        .metric-card {
+            background: var(--bg-code);
+            border-radius: var(--radius);
+            padding: 0.6rem;
+            text-align: center;
+        }
+        
+        .metric-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .metric-value.accuracy { color: var(--accent-green); }
+        .metric-value.loss { color: var(--accent-red); }
+        .metric-value.iter { color: var(--accent-blue); }
+        
+        .metric-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 0.1rem;
+        }
+        
+        /* Weights table */
+        .weights-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+        }
+        
+        .weights-table th {
+            background: var(--bg-code);
+            padding: 0.5rem;
+            font-weight: 600;
+            border: 1px solid var(--border-color);
+        }
+        
+        .weights-table td {
+            padding: 0.5rem;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            border: 1px solid var(--border-color);
+        }
+        
+        /* Loss chart */
+        .chart-container {
+            background: var(--bg-code);
+            border-radius: var(--radius);
+            padding: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        /* Legend */
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 0.75rem;
+            font-size: 0.8rem;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        /* Status indicator */
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        
+        .status-indicator.training {
+            color: var(--accent-green);
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--text-muted);
+        }
+        
+        .status-dot.training {
+            background: var(--accent-green);
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+        
+        /* Preset buttons */
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .preset-btn {
+            padding: 0.4rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            font-family: inherit;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        
+        .preset-btn:hover {
+            border-color: var(--accent-blue);
+            background: rgba(0, 115, 187, 0.05);
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 1.5rem 1rem;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            border-top: 1px solid var(--border-color);
+            margin-top: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1>Clasificador de regresión logística</h1>
+            <p>
+                Observa cómo un clasificador logístico aprende a separar dos clases 
+                ajustando sus pesos mediante descenso de gradiente.
+            </p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="main-grid">
+            <!-- Main visualization -->
+            <div>
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Espacio de características</h2>
+                        <div class="status-indicator" id="statusIndicator">
+                            <span class="status-dot"></span>
+                            <span id="statusText">Listo</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- Class selector -->
+                        <div class="class-selector">
+                            <button class="class-btn active" data-class="0">
+                                <span class="dot"></span>
+                                Clase 0 (azul)
+                            </button>
+                            <button class="class-btn" data-class="1">
+                                <span class="dot"></span>
+                                Clase 1 (naranja)
+                            </button>
+                        </div>
+                        
+                        <div class="canvas-container">
+                            <canvas id="mainCanvas" width="700" height="500"></canvas>
+                            <div class="canvas-hint">
+                                🖱️ Clic para añadir puntos de la clase seleccionada
+                            </div>
+                        </div>
+                        
+                        <div class="legend">
+                            <div class="legend-item">
+                                <span class="legend-dot" style="background: var(--class-0);"></span>
+                                <span>Clase 0</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-dot" style="background: var(--class-1);"></span>
+                                <span>Clase 1</span>
+                            </div>
+                            <div class="legend-item">
+                                <span style="width: 20px; height: 3px; background: #333;"></span>
+                                <span>Frontera de decisión</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Loss chart -->
+                        <div class="chart-container">
+                            <canvas id="lossChart" width="680" height="100"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Controls panel -->
+            <div>
+                <!-- Training controls -->
+                <div class="card" style="margin-bottom: 1rem;">
+                    <div class="card-body">
+                        <div class="section-label">Entrenamiento</div>
+                        <div class="btn-group" style="margin-bottom: 0.75rem;">
+                            <button class="btn btn-success" id="trainBtn">
+                                ▶ Entrenar
+                            </button>
+                            <button class="btn btn-secondary" id="stepBtn">
+                                ⏭ Paso
+                            </button>
+                        </div>
+                        <button class="btn btn-secondary" id="resetWeightsBtn" style="width: 100%;">
+                            🔄 Reiniciar pesos
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Parameters -->
+                <div class="card" style="margin-bottom: 1rem;">
+                    <div class="card-body">
+                        <div class="section-label">Parámetros</div>
+                        <div class="control-group">
+                            <div class="control-label">
+                                <span>Tasa de aprendizaje (η)</span>
+                                <span class="control-value" id="lrValue">0.50</span>
+                            </div>
+                            <input type="range" id="lrSlider" min="0.01" max="2" step="0.01" value="0.5">
+                        </div>
+                        <div class="control-group">
+                            <div class="control-label">
+                                <span>Velocidad animación</span>
+                                <span class="control-value" id="speedValue">50 ms</span>
+                            </div>
+                            <input type="range" id="speedSlider" min="10" max="500" step="10" value="50">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Metrics -->
+                <div class="card" style="margin-bottom: 1rem;">
+                    <div class="card-body">
+                        <div class="section-label">Métricas</div>
+                        <div class="metrics-grid">
+                            <div class="metric-card">
+                                <div class="metric-value iter" id="metricIter">0</div>
+                                <div class="metric-label">Iteración</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value accuracy" id="metricAccuracy">0%</div>
+                                <div class="metric-label">Accuracy</div>
+                            </div>
+                            <div class="metric-card" style="grid-column: span 2;">
+                                <div class="metric-value loss" id="metricLoss">0.000</div>
+                                <div class="metric-label">Pérdida (Cross-Entropy)</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Weights table -->
+                        <div class="section-label" style="margin-top: 0.5rem;">Pesos del modelo</div>
+                        <table class="weights-table">
+                            <tr>
+                                <th>w₁</th>
+                                <th>w₂</th>
+                                <th>b (bias)</th>
+                            </tr>
+                            <tr>
+                                <td id="w1Value">0.000</td>
+                                <td id="w2Value">0.000</td>
+                                <td id="bValue">0.000</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Data controls -->
+                <div class="card">
+                    <div class="card-body">
+                        <div class="section-label">Datos</div>
+                        <button class="btn btn-danger" id="clearDataBtn" style="width: 100%; margin-bottom: 0.75rem;">
+                            🗑️ Limpiar datos
+                        </button>
+                        
+                        <div class="section-label" style="margin-top: 0.5rem;">Datos de ejemplo</div>
+                        <div class="preset-grid">
+                            <button class="preset-btn" data-preset="linear">Lineal</button>
+                            <button class="preset-btn" data-preset="diagonal">Diagonal</button>
+                            <button class="preset-btn" data-preset="overlap">Overlap</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>Curso: Introducción al Machine Learning · Dr. Jonás Velasco Álvarez</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

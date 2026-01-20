@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVM: Margen máximo | ML Interactivo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&family=Source+Serif+Pro:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #fafafa;
+            --bg-card: #ffffff;
+            --bg-code: #f5f5f5;
+            
+            --text-primary: #232f3e;
+            --text-secondary: #545b64;
+            --text-muted: #879596;
+            
+            --accent-orange: #ff9900;
+            --accent-blue: #0073bb;
+            --accent-teal: #1e8e8e;
+            --accent-red: #d13212;
+            --accent-green: #1d8102;
+            --accent-purple: #7b68ee;
+            
+            --class-neg: #0073bb;
+            --class-pos: #ff9900;
+            
+            --border-color: #e8e8e8;
+            --shadow: 0 2px 8px rgba(0,0,0,0.08);
+            
+            --font-sans: 'Source Sans Pro', -apple-system, sans-serif;
+            --font-serif: 'Source Serif Pro', Georgia, serif;
+            
+            --radius: 8px;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.6;
+            font-size: 16px;
+        }
+        
+        .header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.5rem;
+        }
+        
+        .header-content {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+        
+        .header h1 {
+            font-family: var(--font-serif);
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+        }
+        
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+        
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 1.5rem;
+        }
+        
+        @media (max-width: 1000px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+        
+        .card-header {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-code);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        
+        .card-body {
+            padding: 1rem;
+        }
+        
+        /* Canvas */
+        .canvas-container {
+            background: var(--bg-code);
+            border-radius: var(--radius);
+            overflow: hidden;
+            position: relative;
+            border: 1px solid var(--border-color);
+        }
+        
+        #mainCanvas {
+            display: block;
+            cursor: grab;
+        }
+        
+        #mainCanvas:active {
+            cursor: grabbing;
+        }
+        
+        .canvas-hint {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(255,255,255,0.95);
+            padding: 0.4rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        
+        /* Mode toggle */
+        .mode-toggle {
+            display: flex;
+            border-radius: var(--radius);
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+        
+        .mode-btn {
+            flex: 1;
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            font-family: inherit;
+            border: none;
+            background: var(--bg-card);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        
+        .mode-btn:not(:last-child) {
+            border-right: 1px solid var(--border-color);
+        }
+        
+        .mode-btn.active {
+            background: var(--accent-blue);
+            color: white;
+        }
+        
+        .mode-btn:hover:not(.active) {
+            background: rgba(0,115,187,0.1);
+        }
+        
+        /* Controls */
+        .section-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.75rem;
+        }
+        
+        .control-group {
+            margin-bottom: 1rem;
+        }
+        
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .control-value {
+            font-family: 'Courier New', monospace;
+            background: var(--bg-code);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            -webkit-appearance: none;
+            background: var(--border-color);
+            border-radius: 3px;
+            outline: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        input[type="range"]:disabled {
+            opacity: 0.5;
+        }
+        
+        input[type="range"]:disabled::-webkit-slider-thumb {
+            background: #999;
+            cursor: not-allowed;
+        }
+        
+        /* Buttons */
+        .btn {
+            width: 100%;
+            padding: 0.6rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            font-family: inherit;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+        }
+        
+        .btn-primary {
+            background: var(--accent-blue);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #005a94;
+        }
+        
+        .btn-success {
+            background: var(--accent-green);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #156801;
+        }
+        
+        .btn-secondary {
+            background: var(--bg-code);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+        
+        .btn-secondary:hover {
+            background: #eee;
+        }
+        
+        /* Metrics */
+        .margin-display {
+            background: linear-gradient(135deg, rgba(29,129,2,0.1) 0%, rgba(30,142,142,0.1) 100%);
+            border: 1px solid rgba(29,129,2,0.3);
+            border-radius: var(--radius);
+            padding: 1rem;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        
+        .margin-value {
+            font-size: 2rem;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+            color: var(--accent-green);
+        }
+        
+        .margin-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+        
+        .margin-formula {
+            font-size: 0.75rem;
+            font-family: 'Courier New', monospace;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+        
+        /* Equation display */
+        .equation-box {
+            background: var(--bg-code);
+            border-radius: var(--radius);
+            padding: 0.75rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        
+        /* Support vectors info */
+        .sv-info {
+            background: linear-gradient(135deg, rgba(123,104,238,0.1) 0%, rgba(0,115,187,0.1) 100%);
+            border: 1px solid rgba(123,104,238,0.3);
+            border-radius: var(--radius);
+            padding: 0.75rem;
+            margin-top: 1rem;
+        }
+        
+        .sv-count {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-purple);
+            text-align: center;
+        }
+        
+        .sv-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-align: center;
+        }
+        
+        /* Legend */
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 0.75rem;
+            font-size: 0.8rem;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .legend-line {
+            width: 20px;
+            height: 3px;
+            border-radius: 2px;
+        }
+        
+        /* Preset buttons */
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .preset-btn {
+            padding: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            font-family: inherit;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        
+        .preset-btn:hover {
+            border-color: var(--accent-blue);
+            background: rgba(0, 115, 187, 0.05);
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 1.5rem 1rem;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            border-top: 1px solid var(--border-color);
+            margin-top: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1>SVM: Margen máximo y vectores de soporte</h1>
+            <p>
+                Visualiza cómo las máquinas de vectores de soporte encuentran el hiperplano 
+                que maximiza el margen entre las clases, y qué puntos son vectores de soporte.
+            </p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="main-grid">
+            <!-- Main visualization -->
+            <div>
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Espacio de características</h2>
+                        <div class="mode-toggle">
+                            <button class="mode-btn active" data-mode="optimal">Óptimo</button>
+                            <button class="mode-btn" data-mode="manual">Manual</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="canvas-container">
+                            <canvas id="mainCanvas" width="700" height="500"></canvas>
+                            <div class="canvas-hint">
+                                🖱️ Arrastra los puntos para ver cómo cambia el hiperplano óptimo
+                            </div>
+                        </div>
+                        
+                        <div class="legend">
+                            <div class="legend-item">
+                                <span class="legend-dot" style="background: var(--class-neg);"></span>
+                                <span>Clase -1</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-dot" style="background: var(--class-pos);"></span>
+                                <span>Clase +1</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-dot" style="background: white; border: 4px solid var(--accent-purple);"></span>
+                                <span>Vector de soporte</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-line" style="background: #333;"></span>
+                                <span>Hiperplano</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-line" style="background: #999; border: 1px dashed #666;"></span>
+                                <span>Márgenes</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Controls panel -->
+            <div>
+                <!-- Margin display -->
+                <div class="card" style="margin-bottom: 1rem;">
+                    <div class="card-body">
+                        <div class="margin-display">
+                            <div class="margin-value" id="marginValue">0.00</div>
+                            <div class="margin-label">Margen (M)</div>
+                            <div class="margin-formula">M = 1 / ||β|| = 1 / √(β₁² + β₂²)</div>
+                        </div>
+                        
+                        <div class="equation-box" id="equationBox">
+                            β₀ + β₁x₁ + β₂x₂ = 0
+                        </div>
+                        
+                        <div class="sv-info">
+                            <div class="sv-count" id="svCount">0</div>
+                            <div class="sv-label">Vectores de soporte</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Manual controls -->
+                <div class="card" style="margin-bottom: 1rem;" id="manualControls">
+                    <div class="card-body">
+                        <div class="section-label">Parámetros del hiperplano</div>
+                        <div class="control-group">
+                            <div class="control-label">
+                                <span>β₀ (bias)</span>
+                                <span class="control-value" id="b0Value">0.00</span>
+                            </div>
+                            <input type="range" id="b0Slider" min="-5" max="5" step="0.1" value="0" disabled>
+                        </div>
+                        <div class="control-group">
+                            <div class="control-label">
+                                <span>β₁</span>
+                                <span class="control-value" id="b1Value">1.00</span>
+                            </div>
+                            <input type="range" id="b1Slider" min="-3" max="3" step="0.1" value="1" disabled>
+                        </div>
+                        <div class="control-group">
+                            <div class="control-label">
+                                <span>β₂</span>
+                                <span class="control-value" id="b2Value">1.00</span>
+                            </div>
+                            <input type="range" id="b2Slider" min="-3" max="3" step="0.1" value="1" disabled>
+                        </div>
+                        
+                        <button class="btn btn-success" id="optimizeBtn" style="margin-top: 0.5rem;">
+                            🎯 Encontrar óptimo
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Data presets -->
+                <div class="card">
+                    <div class="card-body">
+                        <div class="section-label">Datos de ejemplo</div>
+                        <div class="preset-grid">
+                            <button class="preset-btn" data-preset="simple">Simple</button>
+                            <button class="preset-btn" data-preset="diagonal">Diagonal</button>
+                            <button class="preset-btn" data-preset="close">Cercanos</button>
+                            <button class="preset-btn" data-preset="spread">Dispersos</button>
+                        </div>
+                        
+                        <button class="btn btn-secondary" id="resetBtn" style="margin-top: 1rem;">
+                            🔄 Reiniciar datos
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>Curso: Introducción al Machine Learning · Dr. Jonás Velasco Álvarez</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
