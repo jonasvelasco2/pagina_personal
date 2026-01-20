@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZLLCPFX9W7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-ZLLCPFX9W7');
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>K-Means Clustering | ML Interactivo</title>
@@ -50,12 +58,74 @@
         .header {
             background: var(--bg-card);
             border-bottom: 1px solid var(--border-color);
-            padding: 2rem 1.5rem;
+            padding: 1.5rem 1.5rem;
+            position: relative;
         }
         
         .header-content {
             max-width: 1200px;
             margin: 0 auto;
+        }
+        
+        .header-buttons {
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            display: flex;
+            gap: 0.5rem;
+            z-index: 10;
+        }
+        
+        .btn-coffee {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: #ffdd00;
+            color: #1a1a1a;
+            font-weight: 600;
+            font-size: 0.8rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .btn-coffee:hover {
+            background: #ffcc00;
+            transform: translateY(-1px);
+        }
+        
+        .btn-home {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 0.8rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            text-decoration: none;
+            border: 1px solid var(--border-color);
+            transition: all 0.2s;
+        }
+        
+        .btn-home:hover {
+            background: var(--bg-code);
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+        }
+        
+        @media (max-width: 600px) {
+            .header-buttons {
+                position: static;
+                margin-bottom: 1rem;
+                justify-content: flex-end;
+            }
+            .btn-coffee span, .btn-home span {
+                display: none;
+            }
         }
         
         .header h1 {
@@ -417,17 +487,47 @@
         }
         
         .footer {
+            background: #333333;
+            color: #d1d5db;
             text-align: center;
-            padding: 2rem 1rem;
-            color: var(--text-muted);
-            font-size: 0.875rem;
-            border-top: 1px solid var(--border-color);
+            padding: 2.5rem 1.5rem;
+            margin-top: 3rem;
+        }
+        
+        .footer p {
+            margin: 0;
+            font-size: 0.95rem;
+        }
+        
+        .footer a {
+            color: #80CBC4;
+            text-decoration: none;
+            font-size: 1.1rem;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        
+        .footer .copyright {
+            color: #6b7280;
+            font-size: 0.8rem;
             margin-top: 2rem;
         }
     </style>
 </head>
 <body>
     <header class="header">
+        <div class="header-buttons">
+            <a href="../../pasarela/buymeacoffee.html" target="_blank" class="btn-coffee">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M1 12.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5M2 4v6h10V4zm11.5 0a.5.5 0 0 0-.5.5v5a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-5a.5.5 0 0 0-.5-.5zM1 3.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5"/></svg>
+                <span>Invítame un café</span>
+            </a>
+            <a href="../index.html" class="btn-home">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                <span>Inicio</span>
+            </a>
+        </div>
         <div class="header-content">
             <h1>K-Means Clustering</h1>
             <p>
@@ -529,7 +629,9 @@
     </div>
 
     <footer class="footer">
-        <p>Curso: Introducción al Machine Learning · Dr. Jonás Velasco Álvarez</p>
+        <p>Si tienes alguna pregunta o te gustaría colaborar, no dudes en escribirme.</p>
+        <a href="../../contacto.html">Contacto</a>
+        <p class="copyright">&copy; 2025 Jonás Velasco. Todos los derechos reservados.</p>
     </footer>
 
     <script src="script.js"></script>

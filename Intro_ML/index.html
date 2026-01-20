@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZLLCPFX9W7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-ZLLCPFX9W7');
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recursos interactivos | Machine Learning</title>
@@ -213,15 +221,32 @@
         
         /* Footer */
         .footer {
+            background: #333333;
+            color: #d1d5db;
             text-align: center;
-            padding: 2rem 1rem;
-            color: var(--text-muted);
-            font-size: 0.875rem;
-            border-top: 1px solid var(--border-color);
+            padding: 2.5rem 1.5rem;
+            margin-top: 3rem;
         }
         
-        .footer p + p {
-            margin-top: 0.25rem;
+        .footer p {
+            margin: 0;
+            font-size: 0.95rem;
+        }
+        
+        .footer a {
+            color: #80CBC4;
+            text-decoration: none;
+            font-size: 1.1rem;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        
+        .footer .copyright {
+            color: #6b7280;
+            font-size: 0.8rem;
+            margin-top: 2rem;
         }
     </style>
 </head>
@@ -789,8 +814,9 @@
     </div>
 
     <footer class="footer">
-        <p>Curso: Introducción al Machine Learning</p>
-        <p>Dr. Jonás Velasco Álvarez · 2026</p>
+        <p>Si tienes alguna pregunta o te gustaría colaborar, no dudes en escribirme.</p>
+        <a href="../contacto.html">Contacto</a>
+        <p class="copyright">&copy; 2025 Jonás Velasco. Todos los derechos reservados.</p>
     </footer>
 </body>
 </html>
