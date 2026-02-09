@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recocido Simulado - Mochila Binaria</title>
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+    <!-- HEADER -->
+    <div id="header">
+        <div>
+            <h1>Recocido simulado &mdash; 0/1 Knapsack problem </h1>
+            <div class="subtitle">Visualizaci&oacute;n interactiva sobre el &aacute;rbol completo de soluciones</div>
+        </div>
+        <div class="subtitle" id="problem-summary"></div>
+    </div>
+
+    <!-- CONTROLS -->
+    <div id="controls" class="panel">
+        <div class="panel-title">Configuraci&oacute;n</div>
+
+        <div class="control-group">
+            <label>&Iacute;tems (n) <span class="slider-value" id="val-n">3</span></label>
+            <select id="input-n">
+                <option value="3" selected>n = 3 (8 soluciones)</option>
+                <option value="4">n = 4 (16 soluciones)</option>
+                <option value="6">n = 6 (64 soluciones)</option>
+                <option value="8">n = 8 (256 soluciones)</option>
+              <!--  <option value="10">n = 10 (1024 soluciones)</option>  -->
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>Temperatura Inicial (T0)</label>
+            <input type="number" id="input-t0" min="1" max="1000" value="100" step="10">
+        </div>
+
+        <div class="control-group">
+            <label>Factor de enfriamiento (&alpha;)</label>
+            <input type="number" id="input-alpha" min="0.01" max="0.99" value="0.90" step="0.01">
+        </div>
+
+        <div class="control-group">
+            <label>M&aacute;x. iteraciones</label>
+            <input type="number" id="input-maxiter" min="1" max="500" value="20" step="1">
+        </div>
+
+        <div class="control-group">
+            <label>Perturbaci&oacute;n</label>
+            <select id="input-perturbation">
+                <option value="flip1">Flip 1 bit</option>
+                <option value="swap2">Swap 2 bits</option>
+                <option value="flip2">Flip 2 bits</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>Velocidad (ms)</label>
+            <input type="number" id="input-speed" min="50" max="3000" value="600" step="50">
+        </div>
+
+        <div class="btn-group">
+            <button class="btn primary" id="btn-play">&#9654; Animar</button>
+            <button class="btn" id="btn-pause" disabled>&#10074;&#10074; Detener</button>
+            <button class="btn" id="btn-step">&#9654;| Paso a paso</button>
+            <button class="btn danger" id="btn-reset">&#8635; Reiniciar</button>
+        </div>
+
+        <div class="panel-title" style="margin-top:4px;">&Iacute;tems del Problema</div>
+        <div class="control-group" style="padding:0">
+            <table class="items-table" id="items-table">
+                <thead><tr><th>#</th><th>Peso</th><th>Valor</th></tr></thead>
+                <tbody></tbody>
+            </table>
+            <div style="padding:6px 14px; font-size:11px; color:#718096;">
+                Capacidad: <span id="capacity-display" style="color:#0891b2; font-weight:600;">W = ?</span>
+            </div>
+        </div>
+
+        <div class="panel-title">Leyenda</div>
+        <div style="padding:6px 0;">
+            <div class="legend-item"><div class="legend-dot" style="background:#0891b2; box-shadow:0 0 4px #0891b2;"></div> Soluci&oacute;n actual (S)</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#059669; box-shadow:0 0 4px #059669;"></div> Mejor soluci&oacute;n (S*)</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#d97706; box-shadow:0 0 4px #d97706;"></div> Candidato (S')</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#dc2626; box-shadow:0 0 4px #dc2626;"></div> Rechazado</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#fca5a5;"></div> No factible</div>
+        </div>
+    </div>
+
+    <!-- TREE AREA -->
+    <div id="tree-area">
+        <svg id="tree-svg"></svg>
+        <div class="node-tooltip" id="tooltip"></div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div id="sidebar">
+        <div id="pseudocode-panel" class="panel">
+            <div class="panel-title">Pseudoc&oacute;digo SA</div>
+            <div id="pseudocode-container"></div>
+        </div>
+        <div id="variables-panel" class="panel">
+            <div class="panel-title">Variables</div>
+            <div id="variables-container"></div>
+        </div>
+    </div>
+
+    <!-- STATUS BAR -->
+    <div id="status-bar">
+        <span class="status-msg" id="status-msg">Configure par&aacute;metros y presione Play o Step.</span>
+        <span id="status-info"></span>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
