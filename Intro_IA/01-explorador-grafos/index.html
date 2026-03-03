@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZLLCPFX9W7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-ZLLCPFX9W7');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explorador DFS vs BFS | IA Interactivo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&family=Source+Serif+Pro:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #fafafa;
+            --bg-card: #ffffff;
+            --bg-code: #f5f5f5;
+            --text-primary: #232f3e;
+            --text-secondary: #545b64;
+            --text-muted: #879596;
+            --accent-orange: #ff9900;
+            --accent-blue: #0073bb;
+            --accent-teal: #1e8e8e;
+            --accent-purple: #7b68ee;
+            --border-color: #e8e8e8;
+            --shadow: 0 2px 8px rgba(0,0,0,0.08);
+            --font-sans: 'Source Sans Pro', -apple-system, sans-serif;
+            --font-serif: 'Source Serif Pro', Georgia, serif;
+            --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+            --radius: 8px;
+
+            --color-start: #ff9900;
+            --color-goal: #16a34a;
+            --color-current: #0073bb;
+            --color-visited: #93c5fd;
+            --color-frontier: #06b6d4;
+            --color-unvisited: #d1d5db;
+            --color-path: #22c55e;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        a { text-decoration: none; color: inherit; }
+
+        /* ── Header ── */
+        .header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.5rem;
+            position: relative;
+        }
+        .header-content { max-width: 1200px; margin: 0 auto; }
+        .header-buttons {
+            position: absolute; top: 1rem; right: 1.5rem;
+            display: flex; gap: 0.5rem; z-index: 10;
+        }
+        .btn-coffee {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            background: #ffdd00; color: #1a1a1a;
+            font-weight: 600; font-size: 0.8rem;
+            padding: 0.5rem 0.75rem; border-radius: 6px;
+            text-decoration: none; transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .btn-coffee:hover { background: #ffcc00; transform: translateY(-1px); }
+        .btn-home {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            background: var(--bg-card); color: var(--text-secondary);
+            font-weight: 600; font-size: 0.8rem;
+            padding: 0.5rem 0.75rem; border-radius: 6px;
+            border: 1px solid var(--border-color); transition: all 0.2s;
+        }
+        .btn-home:hover {
+            background: var(--bg-code);
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+        }
+        .header h1 {
+            font-family: var(--font-serif);
+            font-size: 2rem; font-weight: 600;
+            color: var(--text-primary); margin-bottom: 0.5rem;
+        }
+        .header p {
+            font-size: 1.05rem; color: var(--text-secondary);
+            max-width: 700px; line-height: 1.7;
+        }
+
+        /* ── Container ── */
+        .container { max-width: 1200px; margin: 0 auto; padding: 1.5rem; }
+
+        /* ── Controls Bar ── */
+        .controls-bar {
+            display: flex; flex-wrap: wrap; align-items: center;
+            gap: 1rem; padding: 1rem 1.25rem;
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: var(--radius); margin-bottom: 1.25rem;
+        }
+
+        /* Toggle DFS/BFS */
+        .toggle-group {
+            display: flex; border: 2px solid var(--accent-blue);
+            border-radius: 6px; overflow: hidden;
+        }
+        .toggle-btn {
+            padding: 0.5rem 1rem; font-size: 0.85rem; font-weight: 600;
+            border: none; cursor: pointer; font-family: inherit;
+            background: var(--bg-card); color: var(--accent-blue);
+            transition: all 0.2s;
+        }
+        .toggle-btn.active {
+            background: var(--accent-blue); color: white;
+        }
+        .toggle-btn:hover:not(.active) { background: #e0f2fe; }
+
+        /* Control groups */
+        .control-group {
+            display: flex; align-items: center; gap: 0.5rem;
+        }
+        .control-group label {
+            font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);
+        }
+        .control-group select {
+            padding: 0.45rem 0.75rem; font-size: 0.85rem;
+            border: 1px solid var(--border-color); border-radius: 6px;
+            background: var(--bg-card); color: var(--text-primary);
+            font-family: inherit; cursor: pointer;
+        }
+
+        /* Buttons */
+        .btn-group { display: flex; gap: 0.4rem; }
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            gap: 0.35rem; padding: 0.5rem 1rem;
+            font-size: 0.85rem; font-weight: 600;
+            border: none; border-radius: 6px; cursor: pointer;
+            font-family: inherit; transition: all 0.2s;
+        }
+        .btn-primary { background: var(--accent-blue); color: white; }
+        .btn-primary:hover { background: #005a94; }
+        .btn-secondary {
+            background: var(--bg-code); color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+        .btn-secondary:hover { background: #e8e8e8; }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* Speed slider */
+        input[type="range"] {
+            -webkit-appearance: none; appearance: none;
+            width: 100px; height: 5px;
+            background: #ddd; border-radius: 3px; outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none; appearance: none;
+            width: 16px; height: 16px;
+            background: var(--accent-blue); border-radius: 50%; cursor: pointer;
+        }
+        .slider-value {
+            display: inline-block; min-width: 2.5rem;
+            padding: 0.15rem 0.4rem; background: var(--bg-code);
+            border-radius: 4px; font-size: 0.75rem;
+            text-align: center; color: var(--accent-blue); font-weight: 600;
+        }
+
+        /* ── Main Layout ── */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 1.25rem;
+            margin-bottom: 1.25rem;
+        }
+
+        /* Panel */
+        .panel {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: var(--radius); overflow: hidden;
+        }
+        .panel-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0.75rem 1rem;
+            background: var(--bg-code); border-bottom: 1px solid var(--border-color);
+        }
+        .panel-title {
+            font-size: 0.9rem; font-weight: 700; color: var(--text-primary);
+        }
+        .panel-subtitle { font-size: 0.75rem; color: var(--text-muted); }
+        .badge {
+            display: inline-flex; align-items: center; justify-content: center;
+            min-width: 24px; height: 24px; padding: 0 6px;
+            background: var(--accent-blue); color: white;
+            border-radius: 12px; font-size: 0.75rem; font-weight: 700;
+        }
+
+        /* Canvas */
+        .canvas-wrap { padding: 0.5rem; }
+        #graph-canvas { display: block; width: 100%; border-radius: 6px; cursor: default; }
+
+        /* Legend */
+        .legend {
+            display: flex; flex-wrap: wrap; gap: 0.75rem;
+            padding: 0.6rem 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+        .legend-item {
+            display: flex; align-items: center; gap: 0.35rem;
+            font-size: 0.75rem; color: var(--text-secondary);
+        }
+        .dot {
+            width: 10px; height: 10px; border-radius: 50%;
+            display: inline-block; border: 1px solid rgba(0,0,0,0.15);
+        }
+
+        /* Structure (Stack/Queue) Panel */
+        .structure-panel { display: flex; flex-direction: column; }
+        .structure-body { padding: 0.75rem; flex: 1; display: flex; flex-direction: column; gap: 0.75rem; }
+        .structure-container {
+            display: flex; flex-direction: column; gap: 4px;
+            min-height: 120px;
+        }
+        .struct-item {
+            display: flex; align-items: center; justify-content: center;
+            padding: 0.4rem 0.6rem;
+            background: #e0f2fe; border: 1px solid #bae6fd;
+            border-radius: 4px; font-size: 0.85rem; font-weight: 700;
+            color: var(--accent-blue);
+            animation: fadeSlideIn 0.25s ease-out;
+        }
+        .struct-item.top-item {
+            background: var(--accent-blue); color: white;
+            border-color: var(--accent-blue);
+        }
+        .struct-pointer {
+            font-size: 0.65rem; margin-left: 0.5rem;
+            color: var(--text-muted); font-weight: 400;
+        }
+
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Visit order */
+        .visit-order {
+            display: flex; flex-wrap: wrap; gap: 4px;
+            min-height: 30px;
+        }
+        .visit-tag {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 28px; height: 28px;
+            background: var(--color-visited); border-radius: 50%;
+            font-size: 0.7rem; font-weight: 700; color: #1e3a5f;
+        }
+
+        /* Section label */
+        .section-label {
+            font-size: 0.7rem; font-weight: 600; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.05em;
+            margin-bottom: 0.35rem;
+        }
+
+        /* ── Metrics ── */
+        .metrics-bar {
+            display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.75rem;
+            margin-bottom: 1.25rem;
+        }
+        .metric {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: var(--radius); padding: 0.75rem;
+            text-align: center;
+        }
+        .metric-label {
+            font-size: 0.7rem; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.04em;
+            margin-bottom: 0.2rem;
+        }
+        .metric-value {
+            font-size: 1.35rem; font-weight: 700;
+            color: var(--accent-blue);
+        }
+        .metric-value.success { color: var(--color-goal); }
+        .metric-value.warning { color: var(--accent-orange); }
+
+        /* ── Status Box ── */
+        .status-box {
+            padding: 0.85rem 1rem;
+            background: #eff6ff; border: 1px solid #bfdbfe;
+            border-radius: var(--radius); margin-bottom: 1.25rem;
+            font-size: 0.9rem; color: #1e40af;
+        }
+        .status-box.found {
+            background: #f0fdf4; border-color: #bbf7d0; color: #166534;
+        }
+        .status-box.no-path {
+            background: #fef2f2; border-color: #fecaca; color: #991b1b;
+        }
+
+        /* ── Info Box ── */
+        .info-box {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: var(--radius); padding: 1rem 1.25rem;
+            margin-bottom: 1.25rem;
+        }
+        .info-box h4 {
+            font-size: 0.9rem; color: var(--accent-blue); margin-bottom: 0.4rem;
+        }
+        .info-box p {
+            font-size: 0.85rem; color: var(--text-secondary); line-height: 1.7; margin: 0;
+        }
+
+        /* ── Path display ── */
+        .path-display {
+            display: flex; align-items: center; flex-wrap: wrap; gap: 4px;
+            padding: 0.5rem 0;
+        }
+        .path-node {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 30px; height: 30px;
+            background: var(--color-path); color: white;
+            border-radius: 50%; font-size: 0.75rem; font-weight: 700;
+        }
+        .path-arrow { color: var(--color-goal); font-weight: 700; font-size: 0.9rem; }
+
+        /* ── Footer ── */
+        .footer {
+            background: #333333;
+            color: #d1d5db;
+            text-align: center;
+            padding: 2.5rem 1.5rem;
+            margin-top: 3rem;
+        }
+        .footer p { margin: 0; font-size: 0.95rem; }
+        .footer a { color: #80CBC4; text-decoration: none; font-size: 1.1rem; }
+        .footer a:hover { text-decoration: underline; }
+        .footer .copyright { color: #6b7280; font-size: 0.8rem; margin-top: 2rem; }
+
+        /* ── Responsive ── */
+        @media (max-width: 900px) {
+            .main-content { grid-template-columns: 1fr; }
+            .metrics-bar { grid-template-columns: repeat(3, 1fr); }
+            .header-buttons { position: static; margin-bottom: 0.75rem; }
+        }
+        @media (max-width: 600px) {
+            .controls-bar { flex-direction: column; align-items: stretch; }
+            .metrics-bar { grid-template-columns: repeat(2, 1fr); }
+            .header-buttons { position: static; margin-bottom: 1rem; justify-content: flex-end; }
+            .btn-coffee span, .btn-home span { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-buttons">
+            <a href="../../pasarela/buymeacoffee.html" target="_blank" class="btn-coffee">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M1 12.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5M2 4v6h10V4zm11.5 0a.5.5 0 0 0-.5.5v5a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-5a.5.5 0 0 0-.5-.5zM1 3.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5"/></svg>
+                <span>Invítame un café</span>
+            </a>
+            <a href="../index.html" class="btn-home">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                <span>Inicio</span>
+            </a>
+        </div>
+        <div class="header-content">
+            <h1>Explorador de grafos: DFS vs BFS</h1>
+            <p>
+                Ejecuta búsqueda en profundidad y amplitud paso a paso. Observa cómo la estructura 
+                de datos (pila vs cola) determina el orden de exploración.
+            </p>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- Controls -->
+        <div class="controls-bar">
+            <div class="toggle-group">
+                <button class="toggle-btn active" data-algo="dfs">DFS (Pila)</button>
+                <button class="toggle-btn" data-algo="bfs">BFS (Cola)</button>
+            </div>
+
+            <div class="control-group">
+                <label>Grafo:</label>
+                <select id="graph-select">
+                    <option value="graph1">A→F (Presentación)</option>
+                    <option value="graph2">S→G (Actividad 1)</option>
+                    <option value="graph3">Grafo grande</option>
+                </select>
+            </div>
+
+            <div class="btn-group">
+                <button id="btn-step" class="btn btn-primary">&#9654; Paso</button>
+                <button id="btn-run" class="btn btn-secondary">&#9193; Ejecutar</button>
+                <button id="btn-reset" class="btn btn-secondary">&#8634; Reiniciar</button>
+            </div>
+
+            <div class="control-group">
+                <label>Velocidad:</label>
+                <input type="range" id="speed-slider" min="100" max="1500" value="600" step="100">
+                <span class="slider-value" id="speed-value">600ms</span>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Graph Panel -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title">Grafo</span>
+                    <span class="panel-subtitle" id="graph-info">6 nodos · 7 aristas</span>
+                </div>
+                <div class="canvas-wrap">
+                    <canvas id="graph-canvas" width="700" height="420"></canvas>
+                </div>
+                <div class="legend">
+                    <span class="legend-item"><span class="dot" style="background:var(--color-start)"></span> Inicio</span>
+                    <span class="legend-item"><span class="dot" style="background:var(--color-goal)"></span> Meta</span>
+                    <span class="legend-item"><span class="dot" style="background:var(--color-current)"></span> Actual</span>
+                    <span class="legend-item"><span class="dot" style="background:var(--color-visited)"></span> Visitado</span>
+                    <span class="legend-item"><span class="dot" style="background:var(--color-frontier)"></span> Frontera</span>
+                    <span class="legend-item"><span class="dot" style="background:var(--color-unvisited)"></span> Sin visitar</span>
+                    <span class="legend-item"><span class="dot" style="background:var(--color-path)"></span> Camino</span>
+                </div>
+            </div>
+
+            <!-- Structure Panel (Stack / Queue) -->
+            <div class="panel structure-panel">
+                <div class="panel-header">
+                    <span class="panel-title" id="structure-title">Pila (LIFO)</span>
+                    <span class="badge" id="structure-count">0</span>
+                </div>
+                <div class="structure-body">
+                    <div>
+                        <div class="section-label" id="struct-hint">tope ↑ · se extrae de aquí</div>
+                        <div class="structure-container" id="structure-container"></div>
+                    </div>
+                    <div>
+                        <div class="section-label">Orden de visita</div>
+                        <div class="visit-order" id="visit-order"></div>
+                    </div>
+                    <div id="path-result" style="display:none;">
+                        <div class="section-label">Camino encontrado</div>
+                        <div class="path-display" id="path-display"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metrics -->
+        <div class="metrics-bar">
+            <div class="metric">
+                <div class="metric-label">Paso</div>
+                <div class="metric-value" id="metric-step">0</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Explorados</div>
+                <div class="metric-value" id="metric-explored">0</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Frontera</div>
+                <div class="metric-value" id="metric-frontier">0</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Camino</div>
+                <div class="metric-value" id="metric-path">&mdash;</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Estado</div>
+                <div class="metric-value" id="metric-status" style="font-size:0.85rem;">Listo</div>
+            </div>
+        </div>
+
+        <!-- Status -->
+        <div class="status-box" id="status-box">
+            Selecciona un algoritmo y presiona <strong>Paso</strong> para iniciar la búsqueda.
+        </div>
+
+        <!-- Info -->
+        <div class="info-box">
+            <h4>¿Cómo usar este recurso?</h4>
+            <p>
+                1. Elige un algoritmo (<strong>DFS</strong> o <strong>BFS</strong>) y un grafo predefinido.<br>
+                2. Presiona <strong>Paso</strong> para avanzar un paso del algoritmo.<br>
+                3. Observa la pila/cola y los colores de los nodos en cada paso.<br>
+                4. Presiona <strong>Ejecutar</strong> para ver la animación completa.<br>
+                5. <strong>DFS</strong> usa una pila (LIFO): explora en profundidad. <strong>BFS</strong> usa una cola (FIFO): explora por niveles.
+            </p>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>Si tienes alguna pregunta o te gustaría colaborar, no dudes en escribirme.</p>
+        <a href="../../contacto.html">Contacto</a>
+        <p class="copyright">&copy; 2025 Jonás Velasco. Todos los derechos reservados.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

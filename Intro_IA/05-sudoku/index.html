@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZLLCPFX9W7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-ZLLCPFX9W7');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sudoku con Backtracking | IA Interactivo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&family=Source+Serif+Pro:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #fafafa;
+            --bg-card: #ffffff;
+            --bg-code: #f5f5f5;
+            --text-primary: #232f3e;
+            --text-secondary: #545b64;
+            --text-muted: #879596;
+            --accent-orange: #ff9900;
+            --accent-blue: #0073bb;
+            --accent-teal: #1e8e8e;
+            --accent-purple: #7b68ee;
+            --border-color: #e8e8e8;
+            --shadow: 0 2px 8px rgba(0,0,0,0.08);
+            --font-sans: 'Source Sans Pro', -apple-system, sans-serif;
+            --font-serif: 'Source Serif Pro', Georgia, serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --radius: 8px;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: var(--font-sans); background: var(--bg-main); color: var(--text-primary); line-height: 1.6; }
+        a { text-decoration: none; color: inherit; }
+
+        /* ── Header ── */
+        .header {
+            background: var(--bg-card); border-bottom: 1px solid var(--border-color);
+            padding: 1.5rem; position: relative;
+        }
+        .header-content { max-width: 1200px; margin: 0 auto; }
+        .header-buttons {
+            position: absolute; top: 1rem; right: 1.5rem;
+            display: flex; gap: 0.5rem; z-index: 10;
+        }
+        .btn-coffee {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            background: #ffdd00; color: #1a1a1a; font-weight: 600; font-size: 0.8rem;
+            padding: 0.5rem 0.75rem; border-radius: 6px;
+            text-decoration: none; transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .btn-coffee:hover { background: #ffcc00; transform: translateY(-1px); }
+        .btn-home {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            background: var(--bg-card); color: var(--text-secondary);
+            font-weight: 600; font-size: 0.8rem;
+            padding: 0.5rem 0.75rem; border-radius: 6px;
+            border: 1px solid var(--border-color); transition: all 0.2s;
+        }
+        .btn-home:hover { background: var(--bg-code); border-color: var(--accent-blue); color: var(--accent-blue); }
+        .header h1 {
+            font-family: var(--font-serif); font-size: 2rem; font-weight: 600;
+            color: var(--text-primary); margin-bottom: 0.5rem;
+        }
+        .header p { font-size: 1.05rem; color: var(--text-secondary); max-width: 700px; line-height: 1.7; }
+
+        /* ── Container ── */
+        .container { max-width: 1200px; margin: 0 auto; padding: 1.5rem; }
+
+        /* ── Controls ── */
+        .controls-bar {
+            display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center;
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 1.5rem;
+        }
+        .control-group { display: flex; align-items: center; gap: 0.5rem; }
+        .control-group label { font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); white-space: nowrap; }
+        select {
+            padding: 0.4rem 0.6rem; border: 1px solid var(--border-color); border-radius: 4px;
+            font-family: var(--font-sans); font-size: 0.8rem; background: white;
+        }
+        .btn {
+            padding: 0.5rem 1rem; border: 1px solid var(--border-color); border-radius: 6px;
+            font-family: var(--font-sans); font-weight: 600; font-size: 0.8rem;
+            cursor: pointer; transition: all 0.15s;
+        }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .btn-primary { background: var(--accent-blue); color: white; border-color: var(--accent-blue); }
+        .btn-primary:hover:not(:disabled) { background: #005a94; }
+        .btn-secondary { background: var(--bg-card); color: var(--text-secondary); }
+        .btn-secondary:hover:not(:disabled) { background: var(--bg-code); }
+        .btn-success { background: #16a34a; color: white; border-color: #16a34a; }
+        .btn-success:hover:not(:disabled) { background: #15803d; }
+        input[type="range"] { width: 90px; }
+        .slider-value { font-size: 0.8rem; font-weight: 600; color: var(--accent-blue); min-width: 40px; }
+        .separator { width: 1px; height: 28px; background: var(--border-color); }
+
+        /* ── Main layout ── */
+        .main-layout { display: grid; grid-template-columns: auto 300px; gap: 1.5rem; margin-bottom: 1.5rem; justify-content: center; }
+        .panel {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: var(--radius); overflow: hidden;
+        }
+        .panel-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color);
+        }
+        .panel-title { font-weight: 700; font-size: 1rem; }
+        .panel-subtitle { font-size: 0.75rem; color: var(--text-muted); }
+
+        /* ── Sudoku Grid ── */
+        .grid-wrap { padding: 12px; display: flex; justify-content: center; }
+        .sudoku-grid {
+            display: grid; grid-template-columns: repeat(9, 1fr);
+            border: 3px solid var(--text-primary); border-radius: 4px;
+            width: 450px; height: 450px;
+        }
+        .sudoku-cell {
+            display: flex; align-items: center; justify-content: center;
+            font-family: var(--font-mono); font-size: 1.3rem; font-weight: 600;
+            border: 1px solid #d1d5db; cursor: pointer;
+            transition: background 0.15s; position: relative;
+            color: var(--text-primary); background: white;
+        }
+        .sudoku-cell:hover { background: #f0f9ff; }
+        .sudoku-cell.given { background: var(--bg-code); color: var(--text-primary); font-weight: 700; cursor: default; }
+        .sudoku-cell.current { background: #dbeafe; }
+        .sudoku-cell.trying { background: #bfdbfe; color: var(--accent-blue); }
+        .sudoku-cell.conflict { background: #fecaca; color: #dc2626; }
+        .sudoku-cell.solved { background: #dcfce7; color: #16a34a; }
+        .sudoku-cell.backtrack { background: #fef3c7; color: var(--accent-orange); }
+
+        /* Thicker borders for 3x3 boxes */
+        .sudoku-cell:nth-child(3n) { border-right: 2.5px solid var(--text-primary); }
+        .sudoku-cell:nth-child(9n+1) { border-left: none; }
+        .sudoku-cell:nth-child(9n) { border-right: none; }
+        .sudoku-cell:nth-child(n+1):nth-child(-n+9) { border-top: none; }
+        .sudoku-cell:nth-child(n+73) { border-bottom: none; }
+        .sudoku-cell:nth-child(n+19):nth-child(-n+27) { border-bottom: 2.5px solid var(--text-primary); }
+        .sudoku-cell:nth-child(n+46):nth-child(-n+54) { border-bottom: 2.5px solid var(--text-primary); }
+
+        /* ── Side panel ── */
+        .side-panel { display: flex; flex-direction: column; gap: 1rem; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; padding: 0.75rem; }
+        .stat-card {
+            background: var(--bg-code); border-radius: 6px; padding: 0.5rem; text-align: center;
+        }
+        .stat-label { font-size: 0.65rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+        .stat-value { font-size: 1.2rem; font-weight: 700; color: var(--accent-blue); }
+        .stat-value.success { color: #16a34a; }
+        .stat-value.danger { color: #ef4444; }
+
+        /* ── Log ── */
+        .log-box {
+            flex: 1; min-height: 180px; max-height: 320px; overflow-y: auto;
+            padding: 0.75rem; font-size: 0.75rem; font-family: var(--font-mono);
+            color: var(--text-secondary); border-top: 1px solid var(--border-color);
+        }
+        .log-entry { padding: 0.1rem 0; border-bottom: 1px solid var(--bg-code); }
+        .log-place { color: #16a34a; font-weight: 700; }
+        .log-try { color: var(--accent-blue); font-weight: 700; }
+        .log-conflict { color: #ef4444; font-weight: 700; }
+        .log-backtrack { color: var(--accent-orange); font-weight: 700; }
+        .log-solved { color: var(--accent-purple); font-weight: 700; }
+
+        /* ── Status ── */
+        .status-box {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: var(--radius); padding: 0.75rem 1rem; margin-bottom: 1.5rem;
+            font-size: 0.85rem; color: var(--text-secondary);
+        }
+        .status-box.found { border-left: 4px solid #16a34a; background: #f0fdf4; }
+        .status-box.error { border-left: 4px solid #ef4444; background: #fef2f2; }
+
+        /* ── Info ── */
+        .info-box {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-left: 4px solid var(--accent-teal);
+            border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 1.5rem;
+        }
+        .info-box h3 { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.4rem; }
+        .info-box p { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; }
+        .info-box code { font-family: var(--font-mono); background: var(--bg-code); padding: 0.15rem 0.35rem; border-radius: 3px; font-size: 0.8rem; }
+
+        /* ── Footer ── */
+        .footer {
+            background: #333333; color: #d1d5db;
+            text-align: center; padding: 2.5rem 1.5rem; margin-top: 3rem;
+        }
+        .footer p { margin: 0; font-size: 0.95rem; }
+        .footer a { color: #80CBC4; text-decoration: none; font-size: 1.1rem; }
+        .footer a:hover { text-decoration: underline; }
+        .footer .copyright { color: #6b7280; font-size: 0.8rem; margin-top: 2rem; }
+
+        /* ── Responsive ── */
+        @media (max-width: 900px) {
+            .main-layout { grid-template-columns: 1fr; }
+            .sudoku-grid { width: 100%; max-width: 450px; height: auto; aspect-ratio: 1; }
+            .header-buttons { position: static; margin-bottom: 0.75rem; }
+        }
+        @media (max-width: 500px) {
+            .controls-bar { flex-direction: column; align-items: stretch; }
+            .sudoku-cell { font-size: 1rem; }
+            .header-buttons { justify-content: flex-end; }
+            .btn-coffee span, .btn-home span { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="header-buttons">
+            <a href="../../pasarela/buymeacoffee.html" target="_blank" class="btn-coffee">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M1 12.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5M2 4v6h10V4zm11.5 0a.5.5 0 0 0-.5.5v5a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-5a.5.5 0 0 0-.5-.5zM1 3.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5"/></svg>
+                <span>Invítame un café</span>
+            </a>
+            <a href="../index.html" class="btn-home">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                <span>Inicio</span>
+            </a>
+        </div>
+        <div class="header-content">
+            <h1>Sudoku con Backtracking</h1>
+            <p>
+                Observa cómo el algoritmo de backtracking resuelve un Sudoku:
+                prueba un número, valida restricciones y retrocede si hay conflicto.
+            </p>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- Controls -->
+        <div class="controls-bar">
+            <div class="control-group">
+                <label>Puzzle:</label>
+                <select id="puzzle-select">
+                    <option value="easy">Fácil</option>
+                    <option value="medium">Medio</option>
+                    <option value="hard">Difícil</option>
+                </select>
+            </div>
+
+            <div class="separator"></div>
+
+            <button id="btn-step" class="btn btn-primary">&#9654; Paso</button>
+            <button id="btn-run" class="btn btn-secondary">&#9193; Ejecutar</button>
+            <button id="btn-solve" class="btn btn-success">Resolver</button>
+            <button id="btn-reset" class="btn btn-secondary">&#8634; Reiniciar</button>
+
+            <div class="separator"></div>
+
+            <div class="control-group">
+                <label>Velocidad:</label>
+                <input type="range" id="speed-slider" min="1" max="200" value="30" step="1">
+                <span class="slider-value" id="speed-value">30ms</span>
+            </div>
+        </div>
+
+        <!-- Main layout -->
+        <div class="main-layout">
+            <!-- Grid -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title">Tablero</span>
+                    <span class="panel-subtitle" id="board-info">Fácil — 36 celdas vacías</span>
+                </div>
+                <div class="grid-wrap">
+                    <div class="sudoku-grid" id="sudoku-grid"></div>
+                </div>
+            </div>
+
+            <!-- Side -->
+            <div class="side-panel">
+                <div class="panel">
+                    <div class="panel-header">
+                        <span class="panel-title">Estadísticas</span>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">Resueltas</div>
+                            <div class="stat-value success" id="stat-filled">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Vacías</div>
+                            <div class="stat-value" id="stat-empty">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Intentos</div>
+                            <div class="stat-value" id="stat-attempts">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Backtracks</div>
+                            <div class="stat-value danger" id="stat-backtracks">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel" style="flex:1; display:flex; flex-direction:column;">
+                    <div class="panel-header">
+                        <span class="panel-title">Registro</span>
+                    </div>
+                    <div class="log-box" id="log-box">
+                        <div class="log-entry" style="color:var(--text-muted);">Carga un puzzle y presiona Paso o Ejecutar.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status -->
+        <div class="status-box" id="status-box">
+            Selecciona un puzzle y presiona <strong>Paso</strong> para resolver celda por celda, o <strong>Ejecutar</strong> para animación continua.
+        </div>
+
+        <!-- Info -->
+        <div class="info-box">
+            <h3>Backtracking en Sudoku</h3>
+            <p>
+                El algoritmo recorre cada celda vacía de izquierda a derecha, de arriba a abajo.
+                Para cada celda, prueba los números del 1 al 9:<br><br>
+                1. <strong>Colocar:</strong> si el número no viola ninguna restricción (fila, columna, cuadrante 3×3), lo coloca y avanza.<br>
+                2. <strong>Recursar:</strong> intenta resolver la siguiente celda vacía.<br>
+                3. <strong>Quitar:</strong> si no hay número válido, <em>retrocede</em> (backtrack) y prueba el siguiente número en la celda anterior.<br><br>
+                Este patrón <code>colocar → recursar → quitar</code> es la esencia del backtracking.
+            </p>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>Si tienes alguna pregunta o te gustaría colaborar, no dudes en escribirme.</p>
+        <a href="../../contacto.html">Contacto</a>
+        <p class="copyright">&copy; 2025 Jonás Velasco. Todos los derechos reservados.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

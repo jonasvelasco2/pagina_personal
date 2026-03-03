@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZLLCPFX9W7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-ZLLCPFX9W7');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizador Pila y Cola | IA Interactivo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&family=Source+Serif+Pro:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #fafafa;
+            --bg-card: #ffffff;
+            --bg-code: #f5f5f5;
+            --text-primary: #232f3e;
+            --text-secondary: #545b64;
+            --text-muted: #879596;
+            --accent-orange: #ff9900;
+            --accent-blue: #0073bb;
+            --accent-teal: #1e8e8e;
+            --accent-purple: #7b68ee;
+            --border-color: #e8e8e8;
+            --shadow: 0 2px 8px rgba(0,0,0,0.08);
+            --font-sans: 'Source Sans Pro', -apple-system, sans-serif;
+            --font-serif: 'Source Serif Pro', Georgia, serif;
+            --radius: 8px;
+            --color-stack: #0073bb;
+            --color-queue: #ff9900;
+            --color-pop: #ef4444;
+            --color-push: #22c55e;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: var(--font-sans); background: var(--bg-main); color: var(--text-primary); line-height: 1.6; }
+        a { text-decoration: none; color: inherit; }
+
+        /* ── Header ── */
+        .header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.5rem; position: relative;
+        }
+        .header-content { max-width: 1200px; margin: 0 auto; }
+        .header-buttons {
+            position: absolute; top: 1rem; right: 1.5rem;
+            display: flex; gap: 0.5rem; z-index: 10;
+        }
+        .btn-coffee {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            background: #ffdd00; color: #1a1a1a;
+            font-weight: 600; font-size: 0.8rem;
+            padding: 0.5rem 0.75rem; border-radius: 6px;
+            text-decoration: none; transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .btn-coffee:hover { background: #ffcc00; transform: translateY(-1px); }
+        .btn-home {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            background: var(--bg-card); color: var(--text-secondary);
+            font-weight: 600; font-size: 0.8rem;
+            padding: 0.5rem 0.75rem; border-radius: 6px;
+            border: 1px solid var(--border-color); transition: all 0.2s;
+        }
+        .btn-home:hover { background: var(--bg-code); border-color: var(--accent-blue); color: var(--accent-blue); }
+        .header h1 {
+            font-family: var(--font-serif); font-size: 2rem; font-weight: 600;
+            color: var(--text-primary); margin-bottom: 0.5rem;
+        }
+        .header p { font-size: 1.05rem; color: var(--text-secondary); max-width: 700px; line-height: 1.7; }
+
+        /* ── Container ── */
+        .container { max-width: 1200px; margin: 0 auto; padding: 1.5rem; }
+
+        /* ── Controls ── */
+        .controls-bar {
+            display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center;
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 1.5rem;
+        }
+        .control-group { display: flex; align-items: center; gap: 0.5rem; }
+        .control-group label { font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); }
+        input[type="text"] {
+            width: 60px; padding: 0.4rem 0.5rem; border: 1px solid var(--border-color);
+            border-radius: 4px; font-family: var(--font-sans); font-size: 0.85rem; text-align: center;
+        }
+        input[type="text"]:focus { outline: none; border-color: var(--accent-blue); }
+        .btn {
+            padding: 0.5rem 1rem; border: 1px solid var(--border-color);
+            border-radius: 6px; font-family: var(--font-sans); font-weight: 600;
+            font-size: 0.8rem; cursor: pointer; transition: all 0.15s;
+        }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .btn-push { background: var(--color-push); color: white; border-color: var(--color-push); }
+        .btn-push:hover:not(:disabled) { background: #16a34a; }
+        .btn-pop { background: var(--color-pop); color: white; border-color: var(--color-pop); }
+        .btn-pop:hover:not(:disabled) { background: #dc2626; }
+        .btn-auto { background: var(--accent-blue); color: white; border-color: var(--accent-blue); }
+        .btn-auto:hover:not(:disabled) { background: #005a94; }
+        .btn-reset { background: var(--bg-card); color: var(--text-secondary); }
+        .btn-reset:hover { background: var(--bg-code); }
+        .separator { width: 1px; height: 28px; background: var(--border-color); }
+
+        /* ── Panels ── */
+        .panels { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+        .panel {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: var(--radius); overflow: hidden;
+        }
+        .panel-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color);
+        }
+        .panel-title { font-weight: 700; font-size: 1rem; }
+        .panel-title.stack-title { color: var(--color-stack); }
+        .panel-title.queue-title { color: var(--color-queue); }
+        .panel-badge {
+            display: inline-flex; align-items: center; justify-content: center;
+            min-width: 24px; height: 24px; padding: 0 6px;
+            border-radius: 12px; font-size: 0.75rem; font-weight: 700; color: white;
+        }
+        .panel-badge.stack-badge { background: var(--color-stack); }
+        .panel-badge.queue-badge { background: var(--color-queue); }
+        .panel-hint {
+            padding: 0.4rem 1rem; font-size: 0.7rem; font-weight: 600;
+            color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;
+            background: var(--bg-code); border-bottom: 1px solid var(--border-color);
+        }
+        .panel-body { padding: 0.75rem; min-height: 360px; position: relative; }
+        .panel-label {
+            font-size: 0.65rem; font-weight: 700; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.3rem;
+        }
+        .empty-msg {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            color: var(--text-muted); font-size: 0.85rem; text-align: center;
+        }
+
+        /* ── Items ── */
+        .struct-item {
+            display: flex; align-items: center; justify-content: center;
+            padding: 0.6rem 1rem; margin-bottom: 4px;
+            border-radius: 6px; font-weight: 700; font-size: 0.9rem;
+            transition: all 0.3s ease; position: relative;
+        }
+        .struct-item.stack-item { background: #dbeafe; color: var(--color-stack); border: 2px solid #93c5fd; }
+        .struct-item.queue-item { background: #fff7ed; color: #c2410c; border: 2px solid #fdba74; }
+        .struct-item.highlight-in {
+            animation: slideIn 0.35s ease-out;
+        }
+        .struct-item.highlight-out {
+            animation: slideOut 0.3s ease-in forwards;
+        }
+        .item-pointer {
+            position: absolute; right: 8px; font-size: 0.6rem; font-weight: 600;
+            color: var(--text-muted); text-transform: uppercase;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideOut {
+            from { opacity: 1; transform: translateX(0); }
+            to { opacity: 0; transform: translateX(40px); }
+        }
+
+        /* ── Log ── */
+        .log-section {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 1.5rem;
+        }
+        .log-section h3 { font-size: 0.85rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .log-list {
+            max-height: 120px; overflow-y: auto; font-size: 0.8rem;
+            font-family: 'Courier New', monospace; color: var(--text-secondary);
+        }
+        .log-entry { padding: 0.15rem 0; border-bottom: 1px solid var(--bg-code); }
+        .log-entry .op-push { color: var(--color-push); font-weight: 700; }
+        .log-entry .op-pop { color: var(--color-pop); font-weight: 700; }
+
+        /* ── Comparison table ── */
+        .compare-table {
+            width: 100%; border-collapse: collapse; font-size: 0.85rem;
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: var(--radius); overflow: hidden; margin-bottom: 1.5rem;
+        }
+        .compare-table th {
+            background: var(--bg-code); padding: 0.6rem 1rem;
+            text-align: left; font-weight: 700; font-size: 0.75rem;
+            text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .compare-table td {
+            padding: 0.5rem 1rem; border-bottom: 1px solid var(--bg-code);
+            color: var(--text-secondary);
+        }
+        .compare-table tr:last-child td { border-bottom: none; }
+        .compare-table .col-stack { border-right: 1px solid var(--border-color); }
+
+        /* ── Info box ── */
+        .info-box {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-left: 4px solid var(--accent-teal);
+            border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 1.5rem;
+        }
+        .info-box h3 { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.4rem; }
+        .info-box p { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; }
+
+        /* ── Footer ── */
+        .footer {
+            background: #333333; color: #d1d5db;
+            text-align: center; padding: 2.5rem 1.5rem; margin-top: 3rem;
+        }
+        .footer p { margin: 0; font-size: 0.95rem; }
+        .footer a { color: #80CBC4; text-decoration: none; font-size: 1.1rem; }
+        .footer a:hover { text-decoration: underline; }
+        .footer .copyright { color: #6b7280; font-size: 0.8rem; margin-top: 2rem; }
+
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+            .panels { grid-template-columns: 1fr; }
+            .controls-bar { flex-direction: column; align-items: stretch; }
+            .header-buttons { position: static; margin-bottom: 1rem; justify-content: flex-end; }
+            .btn-coffee span, .btn-home span { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="header-buttons">
+            <a href="../../pasarela/buymeacoffee.html" target="_blank" class="btn-coffee">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M1 12.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5M2 4v6h10V4zm11.5 0a.5.5 0 0 0-.5.5v5a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-5a.5.5 0 0 0-.5-.5zM1 3.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5"/></svg>
+                <span>Invítame un café</span>
+            </a>
+            <a href="../index.html" class="btn-home">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                <span>Inicio</span>
+            </a>
+        </div>
+        <div class="header-content">
+            <h1>Visualizador de pila y cola</h1>
+            <p>
+                Comprende por qué DFS usa una pila (LIFO) y BFS una cola (FIFO).
+                Inserta y extrae elementos y observa las animaciones de cada operación.
+            </p>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- Controls -->
+        <div class="controls-bar">
+            <div class="control-group">
+                <label>Valor:</label>
+                <input type="text" id="input-value" maxlength="3" placeholder="A">
+            </div>
+            <button class="btn btn-push" id="btn-push-stack">Push (Pila)</button>
+            <button class="btn btn-pop" id="btn-pop-stack">Pop (Pila)</button>
+            <div class="separator"></div>
+            <button class="btn btn-push" id="btn-enqueue">Enqueue (Cola)</button>
+            <button class="btn btn-pop" id="btn-dequeue">Dequeue (Cola)</button>
+            <div class="separator"></div>
+            <button class="btn btn-auto" id="btn-auto">&#9654; DFS/BFS Auto</button>
+            <button class="btn btn-reset" id="btn-clear">&#8634; Limpiar</button>
+        </div>
+
+        <!-- Two panels -->
+        <div class="panels">
+            <!-- Stack panel -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title stack-title">Pila (LIFO)</span>
+                    <span class="panel-badge stack-badge" id="stack-count">0</span>
+                </div>
+                <div class="panel-hint">&#8593; Tope &mdash; se inserta y extrae de aquí</div>
+                <div class="panel-body" id="stack-body">
+                    <div class="empty-msg" id="stack-empty">Pila vacía.<br>Usa <strong>Push</strong> para agregar.</div>
+                </div>
+            </div>
+
+            <!-- Queue panel -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title queue-title">Cola (FIFO)</span>
+                    <span class="panel-badge queue-badge" id="queue-count">0</span>
+                </div>
+                <div class="panel-hint">&#8593; Frente &mdash; se extrae de aquí &nbsp;|&nbsp; &#8595; Final &mdash; se inserta aquí</div>
+                <div class="panel-body" id="queue-body">
+                    <div class="empty-msg" id="queue-empty">Cola vacía.<br>Usa <strong>Enqueue</strong> para agregar.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Operation log -->
+        <div class="log-section">
+            <h3>Registro de operaciones</h3>
+            <div class="log-list" id="log-list">
+                <div class="log-entry" style="color:var(--text-muted);">Sin operaciones aún.</div>
+            </div>
+        </div>
+
+        <!-- Comparison table -->
+        <table class="compare-table">
+            <thead>
+                <tr>
+                    <th>Propiedad</th>
+                    <th class="col-stack">Pila (Stack)</th>
+                    <th>Cola (Queue)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Orden</strong></td>
+                    <td class="col-stack">LIFO &mdash; Last In, First Out</td>
+                    <td>FIFO &mdash; First In, First Out</td>
+                </tr>
+                <tr>
+                    <td><strong>Insertar</strong></td>
+                    <td class="col-stack">push(x) &mdash; en el tope</td>
+                    <td>enqueue(x) &mdash; al final</td>
+                </tr>
+                <tr>
+                    <td><strong>Extraer</strong></td>
+                    <td class="col-stack">pop() &mdash; del tope</td>
+                    <td>dequeue() &mdash; del frente</td>
+                </tr>
+                <tr>
+                    <td><strong>Uso en búsqueda</strong></td>
+                    <td class="col-stack">DFS &mdash; profundidad primero</td>
+                    <td>BFS &mdash; amplitud primero</td>
+                </tr>
+                <tr>
+                    <td><strong>Analogía</strong></td>
+                    <td class="col-stack">Pila de platos</td>
+                    <td>Fila en el banco</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Info box -->
+        <div class="info-box">
+            <h3>¿Por qué importa la estructura de datos?</h3>
+            <p>
+                En DFS, usamos una <strong>pila</strong>: el último nodo descubierto es el primero en explorarse,
+                lo que hace que el algoritmo profundice por una rama antes de retroceder.<br>
+                En BFS, usamos una <strong>cola</strong>: el primer nodo descubierto es el primero en explorarse,
+                lo que hace que el algoritmo explore por niveles (capas).<br><br>
+                Usa el botón <strong>DFS/BFS Auto</strong> para ver ambas estructuras operando simultáneamente
+                sobre el grafo A→F de la presentación.
+            </p>
+        </div>
+
+    </div>
+
+    <footer class="footer">
+        <p>Si tienes alguna pregunta o te gustaría colaborar, no dudes en escribirme.</p>
+        <a href="../../contacto.html">Contacto</a>
+        <p class="copyright">&copy; 2025 Jonás Velasco. Todos los derechos reservados.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
